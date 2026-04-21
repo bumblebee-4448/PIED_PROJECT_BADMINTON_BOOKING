@@ -1,6 +1,6 @@
-# TCK React Learning
+# Rally Hub PRJ
 
-Frontend project for learning production-ready React patterns with a feature-based architecture.
+Frontend application for the Rally Hub platform, built with production-ready React patterns and a feature-based architecture.
 
 ## Tech Stack
 
@@ -23,14 +23,14 @@ Frontend project for learning production-ready React patterns with a feature-bas
 ## Prerequisites
 
 - Node.js 18+
-- pnpm 8+
+- npm 8+
 
 ## Setup
 
 1. Install dependencies:
 
 ```bash
-pnpm install
+npm install
 ```
 
 2. Create env file:
@@ -44,7 +44,7 @@ cp .env.example .env
 4. Run development server:
 
 ```bash
-pnpm dev
+npm dev
 ```
 
 5. Open `http://localhost:5173`.
@@ -60,10 +60,10 @@ VITE_API_URL=http://localhost:3000
 ## Available Scripts
 
 ```bash
-pnpm dev
-pnpm build
-pnpm preview
-pnpm lint
+npm dev
+npm build
+npm preview
+npm lint
 ```
 
 ## Project Structure
