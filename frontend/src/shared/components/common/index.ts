@@ -5,3 +5,4 @@ export { EmptyState } from "./EmptyState";
 export { ErrorState } from "./ErrorState";
 export { Pagination } from "./Pagination";
 export { ThemeToggle } from "./ThemeToggle";
+export { ImageWithFallback } from "./ImageWithFallback";
