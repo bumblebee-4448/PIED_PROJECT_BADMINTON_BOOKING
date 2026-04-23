@@ -1,0 +1,11 @@
+# file hệ thống
+.DS_Store
+Thumbs.db
+
+# cấu hình trình soạn thảo (ide)
+.vscode/
+.idea/
+
+# file log chung hoặc môi trường ở ngoài cùng
+*.log
+.env

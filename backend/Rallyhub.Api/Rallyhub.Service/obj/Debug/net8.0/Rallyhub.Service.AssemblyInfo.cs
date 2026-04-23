@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Rallyhub.Service")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+9a2eb60a6a2dbb361e9fd50513f0930cb85c7788")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fd8c7f6cad6bef859366c666463e279b1e876f55")]
 [assembly: System.Reflection.AssemblyProductAttribute("Rallyhub.Service")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Rallyhub.Service")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

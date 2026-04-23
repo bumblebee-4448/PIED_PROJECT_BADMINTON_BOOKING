@@ -1,31 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "D:\\dev\\csharp\\projects\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\Rallyhub.Repository.csproj": {}
+    "D:\\dotNet\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\Rallyhub.Repository.csproj": {}
   },
   "projects": {
-    "D:\\dev\\csharp\\projects\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\Rallyhub.Repository.csproj": {
+    "D:\\dotNet\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\Rallyhub.Repository.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\dev\\csharp\\projects\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\Rallyhub.Repository.csproj",
+        "projectUniqueName": "D:\\dotNet\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\Rallyhub.Repository.csproj",
         "projectName": "Rallyhub.Repository",
-        "projectPath": "D:\\dev\\csharp\\projects\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\Rallyhub.Repository.csproj",
-        "packagesPath": "C:\\Users\\ADMIN\\.nuget\\packages\\",
-        "outputPath": "D:\\dev\\csharp\\projects\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\obj\\",
+        "projectPath": "D:\\dotNet\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\Rallyhub.Repository.csproj",
+        "packagesPath": "C:\\Users\\phamq\\.nuget\\packages\\",
+        "outputPath": "D:\\dotNet\\Rallyhub\\PIED_PROJECT_BADMINTON_BOOKING\\backend\\Rallyhub.Api\\Rallyhub.Repository\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\ADMIN\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\phamq\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -48,6 +42,22 @@
       "frameworks": {
         "net8.0": {
           "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -64,7 +74,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.416/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.417/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
