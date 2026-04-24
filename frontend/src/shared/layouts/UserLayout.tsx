@@ -1,87 +1,184 @@
-import { Link, Outlet } from "react-router-dom";
-import { LogOut, User, BookOpen } from "lucide-react";
-
-import { useAuthStore, useLogout } from "@/features/auth";
-import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
-import { ThemeToggle } from "@/shared/components/common/ThemeToggle";
+import {
+  Navbar,
+  HeroSection,
+  FeaturesSection,
+  CourtsSection,
+  TestimonialsSection,
+  HowItWorks,
+  AppMockup,
+  CTASection,
+} from "@/features/landing/pages/HomePage";
 
 export function UserLayout() {
-  const { accessToken, role } = useAuthStore();
-  const { mutate: logout } = useLogout();
-
   return (
     <div className="min-h-screen flex flex-col">
       {/* ─── Header ─────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <Link
-            to="/"
-            className="flex items-center gap-2 font-bold text-xl text-primary"
-          >
-            <BookOpen className="h-6 w-6" />
-            Thích Cúng Kiếng
-          </Link>
-
-          <nav className="flex items-center gap-4">
-            <Link
-              to="/"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Trang chủ
-            </Link>
-            <Link
-              to="/rituals"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-            >
-              Nghi lễ
-            </Link>
-
-            <Separator orientation="vertical" className="h-6" />
-
-            <ThemeToggle />
-
-            {accessToken ? (
-              <div className="flex items-center gap-2">
-                {role === "admin" && (
-                  <Button variant="ghost" size="sm" asChild>
-                    <Link to="/admin/rituals">Quản trị</Link>
-                  </Button>
-                )}
-                <Button variant="ghost" size="sm" asChild>
-                  <Link to="/profile">
-                    <User className="mr-1.5 h-4 w-4" />
-                    Tài khoản
-                  </Link>
-                </Button>
-                <Button variant="secondary" size="sm" onClick={() => logout()}>
-                  <LogOut className="mr-1.5 h-4 w-4" />
-                  Đăng xuất
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" asChild>
-                  <Link to="/login">Đăng nhập</Link>
-                </Button>
-                <Button size="sm" asChild>
-                  <Link to="/register">Đăng ký</Link>
-                </Button>
-              </div>
-            )}
-          </nav>
-        </div>
-      </header>
+      <Navbar />
 
       {/* ─── Main Content ───────────────────────────────── */}
       <main className="flex-1">
-        <Outlet />
+        <HeroSection />
+        <FeaturesSection />
+        <CourtsSection />
+        <TestimonialsSection />
+        <HowItWorks />
+        <AppMockup />
+        <CTASection />
       </main>
 
       {/* ─── Footer ─────────────────────────────────────── */}
-      <footer className="border-t bg-muted/40">
-        <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-          © 2026 Thích Cúng Kiếng. Dự án học tập ReactJS.
+      <footer
+        style={{ background: "#0a1628" }}
+        className="text-white pt-16 pb-8"
+      >
+        <div className="max-w-7xl mx-auto px-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-10 mb-12">
+            {/* Brand */}
+            <div className="md:col-span-1">
+              <div className="flex items-center gap-2 mb-4">
+                <div
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{
+                    background: "linear-gradient(135deg, #00C896, #00897B)",
+                  }}
+                >
+                  <span style={{ fontSize: "1.2rem" }}>🏸</span>
+                </div>
+                <span
+                  style={{
+                    fontSize: "1.3rem",
+                    fontWeight: 700,
+                    color: "#00C896",
+                  }}
+                >
+                  SmashBook
+                </span>
+              </div>
+              <p
+                style={{
+                  color: "rgba(255,255,255,0.5)",
+                  fontSize: "0.9rem",
+                  lineHeight: 1.8,
+                }}
+              >
+                Nền tảng đặt sân cầu lông hàng đầu Việt Nam. Kết nối người chơi
+                với sân cầu lông chất lượng.
+              </p>
+              <div className="flex gap-3 mt-5">
+                {["📘", "📸", "🐦", "📺"].map((icon, i) => (
+                  <div
+                    key={i}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer transition-all hover:scale-110"
+                    style={{
+                      background: "rgba(255,255,255,0.08)",
+                      fontSize: "1rem",
+                    }}
+                  >
+                    {icon}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Links */}
+            {[
+              {
+                title: "Dịch vụ",
+                links: [
+                  "Đặt sân online",
+                  "Tìm sân gần tôi",
+                  "Sân cao cấp",
+                  "Gói thành viên",
+                ],
+              },
+              {
+                title: "Công ty",
+                links: [
+                  "Về chúng tôi",
+                  "Blog thể thao",
+                  "Tuyển dụng",
+                  "Báo chí",
+                ],
+              },
+              {
+                title: "Hỗ trợ",
+                links: [
+                  "Trung tâm trợ giúp",
+                  "Điều khoản sử dụng",
+                  "Chính sách bảo mật",
+                  "Liên hệ chúng tôi",
+                ],
+              },
+            ].map((col, i) => (
+              <div key={i}>
+                <h4
+                  style={{
+                    fontWeight: 700,
+                    marginBottom: "16px",
+                    color: "white",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  {col.title}
+                </h4>
+                <ul className="flex flex-col gap-3">
+                  {col.links.map((link, j) => (
+                    <li key={j}>
+                      <a
+                        href="#"
+                        style={{
+                          color: "rgba(255,255,255,0.5)",
+                          fontSize: "0.875rem",
+                        }}
+                        className="hover:text-emerald-400 transition-colors duration-200"
+                      >
+                        {link}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+
+          {/* Divider */}
+          <div
+            style={{
+              borderTop: "1px solid rgba(255,255,255,0.08)",
+              paddingTop: "24px",
+              display: "flex",
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              flexWrap: "wrap",
+              gap: "12px",
+            }}
+          >
+            <p style={{ color: "rgba(255,255,255,0.4)", fontSize: "0.82rem" }}>
+              © 2025 SmashBook. All rights reserved. Made with 🏸 in Vietnam.
+            </p>
+            <div className="flex gap-2">
+              <span
+                className="px-3 py-1 rounded-full text-xs"
+                style={{
+                  background: "rgba(0,200,150,0.15)",
+                  color: "#00C896",
+                  border: "1px solid rgba(0,200,150,0.2)",
+                }}
+              >
+                🇻🇳 Việt Nam
+              </span>
+              <span
+                className="px-3 py-1 rounded-full text-xs"
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  color: "rgba(255,255,255,0.5)",
+                }}
+              >
+                v2.5.0
+              </span>
+            </div>
+          </div>
         </div>
       </footer>
     </div>
