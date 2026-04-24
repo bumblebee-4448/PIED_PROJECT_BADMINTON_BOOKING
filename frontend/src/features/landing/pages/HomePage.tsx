@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowRight,
   Play,
@@ -13,6 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { ImageWithFallback } from "@/shared/components/common";
+import { useAuthStore } from "@/features/auth/store";
 
 // Mock data for courts
 const courts = [
@@ -66,6 +68,20 @@ const courts = [
 // Navbar Component
 function Navbar() {
   const [menuOpen, setMenuOpen] = React.useState(false);
+  const navigate = useNavigate();
+  const { accessToken, setLoginPromptOpen } = useAuthStore();
+
+  const handleBookingClick = () => {
+    if (!accessToken) {
+      setLoginPromptOpen(true);
+    } else {
+      navigate("/search");
+    }
+  };
+
+  const handleLoginClick = () => {
+    navigate("/login");
+  };
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
@@ -99,13 +115,13 @@ function Navbar() {
               letterSpacing: "-0.5px",
             }}
           >
-            SmashBook
+            RallyHub
           </span>
         </div>
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
-          {["Trang chủ", "Giới thiệu", "Sân cầu", "Bảng giá", "Liên hệ"].map(
+          {["Trang chủ", "Tìm sân", "Sân cầu lông", "Bảng giá", "Liên hệ"].map(
             (item, i) => (
               <a
                 key={i}
@@ -130,6 +146,7 @@ function Navbar() {
             />
           </div>
           <button
+            onClick={handleBookingClick}
             className="px-5 py-2 rounded-full text-white text-sm transition-all duration-200 hover:shadow-lg hover:scale-105"
             style={{
               background: "linear-gradient(135deg, #00C896, #00897B)",
@@ -137,6 +154,16 @@ function Navbar() {
             }}
           >
             Đặt sân ngay
+          </button>
+          <button
+            onClick={handleLoginClick}
+            className="px-5 py-2 rounded-full text-black text-sm transition-all duration-200 hover:shadow-lg hover:scale-105"
+            style={{
+              background: "linear-gradient(135deg, #FFFFFF 0%, #D9D9D9 100%)",
+              fontWeight: 600,
+            }}
+          >
+            Đăng nhập
           </button>
         </div>
 
@@ -165,6 +192,7 @@ function Navbar() {
             ),
           )}
           <button
+            onClick={handleBookingClick}
             className="px-5 py-2 rounded-full text-white text-sm w-full"
             style={{
               background: "linear-gradient(135deg, #00C896, #00897B)",
@@ -322,6 +350,13 @@ function HeroSection() {
 
           <div className="flex flex-wrap gap-4">
             <button
+              onClick={() => {
+                if (!useAuthStore.getState().accessToken) {
+                  useAuthStore.getState().setLoginPromptOpen(true);
+                } else {
+                  window.location.href = "#";
+                }
+              }}
               className="flex items-center gap-2 px-8 py-4 rounded-full text-white transition-all duration-300 hover:shadow-xl hover:scale-105"
               style={{
                 background: "linear-gradient(135deg, #00C896, #00897B)",
@@ -789,6 +824,13 @@ function CourtsSection() {
                     </span>
                   </div>
                   <button
+                    onClick={() => {
+                      if (!useAuthStore.getState().accessToken) {
+                        useAuthStore.getState().setLoginPromptOpen(true);
+                      } else {
+                        // Handle booking logic
+                      }
+                    }}
                     className="px-5 py-2 rounded-full text-white text-sm transition-all hover:shadow-lg hover:scale-105"
                     style={{
                       background: "linear-gradient(135deg, #00C896, #00897B)",
@@ -1697,7 +1739,6 @@ export {
 export const HomePage = () => {
   return (
     <div className="min-h-screen">
-      <Navbar />
       <HeroSection />
       <FeaturesSection />
       <CourtsSection />
