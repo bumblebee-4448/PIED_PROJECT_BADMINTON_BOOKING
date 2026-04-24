@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
-namespace Rallyhub.Repository.Entity;
+namespace Rallyhub.Repository;
 
 public class AppDbContext : DbContext
 {

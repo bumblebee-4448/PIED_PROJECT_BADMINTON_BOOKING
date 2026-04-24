@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Rallyhub.Repository;
 using Rallyhub.Repository.Entity;
 
 var builder = WebApplication.CreateBuilder(args);
