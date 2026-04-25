@@ -6,6 +6,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rallyhub.Repository", "Rall
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rallyhub.Service", "Rallyhub.Service\Rallyhub.Service.csproj", "{98847EFA-40B9-4A79-9C0F-91579DB31702}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Rallyhub.Common", "Rallyhub.Common\Rallyhub.Common.csproj", "{39F99294-B2F8-441C-B891-5DBB99B406CA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,5 +26,9 @@ Global
 		{98847EFA-40B9-4A79-9C0F-91579DB31702}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{98847EFA-40B9-4A79-9C0F-91579DB31702}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{98847EFA-40B9-4A79-9C0F-91579DB31702}.Release|Any CPU.Build.0 = Release|Any CPU
+		{39F99294-B2F8-441C-B891-5DBB99B406CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{39F99294-B2F8-441C-B891-5DBB99B406CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{39F99294-B2F8-441C-B891-5DBB99B406CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{39F99294-B2F8-441C-B891-5DBB99B406CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
