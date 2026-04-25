@@ -215,9 +215,9 @@
             modelBuilder.Entity<LikeListDetail>(builder =>
             {
                 builder.HasKey(x => x.Id);
-                builder.HasOne(x => x.Course)
+                builder.HasOne(x => x.Court)
                     .WithMany(x => x.LikeListDetails)
-                    .HasForeignKey(x => x.CourseId)
+                    .HasForeignKey(x => x.CourtId)
                     .OnDelete(DeleteBehavior.Restrict);
                 builder.HasOne(x => x.Customer)
                     .WithMany(x => x.LikeListDetails)
@@ -236,7 +236,7 @@
                 builder.Property(x => x.Type)
                     .IsRequired()
                     .HasMaxLength(10);
-                builder.Property(x => x.Isread)
+                builder.Property(x => x.IsRead)
                     .IsRequired()
                     .HasDefaultValue(false);
                 builder.HasOne(x => x.Booking)

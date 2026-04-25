@@ -11,7 +11,7 @@ public class Notification : BaseEntity<Guid>, IAuditableEntity
     public required string Title { get; set; }
     public required string Content { get; set; }
     public required string Type { get; set; }
-    public required bool Isread { get; set; } = false;
+    public required bool IsRead { get; set; } = false;
     public Court Court { get; set; }
     public Guid CourtId { get; set; }
     
