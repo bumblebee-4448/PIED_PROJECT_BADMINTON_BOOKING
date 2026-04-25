@@ -636,6 +636,16 @@
                     .WithMany(x => x.Reports)
                     .HasForeignKey(x => x.BookingId)
                     .OnDelete(DeleteBehavior.Restrict);
+                
+                var reports = new List<Report>
+                {
+                    new() { Id = Guid.NewGuid(), Reason = "Sân không đúng mô tả.",          Status = "Pending",  CustomerId = CustomerId1, CourtId = CourtC, BookingId = BookingId1},
+                    new() { Id = Guid.NewGuid(), Reason = "Chủ sân thái độ không tốt.",      Status = "Resolved", CustomerId = CustomerId1, CourtId = CourtA, BookingId = BookingId2},
+                    new() { Id = Guid.NewGuid(), Reason = "Cơ sở vật chất xuống cấp.",      Status = "Pending",  CustomerId =CustomerId2, CourtId = CourtB, BookingId = BookingId3},
+                    new() { Id = Guid.NewGuid(), Reason = "Không hoàn tiền khi huỷ đúng hạn.", Status = "Rejected", CustomerId = CustomerId2, CourtId = CourtC, BookingId = BookingId4},
+                    new() { Id = Guid.NewGuid(), Reason = "Thông tin giờ mở cửa sai.",       Status = "Pending",  CustomerId = CustomerId2, CourtId = CourtD, BookingId = BookingId5},
+                };
+                builder.HasData(reports);
             });
             modelBuilder.Entity<SubCourt>(builder =>
             {
