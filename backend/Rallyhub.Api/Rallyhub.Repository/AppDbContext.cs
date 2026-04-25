@@ -2,11 +2,13 @@
 using Rallyhub.Repository.Entity;
 using Exception = Rallyhub.Repository.Entity.Exception;
 
+
 namespace Rallyhub.Repository;
 
 public class AppDbContext : DbContext
 {
-    public AppDbContext(DbContextOptions options) : base(options) { }
+    public AppDbContext(DbContextOptions<AppDbContext> options) 
+        : base(options) { }
     public DbSet<Booking>  Bookings { get; set; }
     public DbSet<BookingDetail>  BookingDetails { get; set; }
     public DbSet<Campaign>   Campaigns { get; set; }
@@ -68,8 +70,7 @@ public class AppDbContext : DbContext
                 .HasForeignKey(x => x.BookingId)
                 .OnDelete(DeleteBehavior.Restrict);
             builder.Property(x => x.Date)
-                .IsRequired()
-                .HasColumnType("datetimeoffset");
+                .IsRequired();
             builder.Property(x => x.StartTime)
                 .IsRequired()
                 .HasColumnType("time");
@@ -98,11 +99,9 @@ public class AppDbContext : DbContext
             builder.Property(x => x.UsageLimit);
             builder.Property(x => x.UsedCount);
             builder.Property(x => x.StartDate)
-                .IsRequired()
-                .HasColumnType("datetimeoffset");
+                .IsRequired();
             builder.Property(x => x.EndDate)
-                .IsRequired()
-                .HasColumnType("datetimeoffset");
+                .IsRequired();
             builder.HasOne(x => x.Owner)
                 .WithMany(x => x.Campaigns)
                 .HasForeignKey(x => x.OwnerId)
@@ -168,8 +167,7 @@ public class AppDbContext : DbContext
         {
             builder.HasKey(x => x.Id);
             builder.Property(x => x.Date)
-                .IsRequired()
-                .HasColumnType("datetimeoffset");
+                .IsRequired();
             builder.Property(x => x.StartTime)
                 .IsRequired()
                 .HasColumnType("time");
@@ -253,8 +251,7 @@ public class AppDbContext : DbContext
                 .HasForeignKey(x => x.SubCourtDetailId)
                 .OnDelete(DeleteBehavior.Restrict);
             builder.Property(x => x.Date)
-                .IsRequired()
-                .HasColumnType("datetimeoffset");
+                .IsRequired();
             builder.Property(x => x.StartTime)
                 .IsRequired()
                 .HasColumnType("time");

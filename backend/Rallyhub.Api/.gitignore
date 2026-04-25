@@ -469,3 +469,5 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.toptal.com/developers/gitignore/api/aspnetcore,dotnetcore,windows,rider,intellij
+Rallyhub.Api/appsettings.json
+Rallyhub.Api/appsettings.Development.json
