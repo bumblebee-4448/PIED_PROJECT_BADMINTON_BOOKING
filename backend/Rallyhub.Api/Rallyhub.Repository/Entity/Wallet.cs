@@ -7,7 +7,7 @@ public class Wallet : BaseEntity<Guid>, IAuditableEntity
     public required string BankName { get; set; }
     public required string BankAccount { get; set; }
     public required decimal Balance { get; set; } = 0;
-    public int Version { get; set; } //Optimistic Locking, chặn clic nhiều lần
+    public int Version { get; set; } //Optimistic Locking, chặn click nhiều lần
     
     public Guid UserId { get; set; }
     public User User { get; set; }

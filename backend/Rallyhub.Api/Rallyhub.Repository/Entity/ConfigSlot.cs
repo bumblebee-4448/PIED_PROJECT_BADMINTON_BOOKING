@@ -4,6 +4,7 @@ namespace Rallyhub.Repository.Entity;
 
 public class ConfigSlot : BaseEntity<Guid>, IAuditableEntity
 {
+
     public Guid SubCourtDetailId { get; set; }
     public SubCourt SubCourtDetail { get; set; }
     
