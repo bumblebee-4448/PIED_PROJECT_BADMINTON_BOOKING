@@ -17,6 +17,7 @@ public class Booking : BaseEntity<Guid>, IAuditableEntity
     
     public ICollection<BookingDetail> BookingDetails { get; set; } = new List<BookingDetail>();
     public ICollection<Feedback> Feedbacks { get; set; } = new List<Feedback>();
+    public ICollection<Report> Reports { get; set; } = new List<Report>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
     

@@ -6,8 +6,8 @@ public class SubCourt : BaseEntity<Guid>, IAuditableEntity
 {
     public required string Name { get; set; }
     
-    public Guid CourseId { get; set; }
-    public Court Course { get; set; }
+    public Guid CourtId { get; set; }
+    public Court Court { get; set; }
     
     public ICollection<Exception> Exceptions { get; set; } = new List<Exception>();
     public ICollection<ConfigSlot>  ConfigSlots { get; set; } = new List<ConfigSlot>();
