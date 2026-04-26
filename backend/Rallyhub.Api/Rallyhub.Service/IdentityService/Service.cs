@@ -24,26 +24,21 @@ public class Service : IService
     
     public async Task<string> RegisterTask(User.Request.RegisterRequest request)
     {
-        // 1. Kiểm tra Email DB
         if (await _dbContext.Users.AnyAsync(u => u.Email == request.Email))
             throw new Exception("Email này đã được sử dụng trong hệ thống.");
-
-        // 2. Chống Spam Redis (Khóa 60s)
+        
         string antiSpamKey = $"Lock:Reg:{request.Email}";
         if (await _redisCache.GetStringAsync(antiSpamKey) != null)
             throw new Exception("Bạn thao tác quá nhanh. Thử lại sau 60 giây.");
         await _redisCache.SetStringAsync(antiSpamKey, "locked", new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) });
 
-        // 3. Băm mật khẩu an toàn
         string hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(request.RawPassword, hashType: BCrypt.Net.HashType.SHA384);
         string otpCode = Random.Shared.Next(100000, 999999).ToString();
 
-        // 4. Gói dữ liệu vào Redis (Sống 5 phút)
         var pendingUser = new PendingUserCache
         {
             Email = request.Email,
             PasswordHash = hashedPassword,
-            Role = "Customer",
             OtpCode = otpCode,
             FirstName = request.FirstName,
             LastName = request.LastName,
@@ -54,7 +49,6 @@ public class Service : IService
         await _redisCache.SetStringAsync(redisKey, System.Text.Json.JsonSerializer.Serialize(pendingUser), 
             new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
         
-        // 5. Gọi Quartz chạy ngầm gửi Mail
         var scheduler = await _schedulerFactory.GetScheduler();
         var job = JobBuilder.Create<SendOtpJob>()
             .WithIdentity($"SendOtp_{request.Email}_{Guid.NewGuid()}", "MailJobs")
@@ -67,7 +61,6 @@ public class Service : IService
         return "Vui lòng kiểm tra email để lấy mã OTP.";
     }
 
-    // API 2: XÁC THỰC VÀ LƯU DB
     public async Task<bool> VerifyOtp(string email, string inputOtp)
     {
         string redisKey = $"OTP:{email}";
@@ -81,13 +74,10 @@ public class Service : IService
         if (pendingUser!.OtpCode != inputOtp)
             throw new Exception("Mã OTP không chính xác.");
 
-        // THÀNH CÔNG -> Đổ vào DB
         var newUser = new Repository.Entity.User()
         { 
             Email = pendingUser.Email, 
             PasswordHash = pendingUser.PasswordHash, 
-            Role = pendingUser.Role, 
-            Status = "Active",
             FirstName = pendingUser.FirstName,
             LastName = pendingUser.LastName,
             PhoneNumber = pendingUser.PhoneNumber,
@@ -97,7 +87,6 @@ public class Service : IService
         _dbContext.Users.Add(newUser);
         await _dbContext.SaveChangesAsync();
 
-        // Xóa rác
         await _redisCache.RemoveAsync(redisKey);
         
         return true;

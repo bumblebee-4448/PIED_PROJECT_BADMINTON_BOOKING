@@ -10,9 +10,9 @@ public class Service : IService
 {
     private readonly MailOptions _mailOptions = new();
 
-    public Service(IOptions<MailOptions> mailOptions)
+    public Service(IConfiguration configuration)
     {
-        _mailOptions = mailOptions.Value;
+        configuration.GetSection(nameof(MailOptions)).Bind(_mailOptions);
     }
     
     public async Task SendMail(MailContent mailContent)

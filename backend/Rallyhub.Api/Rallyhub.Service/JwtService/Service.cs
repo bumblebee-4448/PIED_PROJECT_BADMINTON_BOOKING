@@ -13,30 +13,22 @@ public class Service : IService
     public Service(IConfiguration configuration)
     {
         configuration.GetSection(nameof(JwtOptions)).Bind(_jwtOptions);
-        // Ánh xạ dữ liệu từ AppSettings vào object JwtOptions
     }
 
     public string GenerateAccessToken(IEnumerable<Claim> claims)
     {
         var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtOptions.SecretKey));
-        // Tạo 1 Key để mã hóa token, sử dụng secretKey từ JwtOptions
         var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
-        // Tạo 1 đối tượng SigningCredentials để xác định thuật toán mã hóa và key sử dụng để ký token
 
         var tokeOptions = new JwtSecurityToken(
-            issuer: _jwtOptions.Issuer, // Cái token này được kí - tạo ra bởi ai, tổ chức nào
-            audience: _jwtOptions.Audience, // Cái token này dành cho ai, tổ chức nào
-            claims: claims, // Những thông tin mà bạn muốn lưu trữ trong token,
-                            // thường là thông tin về người dùng như ID, email, vai trò, v.v.
-                            // nằm trong payload
-            expires: DateTime.Now.AddMinutes(_jwtOptions.ExpireMinutes), // Token sẽ hết hạn sau bao lâu
+            issuer: _jwtOptions.Issuer,
+            audience: _jwtOptions.Audience,
+            claims: claims,
+            expires: DateTime.Now.AddMinutes(_jwtOptions.ExpireMinutes),
             signingCredentials: signinCredentials
         );
 
         var tokenString = new JwtSecurityTokenHandler().WriteToken(tokeOptions);
-        // Sau đó gọi JwtSecurityTokenHandler
-                // để tạo ra token dưới dạng chuỗi (string) từ các thông tin đã cung cấp ở trên
-        
         return tokenString;
     }
 
