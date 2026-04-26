@@ -6,17 +6,16 @@ namespace Rallyhub.Api.Middleware;
 public class GlobalExceptionHandlerMiddleware : IMiddleware
 {
     private readonly IHostEnvironment _environment;
+    //cho biết đc phiên bản dev hay production
     private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
-    private readonly IService _service;
+    //giúp in, er, infor,..
 
     public GlobalExceptionHandlerMiddleware(
         IHostEnvironment environment,
-        ILogger<GlobalExceptionHandlerMiddleware> logger,
-        IService service)
+        ILogger<GlobalExceptionHandlerMiddleware> logger)
     {
         _environment = environment;
         _logger = logger;
-        _service = service;
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -31,19 +30,12 @@ public class GlobalExceptionHandlerMiddleware : IMiddleware
 
             if (context.Response.HasStarted)
             {
-                // Lỗi nâng cao sẽ nói sau
+                //lỗi nâng cao
                 _logger.LogWarning("The response has already started, the global exception middleware will not write an error response");
                 throw;
             }
 
             var statusCode = MapStatusCode(ex);
-
-            await _service.SendExceptionAlertAsync(
-                context,
-                ex,
-                statusCode,
-                context.RequestAborted);
-
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
 
