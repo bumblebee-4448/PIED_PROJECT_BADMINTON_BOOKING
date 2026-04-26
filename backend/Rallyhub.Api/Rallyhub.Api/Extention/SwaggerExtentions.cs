@@ -1,18 +1,20 @@
 ﻿using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
-namespace Rallyhub.Api.Extention;
+namespace TetPee.Api.Extention;
 
 public static class SwaggerExtensions
 {
+    
     public static void AddSwaggerServices(this IServiceCollection services)
     {
         services.AddSwaggerGen(options =>
         {
-            options.SwaggerDoc("v1", new OpenApiInfo() { Title = "TetPee APIs", Version = "v1" });
-            // Tạo version cho phiên bản API
+            options.SwaggerDoc("v1", new OpenApiInfo() { Title = "Your API", Version = "v1" });
+            // tạo phiên bản api
 
-            // Add cấu hình cho phép nhập token JWT vào Swagger UI để thử nghiệm các endpoint có bảo vệ bằng JWT
+            // Define the security scheme for JWT Bearer
+            //add cấu hình cho phép 
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 Name = "Authorization",
@@ -48,12 +50,13 @@ public static class SwaggerExtensions
             // foreach (var version in app.DescribeApiVersions().Select(version => version.GroupName))
             //     options.SwaggerEndpoint($"/swagger/{version}/swagger.json", version);
 
-            options.DisplayRequestDuration();    // Hiển thị thời gian thực hiện request trong Swagger UI
-            options.EnableTryItOutByDefault(); 
+            options.DisplayRequestDuration();//hiển thị thời gian thực hiện request
+            options.EnableTryItOutByDefault();
             options.DocExpansion(DocExpansion.List);
         });
 
         app.MapGet("/", () => Results.Redirect("/swagger/index.html"))
             .WithTags(string.Empty);
     }
+    
 }

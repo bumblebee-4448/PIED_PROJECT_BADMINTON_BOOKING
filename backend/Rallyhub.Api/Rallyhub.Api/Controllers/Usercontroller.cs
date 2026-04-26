@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Rallyhub.Repository.Entity;
 using Rallyhub.Service.Models;
 using Rallyhub.Service.User;
@@ -17,17 +18,40 @@ public class Usercontroller : ControllerBase
         _identityService = identityService;
     }
 
-    [HttpPost]
+    [HttpPost("Register")]
     public async Task<IActionResult> RegisterTask(Request.RegisterRequest request)
     {
-        string message = await _identityService.RegisterTask(request);
-        return Ok(ApiResponseFactory.SuccessResponse(message, "Nhập otp", HttpContext.TraceIdentifier));
+        string result = await _identityService.RegisterTask(request);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success, check mail to verify otp", HttpContext.TraceIdentifier));
     }
     
-    [HttpPost("verify-otp")]
-    public async Task<IActionResult> VerifyOtp([FromBody] Service.IdentityService.Request.VerifyOtpRequest request)
+    [HttpPost("Verify-otp")]
+    public async Task<IActionResult> VerifyOtp(Service.IdentityService.Request.VerifyOtpRequest request)
     {
-        await _identityService.VerifyOtp(request.Email, request.OtpCode);
-        return Ok(new { Success = true, Message = "Đăng ký thành công! Bạn có thể đăng nhập." });
+        var result = await _identityService.VerifyOtp(request.Email, request.OtpCode);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success register", HttpContext.TraceIdentifier));
+    }
+    
+    [HttpPost("Login")]
+    public async Task<IActionResult> Login(Service.IdentityService.Request.LoginRequest request)
+    {
+        var result = await _identityService.Login(request);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Welcome", HttpContext.TraceIdentifier));
+    }
+    
+    [HttpPost("Logout")]
+    [Authorize]
+    public async Task<IActionResult> Logout()
+    {
+        var authHeader = Request.Headers["Authorization"].ToString();
+        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+        {
+            return BadRequest(new { Message = "Không tìm thấy Token để đăng xuất." });
+        }
+        var token = authHeader.Substring("Bearer ".Length).Trim();
+
+        string result = await _identityService.Logout(token);
+
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Rallyhub.Service.MailService;
 
-public class MailTemplate
+public static class MailTemplate
 {
     public static string GenerateOtpTemplate(string email, string otpCode)
     {

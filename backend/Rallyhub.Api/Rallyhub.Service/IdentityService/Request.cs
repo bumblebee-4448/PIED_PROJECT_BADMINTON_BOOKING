@@ -7,4 +7,10 @@ public class Request
         public required string Email { get; set; }
         public required string OtpCode { get; set; }
     }
+    
+    public class LoginRequest
+    {
+        public required string Email { get; set; }
+        public required string RawPassword { get; set; }
+    }
 }

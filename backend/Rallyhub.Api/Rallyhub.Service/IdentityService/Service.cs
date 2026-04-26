@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
-using Newtonsoft.Json;
+using Microsoft.Extensions.Configuration;
 using Quartz;
 using Rallyhub.Repository;
 using Rallyhub.Service.BackgroundJobService;
-using Rallyhub.Service.User;
+using Rallyhub.Service.JwtService;
 using Exception = System.Exception;
 
 namespace Rallyhub.Service.IdentityService;
@@ -12,67 +14,53 @@ namespace Rallyhub.Service.IdentityService;
 public class Service : IService
 {
     private readonly AppDbContext _dbContext;
-    private readonly IDistributedCache _redisCache;
-    private readonly ISchedulerFactory _schedulerFactory;
+    private readonly IDistributedCache _redisCache; // Giữ lại chỉ để dùng cho tính năng Logout
+    private readonly JwtService.IService _jwtService;
+    private readonly OtpService.IService _otpService;       // Khai báo chuyên gia OTP
+    private readonly JwtOptions _jwtOption = new();
+    private readonly SecurityOptions _securityOptions = new();
 
-    public Service(AppDbContext dbContext, IDistributedCache redisCache, ISchedulerFactory schedulerFactory)
+    public Service(AppDbContext dbContext, 
+        IDistributedCache redisCache, 
+        IConfiguration configuration,
+        JwtService.IService jwtService,
+        OtpService.IService otpService) // Inject vào đây
     {
         _dbContext = dbContext;
         _redisCache = redisCache;
-        _schedulerFactory = schedulerFactory;
+        _jwtService = jwtService;
+        _otpService = otpService;
+        configuration.GetSection("JwtOptions").Bind(_jwtOption);
+        configuration.GetSection("SecurityOptions").Bind(_securityOptions);
     }
     
     public async Task<string> RegisterTask(User.Request.RegisterRequest request)
     {
         if (await _dbContext.Users.AnyAsync(u => u.Email == request.Email))
             throw new Exception("Email này đã được sử dụng trong hệ thống.");
-        
-        string antiSpamKey = $"Lock:Reg:{request.Email}";
-        if (await _redisCache.GetStringAsync(antiSpamKey) != null)
-            throw new Exception("Bạn thao tác quá nhanh. Thử lại sau 60 giây.");
-        await _redisCache.SetStringAsync(antiSpamKey, "locked", new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) });
 
-        string hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(request.RawPassword, hashType: BCrypt.Net.HashType.SHA384);
-        string otpCode = Random.Shared.Next(100000, 999999).ToString();
+        string pepperedPassword = request.RawPassword + _securityOptions.Pepper;
+        string hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperedPassword, hashType: BCrypt.Net.HashType.SHA384);
 
-        var pendingUser = new PendingUserCache
+        var pendingUser = new PendingUserCache()
         {
             Email = request.Email,
             PasswordHash = hashedPassword,
-            OtpCode = otpCode,
             FirstName = request.FirstName,
             LastName = request.LastName,
-            PhoneNumber = request.PhoneNumber
+            PhoneNumber = request.PhoneNumber,
+            
         };
         
-        string redisKey = $"OTP:{request.Email}";
-        await _redisCache.SetStringAsync(redisKey, System.Text.Json.JsonSerializer.Serialize(pendingUser), 
-            new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
-        
-        var scheduler = await _schedulerFactory.GetScheduler();
-        var job = JobBuilder.Create<SendOtpJob>()
-            .WithIdentity($"SendOtp_{request.Email}_{Guid.NewGuid()}", "MailJobs")
-            .UsingJobData("Email", request.Email)
-            .UsingJobData("OtpCode", otpCode)
-            .Build();
-        
-        await scheduler.ScheduleJob(job, TriggerBuilder.Create().StartNow().Build());
+        // Giao việc nặng nhọc cho OtpService
+        await _otpService.GenerateAndSendOtpAsync(request.Email, "Register", pendingUser);
 
-        return "Vui lòng kiểm tra email để lấy mã OTP.";
+        return "Success";
     }
-
-    public async Task<bool> VerifyOtp(string email, string inputOtp)
+    
+    public async Task<Response.IdentityResponse> VerifyOtp(string email, string inputOtp)
     {
-        string redisKey = $"OTP:{email}";
-        string? cachedData = await _redisCache.GetStringAsync(redisKey);
-
-        if (string.IsNullOrEmpty(cachedData))
-            throw new Exception("Mã OTP đã hết hạn hoặc bạn chưa yêu cầu đăng ký.");
-
-        var pendingUser = System.Text.Json.JsonSerializer.Deserialize<PendingUserCache>(cachedData!);
-
-        if (pendingUser!.OtpCode != inputOtp)
-            throw new Exception("Mã OTP không chính xác.");
+        var pendingUser = await _otpService.VerifyAndGetPayloadAsync<PendingUserCache>(email, inputOtp, "Register");
 
         var newUser = new Repository.Entity.User()
         { 
@@ -81,16 +69,81 @@ public class Service : IService
             FirstName = pendingUser.FirstName,
             LastName = pendingUser.LastName,
             PhoneNumber = pendingUser.PhoneNumber,
+            Role = "Customer", // Set mặc định để tránh lỗi NULL ở Token
             CreatedAt = DateTimeOffset.UtcNow,
         };
-
-        _dbContext.Users.Add(newUser);
-        await _dbContext.SaveChangesAsync();
-
-        await _redisCache.RemoveAsync(redisKey);
         
-        return true;
+        _dbContext.Users.Add(newUser);
+        var result = await _dbContext.SaveChangesAsync(); 
+        
+        if (result <= 0) throw new Exception("Fail");
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, newUser.Id.ToString()), 
+            new Claim(ClaimTypes.Email, newUser.Email),
+            new Claim(ClaimTypes.Role, newUser.Role),
+            new Claim("Role", newUser.Role) 
+        };
+        var token = _jwtService.GenerateAccessToken(claims);
+
+        return new Response.IdentityResponse()
+        {
+            AccessToken = token
+        };
     }
 
+    public async Task<Response.IdentityResponse> Login(Request.LoginRequest request)
+    {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
+        if (user == null)
+        {
+            throw new Exception("Email hoặc mật khẩu không chính xác.");
+        }
+        
+        string pepperedPassword = request.RawPassword + _securityOptions.Pepper;
+        bool isPasswordValid = BCrypt.Net.BCrypt.EnhancedVerify(pepperedPassword, user.PasswordHash);
+        if (!isPasswordValid)
+        {
+            throw new Exception("Email hoặc mật khẩu không chính xác.");
+        }
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), 
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role ?? "Customer"), 
+            new Claim("Role", user.Role ?? "Customer") 
+        };
+        var token = _jwtService.GenerateAccessToken(claims);
+    
+        return new Response.IdentityResponse
+        {
+            AccessToken = token
+        };
+    }
 
+    public async Task<string> Logout(string token)
+    {
+        try
+        {
+            var handler = new JwtSecurityTokenHandler();
+            var jwtToken = handler.ReadJwtToken(token);
+            var expDate = jwtToken.ValidTo;
+            var remainingTime = expDate - DateTime.UtcNow;
+
+            if (remainingTime.TotalSeconds > 0)
+            {
+                string blacklistKey = $"Blacklist:{token}";
+                await _redisCache.SetStringAsync(blacklistKey, "revoked", new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = remainingTime
+                });
+            }
+
+            return "Success";
+        }
+        catch (Exception)
+        {
+            throw new Exception("Token không hợp lệ hoặc đã bị can thiệp.");
+        }
+    }
 }

@@ -13,33 +13,32 @@ public static class JwtExtensions
     public const string UserPolicy = "UserPolicy";
     public const string SellerOrAdminPolicy = "SellerOrAdminPolicy";
 
+    
     public static void AddJwtServices(this IServiceCollection services, IConfiguration configuration)
     {
-        JwtOptions jwtOptions = new JwtOptions();
-        configuration.GetSection(nameof(JwtOptions)).Bind(jwtOptions);
-        var key = Encoding.UTF8.GetBytes(jwtOptions.SecretKey);
+        JwtOptions jwtOption = new JwtOptions();
+        configuration.GetSection(nameof(JwtOptions)).Bind(jwtOption);
+        var key = Encoding.UTF8.GetBytes(jwtOption.SecretKey);
 
         services.AddAuthentication(options =>
-            {
-                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(options =>
-            {
-                options.TokenValidationParameters = new TokenValidationParameters()
-                {
-                    ValidateIssuer = true, 
-                    ValidateAudience = true,
-                    ValidateLifetime = true,
-                    ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtOptions.Issuer,
-                    ValidAudience = jwtOptions.Audience,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    NameClaimType = ClaimTypes.NameIdentifier,
-                    RoleClaimType = ClaimTypes.Role
-                };
-            });
-
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        }).AddJwtBearer(options =>
+        {
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {//config validate cái token này có hợp lệ hay ko
+                ValidateIssuer = true,//đc kí đúng người
+                ValidateAudience = true,//
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+                ValidIssuer = jwtOption.Issuer,
+                ValidAudience = jwtOption.Audience,
+                IssuerSigningKey = new SymmetricSecurityKey(key),
+                NameClaimType = ClaimTypes.NameIdentifier,
+                RoleClaimType = ClaimTypes.Role,
+            };
+        });
         services.AddAuthorization(options =>
         {
             options.AddPolicy(AdminPolicy, policy =>
@@ -57,6 +56,6 @@ public static class JwtExtensions
                 policy.RequireRole("Seller", "Admin"));
         
             // [Authorize(Policy = JwtExtensions.SellerOrAdminPolicy)]
-        });
+        }); 
     }
 }
