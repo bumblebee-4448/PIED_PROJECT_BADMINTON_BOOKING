@@ -276,6 +276,7 @@
                 builder.Property(x => x.Name)
                     .IsRequired()
                     .HasMaxLength(50);
+                builder.HasIndex(x => x.Name).IsUnique();
                 builder.Property(x => x.Address)
                     .IsRequired()
                     .HasMaxLength(100);
