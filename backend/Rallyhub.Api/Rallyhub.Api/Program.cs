@@ -15,6 +15,12 @@ using CourtService = Rallyhub.Service.Court;
 
 var builder = WebApplication.CreateBuilder(args);
 
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 // Add services to the container.
 
 
@@ -54,30 +60,16 @@ builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
 builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowAll", policy =>
-    {
-        policy.AllowAnyOrigin()
-            .AllowAnyMethod()
-            .AllowAnyHeader();
-    });
-});
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-}
-
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
-app.UseCors("AllowAll");
-
-app.UseSwaggerAPI();
-
+// Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwaggerAPI();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();
