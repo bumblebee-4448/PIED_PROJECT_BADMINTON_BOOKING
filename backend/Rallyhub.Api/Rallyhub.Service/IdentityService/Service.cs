@@ -94,7 +94,9 @@ public class Service : IService
 
     public async Task<Response.IdentityResponse> Login(Request.LoginRequest request)
     {
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
+        var user = await _dbContext.Users
+            .Include(x => x.Owner)
+            .FirstOrDefaultAsync(x => x.Email == request.Email);
         if (user == null)
         {
             throw new Exception("Email hoặc mật khẩu không chính xác.");
@@ -113,6 +115,16 @@ public class Service : IService
             new Claim(ClaimTypes.Role, user.Role ?? "Customer"), 
             new Claim("Role", user.Role ?? "Customer") 
         };
+
+        if (user.Role == "Owner")
+        {
+            var owner = _dbContext.Owners.FirstOrDefault(x => x.UserId == user.Id );
+            if (owner != null)
+            {
+                claims.Add(new Claim("OwnerId", owner.Id.ToString()));
+            }
+        }
+        
         var token = _jwtService.GenerateAccessToken(claims);
     
         return new Response.IdentityResponse
