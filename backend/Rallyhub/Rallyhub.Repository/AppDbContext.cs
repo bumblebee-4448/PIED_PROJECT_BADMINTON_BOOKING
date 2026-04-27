@@ -7,11 +7,13 @@
 
     public class AppDbContext : DbContext
     {
-        
+        public static Guid AdminId = Guid.NewGuid(); //owner
         public static Guid UserId2 = Guid.NewGuid(); //owner
         public static Guid UserId3 = Guid.NewGuid(); //owner
         public static Guid UserId4 = Guid.NewGuid(); //customer
         public static Guid UserId5 = Guid.NewGuid(); //cusomter
+        public static Guid UserId6 = Guid.NewGuid();//owner
+        // public static Guid UserId7 = Guid.Parse("d97131e9-1699-4efa-9e99-82bda56dfeb9");//owner
         
         public static Guid WalletId1 = Guid.NewGuid(); 
         public static Guid WalletId2 = Guid.NewGuid(); 
@@ -20,6 +22,8 @@
         
         public static Guid OwnerId1 = Guid.NewGuid(); 
         public static Guid OwnerId2 = Guid.NewGuid(); 
+        public static Guid OwnerId3 = Guid.NewGuid();
+        public static Guid OwnerId4 = Guid.NewGuid();
         
         public static Guid CustomerId1 = Guid.NewGuid(); 
         public static Guid CustomerId2 = Guid.NewGuid();  
@@ -275,6 +279,9 @@
                 builder.Property(x => x.Address)
                     .IsRequired()
                     .HasMaxLength(100);
+                builder.Property(x => x.PictureUrl)
+                    .IsRequired()
+                    .HasMaxLength(200);
                 builder.Property(x => x.OpenTime);
                 builder.Property(x => x.CloseTime);
                 builder.Property(x => x.Status)
@@ -291,14 +298,14 @@
                 builder.HasOne(x => x.Owner)
                     .WithMany(x => x.Courts)
                     .HasForeignKey(x => x.OwnerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 var courts = new List<Court>
                 {
-                    new() { Id = CourtA, Name = "Sân A - Minh Tuấn",   Address = "123 Nguyễn Huệ, Q1, HCM",    OpenTime = new TimeOnly(6, 0),  CloseTime = new TimeOnly(22, 0), Status = "Active", Latitude = 10.77m, Longitude = 106.70m, MapUrl = "https://maps.google.com/?q=10.77,106.70", OwnerId = OwnerId1 },
-                    new() { Id = CourtB, Name = "Sân B - Minh Tuấn",   Address = "123 Nguyễn Huệ, Q1, HCM",    OpenTime = new TimeOnly(6, 0),  CloseTime = new TimeOnly(22, 0), Status = "Active", Latitude = 10.77m, Longitude = 106.70m, MapUrl = "https://maps.google.com/?q=10.77,106.70", OwnerId = OwnerId1 },
-                    new() { Id = CourtC, Name = "Sân C - Hải Đăng",    Address = "456 Lê Lợi, Q3, HCM",         OpenTime = new TimeOnly(5, 30), CloseTime = new TimeOnly(23, 0), Status = "Active", Latitude = 10.78m, Longitude = 106.69m, MapUrl = "https://maps.google.com/?q=10.78,106.69", OwnerId = OwnerId2 },
-                    new() { Id = CourtD, Name = "Sân D - Hải Đăng",    Address = "456 Lê Lợi, Q3, HCM",         OpenTime = new TimeOnly(5, 30), CloseTime = new TimeOnly(23, 0), Status = "Active", Latitude = 10.78m, Longitude = 106.69m, MapUrl = "https://maps.google.com/?q=10.78,106.69", OwnerId = OwnerId2 },
+                    new() { Id = CourtA, Name = "Sân A - Minh Tuấn", Address = "123 Nguyễn Huệ, Q1, HCM",    OpenTime = new TimeOnly(6, 0),  CloseTime = new TimeOnly(22, 0), Status = "Active",  PictureUrl = "https://images.example.com/courts/go-vap.jpg",Latitude = 10.77m, Longitude = 106.70m, MapUrl = "https://maps.google.com/?q=10.77,106.70", OwnerId = OwnerId1 },
+                    new() { Id = CourtB, Name = "Sân B - Minh Tuấn", Address = "123 Nguyễn Huệ, Q1, HCM",    OpenTime = new TimeOnly(6, 0),  CloseTime = new TimeOnly(22, 0), Status = "Active",  PictureUrl = "https://images.example.com/courts/go-vap.jpg",Latitude = 10.77m, Longitude = 106.70m, MapUrl = "https://maps.google.com/?q=10.77,106.70", OwnerId = OwnerId1 },
+                    new() { Id = CourtC, Name = "Sân C - Hải Đăng",  Address = "456 Lê Lợi, Q3, HCM",         OpenTime = new TimeOnly(5, 30), CloseTime = new TimeOnly(23, 0), Status = "Active", PictureUrl = "https://images.example.com/courts/go-vap.jpg",Latitude = 10.78m, Longitude = 106.69m, MapUrl = "https://maps.google.com/?q=10.78,106.69", OwnerId = OwnerId2 },
+                    new() { Id = CourtD, Name = "Sân D - Hải Đăng",  Address = "456 Lê Lợi, Q3, HCM",         OpenTime = new TimeOnly(5, 30), CloseTime = new TimeOnly(23, 0), Status = "Active", PictureUrl = "https://images.example.com/courts/go-vap.jpg",Latitude = 10.78m, Longitude = 106.69m, MapUrl = "https://maps.google.com/?q=10.78,106.69", OwnerId = OwnerId2 },
                 };
                 
                 builder.HasData(courts);
@@ -569,6 +576,8 @@
                 {
                     new() { Id = OwnerId1, BusinessName = "Sân Cầu Lông Minh Tuấn", TaxCode = "0123456789", BusinessAddress = "123 Nguyễn Huệ, Q1, HCM",  UserId = UserId2},
                     new() { Id = OwnerId2, BusinessName = "Trung Tâm Thể Thao Hải Đăng", TaxCode = "9876543210", BusinessAddress = "456 Lê Lợi, Q3, HCM", UserId = UserId3},
+                    new() { Id = OwnerId3, BusinessName = "Sân Cầu Lông Trần Phú", TaxCode = "98765434210", BusinessAddress = "Tôn Đức Thắng, HCM", UserId = UserId6},
+                    // new() { Id = OwnerId4, BusinessName = "Sân Cầu Lông Trần Phú 2", TaxCode = "98765434211", BusinessAddress = "Trần Hưng Đạo, HCM", UserId = UserId7},
                 };
                 builder.HasData(owners);
             });
@@ -790,7 +799,7 @@
                 {
                     new()
                     {
-                        Id = Guid.NewGuid(), 
+                        Id = AdminId, 
                         Email = "admin@rallyhub.vn",   
                         PasswordHash = "hashed_pw_1", 
                         Role = "Admin",    
@@ -841,6 +850,17 @@
                         FirstName = "Bảo",   
                         LastName = "Châu",   
                         PhoneNumber = "0900000005", 
+                        Status = "Active"
+                    },
+                    new()
+                    {
+                        Id = UserId6, 
+                        Email = "owner3@rallyhub.vn", 
+                        PasswordHash = "hashed_pw_6", 
+                        Role = "Owner", 
+                        FirstName = "Trần", 
+                        LastName = "Phú", 
+                        PhoneNumber = "0900000006", 
                         Status = "Active"
                     },
                 };

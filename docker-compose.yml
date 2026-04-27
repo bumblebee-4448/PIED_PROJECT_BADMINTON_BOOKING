@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # Tầng dữ liệu: PostgreSQL
+  postgres-db:
+    image: postgres:16-alpine
+    container_name: rallyhub-postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: adminpassword
+      POSTGRES_DB: rallyhub_db
+    ports:
+      - "5432:5432"
+
+  # Tầng bộ nhớ đệm: Redis
+  redis-cache:
+    image: redis:7-alpine
+    container_name: rallyhub-redis
+    ports:
+      - "6379:6379"
+
+  # Tầng Backend (C# 3 lớp)
+  backend-api:
+    build:
+      context: ./backend/Rallyhub  # Quan trọng: Trỏ đúng vào thư mục chứa Dockerfile BE
+      dockerfile: Dockerfile
+    container_name: rallyhub-backend
+    ports:
+      - "5000:8080"
+    depends_on:
+      - postgres-db
+      - redis-cache
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=rallyhub_db;Username=admin;Password=adminpassword;
+      - ConnectionStrings__Redis=redis-cache:6379,abortConnect=False
+
+  # Tầng Frontend (React)
+  frontend-web:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rallyhub-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:5000
+    depends_on:
+      - backend-api

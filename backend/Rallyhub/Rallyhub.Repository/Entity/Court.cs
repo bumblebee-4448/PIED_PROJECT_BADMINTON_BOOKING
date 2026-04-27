@@ -9,11 +9,13 @@ public class Court : BaseEntity<Guid>, IAuditableEntity
     public required TimeOnly OpenTime  { get; set; }
     public required TimeOnly CloseTime { get; set; }
     public string Status { get; set; } = "Active";
-
+    
     public required decimal Latitude { get; set; } //vĩ độ (10, 8)
     public required decimal Longitude { get; set; } //kinh độ (11, 8)
     public required string MapUrl  { get; set; } //link của gg map
-
+    
+    public required string PictureUrl { get; set; }
+    
     public Guid OwnerId  { get; set; }
     public Owner Owner { get; set; }
 

@@ -9,7 +9,7 @@ using MailService = Rallyhub.Service.MailService;
 using IdentityService = Rallyhub.Service.IdentityService;
 using UserService = Rallyhub.Service.User;
 using OtpService = Rallyhub.Service.OtpService;
-
+using CourtService = Rallyhub.Service.Court;
 
 // using DiscordService = Rallyhub.Service.DiscordService;
 
@@ -40,7 +40,7 @@ builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
 // builder.Services.AddScoped<DiscordService.IService, DiscordService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<OtpService.IService, OtpService.Service>();
-
+builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
@@ -54,7 +54,14 @@ builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
 builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
 
+
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
