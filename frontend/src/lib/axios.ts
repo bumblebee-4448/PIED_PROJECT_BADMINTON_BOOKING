@@ -7,7 +7,7 @@ import { API_ENDPOINTS } from "@/shared/constants";
 
 // ─── Axios Instance ──────────────────────────────────────
 export const apiClient = axios.create({
-  baseURL: env.API_URL,
+  baseURL: env.VITE_API_URL,
   timeout: 15_000,
   headers: { "Content-Type": "application/json" },
   withCredentials: true, // gửi cookie refreshToken
@@ -133,7 +133,7 @@ apiClient.interceptors.response.use(
         // Lý do: apiClient sẽ đi qua interceptor này → risk infinite loop
         // withCredentials: true → Gửi httpOnly cookie chứa refreshToken
         const res = await axios.post(
-          `${env.API_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
+          `${env.VITE_API_URL}${API_ENDPOINTS.AUTH.REFRESH}`,
           {},
           { withCredentials: true },
         );
