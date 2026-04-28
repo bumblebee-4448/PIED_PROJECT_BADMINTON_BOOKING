@@ -24,4 +24,11 @@ public class Enum
         Refund, 
         Complete
     }
+
+    public enum StatusCourt
+    {
+        Active,
+        Inactive,
+        Pending
+    }
 }

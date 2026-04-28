@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
-
+using StatusCourt = Rallyhub.Service.Enum.Enum.StatusCourt;
 namespace Rallyhub.Service.Court;
 
 public class Service : IService
@@ -81,14 +81,14 @@ public class Service : IService
     {
 
         var  query = _dbContext.Courts
-            .Where(x => x.Status == "Active")
+            .Where(x => x.Status == nameof(StatusCourt.Active))
             .Select(x => new
             {
                 Court = x,
                 AverageRating = _dbContext.Feedbacks
                     .Where(f => f.CourtId == x.Id)
                     .Select(f => (double?)f.Rating)//.Select(f => f.Rating).Average() => exception if rỗng  
-                    .Average() ?? 0
+                    .Average() ?? 0,
             });
         if (!string.IsNullOrWhiteSpace(request.Keyword))
         {
@@ -122,7 +122,10 @@ public class Service : IService
             Name = x.Court.Name,
             Address =  x.Court.Address,
             Status = x.Court.Status,
-            AverageRating = x.AverageRating
+            AverageRating = x.AverageRating,
+            PictureUrl = x.Court.PictureUrl,
+            MapUrl = x.Court.MapUrl,
+            PhoneNumber = x.Court.Owner.User.PhoneNumber!,
         });
         
         var listResult = await selectedQuery.ToListAsync();
