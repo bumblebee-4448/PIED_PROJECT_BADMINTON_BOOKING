@@ -8,11 +8,12 @@ import { UnauthorizedPage, NotFoundPage } from "@/shared/pages";
 import { HomePage } from "@/features/landing/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
+import { SearchPage } from "@/features/search";
 
 /**
  * React Router v6 config – createBrowserRouter (Data API).
  *
- * Active routes: /, /login, /register, /unauthorized, /* (404)
+ * Active routes: /, /login, /register, /search, /unauthorized, /* (404)
  * Commented routes: /rituals, /rituals/:id, /profile, /admin/*
  */
 export const router = createBrowserRouter([
@@ -21,6 +22,7 @@ export const router = createBrowserRouter([
     element: <UserLayout />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: "search", element: <SearchPage /> },
       // { path: "rituals", element: <RitualCatalog /> },
       // { path: "rituals/:id", element: <RitualDetail /> },
       {

@@ -9,7 +9,7 @@ import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
 import { registerSchema } from "../schema";
 import { RegisterInput } from "../types";
-import { useRegister } from "../hooks/useRegister";
+import { useRegister } from "../hooks";
 
 const GoogleIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

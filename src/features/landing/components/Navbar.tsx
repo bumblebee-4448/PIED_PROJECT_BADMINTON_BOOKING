@@ -1,11 +1,14 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import { useNavigate, Link, useLocation } from "react-router-dom";
+import { Search, Menu, X, Home, MapPin, Heart, Users, History } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store";
+import { cn } from "@/lib/utils";
+import { Button } from "@/shared/components/ui/button";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { accessToken, setLoginPromptOpen } = useAuthStore();
 
   const handleBookingClick = () => {
@@ -20,95 +23,83 @@ export function Navbar() {
     navigate("/login");
   };
 
+  const navItems = [
+    { name: "Trang chủ", path: "/", icon: Home },
+    { name: "Tìm sân", path: "/search", icon: MapPin },
+    { name: "Yêu thích", path: "/favorites", icon: Heart },
+    { name: "Matching", path: "/matching", icon: Users },
+    { name: "Lịch sử", path: "/history", icon: History },
+  ];
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-gray-100">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
             style={{ background: "linear-gradient(135deg, #00C896, #00897B)" }}
           >
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="2.5" fill="white" />
-              <path
-                d="M12 4C7.58 4 4 7.58 4 12s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm0 14c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6z"
-                fill="white"
-                opacity="0.6"
-              />
-              <path
-                d="M8 12h8M12 8v8"
-                stroke="white"
-                strokeWidth="1.5"
-                strokeLinecap="round"
-              />
-            </svg>
+            <span className="text-lg">🏸</span>
           </div>
-          <span
-            style={{
-              fontSize: "1.3rem",
-              fontWeight: 700,
-              color: "#00897B",
-              letterSpacing: "-0.5px",
-            }}
-          >
-            RallyHub
+          <span className="text-xl font-black text-[#00897B] tracking-tight">
+            SmashBook
           </span>
-        </div>
+        </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8">
-          {["Trang chủ", "Tìm sân", "Sân cầu lông", "Bảng giá", "Liên hệ"].map(
-            (item, i) => (
-              <a
-                key={i}
-                href="#"
-                className="text-gray-600 hover:text-emerald-600 transition-colors duration-200"
-                style={{ fontWeight: 500 }}
+        <div className="hidden lg:flex items-center gap-1">
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.path}
+                to={item.path}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold transition-all duration-200",
+                  isActive
+                    ? "bg-[#00CE98]/10 text-[#00897B]"
+                    : "text-gray-500 hover:text-[#00CE98] hover:bg-gray-50"
+                )}
               >
-                {item}
-              </a>
-            ),
-          )}
+                <Icon size={16} />
+                {item.name}
+              </Link>
+            );
+          })}
         </div>
 
-        {/* Search + CTA */}
-        <div className="hidden md:flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2">
-            <Search size={15} className="text-gray-400" />
-            <input
-              type="text"
-              placeholder="Tìm sân..."
-              className="bg-transparent outline-none text-sm text-gray-600 w-28"
-            />
-          </div>
-          <button
-            onClick={handleBookingClick}
-            className="px-5 py-2 rounded-full text-white text-sm transition-all duration-200 hover:shadow-lg hover:scale-105"
-            style={{
-              background: "linear-gradient(135deg, #00C896, #00897B)",
-              fontWeight: 600,
-            }}
-          >
-            Đặt sân ngay
-          </button>
-          {!accessToken && (
+        {/* Auth & CTA */}
+        <div className="hidden md:flex items-center gap-4">
+          {!accessToken ? (
+            <>
+              <button
+                onClick={handleLoginClick}
+                className="text-sm font-bold text-gray-600 hover:text-[#00897B] transition-colors"
+              >
+                Đăng nhập
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="px-6 py-2.5 rounded-full bg-[#00CE98] text-white text-sm font-bold shadow-md shadow-[#00CE98]/20 hover:bg-[#00B589] transition-all active:scale-95"
+              >
+                Đăng ký
+              </button>
+            </>
+          ) : (
             <button
-              onClick={handleLoginClick}
-              className="px-5 py-2 rounded-full text-black text-sm transition-all duration-200 hover:shadow-lg hover:scale-105"
-              style={{
-                background: "linear-gradient(135deg, #FFFFFF 0%, #D9D9D9 100%)",
-                fontWeight: 600,
-              }}
+              onClick={handleBookingClick}
+              className="px-6 py-2.5 rounded-full bg-[#00CE98] text-white text-sm font-bold shadow-md shadow-[#00CE98]/20 hover:bg-[#00B589] transition-all active:scale-95"
             >
-              Đăng nhập
+              Đặt sân ngay
             </button>
           )}
         </div>
 
         {/* Mobile menu toggle */}
         <button
-          className="md:hidden text-gray-600"
+          className="lg:hidden p-2 text-gray-600"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -117,29 +108,37 @@ export function Navbar() {
 
       {/* Mobile Menu */}
       {menuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 flex flex-col gap-4">
-          {["Trang chủ", "Giới thiệu", "Sân cầu", "Bảng giá", "Liên hệ"].map(
-            (item, i) => (
-              <a
-                key={i}
-                href="#"
-                className="text-gray-600 hover:text-emerald-600 py-1"
-                style={{ fontWeight: 500 }}
-              >
-                {item}
-              </a>
-            ),
-          )}
-          <button
-            onClick={handleBookingClick}
-            className="px-5 py-2 rounded-full text-white text-sm w-full"
-            style={{
-              background: "linear-gradient(135deg, #00C896, #00897B)",
-              fontWeight: 600,
-            }}
-          >
-            Đặt sân ngay
-          </button>
+        <div className="lg:hidden bg-white border-t border-gray-100 px-6 py-6 flex flex-col gap-4 animate-in slide-in-from-top duration-300">
+          {navItems.map((item) => (
+            <Link
+              key={item.path}
+              to={item.path}
+              onClick={() => setMenuOpen(false)}
+              className={cn(
+                "flex items-center gap-3 py-2 text-base font-bold transition-colors",
+                location.pathname === item.path ? "text-[#00897B]" : "text-gray-500"
+              )}
+            >
+              <item.icon size={20} />
+              {item.name}
+            </Link>
+          ))}
+          <div className="pt-4 border-t border-gray-50 flex flex-col gap-3">
+             {!accessToken ? (
+               <>
+                 <Button variant="outline" onClick={handleLoginClick} className="w-full rounded-full font-bold">
+                   Đăng nhập
+                 </Button>
+                 <Button variant="gradient" onClick={() => navigate("/register")} className="w-full rounded-full font-bold">
+                   Đăng ký
+                 </Button>
+               </>
+             ) : (
+               <Button variant="gradient" onClick={handleBookingClick} className="w-full rounded-full font-bold">
+                 Đặt sân ngay
+               </Button>
+             )}
+          </div>
         </div>
       )}
     </nav>

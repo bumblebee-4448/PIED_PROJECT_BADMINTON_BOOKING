@@ -5,4 +5,4 @@ export { RegisterForm } from "./components/RegisterForm";
 export * from "./schema";
 export * from "./types";
 export { useAuthStore } from "./store";
-export { useLogout } from "./hooks";
+export * from "./hooks/useAuth";
