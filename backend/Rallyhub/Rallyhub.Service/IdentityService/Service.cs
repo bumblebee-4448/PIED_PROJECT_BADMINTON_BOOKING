@@ -24,20 +24,20 @@ public class Service : IService
         IDistributedCache redisCache, 
         IConfiguration configuration,
         JwtService.IService jwtService,
-        OtpService.IService otpService) // Inject vào đây
+        OtpService.IService otpService)
     {
         _dbContext = dbContext;
         _redisCache = redisCache;
         _jwtService = jwtService;
         _otpService = otpService;
-        configuration.GetSection("JwtOptions").Bind(_jwtOption);
-        configuration.GetSection("SecurityOptions").Bind(_securityOptions);
+        configuration.GetSection(nameof(JwtOptions)).Bind(_jwtOption);
+        configuration.GetSection(nameof(SecurityOptions)).Bind(_securityOptions);
     }
     
     public async Task<string> RegisterTask(User.Request.RegisterRequest request)
     {
         if (await _dbContext.Users.AnyAsync(u => u.Email == request.Email))
-            throw new Exception("Email này đã được sử dụng trong hệ thống.");
+            throw new Exception("Tài khoản đã tồn tại");
 
         string pepperedPassword = request.RawPassword + _securityOptions.Pepper;
         string hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperedPassword, hashType: BCrypt.Net.HashType.SHA384);
@@ -52,7 +52,6 @@ public class Service : IService
             
         };
         
-        // Giao việc nặng nhọc cho OtpService
         await _otpService.GenerateAndSendOtpAsync(request.Email, "Register", pendingUser);
 
         return "Success";

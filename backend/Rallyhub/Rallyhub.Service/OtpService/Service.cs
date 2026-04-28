@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using System.Security.Cryptography;
+using System.Text.Json;
 using Microsoft.Extensions.Caching.Distributed;
 using Quartz;
 using Rallyhub.Service.BackgroundJobService;
@@ -24,7 +25,8 @@ public class Service : IService
             throw new Exception("Bạn thao tác quá nhanh. Thử lại sau 60 giây.");
         await _redisCache.SetStringAsync(antiSpamKey, "locked", new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromSeconds(60) });
 
-        string otpCode = Random.Shared.Next(100000, 999999).ToString();
+        const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+        string otpCode = RandomNumberGenerator.GetString(chars, 6);
         var session = new { OtpCode = otpCode, ActionType = actionType, DataPayload = payloadData };
 
         string redisKey = $"OTP:{actionType}:{email}";
