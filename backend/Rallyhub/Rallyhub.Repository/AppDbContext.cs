@@ -77,6 +77,107 @@
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<User>(builder =>
+            {
+                builder.HasKey(x => x.Id);
+                builder.Property(x => x.Email)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                builder.HasIndex(x => x.Email).IsUnique();
+                builder.Property(x => x.PasswordHash)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                builder.Property(x => x.Role)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValue("Customer");
+                builder.Property(x => x.FirstName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                builder.Property(x => x.LastName)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                builder.Property(x => x.PhoneNumber)
+                    .HasMaxLength(11);
+                builder.Property(x => x.Status)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValue("Active");
+                builder.HasOne(x => x.Customer)
+                    .WithOne(x => x.User)
+                    .HasForeignKey<Customer>(x => x.UserId);
+                
+                var users  = new  List<User>
+                {
+                    new()
+                    {
+                        Id = AdminId, 
+                        Email = "admin@rallyhub.vn",   
+                        PasswordHash = "hashed_pw_1", 
+                        Role = "Admin",    
+                        FirstName = "Quản",  
+                        LastName = "Trị",    
+                        PhoneNumber = "0900000001", 
+                        Status = "Active", 
+                    },
+                    new()
+                    {
+                        Id = UserId2, 
+                        Email = "owner1@rallyhub.vn",  
+                        PasswordHash = "hashed_pw_2", 
+                        Role = "Owner",    
+                        FirstName = "Minh",  
+                        LastName = "Tuấn",   
+                        PhoneNumber = "0900000002", 
+                        Status = "Active", 
+                    },
+                    new()
+                    {
+                        Id = UserId3, 
+                        Email = "owner2@rallyhub.vn",  
+                        PasswordHash = "hashed_pw_3", 
+                        Role = "Owner",    
+                        FirstName = "Hải",   
+                        LastName = "Đăng",   
+                        PhoneNumber = "0900000003", 
+                        Status = "Active",
+                    },
+                    new()
+                    {
+                        Id = UserId4, 
+                        Email = "customer1@gmail.com", 
+                        PasswordHash = "hashed_pw_4", 
+                        Role = "Customer", 
+                        FirstName = "Lan",   
+                        LastName = "Phương", 
+                        PhoneNumber = "0900000004", 
+                        Status = "Active",
+                    },
+                    new()
+                    {
+                        Id = UserId5, 
+                        Email = "customer2@gmail.com", 
+                        PasswordHash = "hashed_pw_5", 
+                        Role = "Customer", 
+                        FirstName = "Bảo",   
+                        LastName = "Châu",   
+                        PhoneNumber = "0900000005", 
+                        Status = "Active"
+                    },
+                    new()
+                    {
+                        Id = UserId6, 
+                        Email = "owner3@rallyhub.vn", 
+                        PasswordHash = "hashed_pw_6", 
+                        Role = "Owner", 
+                        FirstName = "Trần", 
+                        LastName = "Phú", 
+                        PhoneNumber = "0900000006", 
+                        Status = "Active"
+                    },
+                };
+                builder.HasData(users);
+            });
             modelBuilder.Entity<Booking>(builder =>
             {
                 builder.HasKey(x => x.Id);
@@ -577,7 +678,7 @@
                 {
                     new() { Id = OwnerId1, BusinessName = "Sân Cầu Lông Minh Tuấn", TaxCode = "0123456789", BusinessAddress = "123 Nguyễn Huệ, Q1, HCM",  UserId = UserId2},
                     new() { Id = OwnerId2, BusinessName = "Trung Tâm Thể Thao Hải Đăng", TaxCode = "9876543210", BusinessAddress = "456 Lê Lợi, Q3, HCM", UserId = UserId3},
-                    new() { Id = OwnerId3, BusinessName = "Sân Cầu Lông Trần Phú", TaxCode = "98765434210", BusinessAddress = "Tôn Đức Thắng, HCM", UserId = UserId6},
+                    new() { Id = OwnerId3, BusinessName = "Sân Cầu Lông Trần Phú", TaxCode = "98765434219", BusinessAddress = "Tôn Đức Thắng, HCM", UserId = UserId6},
                     // new() { Id = OwnerId4, BusinessName = "Sân Cầu Lông Trần Phú 2", TaxCode = "98765434211", BusinessAddress = "Trần Hưng Đạo, HCM", UserId = UserId7},
                 };
                 builder.HasData(owners);
@@ -766,107 +867,7 @@
                 };
                 builder.HasData(transactions);
             });
-            modelBuilder.Entity<User>(builder =>
-            {
-                builder.HasKey(x => x.Id);
-                builder.Property(x => x.Email)
-                    .IsRequired()
-                    .HasMaxLength(50);
-                builder.HasIndex(x => x.Email).IsUnique();
-                builder.Property(x => x.PasswordHash)
-                    .IsRequired()
-                    .HasMaxLength(100);
-                builder.Property(x => x.Role)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasDefaultValue("Customer");
-                builder.Property(x => x.FirstName)
-                    .IsRequired()
-                    .HasMaxLength(100);
-                builder.Property(x => x.LastName)
-                    .IsRequired()
-                    .HasMaxLength(100);
-                builder.Property(x => x.PhoneNumber)
-                    .HasMaxLength(11);
-                builder.Property(x => x.Status)
-                    .IsRequired()
-                    .HasMaxLength(50)
-                    .HasDefaultValue("Active");
-                builder.HasOne(x => x.Customer)
-                    .WithOne(x => x.User)
-                    .HasForeignKey<Customer>(x => x.UserId);
-                
-                var users  = new  List<User>
-                {
-                    new()
-                    {
-                        Id = AdminId, 
-                        Email = "admin@rallyhub.vn",   
-                        PasswordHash = "hashed_pw_1", 
-                        Role = "Admin",    
-                        FirstName = "Quản",  
-                        LastName = "Trị",    
-                        PhoneNumber = "0900000001", 
-                        Status = "Active", 
-                    },
-                    new()
-                    {
-                        Id = UserId2, 
-                        Email = "owner1@rallyhub.vn",  
-                        PasswordHash = "hashed_pw_2", 
-                        Role = "Owner",    
-                        FirstName = "Minh",  
-                        LastName = "Tuấn",   
-                        PhoneNumber = "0900000002", 
-                        Status = "Active", 
-                    },
-                    new()
-                    {
-                        Id = UserId3, 
-                        Email = "owner2@rallyhub.vn",  
-                        PasswordHash = "hashed_pw_3", 
-                        Role = "Owner",    
-                        FirstName = "Hải",   
-                        LastName = "Đăng",   
-                        PhoneNumber = "0900000003", 
-                        Status = "Active",
-                    },
-                    new()
-                    {
-                        Id = UserId4, 
-                        Email = "customer1@gmail.com", 
-                        PasswordHash = "hashed_pw_4", 
-                        Role = "Customer", 
-                        FirstName = "Lan",   
-                        LastName = "Phương", 
-                        PhoneNumber = "0900000004", 
-                        Status = "Active",
-                    },
-                    new()
-                    {
-                        Id = UserId5, 
-                        Email = "customer2@gmail.com", 
-                        PasswordHash = "hashed_pw_5", 
-                        Role = "Customer", 
-                        FirstName = "Bảo",   
-                        LastName = "Châu",   
-                        PhoneNumber = "0900000005", 
-                        Status = "Active"
-                    },
-                    new()
-                    {
-                        Id = UserId6, 
-                        Email = "owner3@rallyhub.vn", 
-                        PasswordHash = "hashed_pw_6", 
-                        Role = "Owner", 
-                        FirstName = "Trần", 
-                        LastName = "Phú", 
-                        PhoneNumber = "0900000006", 
-                        Status = "Active"
-                    },
-                };
-                builder.HasData(users);
-            });
+            
             modelBuilder.Entity<Wallet>(builder =>
             {
                 builder.HasKey(x => x.Id);

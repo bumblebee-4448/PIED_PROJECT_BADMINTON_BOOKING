@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   # Tầng dữ liệu: PostgreSQL
@@ -6,9 +6,9 @@ services:
     image: postgres:16-alpine
     container_name: rallyhub-postgres
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: adminpassword
-      POSTGRES_DB: rallyhub_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: MyStrongPassword123@
+      POSTGRES_DB: Rallyhub
     ports:
       - "5432:5432"
 
@@ -22,7 +22,7 @@ services:
   # Tầng Backend (C# 3 lớp)
   backend-api:
     build:
-      context: ./backend/Rallyhub  # Quan trọng: Trỏ đúng vào thư mục chứa Dockerfile BE
+      context: ./backend/Rallyhub # Quan trọng: Trỏ đúng vào thư mục chứa Dockerfile BE
       dockerfile: Dockerfile
     container_name: rallyhub-backend
     ports:
@@ -32,7 +32,8 @@ services:
       - redis-cache
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=rallyhub_db;Username=admin;Password=adminpassword;
+      # Ghi đè bằng tài khoản chuẩn của bạn, Host trỏ về postgres-db
+      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=Rallyhub;Username=postgres;Password=MyStrongPassword123@;
       - ConnectionStrings__Redis=redis-cache:6379,abortConnect=False
 
   # Tầng Frontend (React)
