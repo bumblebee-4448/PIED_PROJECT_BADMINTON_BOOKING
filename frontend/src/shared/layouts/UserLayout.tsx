@@ -1,7 +1,5 @@
 import { Outlet, useLocation } from "react-router-dom";
-import {
-  Navbar,
-} from "@/features/landing/pages/HomePage";
+import { Navbar } from "@/features/landing";
 import { LoginPromptDialog } from "@/shared/components/common/LoginPromptDialog";
 
 export function UserLayout() {
