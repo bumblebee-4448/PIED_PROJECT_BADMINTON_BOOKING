@@ -11,6 +11,7 @@ using UserService = Rallyhub.Service.User;
 using OtpService = Rallyhub.Service.OtpService;
 using CourtService = Rallyhub.Service.Court;
 
+using MapService = Rallyhub.Service.MapService;   
 // using DiscordService = Rallyhub.Service.DiscordService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,6 +42,13 @@ builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<OtpService.IService, OtpService.Service>();
 builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
+
+builder.Services.AddScoped<MapService.IService, MapService.Service>();
+
+builder.Services.AddHttpClient("VietMap", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
