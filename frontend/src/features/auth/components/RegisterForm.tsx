@@ -8,7 +8,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Separator } from "@/shared/components/ui/separator";
 import { registerSchema } from "../schema";
-import { RegisterInput } from "../types";
+import type { RegisterInput } from "../types";
 import { useRegister } from "../hooks/useRegister";
 
 const GoogleIcon = () => (
@@ -26,7 +26,7 @@ export const RegisterForm = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
