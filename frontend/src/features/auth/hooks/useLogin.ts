@@ -1,10 +1,12 @@
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
+import { AxiosError } from "axios";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/axios";
 import { API_ENDPOINTS } from "@/shared/constants";
 import { useAuthStore } from "../store";
-import { LoginInput, AuthResponse } from "../types";
+import type { LoginInput, AuthResponse } from "../types";
+import type { ApiError } from "@/shared/types";
 
 export const useLogin = () => {
   const navigate = useNavigate();
@@ -24,7 +26,7 @@ export const useLogin = () => {
       toast.success("Đăng nhập thành công!");
       navigate("/");
     },
-    onError: (error: any) => {
+    onError: (error: AxiosError<ApiError>) => {
       const message = error.response?.data?.message || "Đăng nhập thất bại";
       toast.error(message);
     },
