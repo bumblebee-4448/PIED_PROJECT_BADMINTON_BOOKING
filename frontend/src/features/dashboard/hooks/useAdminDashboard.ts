@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { SYSTEM_REPORTS, PENDING_COURTS, CASH_FLOW } from "../constants";
+import { SYSTEM_REPORTS, PENDING_COURTS, CASH_FLOW } from "../data/mockData";
 
 export const useAdminDashboard = () => {
   const pendingReports = useMemo(() => 

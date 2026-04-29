@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import { Users, Building2, TrendingUp, Flag } from "lucide-react";
-import { ADMIN_STATS, VISITOR_DATA, SYSTEM_REPORTS, CASH_FLOW } from "../constants";
+import { ADMIN_STATS, VISITOR_DATA, SYSTEM_REPORTS, CASH_FLOW } from "../data/mockData";
 import { useAdminDashboard } from "../hooks/useAdminDashboard";
 import { StatCard } from "../components/StatCard";
 import { DashboardAlerts } from "../components/DashboardAlerts";
