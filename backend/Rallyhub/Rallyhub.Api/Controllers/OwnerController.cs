@@ -23,7 +23,7 @@ public class OwnerController: ControllerBase
             , HttpContext.TraceIdentifier));
     }
     
-    [HttpGet("GetAllCourts")]
+    [HttpGet("GetMyCourts")]
     public async Task<IActionResult> GetAllCourts([FromQuery] Request.GetMyCourtsRequest request)
     {
         var result = await _ownerService.GetAllCourts(request);

@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-
 using Rallyhub.Repository;
 using Rallyhub.Repository.Entity;
 using Exception = System.Exception;
+using StatusCreateCourt = Rallyhub.Service.Enum.Enum.StatusCreateCourt;
 
 namespace Rallyhub.Service.Admin;
 
@@ -141,5 +141,49 @@ public class Service: IService
             return result;
         }
         throw new Exception("Error");
+    }
+
+    public async Task<Base.Response.PageResult<Response.GetPendingCourtsResponse>> GetPendingCourts
+        (Request.GetPendingCourtsRequest request)
+    {
+        if (request.PageIndex <= 0)
+        {
+            throw new ArgumentException("PageIndex must be greater than 0");
+        }
+
+        if (request.PageSize <= 0)
+        {
+            throw new ArgumentException("PageSize must be greater than 0");
+        }
+        
+        var query = _dbContext.Courts.Where(x => x.Status == nameof(StatusCreateCourt.Pending));
+        if (!string.IsNullOrEmpty(request.Name))
+        {
+            query = query.Where(x => 
+                x.Name.Trim().ToLower()
+                    .Contains(request.Name.Trim().ToLower()));
+        }
+        var totalItems = await query.CountAsync();
+        query = query.OrderBy(x => x.Name);
+        query = query
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize);
+
+        var result = query.Select(x => new Response.GetPendingCourtsResponse()
+        {
+            CourtId =  x.Id,
+            OwnerId =  x.OwnerId,
+            Name = x.Name,
+            Status = x.Status,
+        });
+        
+        var listResult = await result.ToListAsync();
+        return new Base.Response.PageResult<Response.GetPendingCourtsResponse>()
+        {
+            Items = listResult,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize,
+            TotalItems = totalItems,
+        };
     }
 }

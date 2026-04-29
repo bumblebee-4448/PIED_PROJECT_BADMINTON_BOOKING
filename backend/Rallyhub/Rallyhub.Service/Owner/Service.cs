@@ -81,6 +81,16 @@ public class Service : IService
 
     public async Task<Base.Response.PageResult<Response.GetMyCourtsResponse>> GetAllCourts(Request.GetMyCourtsRequest request)
     {
+        if (request.PageIndex <= 0)
+        {
+            throw new ArgumentException("PageIndex must be greater than 0");
+        }
+
+        if (request.PageSize <= 0)
+        {
+            throw new ArgumentException("PageSize must be greater than 0");
+        }
+        
         var ownerIdClaim = _httpContext.HttpContext?.User?
             .FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (string.IsNullOrEmpty(ownerIdClaim))

@@ -11,4 +11,7 @@ public interface IService
             Enum.Enum.StatusUsers? status);
 
     public Task<Response.UserDto> GetUserById(Guid id);
+
+    public Task<Base.Response.PageResult<Response.GetPendingCourtsResponse>> GetPendingCourts
+        (Request.GetPendingCourtsRequest request);
 }

@@ -46,4 +46,12 @@ public class Response
         public decimal Longitude { get; set; } //kinh độ (11, 8)
         public string MapUrl  { get; set; } //link của gg map
     }
+    
+    public class GetPendingCourtsResponse
+    {
+        public Guid CourtId { get; set; }
+        public Guid OwnerId { get; set; }
+        public string Name { get; set; } = null!;
+        public string Status { get; set; } = null!;
+    }
 }

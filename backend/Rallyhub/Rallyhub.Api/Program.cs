@@ -14,7 +14,7 @@ using MediaService = Rallyhub.Service.MediaService;
 using CloudinaryService = Rallyhub.Service.CloudinaryService;
 using MapService = Rallyhub.Service.MapService;
 using OwnerService = Rallyhub.Service.Owner;
-
+using AdminService = Rallyhub.Service.Admin;
 // using DiscordService = Rallyhub.Service.DiscordService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,7 +48,7 @@ builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
 builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
 builder.Services.AddScoped<MapService.IService, MapService.Service>();
 builder.Services.AddScoped<OwnerService.IService, OwnerService.Service>();
-
+builder.Services.AddScoped<AdminService.IService, AdminService.Service>();
 
 
 builder.Services.AddHttpClient("VietMap", client =>
