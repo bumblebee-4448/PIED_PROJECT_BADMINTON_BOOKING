@@ -10,6 +10,10 @@ using IdentityService = Rallyhub.Service.IdentityService;
 using UserService = Rallyhub.Service.User;
 using OtpService = Rallyhub.Service.OtpService;
 using CourtService = Rallyhub.Service.Court;
+using MediaService = Rallyhub.Service.MediaService;
+using CloudinaryService = Rallyhub.Service.CloudinaryService;
+
+
 
 using MapService = Rallyhub.Service.MapService;   
 // using DiscordService = Rallyhub.Service.DiscordService;
@@ -42,6 +46,8 @@ builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<OtpService.IService, OtpService.Service>();
 builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
+builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
+
 
 builder.Services.AddScoped<MapService.IService, MapService.Service>();
 
@@ -58,10 +64,10 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddQuartz();
 
-// builder.Services.AddQuartzHostedService(options =>
-// {
-//     options.WaitForJobsToComplete = true; 
-// });
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true; 
+});
 
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 

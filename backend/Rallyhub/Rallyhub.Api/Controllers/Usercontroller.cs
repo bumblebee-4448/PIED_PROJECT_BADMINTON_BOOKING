@@ -56,12 +56,12 @@ public class Usercontroller : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
     }
     
-    // [HttpPost("OwnerRequest")]
-    // [Authorize(Policy = JwtExtensions.CustomerPolicy)]
-    // public async Task<IActionResult> OwnerRequest(Request.OwnerRequestRequest request)
-    // {
-    //     
-    //     var result = _userService.OwnerRequest(request);
-    //     return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
-    // }
+    [HttpPost("OwnerRequest")]
+    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
+    public async Task<IActionResult> OwnerRequest(Request.OwnerRequestRequest request)
+    {
+        
+        var result = await _userService.OwnerRequest(request);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success you!", HttpContext.TraceIdentifier));
+    }
 }

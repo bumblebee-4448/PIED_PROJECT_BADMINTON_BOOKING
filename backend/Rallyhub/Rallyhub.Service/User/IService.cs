@@ -2,5 +2,5 @@
 
 public interface IService
 {
-    // public Task OwnerRequest(Request.OwnerRequestRequest request);
+    public Task<string> OwnerRequest(Request.OwnerRequestRequest request);
 }
