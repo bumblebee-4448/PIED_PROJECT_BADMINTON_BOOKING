@@ -15,6 +15,7 @@ public class Court : BaseEntity<Guid>, IAuditableEntity
     public required string MapUrl  { get; set; } //link của gg map
     
     public required string PictureUrl { get; set; }
+    public  string? Description { get; set; }
     
     public Guid OwnerId  { get; set; }
     public Owner Owner { get; set; }

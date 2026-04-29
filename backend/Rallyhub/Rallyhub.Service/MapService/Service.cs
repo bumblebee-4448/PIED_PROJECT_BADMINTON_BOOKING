@@ -86,7 +86,7 @@ public class Service : IService
                         Math.Pow(Math.Sin(((double)c.Longitude - lon) * Math.PI / 180 / 2), 2)  
                     )) 
             })
-            .Where( x=> x.DistanceKm >= r)
+            .Where( x=> x.DistanceKm <= r)
             .OrderBy(x => x.DistanceKm)
             .Select(x => new Response.CourtMapItem
             {
