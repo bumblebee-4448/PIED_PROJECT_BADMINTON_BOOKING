@@ -24,4 +24,13 @@ public class Enum
         Refund, 
         Complete
     }
+
+    public enum AllStatus
+    {
+        Active,
+        Pending,
+        Baning,
+        Cancelled,
+        Completed
+    }
 }

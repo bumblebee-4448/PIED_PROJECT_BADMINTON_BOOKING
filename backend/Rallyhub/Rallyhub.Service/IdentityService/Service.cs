@@ -71,21 +71,55 @@ public class Service : IService
             Role = "Customer", // Set mặc định để tránh lỗi NULL ở Token
             CreatedAt = DateTimeOffset.UtcNow,
         };
-        
         _dbContext.Users.Add(newUser);
+
+        var newCustomer = new Repository.Entity.Customer()
+        {
+            UserId = newUser.Id,
+        };
+        _dbContext.Customers.Add(newCustomer);
+        
         var result = await _dbContext.SaveChangesAsync(); 
         
         if (result <= 0) throw new Exception("Fail");
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, newUser.Id.ToString()), 
-            new Claim(ClaimTypes.Email, newUser.Email),
+            new Claim("UserId", newUser.Id.ToString()), 
+            new Claim("Email", newUser.Email),
+            new Claim("Role", newUser.Role), 
             new Claim(ClaimTypes.Role, newUser.Role),
-            new Claim("Role", newUser.Role) 
+            new Claim(ClaimTypes.Expired, 
+                DateTimeOffset.UtcNow.AddMinutes(_jwtOption.ExpireMinutes).ToString()),
         };
-        var token = _jwtService.GenerateAccessToken(claims);
 
-        return new Response.IdentityResponse()
+        if (newUser.Role == "Owner")
+        {
+            var owner = _dbContext.Owners.FirstOrDefault(x => x.UserId == newUser.Id );
+            if (owner != null)
+            {
+                claims.Add(new Claim("OwnerId", owner.Id.ToString()));
+            }
+        }
+        // else if (user.Role == "Admin")
+        // {
+        //     var owner = _dbContext.Owners.FirstOrDefault(x => x.UserId == user.Id );
+        //     if (owner != null)
+        //     {
+        //         claims.Add(new Claim("AdminId", owner.Id.ToString()));
+        //     }
+        // }
+        if (newUser.Role == "Customer")
+        {
+            var customer = _dbContext.Customers.FirstOrDefault(x => x.UserId == newUser.Id );
+            if (customer != null)
+            {
+                claims.Add(new Claim("CustomerId", customer.Id.ToString()));
+            }
+        }
+        
+        var token = _jwtService.GenerateAccessToken(claims);
+    
+        return new Response.IdentityResponse
         {
             AccessToken = token
         };
@@ -109,10 +143,12 @@ public class Service : IService
         }
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()), 
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, user.Role ?? "Customer"), 
-            new Claim("Role", user.Role ?? "Customer") 
+            new Claim("UserId", user.Id.ToString()), 
+            new Claim("Email", user.Email),
+            new Claim("Role", user.Role), 
+            new Claim(ClaimTypes.Role, user.Role),
+            new Claim(ClaimTypes.Expired, 
+            DateTimeOffset.UtcNow.AddMinutes(_jwtOption.ExpireMinutes).ToString()),
         };
 
         if (user.Role == "Owner")
@@ -121,6 +157,22 @@ public class Service : IService
             if (owner != null)
             {
                 claims.Add(new Claim("OwnerId", owner.Id.ToString()));
+            }
+        }
+        // else if (user.Role == "Admin")
+        // {
+        //     var owner = _dbContext.Owners.FirstOrDefault(x => x.UserId == user.Id );
+        //     if (owner != null)
+        //     {
+        //         claims.Add(new Claim("AdminId", owner.Id.ToString()));
+        //     }
+        // }
+        if (user.Role == "Customer")
+        {
+            var customer = _dbContext.Customers.FirstOrDefault(x => x.UserId == user.Id );
+            if (customer != null)
+            {
+                claims.Add(new Claim("CustomerId", customer.Id.ToString()));
             }
         }
         

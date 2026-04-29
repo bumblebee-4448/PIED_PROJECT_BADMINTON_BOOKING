@@ -16,8 +16,8 @@ public class OwnerRequest : BaseEntity<Guid>, IAuditableEntity
     public string Status { get; set; } = "Pending";
     public string? RejectionReason { get; set; }
     
-    public Guid OwnerId { get; set; }
-    public Owner Owner { get; set; }
+    public Guid? OwnerId { get; set; }
+    public Owner? Owner { get; set; }
     public Guid CustomerId { get; set; }
     public Customer Customer { get; set; }
     

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rallyhub.Api.Extention;
 using Rallyhub.Repository.Entity;
 using Rallyhub.Service.Models;
 using Rallyhub.Service.User;
@@ -54,4 +55,13 @@ public class Usercontroller : ControllerBase
 
         return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
     }
+    
+    // [HttpPost("OwnerRequest")]
+    // [Authorize(Policy = JwtExtensions.CustomerPolicy)]
+    // public async Task<IActionResult> OwnerRequest(Request.OwnerRequestRequest request)
+    // {
+    //     
+    //     var result = _userService.OwnerRequest(request);
+    //     return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
+    // }
 }
