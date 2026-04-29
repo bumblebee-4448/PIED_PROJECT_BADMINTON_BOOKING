@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect, type ChangeEvent } from "react";
 import { Camera, AlertCircle } from "lucide-react";
 
 interface AvatarUploadProps {
@@ -15,7 +15,11 @@ export function AvatarUpload({ currentAvatar, initials, onAvatarChange }: Avatar
   const [avatar, setAvatar] = useState(currentAvatar || "");
   const [error, setError] = useState("");
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    setAvatar(currentAvatar || "");
+  }, [currentAvatar]);
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 

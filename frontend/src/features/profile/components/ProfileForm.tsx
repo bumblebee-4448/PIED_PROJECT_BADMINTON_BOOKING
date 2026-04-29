@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import { DISTRICTS, LEVELS } from "../constants";
 import type { ProfileSchema } from "../schema";
@@ -22,6 +22,15 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
   const [location, setLocation] = useState(initialData.location);
   const [level, setLevel] = useState(initialData.level);
   const [saved, setSaved] = useState(false);
+
+  // Cập nhật state khi initialData thay đổi (ví dụ khi mock data được load)
+  useEffect(() => {
+    setName(initialData.name);
+    setEmail(initialData.email);
+    setPhone(initialData.phone);
+    setLocation(initialData.location);
+    setLevel(initialData.level);
+  }, [initialData]);
 
   const handleSubmit = () => {
     onSave({

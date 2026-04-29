@@ -15,14 +15,10 @@ const MOCK_USER = {
 };
 
 export function useProfile() {
-  const { user: authUser, logout } = useAuthStore();
+  const { logout } = useAuthStore();
   
-  // Sử dụng mock data nếu chưa đăng nhập hoặc để test
-  const user = authUser ? {
-    ...authUser,
-    name: authUser.fullName, // Map fullName từ auth sang name cho profile
-    isOwner: authUser.role === "owner",
-  } : MOCK_USER;
+  // Ép buộc sử dụng mock data theo yêu cầu của bạn để tránh lỗi API
+  const user = MOCK_USER;
 
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
