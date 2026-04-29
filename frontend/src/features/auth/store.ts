@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 
+import type { UserRole } from '@/shared/types';
+import type { User } from './types';
+
 interface AuthState {
   accessToken: string | null;
-  role: string | null;
-  user: any | null;
+  role: UserRole | null;
+  user: User | null;
   isLoginPromptOpen: boolean;
-  setAuth: (accessToken: string, role: string, user?: any) => void;
+  setAuth: (accessToken: string, role: UserRole, user?: User) => void;
   logout: () => void;
   setLoginPromptOpen: (open: boolean) => void;
 }
