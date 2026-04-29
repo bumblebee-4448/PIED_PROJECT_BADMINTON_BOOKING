@@ -17,7 +17,7 @@ public class MapController : ControllerBase
 
     [HttpGet("boxing-box")]
     public async Task<IActionResult> SearchByBoundingBox(
-        [FromQuery] MapService.BoundingBoxRequest request,
+        [FromQuery] MapService.Request.BoundingBoxRequest request,
         CancellationToken cancellationToken)
     {
         var result = await _mapService.SearchByBoundingBox(request, cancellationToken);
@@ -26,10 +26,20 @@ public class MapController : ControllerBase
 
     [HttpGet("radius")]
     public async Task<IActionResult> SearchByRadius(
-        [FromQuery] MapService.RadiusRequest request,
+        [FromQuery] MapService.Request.RadiusRequest request,
         CancellationToken cancellationToken)
     {
         var result = await _mapService.SearchByRadius(request, cancellationToken);
         return Ok(ApiResponseFactory.SuccessResponse(result,"Success",HttpContext.TraceIdentifier));
     }
+    
+    [HttpGet("text")]
+    public async Task<IActionResult> SeachByText(
+        [FromQuery] MapService.Request.SearchByTextRequest request,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mapService.SearchByText(request, cancellationToken);
+        return Ok(ApiResponseFactory.SuccessResponse(result,"Success",HttpContext.TraceIdentifier));
+    }
+    
 }
