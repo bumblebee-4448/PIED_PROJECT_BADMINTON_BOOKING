@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router";
 import { ChevronRight } from "lucide-react";
 import type { CashFlow } from "../types";
+import { Button } from "@/shared/components/ui/button";
 
 interface CashFlowTableProps {
   cashFlows: CashFlow[];
@@ -13,13 +14,14 @@ export function CashFlowTable({ cashFlows }: CashFlowTableProps) {
     <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
       <div className="flex items-center justify-between mb-4">
         <h3 style={{ fontWeight: 700, color: "#1a1a2e", fontSize: "0.95rem" }}>Luồng tiền gần đây 💰</h3>
-        <button 
+        <Button 
+          variant="link"
           onClick={() => navigate("/admin/cashflow")} 
           style={{ fontSize: "0.75rem", color: "#00897B", fontWeight: 600 }} 
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 p-0 h-auto hover:no-underline"
         >
           Xem tất cả <ChevronRight size={13} />
-        </button>
+        </Button>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">

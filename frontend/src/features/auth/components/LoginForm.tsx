@@ -94,13 +94,15 @@ export const LoginForm = () => {
                 errors.password ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
               }`}
             />
-            <button 
+            <Button 
+              variant="ghost"
+              size="icon"
               type="button"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151]"
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-[#9CA3AF] hover:text-[#374151] hover:bg-transparent"
             >
               {showPassword ? <EyeOff className="w-4 h-4 md:w-5 md:h-5" /> : <Eye className="w-4 h-4 md:w-5 md:h-5" />}
-            </button>
+            </Button>
           </div>
           {errors.password && (
             <p className="text-red-500 text-xs mt-1 ml-1 font-medium">{errors.password.message}</p>

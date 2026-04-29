@@ -1,5 +1,6 @@
 import { useRef, useState, useEffect, type ChangeEvent } from "react";
 import { Camera, AlertCircle } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
 
 interface AvatarUploadProps {
   currentAvatar?: string;
@@ -55,13 +56,14 @@ export function AvatarUpload({ currentAvatar, initials, onAvatarChange }: Avatar
             <span style={{ fontSize: "2rem", fontWeight: 800, color: "white" }}>{initials}</span>
           )}
         </div>
-        <button
+        <Button
           onClick={() => fileRef.current?.click()}
-          className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl flex items-center justify-center shadow-md"
-          style={{ background: "linear-gradient(135deg,#00C896,#00897B)" }}
+          variant="gradient"
+          size="icon"
+          className="absolute -bottom-2 -right-2 w-8 h-8 rounded-xl shadow-md"
         >
           <Camera size={14} color="white" />
-        </button>
+        </Button>
       </div>
       <input
         ref={fileRef}

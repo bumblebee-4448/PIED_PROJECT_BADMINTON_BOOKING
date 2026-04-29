@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronRight, Eye, EyeOff } from "lucide-react";
 import type { PasswordChangeSchema } from "../schema";
+import { Button } from "@/shared/components/ui/button";
 
 interface PasswordSectionProps {
   phone: string;
@@ -39,9 +40,10 @@ export function PasswordSection({ phone, onUpdate, isLoading }: PasswordSectionP
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden mb-4" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setShowSection(!showSection)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition"
+        className="w-full flex items-center justify-between px-5 py-4 h-auto rounded-none hover:bg-gray-50 transition"
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#f0fdf9" }}>🔒</div>
@@ -52,24 +54,21 @@ export function PasswordSection({ phone, onUpdate, isLoading }: PasswordSectionP
           className="text-gray-400"
           style={{ transform: showSection ? "rotate(90deg)" : "none", transition: "0.2s" }}
         />
-      </button>
+      </Button>
       {showSection && (
         <div className="px-5 pb-5 border-t border-gray-50">
           <p style={{ fontSize: "0.8rem", color: "#9ca3af", margin: "12px 0 14px" }}>
             OTP sẽ được gửi qua số điện thoại <strong>{phone}</strong>. Tối đa 5 lần/ngày.
           </p>
           {!otpSent ? (
-            <button
+            <Button
               onClick={handleSendOtp}
               disabled={otpCount >= 5}
-              className="w-full py-2.5 rounded-xl text-sm font-bold transition"
-              style={{
-                background: otpCount >= 5 ? "#f3f4f6" : "linear-gradient(135deg,#00C896,#00897B)",
-                color: otpCount >= 5 ? "#9ca3af" : "white",
-              }}
+              variant={otpCount >= 5 ? "secondary" : "gradient"}
+              className="w-full py-2.5 rounded-xl text-sm font-bold"
             >
               {otpCount >= 5 ? "Đã đạt giới hạn 5 lần/ngày" : "Gửi OTP qua SĐT"}
-            </button>
+            </Button>
           ) : (
             <div className="flex flex-col gap-3">
               <div className="flex gap-2">
@@ -81,14 +80,15 @@ export function PasswordSection({ phone, onUpdate, isLoading }: PasswordSectionP
                   className="flex-1 px-3 py-2.5 rounded-xl outline-none text-sm text-center font-bold tracking-widest"
                   style={{ border: "1.5px solid #e5e7eb", background: "#f9fafb", fontSize: "1.1rem" }}
                 />
-                <button
+                <Button
                   onClick={otpTimer === 0 ? handleSendOtp : undefined}
                   disabled={otpTimer > 0}
+                  variant="secondary"
                   className="px-3 py-2.5 rounded-xl text-xs font-semibold"
-                  style={{ background: "#f3f4f6", color: otpTimer > 0 ? "#9ca3af" : "#00897B" }}
+                  style={{ color: otpTimer > 0 ? "#9ca3af" : "#00897B" }}
                 >
                   {otpTimer > 0 ? `${otpTimer}s` : "Gửi lại"}
-                </button>
+                </Button>
               </div>
               <div className="relative">
                 <input
@@ -99,22 +99,24 @@ export function PasswordSection({ phone, onUpdate, isLoading }: PasswordSectionP
                   className="w-full pr-10 px-3 py-2.5 rounded-xl outline-none text-sm"
                   style={{ border: "1.5px solid #e5e7eb", background: "#f9fafb" }}
                 />
-                <button
+                <Button
                   type="button"
+                  variant="ghost"
+                  size="icon"
                   onClick={() => setShowPass(!showPass)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:bg-transparent"
                 >
                   {showPass ? <EyeOff size={15} /> : <Eye size={15} />}
-                </button>
+                </Button>
               </div>
-              <button
+              <Button
                 onClick={handleConfirm}
                 disabled={isLoading}
-                className="w-full py-2.5 rounded-xl text-sm font-bold text-white disabled:opacity-50"
-                style={{ background: "linear-gradient(135deg,#00C896,#00897B)" }}
+                variant="gradient"
+                className="w-full py-2.5 rounded-xl text-sm font-bold"
               >
                 {isLoading ? "Đang xử lý..." : "Xác nhận đổi mật khẩu"}
-              </button>
+              </Button>
               <p style={{ fontSize: "0.72rem", color: "#9ca3af", textAlign: "center" }}>
                 Đã dùng {otpCount}/5 lần OTP hôm nay
               </p>

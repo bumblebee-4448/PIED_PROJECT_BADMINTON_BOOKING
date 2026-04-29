@@ -1,5 +1,6 @@
 import React from "react";
 import { Timer } from "lucide-react";
+import { Button } from "@/shared/components/ui/button";
 
 interface OtpTimerProps {
   timer: number;
@@ -15,12 +16,13 @@ export const OtpTimer: React.FC<OtpTimerProps> = ({ timer, onResend }) => {
           Gửi lại mã sau <span className="text-[#00CE98] font-bold">{timer}s</span>
         </p>
       ) : (
-        <button 
+        <Button 
+          variant="link"
           onClick={onResend}
-          className="text-[#00CE98] font-black text-sm hover:underline hover:text-[#004E43] transition-all"
+          className="text-[#00CE98] font-black text-sm hover:underline hover:text-[#004E43] transition-all p-0 h-auto"
         >
           Gửi lại mã OTP
-        </button>
+        </Button>
       )}
     </div>
   );

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router";
 import { AlertTriangle, Clock, Bell } from "lucide-react";
 import type { SystemReport, PendingCourt, CashFlow } from "../types";
+import { Button } from "@/shared/components/ui/button";
 
 interface DashboardAlertsProps {
   highPriorityReports: SystemReport[];
@@ -27,13 +28,14 @@ export function DashboardAlerts({ highPriorityReports, pendingCourts, pendingPay
           <p style={{ fontSize: "0.82rem", color: "#DC2626", flex: 1 }}>
             🚨 <strong>Báo cáo khẩn:</strong> {r.courtName} — {r.description.slice(0, 60)}...
           </p>
-          <button 
+          <Button 
+            variant="link"
             onClick={() => navigate("/admin/products")} 
-            className="text-xs font-bold" 
+            className="text-xs font-bold p-0 h-auto hover:no-underline" 
             style={{ color: "#DC2626" }}
           >
             Xem →
-          </button>
+          </Button>
         </div>
       ))}
 
@@ -46,13 +48,14 @@ export function DashboardAlerts({ highPriorityReports, pendingCourts, pendingPay
           <p style={{ fontSize: "0.82rem", color: "#92400E", flex: 1 }}>
             ⏳ Có <strong>{pendingCourts.length} sân đang chờ duyệt</strong>
           </p>
-          <button 
+          <Button 
+            variant="link"
             onClick={() => navigate("/admin/products")} 
-            className="text-xs font-bold" 
+            className="text-xs font-bold p-0 h-auto hover:no-underline" 
             style={{ color: "#D97706" }}
           >
             Duyệt ngay →
-          </button>
+          </Button>
         </div>
       )}
 
@@ -65,13 +68,14 @@ export function DashboardAlerts({ highPriorityReports, pendingCourts, pendingPay
           <p style={{ fontSize: "0.82rem", color: "#00897B", flex: 1 }}>
             💸 Có <strong>{pendingPayouts.length} payout chờ xử lý</strong> cho owner
           </p>
-          <button 
+          <Button 
+            variant="link"
             onClick={() => navigate("/admin/cashflow")} 
-            className="text-xs font-bold" 
+            className="text-xs font-bold p-0 h-auto hover:no-underline" 
             style={{ color: "#00897B" }}
           >
             Xử lý →
-          </button>
+          </Button>
         </div>
       )}
     </div>

@@ -5,6 +5,7 @@ import { AvatarUpload } from "../components/AvatarUpload";
 import { ProfileForm } from "../components/ProfileForm";
 import { PasswordSection } from "../components/PasswordSection";
 import { OwnerRegistrationSection } from "../components/OwnerRegistrationSection";
+import { Button } from "@/shared/components/ui/button";
 
 export function ProfilePage() {
   const navigate = useNavigate();
@@ -23,12 +24,13 @@ export function ProfilePage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
         <p className="text-gray-500 mb-4">Vui lòng đăng nhập để xem hồ sơ.</p>
-        <button
+        <Button
           onClick={() => navigate("/")}
-          className="px-6 py-2 bg-emerald-500 text-white rounded-xl font-bold"
+          variant="default"
+          className="rounded-xl font-bold px-6 py-2"
         >
           Về trang chủ
-        </button>
+        </Button>
       </div>
     );
   }
@@ -46,13 +48,14 @@ export function ProfilePage() {
     <div className="max-w-xl mx-auto px-4 sm:px-6 py-6 pb-24 md:pb-8">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <button
+        <Button
           onClick={() => navigate(-1)}
-          className="w-9 h-9 rounded-xl flex items-center justify-center"
-          style={{ background: "#f3f4f6" }}
+          variant="secondary"
+          size="icon"
+          className="rounded-xl"
         >
           <ArrowLeft size={16} />
-        </button>
+        </Button>
         <h1 style={{ fontWeight: 800, fontSize: "1.2rem", color: "#1a1a2e" }}>
           Hồ sơ cá nhân
         </h1>
@@ -94,13 +97,13 @@ export function ProfilePage() {
       )}
 
       {/* Logout */}
-      <button
+      <Button
         onClick={handleLogout}
-        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition hover:bg-red-50"
-        style={{ background: "#FEF2F2", color: "#DC2626", border: "1.5px solid #FECACA" }}
+        variant="destructive_outline"
+        className="w-full rounded-xl py-3 h-auto"
       >
         <LogOut size={16} /> Đăng xuất
-      </button>
+      </Button>
     </div>
   );
 }

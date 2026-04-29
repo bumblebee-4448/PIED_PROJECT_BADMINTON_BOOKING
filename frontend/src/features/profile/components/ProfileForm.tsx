@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import { DISTRICTS, LEVELS } from "../constants";
 import type { ProfileSchema } from "../schema";
+import { Button } from "@/shared/components/ui/button";
 
 interface ProfileFormProps {
   initialData: {
@@ -133,14 +134,14 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
           </span>
         </div>
       )}
-      <button
+      <Button
         onClick={handleSubmit}
         disabled={isSaving}
-        className="mt-4 w-full py-3 rounded-xl text-white font-bold text-sm transition hover:opacity-90 disabled:opacity-50"
-        style={{ background: "linear-gradient(135deg,#00C896,#00897B)" }}
+        variant="gradient"
+        className="mt-4 w-full py-3 rounded-xl text-white font-bold text-sm"
       >
         {isSaving ? "Đang lưu..." : "Lưu thay đổi"}
-      </button>
+      </Button>
     </div>
   );
 }

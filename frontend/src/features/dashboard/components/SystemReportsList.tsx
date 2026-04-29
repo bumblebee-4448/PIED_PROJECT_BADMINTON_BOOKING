@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router";
 import { ChevronRight } from "lucide-react";
 import type { SystemReport } from "../types";
+import { Button } from "@/shared/components/ui/button";
 
 const PRIORITY_CONFIG = {
   high:   { bg: "#FEF2F2", color: "#DC2626", label: "Khẩn cấp" },
@@ -19,13 +20,14 @@ export function SystemReportsList({ reports }: SystemReportsListProps) {
     <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
       <div className="flex items-center justify-between mb-4">
         <h3 style={{ fontWeight: 700, color: "#1a1a2e", fontSize: "0.95rem" }}>Báo cáo hệ thống</h3>
-        <button 
+        <Button 
+          variant="link"
           onClick={() => navigate("/admin/products")} 
           style={{ fontSize: "0.72rem", color: "#00897B", fontWeight: 600 }} 
-          className="flex items-center gap-1"
+          className="flex items-center gap-1 p-0 h-auto hover:no-underline"
         >
           Xem tất cả <ChevronRight size={12} />
-        </button>
+        </Button>
       </div>
       <div className="flex flex-col gap-2.5">
         {reports.slice(0, 4).map((r) => {

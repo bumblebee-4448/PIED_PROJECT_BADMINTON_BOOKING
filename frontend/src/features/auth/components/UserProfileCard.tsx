@@ -85,13 +85,14 @@ export function UserProfileCard() {
       </div>
 
       {/* ─── Toggle Button ───────────────────────────────────── */}
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "h-14 px-4 rounded-2xl flex items-center gap-3 shadow-lg transition-all duration-300 pointer-events-auto active:scale-95 group overflow-hidden relative",
+          "h-14 px-4 rounded-2xl flex items-center gap-3 shadow-lg transition-all duration-300 pointer-events-auto active:scale-95 group overflow-hidden relative hover:bg-transparent",
           isOpen 
-            ? "bg-[#091E1B] text-white shadow-[#091E1B]/30" 
-            : "bg-white text-[#091E1B] shadow-gray-200"
+            ? "bg-[#091E1B] text-white shadow-[#091E1B]/30 hover:bg-[#091E1B]/90" 
+            : "bg-white text-[#091E1B] shadow-gray-200 hover:bg-gray-50"
         )}
       >
         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#004E43] to-[#00CE98] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
@@ -104,7 +105,7 @@ export function UserProfileCard() {
         
         {/* Subtle Shine Effect */}
         <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 skew-x-12" />
-      </button>
+      </Button>
     </div>
   );
 }

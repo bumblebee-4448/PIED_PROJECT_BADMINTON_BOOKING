@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Mail, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { VerifyOtpForm } from "../components/VerifyOtpForm";
+import { Button } from "@/shared/components/ui/button";
 
 export function VerifyOtpPage() {
   const navigate = useNavigate();
@@ -27,13 +28,14 @@ export function VerifyOtpPage() {
       </div>
 
       <div className="w-full max-w-md bg-white/95 backdrop-blur-2xl p-8 md:p-10 rounded-[2.5rem] shadow-[0_30px_70px_rgba(0,78,67,0.06)] border border-white relative z-10 transition-all">
-        <button 
+        <Button 
+          variant="ghost"
           onClick={() => navigate("/register")}
-          className="flex items-center gap-2 text-[#6B7280] hover:text-[#004E43] font-bold text-sm mb-8 transition-colors group"
+          className="flex items-center gap-2 text-[#6B7280] hover:text-[#004E43] font-bold text-sm mb-8 transition-colors group p-0 hover:bg-transparent h-auto"
         >
           <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
           Quay lại đăng ký
-        </button>
+        </Button>
 
         <div className="text-center mb-10">
           <div className="w-20 h-20 bg-[#00CE98]/10 rounded-[1.5rem] flex items-center justify-center mx-auto mb-6 text-[#00CE98] shadow-sm animate-bounce-slow">

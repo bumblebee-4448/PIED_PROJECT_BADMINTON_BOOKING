@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronRight } from "lucide-react";
 import type { OwnerRegistrationSchema } from "../schema";
+import { Button } from "@/shared/components/ui/button";
 
 interface OwnerRegistrationSectionProps {
   onRegister: (data: OwnerRegistrationSchema) => void;
@@ -19,9 +20,10 @@ export function OwnerRegistrationSection({ onRegister, isLoading }: OwnerRegistr
 
   return (
     <div className="bg-white rounded-2xl overflow-hidden mb-4" style={{ border: "1px solid rgba(0,0,0,0.07)" }}>
-      <button
+      <Button
+        variant="ghost"
         onClick={() => setShowSection(!showSection)}
-        className="w-full flex items-center justify-between px-5 py-4 hover:bg-gray-50 transition"
+        className="w-full flex items-center justify-between px-5 py-4 h-auto rounded-none hover:bg-gray-50 transition"
       >
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#f0fdf9" }}>🏢</div>
@@ -35,7 +37,7 @@ export function OwnerRegistrationSection({ onRegister, isLoading }: OwnerRegistr
           className="text-gray-400"
           style={{ transform: showSection ? "rotate(90deg)" : "none" }}
         />
-      </button>
+      </Button>
       {showSection && (
         <div className="px-5 pb-5 border-t border-gray-50">
           <p style={{ fontSize: "0.8rem", color: "#9ca3af", margin: "12px 0 14px", lineHeight: 1.6 }}>
@@ -73,14 +75,14 @@ export function OwnerRegistrationSection({ onRegister, isLoading }: OwnerRegistr
               ))}
             </div>
           </div>
-          <button
+          <Button
             onClick={handleSubmit}
             disabled={isLoading}
-            className="w-full py-3 rounded-xl text-white font-bold text-sm disabled:opacity-50"
-            style={{ background: "linear-gradient(135deg,#00C896,#00897B)" }}
+            variant="gradient"
+            className="w-full py-3 rounded-xl font-bold text-sm"
           >
             {isLoading ? "Đang gửi..." : "Gửi yêu cầu đăng ký"}
-          </button>
+          </Button>
         </div>
       )}
     </div>

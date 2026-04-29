@@ -14,6 +14,7 @@ import {
   PEAK_HOURS, OWNER_REVIEWS
 } from "../data/mockData";
 import { StatCard } from "../components/StatCard";
+import { Button } from "@/shared/components/ui/button";
 
 const PERIOD_OPTS = ["Tuần", "Tháng"];
 
@@ -69,11 +70,11 @@ export function OwnerDashboard() {
             </div>
             <div className="flex gap-1 bg-gray-100 p-1 rounded-xl">
               {PERIOD_OPTS.map((p) => (
-                <button key={p} onClick={() => setPeriod(p)}
-                  className="px-3 py-1 rounded-lg text-xs font-semibold transition"
+                <Button key={p} variant="ghost" onClick={() => setPeriod(p)}
+                  className="px-3 py-1 rounded-lg text-xs font-semibold transition h-auto hover:bg-transparent"
                   style={{ background: period === p ? "white" : "transparent", color: period === p ? "#00897B" : "#6b7280", boxShadow: period === p ? "0 1px 3px rgba(0,0,0,0.1)" : "none" }}>
                   {p}
-                </button>
+                </Button>
               ))}
             </div>
           </div>
@@ -120,9 +121,9 @@ export function OwnerDashboard() {
         <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
           <div className="flex items-center justify-between mb-4">
             <h3 style={{ fontWeight: 700, color: "#1a1a2e", fontSize: "0.95rem" }}>Trạng thái sân hôm nay</h3>
-            <button onClick={() => navigate("/owner/courts")} style={{ fontSize: "0.75rem", color: "#00897B", fontWeight: 600 }} className="flex items-center gap-1">
+            <Button variant="link" onClick={() => navigate("/owner/courts")} style={{ fontSize: "0.75rem", color: "#00897B", fontWeight: 600 }} className="flex items-center gap-1 p-0 h-auto">
               Xem tất cả <ChevronRight size={13} />
-            </button>
+            </Button>
           </div>
           <div className="flex flex-col gap-3">
             {OWNER_COURTS.map((court) => {
@@ -152,9 +153,9 @@ export function OwnerDashboard() {
         <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
           <div className="flex items-center justify-between mb-4">
             <h3 style={{ fontWeight: 700, color: "#1a1a2e", fontSize: "0.95rem" }}>Đánh giá gần đây ⭐</h3>
-            <button onClick={() => navigate("/owner/feedback")} style={{ fontSize: "0.75rem", color: "#00897B", fontWeight: 600 }} className="flex items-center gap-1">
+            <Button variant="link" onClick={() => navigate("/owner/feedback")} style={{ fontSize: "0.75rem", color: "#00897B", fontWeight: 600 }} className="flex items-center gap-1 p-0 h-auto">
               Xem tất cả <ChevronRight size={13} />
-            </button>
+            </Button>
           </div>
           <div className="flex flex-col gap-3">
             {OWNER_REVIEWS.slice(0, 4).map((r) => (
@@ -188,10 +189,10 @@ export function OwnerDashboard() {
           <p style={{ fontWeight: 700, fontSize: "0.85rem", color: "#92400E" }}>Sân A4 đang tắt hoạt động</p>
           <p style={{ fontSize: "0.78rem", color: "#78350F" }}>Sân A4 hiện đang ở trạng thái inactive. Bật lại để nhận thêm đơn đặt sân.</p>
         </div>
-        <button onClick={() => navigate("/owner/courts")} className="ml-auto flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold"
+        <Button onClick={() => navigate("/owner/courts")} className="ml-auto flex-shrink-0 px-3 py-1.5 rounded-lg text-xs font-bold h-auto"
           style={{ background: "#F59E0B", color: "white" }}>
           Xem sân
-        </button>
+        </Button>
       </div>
     </div>
   );
