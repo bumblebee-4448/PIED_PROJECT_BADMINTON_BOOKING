@@ -186,4 +186,41 @@ public class Service: IService
             TotalItems = totalItems,
         };
     }
+
+    public async Task ApprovePendingCourt(Guid courtId)
+    {
+        var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == courtId);
+        if (court == null)
+        {
+            throw new Exception("Court not found");
+        }
+
+        if (court.Status != nameof(StatusCreateCourt.Pending))
+        {
+            throw new Exception("Cannot approve court");
+        }
+        
+        court.Status = nameof(StatusCreateCourt.Approved);
+        
+        await _dbContext.SaveChangesAsync();
+        
+    }
+
+    public async Task RejectPendingCourt(Guid courtId, Request.RejectPendingCourtsRequest request)
+    {
+        var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == courtId);
+        if (court == null)
+        {
+            throw new Exception("Court not found");
+        }
+
+        if (court.Status != nameof(StatusCreateCourt.Pending))
+        {
+            throw new Exception("Cannot approve court");
+        }
+        
+        court.Status = nameof(StatusCreateCourt.Rejected);
+        
+        await _dbContext.SaveChangesAsync();
+    }
 }
