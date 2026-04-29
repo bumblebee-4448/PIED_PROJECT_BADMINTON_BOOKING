@@ -20,6 +20,15 @@ public class CourtController: ControllerBase
     public async Task<IActionResult> CreateCourt([FromBody] Request.CreateCourtRequest request)
     {
         var result = await _courtService.CreateCourt(request);
-        return Ok(ApiResponseFactory.SuccessResponse("", result, HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo sân thành công, đang chờ Admin duyệt" 
+            , HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("")]
+    public async Task<IActionResult> GetCourtsByFilter([FromQuery] Request.SearchByFilterRequest request)
+    {
+        var result = await _courtService.SearchByFilter(request);
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
+            , HttpContext.TraceIdentifier));
     }
 }

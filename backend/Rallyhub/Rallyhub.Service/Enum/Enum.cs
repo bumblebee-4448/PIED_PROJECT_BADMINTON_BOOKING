@@ -33,4 +33,11 @@ public class Enum
         Cancelled,
         Completed
     }
+    
+    public enum StatusCourt
+    {
+        Active,
+        Inactive,
+        Pending
+    }
 }

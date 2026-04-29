@@ -11,6 +11,7 @@ using UserService = Rallyhub.Service.User;
 using OtpService = Rallyhub.Service.OtpService;
 using CourtService = Rallyhub.Service.Court;
 
+using MapService = Rallyhub.Service.MapService;   
 // using DiscordService = Rallyhub.Service.DiscordService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,6 +43,13 @@ builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<OtpService.IService, OtpService.Service>();
 builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
 
+builder.Services.AddScoped<MapService.IService, MapService.Service>();
+
+builder.Services.AddHttpClient("VietMap", client =>
+{
+    client.Timeout = TimeSpan.FromSeconds(10);
+});
+
 builder.Services.AddStackExchangeRedisCache(options =>
 {
     options.Configuration = builder.Configuration.GetConnectionString("Redis");
@@ -72,11 +80,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.Migrate();
-}
+// using (var scope = app.Services.CreateScope())
+// {
+//     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+//     db.Database.Migrate();
+// }
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
