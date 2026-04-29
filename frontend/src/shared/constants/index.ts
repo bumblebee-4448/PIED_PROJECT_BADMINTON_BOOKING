@@ -7,10 +7,11 @@ export const API_ENDPOINTS = {
    * - REFRESH: POST /auth/refresh (axios interceptor - refresh token flow)
    */
   AUTH: {
-    LOGIN: "/auth/login",
-    REGISTER: "/auth/register",
-    LOGOUT: "/auth/logout",
-    REFRESH: "/auth/refresh",
+    LOGIN: "/User/Login",
+    REGISTER: "/User/Register",
+    LOGOUT: "/User/Logout",
+    VERIFY_OTP: "/User/Verify-otp",
+    REFRESH: "/User/Refresh", // Placeholder if backend adds it later
   },
   /**
    * User endpoints - Không dùng BaseService (custom logic phức tạp).
