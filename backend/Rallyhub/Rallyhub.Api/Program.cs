@@ -50,10 +50,10 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddQuartz();
 
-builder.Services.AddQuartzHostedService(options =>
-{
-    options.WaitForJobsToComplete = true; 
-});
+// builder.Services.AddQuartzHostedService(options =>
+// {
+//     options.WaitForJobsToComplete = true; 
+// });
 
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
