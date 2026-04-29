@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Rallyhub.Repository;
 using System.Text.Json;
-using StatusCourt = Rallyhub.Service.Enum.Enum.StatusCourt;
+using StatusCreateCourt = Rallyhub.Service.Enum.Enum.StatusCreateCourt;
 namespace Rallyhub.Service.MapService;
 
 public class Service : IService
@@ -22,7 +22,7 @@ public class Service : IService
         CancellationToken cancellationToken)
     {
         var markers = await _dbContext.Courts
-            .Where(x => x.Status == nameof(StatusCourt.Active)
+            .Where(x => x.Status == nameof(StatusCreateCourt.Approved)
                         && x.Latitude >= request.MinLat && x.Latitude <= request.MaxLat
                         && x.Longitude >= request.MinLon && x.Longitude <= request.MaxLon)
             .Select(x => new Response.CourtMapItem
@@ -42,7 +42,7 @@ public class Service : IService
         CancellationToken cancellationToken)
     {
         var allCourts = await _dbContext.Courts
-            .Where(x => x.Status == nameof(StatusCourt.Active))
+            .Where(x => x.Status == nameof(StatusCreateCourt.Approved))
             .Select(x => new Response.CourtMapItem
             {
                 Id = x.Id,

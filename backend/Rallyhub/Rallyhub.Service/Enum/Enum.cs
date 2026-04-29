@@ -34,10 +34,10 @@ public class Enum
         Completed
     }
     
-    public enum StatusCourt
+    public enum StatusCreateCourt
     {
-        Active,
-        Inactive,
+        Approved,
+        Rejected,
         Pending
     }
 }
