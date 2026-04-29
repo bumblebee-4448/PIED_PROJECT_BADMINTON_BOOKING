@@ -58,7 +58,7 @@ export function VisitorChart({ data, visitorsToday, visitorsThisWeek }: VisitorC
             tick={{ fontSize: 10, fill: "#9ca3af" }} 
             axisLine={false} 
             tickLine={false} 
-            tickFormatter={(v) => `${(v / 1000).toFixed(1)}K`} 
+            tickFormatter={(v: number) => `${(v / 1000).toFixed(1)}K`} 
           />
           <Tooltip content={<CustomTooltip />} />
           <Area 

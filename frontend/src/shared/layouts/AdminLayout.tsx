@@ -87,7 +87,7 @@ export function AdminLayout() {
               AD
             </div>
             <div>
-              <p className="text-white font-bold text-[0.85rem]">{user.fullName || user.name || "Admin"}</p>
+              <p className="text-white font-bold text-[0.85rem]">{user.fullName || "Admin"}</p>
               <div className="flex items-center gap-1">
                 <ShieldCheck size={10} className="text-[#00C896]" />
                 <span className="text-white/50 text-[0.68rem]">Super Admin</span>

@@ -147,10 +147,12 @@ apiClient.interceptors.response.use(
         // ─────────────────────────────────────────────────────
         // Lưu token mới vào store (giữ nguyên role)
         // ─────────────────────────────────────────────────────
-        useAuthStore.getState().setAuth({
-          accessToken: newToken,
-          role: useAuthStore.getState().role,
-        });
+        const authState = useAuthStore.getState();
+        authState.setAuth(
+          newToken,
+          authState.role!,
+          authState.user || undefined
+        );
 
         // ─────────────────────────────────────────────────────
         // Xử lý hàng đợi: Cho các requests đang chờ retry với token mới
@@ -171,7 +173,7 @@ apiClient.interceptors.response.use(
         // - RefreshToken bị revoke (logout từ device khác)
         // - Server có issues
         processQueue(refreshError, null); // Reject tất cả requests trong queue
-        useAuthStore.getState().clearAuth();
+        useAuthStore.getState().logout();
         toast.error("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
         window.location.href = "/login";
         return Promise.reject(refreshError);

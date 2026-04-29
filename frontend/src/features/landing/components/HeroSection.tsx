@@ -1,4 +1,3 @@
-import React from "react";
 import { ArrowRight, Play } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store";
 import { ImageWithFallback } from "@/shared/components/common";
