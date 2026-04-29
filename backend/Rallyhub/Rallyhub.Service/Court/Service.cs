@@ -9,11 +9,13 @@ public class Service : IService
 {
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContext;
+    private readonly MediaService.IService _mediaService;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, MediaService.IService mediaService)
     {
         _dbContext = dbContext;
         _httpContext = httpContext;
+        _mediaService = mediaService;
     }
 
     public async Task<Response.CreateCourtResponse> CreateCourt(Request.CreateCourtRequest request)
@@ -63,8 +65,8 @@ public class Service : IService
             Latitude = request.Latitude,
             Longitude = request.Longitude,
             MapUrl = request.MapUrl,
-            PictureUrl = request.PictureUrl,
-            Status = "Pending"
+            PictureUrl = await _mediaService.UploadImageAsync(request.PictureUrl),
+            Status = nameof(StatusCreateCourt.Pending),
         };
 
         _dbContext.Add(court);

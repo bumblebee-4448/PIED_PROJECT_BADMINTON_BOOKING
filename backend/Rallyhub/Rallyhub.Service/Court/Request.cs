@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace Rallyhub.Service.Court;
 
 public class Request
@@ -11,7 +13,7 @@ public class Request
         public required decimal Latitude { get; set; } 
         public required decimal Longitude { get; set; }
         public required string MapUrl  { get; set; } 
-        public required string PictureUrl { get; set; }
+        public required IFormFile PictureUrl { get; set; }
     }
     
     public class SearchByFilterRequest

@@ -16,8 +16,8 @@ public class CourtController: ControllerBase
         _courtService = courtService;
     }
     
-    [HttpPost("")]
-    public async Task<IActionResult> CreateCourt([FromBody] Request.CreateCourtRequest request)
+    [HttpPost("CreateCourt")]
+    public async Task<IActionResult> CreateCourt(Request.CreateCourtRequest request)
     {
         var result = await _courtService.CreateCourt(request);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo sân thành công, đang chờ Admin duyệt" 
