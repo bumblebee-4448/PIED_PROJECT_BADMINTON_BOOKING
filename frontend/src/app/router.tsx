@@ -9,6 +9,8 @@ import { HomePage } from "@/features/landing/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { VerifyOtpPage } from "@/features/auth/pages/VerifyOtpPage";
+import { ProtectedRoute } from "@/shared/components/common";
+import { ProfilePage } from "@/features/profile";
 
 /**
  * React Router v6 config – createBrowserRouter (Data API).
@@ -51,14 +53,14 @@ export const router = createBrowserRouter([
       { path: "unauthorized", element: <UnauthorizedPage /> },
 
       // Protected: cần đăng nhập
-      // {
-      //   path: "profile",
-      //   element: (
-      //     <ProtectedRoute>
-      //       <ProfilePage />
-      //     </ProtectedRoute>
-      //   ),
-      // },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
 
       // 404 fallback cho user layout
       { path: "*", element: <NotFoundPage /> },
