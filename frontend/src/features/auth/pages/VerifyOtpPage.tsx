@@ -1,21 +1,12 @@
-import React, { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Mail, ArrowLeft, CheckCircle2, Timer } from "lucide-react";
+import { Mail, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
-import { Button } from "@/shared/components/ui/button";
-import { Input } from "@/shared/components/ui/input";
-import { authService } from "../services";
-import { useAuthStore } from "../store";
-
-const OTP_LENGTH = 6;
+import { VerifyOtpForm } from "../components/VerifyOtpForm";
 
 export function VerifyOtpPage() {
-  const [otp, setOtp] = useState(new Array(OTP_LENGTH).fill(""));
-  const [timer, setTimer] = useState(60);
-  const [isVerifying, setIsVerifying] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
-  const setAuth = useAuthStore((state) => state.setAuth);
   
   // Lấy email từ state điều hướng (được gửi từ trang Register)
   const email = location.state?.email || "";
@@ -26,84 +17,6 @@ export function VerifyOtpPage() {
       navigate("/register");
     }
   }, [email, navigate]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTimer((prev) => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleChange = (index: number, value: string) => {
-    const newOtp = [...otp];
-    
-    // Nếu nhập mới (không phải xóa)
-    if (value) {
-      const char = value.slice(-1).toUpperCase();
-      newOtp[index] = char;
-      setOtp(newOtp);
-
-      // Tự động focus ô tiếp theo
-      if (index < OTP_LENGTH - 1) {
-        document.getElementById(`otp-${index + 1}`)?.focus();
-      }
-    } else {
-      // Trường hợp xóa
-      newOtp[index] = "";
-      setOtp(newOtp);
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === "Backspace") {
-      if (!otp[index] && index > 0) {
-        // Nếu ô hiện tại rỗng, quay lại ô trước và xóa
-        const prevInput = document.getElementById(`otp-${index - 1}`) as HTMLInputElement;
-        if (prevInput) {
-          prevInput.focus();
-          const newOtp = [...otp];
-          newOtp[index - 1] = "";
-          setOtp(newOtp);
-        }
-      }
-    }
-  };
-
-  const handlePaste = (e: React.ClipboardEvent) => {
-    e.preventDefault();
-    const pasteData = e.clipboardData.getData("text").slice(0, OTP_LENGTH).toUpperCase();
-    const newOtp = [...otp];
-    
-    pasteData.split("").forEach((char, i) => {
-      if (i < OTP_LENGTH) newOtp[i] = char;
-    });
-    
-    setOtp(newOtp);
-    
-    // Focus vào ô cuối cùng hoặc ô sau ký tự cuối cùng đã paste
-    const nextIndex = Math.min(pasteData.length, OTP_LENGTH - 1);
-    document.getElementById(`otp-${nextIndex}`)?.focus();
-  };
-
-  const handleVerify = async () => {
-    const otpCode = otp.join("");
-    if (otpCode.length < OTP_LENGTH) {
-      toast.error(`Vui lòng nhập đủ ${OTP_LENGTH} ký tự`);
-      return;
-    }
-
-    setIsVerifying(true);
-    try {
-      await authService.verifyOtp(email, otpCode);
-      toast.success("Xác thực tài khoản thành công!");
-      navigate("/login");
-    } catch (error: any) {
-      // Lỗi đã được xử lý bởi axios interceptor
-      console.error("Xác thực thất bại:", error);
-    } finally {
-      setIsVerifying(false);
-    }
-  };
 
   return (
     <div className="min-h-[calc(100vh-80px)] w-full flex items-center justify-center py-20 px-6 bg-[#F8FAFC] relative overflow-hidden">
@@ -133,43 +46,7 @@ export function VerifyOtpPage() {
           </p>
         </div>
 
-        <div className="flex justify-center gap-2 md:gap-3 mb-10">
-          {otp.map((digit, index) => (
-            <input
-              key={index}
-              id={`otp-${index}`}
-              type="text"
-              value={digit}
-              onChange={(e) => handleChange(index, e.target.value)}
-              onKeyDown={(e) => handleKeyDown(index, e)}
-              onPaste={handlePaste}
-              className="w-12 h-14 md:w-14 md:h-16 text-center text-2xl font-black text-[#004E43] bg-white border-2 border-[#E5E7EB] rounded-2xl focus:border-[#00CE98] focus:ring-4 focus:ring-[#00CE98]/10 transition-all outline-none shadow-sm"
-              maxLength={1}
-            />
-          ))}
-        </div>
-
-        <Button 
-          onClick={handleVerify}
-          disabled={isVerifying}
-          className="w-full h-14 rounded-2xl text-white font-extrabold text-lg shadow-lg hover:shadow-[#00CE98]/40 transition-all duration-300 active:scale-[0.98] mb-6"
-          style={{ background: "linear-gradient(to right, #004E43, #00CE98)" }}
-        >
-          {isVerifying ? "Đang xác thực..." : "Xác nhận ngay"}
-        </Button>
-
-        <div className="text-center">
-          {timer > 0 ? (
-            <p className="text-[#9CA3AF] text-sm font-medium flex items-center justify-center gap-2">
-              <Timer size={16} />
-              Gửi lại mã sau <span className="text-[#00CE98] font-bold">{timer}s</span>
-            </p>
-          ) : (
-            <button className="text-[#00CE98] font-black text-sm hover:underline hover:text-[#004E43] transition-all">
-              Gửi lại mã OTP
-            </button>
-          )}
-        </div>
+        <VerifyOtpForm email={email} />
       </div>
     </div>
   );
