@@ -25,12 +25,14 @@ public class Enum
         Complete
     }
 
-    
-    
-    
-    
-    
-    
+    public enum AllStatus
+    {
+        Active,
+        Pending,
+        Baning,
+        Cancelled,
+        Completed
+    }
     
     public enum StatusCourt
     {

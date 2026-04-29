@@ -58,6 +58,11 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddQuartz();
 
+// builder.Services.AddQuartzHostedService(options =>
+// {
+//     options.WaitForJobsToComplete = true; 
+// });
+
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
 builder.Services.AddQuartzHostedService(opt => opt.WaitForJobsToComplete = true);
@@ -66,9 +71,10 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.SetIsOriginAllowed(origin => true)
             .AllowAnyMethod()
-            .AllowAnyHeader();
+            .AllowAnyHeader()
+            .AllowCredentials();
     });
 });
 

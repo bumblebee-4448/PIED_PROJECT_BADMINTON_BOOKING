@@ -1,8 +1,7 @@
 import { Outlet, useLocation } from "react-router-dom";
-import {
-  Navbar,
-} from "@/features/landing/pages/HomePage";
+import { Navbar } from "@/features/landing";
 import { LoginPromptDialog } from "@/shared/components/common/LoginPromptDialog";
+import { UserProfileCard } from "@/features/auth/components/UserProfileCard";
 
 export function UserLayout() {
   const location = useLocation();
@@ -11,6 +10,10 @@ export function UserLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       <LoginPromptDialog />
+      
+      {/* ─── Profile Sticky Card (Visible for all logged-in roles) ─── */}
+      {!hideHeaderFooter && <UserProfileCard />}
+
       {/* ─── Header ─────────────────────────────────────── */}
       {!hideHeaderFooter && <Navbar />}
 

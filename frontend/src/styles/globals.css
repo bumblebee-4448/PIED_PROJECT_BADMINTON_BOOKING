@@ -121,3 +121,21 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-linear-to-br from-[#00C896] to-[#00897B];
+  }
+
+  .bg-primary-gradient {
+    @apply bg-linear-to-br from-[#00C896] to-[#00897B];
+  }
+
+  .hover-lift {
+    @apply transition-all duration-300 hover:shadow-xl hover:-translate-y-1;
+  }
+
+  .container-landing {
+    @apply max-w-7xl mx-auto px-6;
+  }
+}

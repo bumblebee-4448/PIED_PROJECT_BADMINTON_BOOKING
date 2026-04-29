@@ -8,6 +8,7 @@ import { UnauthorizedPage, NotFoundPage } from "@/shared/pages";
 import { HomePage } from "@/features/landing/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
+import { VerifyOtpPage } from "@/features/auth/pages/VerifyOtpPage";
 
 /**
  * React Router v6 config – createBrowserRouter (Data API).
@@ -36,6 +37,14 @@ export const router = createBrowserRouter([
         element: (
           <GuestRoute>
             <RegisterPage />
+          </GuestRoute>
+        ),
+      },
+      {
+        path: "verify-otp",
+        element: (
+          <GuestRoute>
+            <VerifyOtpPage />
           </GuestRoute>
         ),
       },

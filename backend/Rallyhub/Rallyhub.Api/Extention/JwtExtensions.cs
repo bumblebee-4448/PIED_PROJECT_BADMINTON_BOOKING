@@ -9,9 +9,9 @@ namespace Rallyhub.Api.Extention;
 public static class JwtExtensions
 {
     public const string AdminPolicy = "AdminPolicy";
-    public const string SellerPolicy = "SellerPolicy";
-    public const string UserPolicy = "UserPolicy";
-    public const string SellerOrAdminPolicy = "SellerOrAdminPolicy";
+    public const string CustomerPolicy = "CustomerPolicy";
+    public const string OwnerPolicy = "OwnerPolicy";
+    public const string OwnerOrAdminPolicy = "OwnerOrAdminPolicy";
 
     
     public static void AddJwtServices(this IServiceCollection services, IConfiguration configuration)
@@ -45,15 +45,15 @@ public static class JwtExtensions
                 policy.RequireRole("Admin"));
             // [Authorize(Policy = JwtExtensions.AdminPolicy)]
         
-            options.AddPolicy(SellerPolicy, policy =>
-                policy.RequireRole("Seller"));
+            options.AddPolicy(CustomerPolicy, policy =>
+                policy.RequireRole("Customer"));
             // [Authorize(Policy = JwtExtensions.SellerPolicy)]
         
-            options.AddPolicy(UserPolicy, policy =>
-                policy.RequireRole("User"));
+            options.AddPolicy(OwnerPolicy, policy =>
+                policy.RequireRole("Owner"));
         
-            options.AddPolicy(SellerOrAdminPolicy, policy =>
-                policy.RequireRole("Seller", "Admin"));
+            options.AddPolicy(OwnerOrAdminPolicy, policy =>
+                policy.RequireRole("Owner", "Admin"));
         
             // [Authorize(Policy = JwtExtensions.SellerOrAdminPolicy)]
         }); 
