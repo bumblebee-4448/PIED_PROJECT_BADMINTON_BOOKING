@@ -64,4 +64,13 @@ public class Usercontroller : ControllerBase
         var result = await _userService.OwnerRequest(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success you!", HttpContext.TraceIdentifier));
     }
+    
+    [HttpPost("GetOwnerRequest")]
+    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
+    public async Task<IActionResult> GetOwnerRequest(Request.GetOwnerRequest request)
+    {
+        
+        var result = await _userService.GetOwnerRequest(request);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success you!", HttpContext.TraceIdentifier));
+    }
 }

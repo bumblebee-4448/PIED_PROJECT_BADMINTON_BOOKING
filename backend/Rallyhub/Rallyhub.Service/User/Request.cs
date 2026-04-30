@@ -4,6 +4,12 @@ namespace Rallyhub.Service.User;
 
 public class Request
 {
+    public class UserRequest
+    {
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public string? PhoneNumber { get; set; }
+    }
     public class RegisterRequest : UserRequest
     {
         public required string Email { get; set; }
@@ -21,11 +27,11 @@ public class Request
         public required IFormFile IdentityCardFrontUrl { get; set; } // Ảnh mặt trước CCCD
         public required IFormFile IdentityCardBackUrl { get; set; } // Ảnh mặt sau CCCD
     }
-    
-    public class UserRequest
+
+    public class GetOwnerRequest
     {
-        public required string FirstName { get; set; }
-        public required string LastName { get; set; }
-        public string? PhoneNumber { get; set; }
+        public int PageSize { get; set; } = 10;
+        public int PageIndex { get; set; } = 1;
     }
+    
 }

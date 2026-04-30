@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 using Rallyhub.Repository.Entity;
 using Exception = System.Exception;
@@ -54,5 +55,43 @@ public class Service : IService
             return "Success";
         }
         return "Fail";
+    }
+
+    public async Task<Base.Response.PageResult<Response.OwnerRequestResponse>> GetOwnerRequest(Request.GetOwnerRequest request)
+    {
+        var customerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var customerIdGuild = Guid.Parse(customerId!);
+        var ownerRequestQuery = _dbContext.OwnerRequests.Where(x => x.CustomerId == customerIdGuild);
+        ownerRequestQuery = ownerRequestQuery.OrderBy(x => x.CreatedAt);
+        ownerRequestQuery = ownerRequestQuery
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize);
+        var selectOwnerRequest = ownerRequestQuery.Select(x => new Response.OwnerRequestResponse()
+        {
+            CustomerId = x.CustomerId,
+            OwnerId = x.OwnerId,
+            BusinessName = x.BusinessName,
+            TaxCode = x.TaxCode,
+            BusinessAddress = x.BusinessAddress,
+            BusinessLicenseUrl = x.BusinessLicenseUrl,
+            IdentityNumber = x.IdentityNumber,
+            IdentityCardFrontUrl = x.IdentityCardFrontUrl,
+            IdentityCardBackUrl = x.IdentityCardBackUrl,
+            Status = x.Status,
+            RejectionReason = x.RejectionReason,
+            CreatedAt =  x.CreatedAt,
+        });
+
+        var listResult = await selectOwnerRequest.ToListAsync();
+        var totalCount = listResult.Count;
+        var result = new Base.Response.PageResult<Response.OwnerRequestResponse>()
+        {
+            Items = listResult,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize,
+            TotalItems = totalCount,
+        };
+        return result;
+
     }
 }
