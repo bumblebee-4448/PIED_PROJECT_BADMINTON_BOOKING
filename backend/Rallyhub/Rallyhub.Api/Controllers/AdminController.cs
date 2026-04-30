@@ -20,6 +20,7 @@ public class AdminController: ControllerBase
     }
 
     [HttpGet("getAllUser")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> getUser(string? search, int pageIndex, int pageSize, Guid? id, Service.Enum.Enum.Role? role, Service.Enum.Enum.StatusUsers? status)
     {
         var result = await _adminService.GetUsers(search, pageIndex, pageSize, id, role, status);
@@ -28,6 +29,7 @@ public class AdminController: ControllerBase
     }
 
     [HttpGet("getUserById/{id}")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> GetUserById(Guid id)
     {
         var result = await _adminService.GetUserById(id);
@@ -61,10 +63,19 @@ public class AdminController: ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success you!", HttpContext.TraceIdentifier));
     }
     [HttpDelete("DeleteCourt/{id}")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> DeleteCourt(Guid id)
     {
         await _adminService.DeleteCourt(id);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
             ($"Xóa sân thành công",HttpContext.TraceIdentifier));
+    }
+    [HttpPatch("UpdateStatusUser")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    public async Task<IActionResult> UpdateStatusUser(Service.Admin.Request.UpdateStatusUserResponse request)
+    {
+        await _adminService.UpdateStatusUser(request);
+        return Ok(Service.Models.ApiResponseFactory.SuccessResponse
+            ($"Update status thành công",HttpContext.TraceIdentifier));
     }
 }

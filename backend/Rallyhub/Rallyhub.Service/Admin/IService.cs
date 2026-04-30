@@ -11,6 +11,7 @@ public interface IService
     public Task<Base.Response.PageResult<Response.AdminGetOwnerRequestResponse>> AdminGetOwnerRequest(Base.Request.Pagination request);
     public Task<string> AdminAcceptOwnerRequest(Guid ownerRequestId);
     public Task<string> AdminRejectOwnerRequest(Guid ownerRequestId, string? rejectReason);
+    public Task UpdateStatusUser(Request.UpdateStatusUserResponse request);
     /*
      CourtMethod
      */

@@ -18,12 +18,6 @@ public class Service: IService
     public async Task<Base.Response.PageResult<Response.UserDto>>
         GetUsers(string? search, int pageIndex, int pageSize, Guid? id, Enum.Enum.Role? role, Enum.Enum.StatusUsers? status)
     {
-        var roleAdmin = _httpContextAccessor.HttpContext.User.Claims
-                                .FirstOrDefault(x => x.Type == "Role")?.Value;
-        if (roleAdmin != Enum.Enum.Role.Admin.ToString())
-        {
-            throw new Exception("Bạn không được ủy quyền");
-        }
         var getAllUser = _dbContext.Users.Where(x => true);
 
         if (!string.IsNullOrWhiteSpace(search))
@@ -78,12 +72,6 @@ public class Service: IService
 
     public async Task<Response.UserDto> GetUserById(Guid id)
     {
-        var roleAdmin = _httpContextAccessor.HttpContext.User.Claims
-                                .FirstOrDefault(x => x.Type == "Role")?.Value;
-        if (roleAdmin != Enum.Enum.Role.Admin.ToString())
-        {
-            throw new Exception("Bạn không được ủy quyền");
-        }
         var user = await _dbContext.Users
             .Include(x => x.Customer)
             .Include(x => x.Owner).FirstOrDefaultAsync(x => x.Id == id);
@@ -262,12 +250,6 @@ public class Service: IService
     }
     public async Task DeleteCourt(Guid id)
     {
-        // var roleAdmin = _httpContextAccessor.HttpContext.User.Claims
-        //                         .FirstOrDefault(x => x.Type == "Role")?.Value;
-        // if (roleAdmin != Enum.Enum.Role.Admin.ToString())
-        // {
-        //     throw new Exception("Bạn không được ủy quyền");
-        // }
         var court = await  _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == id);
         if (court == null)
         {
@@ -275,5 +257,192 @@ public class Service: IService
         }
         _dbContext.Courts.Remove(court);
         await _dbContext.SaveChangesAsync();
+    }
+    public async Task UpdateStatusUser(Request.UpdateStatusUserResponse request)
+    {
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
+        if (user == null)
+        {
+            throw new Exception("User không tồn tại");
+        }
+        if (user.Role == Enum.Enum.Role.Customer.ToString())
+        {
+            user.Status = request.Status;
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+        }
+
+        if (user.Role == Enum.Enum.Role.Owner.ToString() && request.Status == Enum.Enum.StatusUsers.Locked.ToString())
+        {
+            var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == request.Id);
+            if (owner == null)
+            {
+                throw new Exception("Không tìm thấy owner");
+            }
+            var courtList = await _dbContext.Courts.Where(x => x.OwnerId == owner.Id).ToListAsync();
+            if (!courtList.Any())
+            {
+                user.Status = request.Status;
+                _dbContext.Users.Update(user);
+                await _dbContext.SaveChangesAsync();
+                return;
+            }
+            foreach (var court in courtList)
+            {
+                var likeListDetail = await _dbContext.LikeListDetails.Where(x => x.CourtId == court.Id).ToListAsync();
+                if (likeListDetail.Any())
+                {
+                    foreach (var item in likeListDetail)
+                    {
+                        item.IsDeleted = true;
+                        _dbContext.LikeListDetails.Update(item);
+                    }
+                }
+                var campaignCourt = await _dbContext.CampaignCourts.Where(x => x.CourtId == court.Id).ToListAsync();
+                if (campaignCourt.Any())
+                {
+                    var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == campaignCourt[0].CampaignId);
+                    if (campaign != null)
+                    {
+                        campaign.IsDeleted = true;
+                        _dbContext.Campaigns.Update(campaign);
+                    }
+                    foreach (var item in campaignCourt)
+                    {
+                        item.IsDeleted = true;
+                        _dbContext.CampaignCourts.Update(item);
+                    }
+                }
+                var subCourtList = await _dbContext.SubCourts.Where(x => x.CourtId == court.Id).ToListAsync();
+                if (subCourtList.Any())
+                {
+                    foreach (var subCourt in subCourtList)
+                    {
+                        var exceptionList = await _dbContext.Exceptions.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
+                        if (exceptionList.Any())
+                        {
+                            foreach (var item in exceptionList)
+                            {
+                                item.IsDeleted = true;
+                                _dbContext.Exceptions.Update(item);
+                            }
+                        }
+                        var configSlotList = await _dbContext.ConfigSlots.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
+                        if (configSlotList.Any())
+                        {
+                            foreach (var item in configSlotList)
+                            {
+                                item.IsDeleted = true;
+                                _dbContext.ConfigSlots.Update(item);
+                            }
+                        }
+                        var overrideSlotList = await _dbContext.OverideSlots.Where(x => x.SubCourtDetailId ==  subCourt.Id).ToListAsync();
+                        if (overrideSlotList.Any())
+                        {
+                            foreach (var item in overrideSlotList)
+                            {
+                                item.IsDeleted = true;
+                                _dbContext.OverideSlots.Update(item);
+                            }
+                        }
+                        subCourt.IsDeleted = true;
+                        _dbContext.SubCourts.Update(subCourt);
+                    }
+                }
+                court.IsDeleted = true;
+                _dbContext.Courts.Update(court);
+            }
+            owner.IsDeleted = true;
+            user.Status = request.Status;
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+            return;
+        }
+        if (user.Role == Enum.Enum.Role.Owner.ToString() && request.Status == Enum.Enum.StatusUsers.Active.ToString())
+        {
+            var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == request.Id);
+            if (owner == null)
+            {
+                throw new Exception("Không tìm thấy owner");
+            }
+            var courtList = await _dbContext.Courts.Where(x => x.OwnerId == owner.Id).ToListAsync();
+            if (!courtList.Any())
+            {
+                user.Status = request.Status;
+                _dbContext.Users.Update(user);
+                await _dbContext.SaveChangesAsync();
+                return;
+            }
+            foreach (var court in courtList)
+            {
+                var likeListDetail = await _dbContext.LikeListDetails.Where(x => x.CourtId == court.Id).ToListAsync();
+                if (likeListDetail.Any())
+                {
+                    foreach (var item in likeListDetail)
+                    {
+                        item.IsDeleted = false;
+                        _dbContext.LikeListDetails.Update(item);
+                    }
+                }
+                var campaignCourt = await _dbContext.CampaignCourts.Where(x => x.CourtId == court.Id).ToListAsync();
+                if (campaignCourt.Any())
+                {
+                    var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == campaignCourt[0].CampaignId);
+                    if (campaign != null)
+                    {
+                        campaign.IsDeleted = false;
+                        _dbContext.Campaigns.Update(campaign);
+                    }
+                    foreach (var item in campaignCourt)
+                    {
+                        item.IsDeleted = false;
+                        _dbContext.CampaignCourts.Update(item);
+                    }
+                }
+                var subCourtList = await _dbContext.SubCourts.Where(x => x.CourtId == court.Id).ToListAsync();
+                if (subCourtList.Any())
+                {
+                    foreach (var subCourt in subCourtList)
+                    {
+                        var exceptionList = await _dbContext.Exceptions.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
+                        if (exceptionList.Any())
+                        {
+                            foreach (var item in exceptionList)
+                            {
+                                item.IsDeleted = false;
+                                _dbContext.Exceptions.Update(item);
+                            }
+                        }
+                        var configSlotList = await _dbContext.ConfigSlots.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
+                        if (configSlotList.Any())
+                        {
+                            foreach (var item in configSlotList)
+                            {
+                                item.IsDeleted = false;
+                                _dbContext.ConfigSlots.Update(item);
+                            }
+                        }
+                        var overrideSlotList = await _dbContext.OverideSlots.Where(x => x.SubCourtDetailId ==  subCourt.Id).ToListAsync();
+                        if (overrideSlotList.Any())
+                        {
+                            foreach (var item in overrideSlotList)
+                            {
+                                item.IsDeleted = false;
+                                _dbContext.OverideSlots.Update(item);
+                            }
+                        }
+                        subCourt.IsDeleted = false;
+                        _dbContext.SubCourts.Update(subCourt);
+                    }
+                }
+                court.IsDeleted = false;
+                _dbContext.Courts.Update(court);
+                
+            }
+            owner.IsDeleted = false;
+            user.Status = request.Status;
+            _dbContext.Users.Update(user);
+            await _dbContext.SaveChangesAsync();
+        }
     }
 }
