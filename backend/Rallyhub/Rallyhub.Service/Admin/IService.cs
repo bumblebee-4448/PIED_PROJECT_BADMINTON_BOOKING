@@ -12,6 +12,11 @@ public interface IService
     public Task<string> AdminAcceptOwnerRequest(Guid ownerRequestId);
     public Task<string> AdminRejectOwnerRequest(Guid ownerRequestId, string? rejectReason);
     public Task UpdateStatusUser(Request.UpdateStatusUserResponse request);
+    public Task<Base.Response.PageResult<Response.GetPendingCourtsResponse>> GetPendingCourts  
+        (Request.GetPendingCourtsRequest request);  
+  
+    public Task ApprovePendingCourt(Guid courtId);  
+    public Task RejectPendingCourt(Guid courtId, Request.RejectPendingCourtsRequest request);
     /*
      CourtMethod
      */

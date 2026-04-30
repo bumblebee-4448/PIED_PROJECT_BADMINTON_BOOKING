@@ -15,9 +15,6 @@ using CloudinaryService = Rallyhub.Service.CloudinaryService;
 using AdminService = Rallyhub.Service.Admin;
 using CustomerService = Rallyhub.Service.Customer;
 using OwnerService = Rallyhub.Service.Owner;
-
-
-
 using MapService = Rallyhub.Service.MapService;   
 // using DiscordService = Rallyhub.Service.DiscordService;
 
@@ -52,7 +49,6 @@ builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
 builder.Services.AddScoped<MapService.IService, MapService.Service>();
 builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
 builder.Services.AddScoped<AdminService.IService, AdminService.Service>();
-
 builder.Services.AddScoped<CustomerService.IService, CustomerService.Service>();
 builder.Services.AddScoped<OwnerService.IService, OwnerService.Service>();
 

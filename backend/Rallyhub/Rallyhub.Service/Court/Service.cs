@@ -2,7 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
-using StatusCourt = Rallyhub.Service.Enum.Enum.StatusCourt;
+using StatusCourt = Rallyhub.Service.Enum.Enum.StatusCreateCourt;
 namespace Rallyhub.Service.Court;
 
 public class Service : IService
@@ -81,7 +81,7 @@ public class Service : IService
     {
 
         var  query = _dbContext.Courts
-            .Where(x => x.Status == nameof(StatusCourt.Active))
+            .Where(x => x.Status == nameof(StatusCourt.Approved))
             .Select(x => new
             {
                 Court = x,
