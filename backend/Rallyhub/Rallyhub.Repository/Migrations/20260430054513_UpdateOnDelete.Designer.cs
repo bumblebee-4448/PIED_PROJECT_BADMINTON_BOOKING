@@ -12,8 +12,8 @@ using Rallyhub.Repository;
 namespace Rallyhub.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260428232559_newhoang01")]
-    partial class newhoang01
+    [Migration("20260430054513_UpdateOnDelete")]
+    partial class UpdateOnDelete
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -77,10 +77,10 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("9e164d23-d0a9-4bd9-a5dc-d9200b229fa0"),
-                            CampaignId = new Guid("c4a85000-6616-48bf-b349-38cd57308f29"),
+                            Id = new Guid("931fc5e4-664d-4b3f-92ff-03ce5d2e2086"),
+                            CampaignId = new Guid("150f1fa5-a12c-4076-b30d-f5be62ecf1b8"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            CustomerId = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             DiscountAmount = 20000m,
                             FinalPrice = 180000m,
                             IsDeleted = false,
@@ -90,10 +90,10 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f5ea7bae-c94b-4a3b-abe7-e078a212b0e7"),
-                            CampaignId = new Guid("c4a85000-6616-48bf-b349-38cd57308f29"),
+                            Id = new Guid("adb1b67d-6fb5-4431-bb2c-0f6e92d0c926"),
+                            CampaignId = new Guid("150f1fa5-a12c-4076-b30d-f5be62ecf1b8"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            CustomerId = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             DiscountAmount = 30000m,
                             FinalPrice = 270000m,
                             IsDeleted = false,
@@ -103,10 +103,10 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9e3283d1-526c-40ed-8eea-f35438d2b5f1"),
-                            CampaignId = new Guid("9d6b60ce-8adc-410f-a099-e51e7dc6d610"),
+                            Id = new Guid("ad57c07f-a0b7-4898-bfce-23855acbeaff"),
+                            CampaignId = new Guid("756c7617-141a-4122-aa4b-a6375c5d4ded"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             DiscountAmount = 0m,
                             FinalPrice = 150000m,
                             IsDeleted = false,
@@ -116,11 +116,11 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("0b98da94-d94b-4924-99ec-bec0fc877be5"),
-                            CampaignId = new Guid("9d6b60ce-8adc-410f-a099-e51e7dc6d610"),
+                            Id = new Guid("2f305eaa-2245-4b04-9553-40f6fb3e0913"),
+                            CampaignId = new Guid("756c7617-141a-4122-aa4b-a6375c5d4ded"),
                             CancellationReason = "Khách huỷ",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             DiscountAmount = 50000m,
                             FinalPrice = 200000m,
                             IsDeleted = false,
@@ -130,10 +130,10 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("eedc7fea-fe8c-43ef-a428-324999075129"),
-                            CampaignId = new Guid("9d6b60ce-8adc-410f-a099-e51e7dc6d610"),
+                            Id = new Guid("e9c9db67-186d-4110-8a41-a88bea3124f5"),
+                            CampaignId = new Guid("756c7617-141a-4122-aa4b-a6375c5d4ded"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             DiscountAmount = 40000m,
                             FinalPrice = 360000m,
                             IsDeleted = false,
@@ -187,67 +187,67 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d80cfd6f-30f9-45f4-85ad-723a1be932b3"),
-                            BookingId = new Guid("9e164d23-d0a9-4bd9-a5dc-d9200b229fa0"),
+                            Id = new Guid("dfd3203d-2851-4ff2-9251-9d8ed7c7df96"),
+                            BookingId = new Guid("931fc5e4-664d-4b3f-92ff-03ce5d2e2086"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Date = new DateTimeOffset(new DateTime(2026, 4, 24, 6, 25, 57, 727, DateTimeKind.Unspecified).AddTicks(1370), new TimeSpan(0, 7, 0, 0, 0)),
+                            Date = new DateTimeOffset(new DateTime(2026, 4, 25, 12, 45, 13, 249, DateTimeKind.Unspecified).AddTicks(4206), new TimeSpan(0, 7, 0, 0, 0)),
                             EndTime = new TimeOnly(10, 0, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(8, 0, 0),
-                            SubCourtId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("10154384-9d06-4146-a173-d0b8661875be"),
-                            BookingId = new Guid("f5ea7bae-c94b-4a3b-abe7-e078a212b0e7"),
+                            Id = new Guid("ff838465-01a7-4f9d-8ce7-a86442b51ac5"),
+                            BookingId = new Guid("adb1b67d-6fb5-4431-bb2c-0f6e92d0c926"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Date = new DateTimeOffset(new DateTime(2026, 4, 24, 6, 25, 57, 727, DateTimeKind.Unspecified).AddTicks(1430), new TimeSpan(0, 7, 0, 0, 0)),
+                            Date = new DateTimeOffset(new DateTime(2026, 4, 25, 12, 45, 13, 249, DateTimeKind.Unspecified).AddTicks(4270), new TimeSpan(0, 7, 0, 0, 0)),
                             EndTime = new TimeOnly(7, 0, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(6, 0, 0),
-                            SubCourtId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("d8f81dac-7109-4de3-8e19-3094dbca4fe6"),
-                            BookingId = new Guid("9e3283d1-526c-40ed-8eea-f35438d2b5f1"),
+                            Id = new Guid("f93730ad-8121-40d3-93fa-ad65af7f4cb6"),
+                            BookingId = new Guid("ad57c07f-a0b7-4898-bfce-23855acbeaff"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Date = new DateTimeOffset(new DateTime(2026, 4, 26, 6, 25, 57, 727, DateTimeKind.Unspecified).AddTicks(1434), new TimeSpan(0, 7, 0, 0, 0)),
+                            Date = new DateTimeOffset(new DateTime(2026, 4, 27, 12, 45, 13, 249, DateTimeKind.Unspecified).AddTicks(4274), new TimeSpan(0, 7, 0, 0, 0)),
                             EndTime = new TimeOnly(8, 0, 0),
                             IsDeleted = false,
                             Price = 150000m,
                             StartTime = new TimeOnly(7, 0, 0),
-                            SubCourtId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("710f7b53-eb6c-4b8c-a556-533fe12f1ebf"),
-                            BookingId = new Guid("0b98da94-d94b-4924-99ec-bec0fc877be5"),
+                            Id = new Guid("da62a70e-94b9-4517-aa6f-30a60c8080e6"),
+                            BookingId = new Guid("2f305eaa-2245-4b04-9553-40f6fb3e0913"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Date = new DateTimeOffset(new DateTime(2026, 4, 26, 6, 25, 57, 727, DateTimeKind.Unspecified).AddTicks(1437), new TimeSpan(0, 7, 0, 0, 0)),
+                            Date = new DateTimeOffset(new DateTime(2026, 4, 27, 12, 45, 13, 249, DateTimeKind.Unspecified).AddTicks(4277), new TimeSpan(0, 7, 0, 0, 0)),
                             EndTime = new TimeOnly(10, 0, 0),
                             IsDeleted = false,
                             Price = 150000m,
                             StartTime = new TimeOnly(6, 0, 0),
-                            SubCourtId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("b6cfbaac-916b-48fe-b9f4-48ca659ec5e5"),
-                            BookingId = new Guid("eedc7fea-fe8c-43ef-a428-324999075129"),
+                            Id = new Guid("e714b1f7-ffc0-4d2e-b6d2-9ba869861dad"),
+                            BookingId = new Guid("e9c9db67-186d-4110-8a41-a88bea3124f5"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            Date = new DateTimeOffset(new DateTime(2026, 4, 30, 6, 25, 57, 727, DateTimeKind.Unspecified).AddTicks(1439), new TimeSpan(0, 7, 0, 0, 0)),
+                            Date = new DateTimeOffset(new DateTime(2026, 5, 1, 12, 45, 13, 249, DateTimeKind.Unspecified).AddTicks(4291), new TimeSpan(0, 7, 0, 0, 0)),
                             EndTime = new TimeOnly(10, 0, 0),
                             IsDeleted = false,
                             Price = 150000m,
                             StartTime = new TimeOnly(9, 0, 0),
-                            SubCourtId = new Guid("be2ad481-f3a4-4d79-9502-0d3a87ee73dc"),
+                            SubCourtId = new Guid("ed040c6f-86f0-42f0-ae2d-4bb4a7048cd8"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
@@ -313,7 +313,7 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c4a85000-6616-48bf-b349-38cd57308f29"),
+                            Id = new Guid("150f1fa5-a12c-4076-b30d-f5be62ecf1b8"),
                             Code = "SUMMER25",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             DiscountPercent = 10m,
@@ -322,7 +322,7 @@ namespace Rallyhub.Repository.Migrations
                             IsGlobal = false,
                             MaxDiscountAmount = 50000m,
                             MinBookingAmount = 200000m,
-                            OwnerId = new Guid("67a3ac46-dbe0-4607-b1ba-aa605353e62c"),
+                            OwnerId = new Guid("95fee089-85d9-4424-97d0-80ac7ecba45f"),
                             StartDate = new DateTime(2026, 6, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UsageLimit = 100,
@@ -330,7 +330,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("5890d6fd-7b81-4deb-98bc-80b4cf1b6b19"),
+                            Id = new Guid("42743bc5-c630-496b-a30d-6baacbec5f6f"),
                             Code = "FLASH50",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             DiscountPercent = 50m,
@@ -339,7 +339,7 @@ namespace Rallyhub.Repository.Migrations
                             IsGlobal = false,
                             MaxDiscountAmount = 200000m,
                             MinBookingAmount = 500000m,
-                            OwnerId = new Guid("67a3ac46-dbe0-4607-b1ba-aa605353e62c"),
+                            OwnerId = new Guid("95fee089-85d9-4424-97d0-80ac7ecba45f"),
                             StartDate = new DateTime(2026, 6, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UsageLimit = 10,
@@ -347,7 +347,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("6c65c9e0-8c66-48a9-b09e-f3e50557712c"),
+                            Id = new Guid("e96d0185-562e-4368-b915-7640daa4d6e7"),
                             Code = "YEUTH",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             DiscountPercent = 5m,
@@ -356,7 +356,7 @@ namespace Rallyhub.Repository.Migrations
                             IsGlobal = false,
                             MaxDiscountAmount = 30000m,
                             MinBookingAmount = 100000m,
-                            OwnerId = new Guid("67a3ac46-dbe0-4607-b1ba-aa605353e62c"),
+                            OwnerId = new Guid("95fee089-85d9-4424-97d0-80ac7ecba45f"),
                             StartDate = new DateTime(2026, 6, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UsageLimit = 500,
@@ -364,7 +364,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9d6b60ce-8adc-410f-a099-e51e7dc6d610"),
+                            Id = new Guid("756c7617-141a-4122-aa4b-a6375c5d4ded"),
                             Code = "NEWUSER",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             DiscountPercent = 20m,
@@ -373,7 +373,7 @@ namespace Rallyhub.Repository.Migrations
                             IsGlobal = false,
                             MaxDiscountAmount = 100000m,
                             MinBookingAmount = 300000m,
-                            OwnerId = new Guid("1ce65ffc-99c3-48e5-be18-d94ee757f0d2"),
+                            OwnerId = new Guid("0127ab70-281c-4f47-827e-c0cf0445fbe7"),
                             StartDate = new DateTime(2026, 6, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UsageLimit = 50,
@@ -381,7 +381,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("56389d8c-ae58-4c5b-a5b6-8e4203b2bcbd"),
+                            Id = new Guid("b831b0c7-7bc4-4f3f-86fb-be235e9db520"),
                             Code = "WEEKEND10",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             DiscountPercent = 15m,
@@ -390,7 +390,7 @@ namespace Rallyhub.Repository.Migrations
                             IsGlobal = false,
                             MaxDiscountAmount = 75000m,
                             MinBookingAmount = 250000m,
-                            OwnerId = new Guid("1ce65ffc-99c3-48e5-be18-d94ee757f0d2"),
+                            OwnerId = new Guid("0127ab70-281c-4f47-827e-c0cf0445fbe7"),
                             StartDate = new DateTime(2026, 6, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UsageLimit = 200,
@@ -398,7 +398,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("e498d72b-afd3-49e8-98e6-f6d0efba0bf0"),
+                            Id = new Guid("f6ec7a65-05fe-4e82-8a3a-da51da5b775b"),
                             Code = "LOYAL5",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             DiscountPercent = 5m,
@@ -407,7 +407,7 @@ namespace Rallyhub.Repository.Migrations
                             IsGlobal = false,
                             MaxDiscountAmount = 30000m,
                             MinBookingAmount = 100000m,
-                            OwnerId = new Guid("1ce65ffc-99c3-48e5-be18-d94ee757f0d2"),
+                            OwnerId = new Guid("0127ab70-281c-4f47-827e-c0cf0445fbe7"),
                             StartDate = new DateTime(2026, 6, 12, 0, 0, 0, 0, DateTimeKind.Utc),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             UsageLimit = 500,
@@ -447,36 +447,36 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("14dd9ff5-688f-45fc-a182-45a21fe4971f"),
-                            CampaignId = new Guid("9d6b60ce-8adc-410f-a099-e51e7dc6d610"),
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            Id = new Guid("9c7d896d-d35f-4e33-b69e-e6c0f2fcad39"),
+                            CampaignId = new Guid("756c7617-141a-4122-aa4b-a6375c5d4ded"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("3d74f617-637f-472b-94b6-5daab0a27e91"),
-                            CampaignId = new Guid("9d6b60ce-8adc-410f-a099-e51e7dc6d610"),
-                            CourtId = new Guid("5b383bb6-aa1e-4de7-aee6-ba3862ca2668"),
+                            Id = new Guid("68e9715d-a8b3-4cc7-9185-f942f1226e62"),
+                            CampaignId = new Guid("756c7617-141a-4122-aa4b-a6375c5d4ded"),
+                            CourtId = new Guid("e70101df-01de-44e7-83c3-d6756b1cc56d"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("678d1a9b-a05a-42da-9979-a562a7c3c285"),
-                            CampaignId = new Guid("c4a85000-6616-48bf-b349-38cd57308f29"),
-                            CourtId = new Guid("aa3f9604-71f8-46bc-8a14-eead7c4735ce"),
+                            Id = new Guid("ba03879c-f8de-4926-ad42-ba337da7fe38"),
+                            CampaignId = new Guid("150f1fa5-a12c-4076-b30d-f5be62ecf1b8"),
+                            CourtId = new Guid("321c4900-68e7-4780-934d-2928414af7fe"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("8a22b0f7-a129-40d6-9695-be16f28d008c"),
-                            CampaignId = new Guid("c4a85000-6616-48bf-b349-38cd57308f29"),
-                            CourtId = new Guid("83570bb6-0268-486a-a161-16d7d0fffd7d"),
+                            Id = new Guid("d7242e7c-3ce6-4b13-9129-8c4c8f083466"),
+                            CampaignId = new Guid("150f1fa5-a12c-4076-b30d-f5be62ecf1b8"),
+                            CourtId = new Guid("07c0a296-c6dc-455a-954b-82dd557f410a"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -519,354 +519,354 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("b33ada0f-8105-448a-9f44-7fbfca239ce4"),
+                            Id = new Guid("750c6af2-60df-49d3-8e9d-94289f1e482e"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(6, 30, 0),
                             IsDeleted = false,
                             Price = 50000m,
                             StartTime = new TimeOnly(6, 0, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("0358764e-7fcc-4b79-9444-b887929145b6"),
+                            Id = new Guid("37c04cb5-2e1c-4742-9265-21441ddedf05"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(6, 30, 0),
                             IsDeleted = false,
                             Price = 70000m,
                             StartTime = new TimeOnly(6, 0, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("eb14430d-4a11-4894-a0bd-004697588819"),
+                            Id = new Guid("3431212d-84e8-4166-baae-894c17575796"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(6, 30, 0),
                             IsDeleted = false,
                             Price = 35000m,
                             StartTime = new TimeOnly(6, 0, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("423a5fd8-fda9-4a0c-8984-fd10ab8aa478"),
+                            Id = new Guid("12290f1a-5a85-438f-9758-a50050a43580"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(6, 30, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(6, 0, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("9376bc07-2bdd-4eb6-9aa7-1b7f63e7141b"),
+                            Id = new Guid("e62c767d-907f-47c9-9092-6d0f423a14d4"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(7, 0, 0),
                             IsDeleted = false,
                             Price = 50000m,
                             StartTime = new TimeOnly(6, 30, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("4e2032e0-fcfa-4ab1-82e3-60b5af3224b0"),
+                            Id = new Guid("ae0aea54-a42d-41d9-8868-abffa74df46f"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(7, 0, 0),
                             IsDeleted = false,
                             Price = 70000m,
                             StartTime = new TimeOnly(6, 30, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("3822a5ee-c0c5-48d6-a779-6af2ea5c0cd4"),
+                            Id = new Guid("82ad649d-9586-4f65-b98a-74fa1b33501e"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(7, 0, 0),
                             IsDeleted = false,
                             Price = 35000m,
                             StartTime = new TimeOnly(6, 30, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("84af2f2c-7d4a-4eda-a96f-0a132b76c08d"),
+                            Id = new Guid("53a4a846-1542-4ced-aef3-c62bbb538fec"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(7, 0, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(6, 30, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("8d11dfe6-f9e8-4eec-8eb2-cc27a3b2d339"),
+                            Id = new Guid("b5932c36-d999-4a58-aafe-e0fb1b4509a4"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(7, 30, 0),
                             IsDeleted = false,
                             Price = 50000m,
                             StartTime = new TimeOnly(7, 0, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("9d3dd000-fb4d-4cf9-8af4-8d4b019b52b5"),
+                            Id = new Guid("3678b89f-0e0b-4191-a20c-a95907efb9ff"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(7, 30, 0),
                             IsDeleted = false,
                             Price = 70000m,
                             StartTime = new TimeOnly(7, 0, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("79f04eba-a6f9-44a7-96bd-d2ff8414c3fa"),
+                            Id = new Guid("179252ae-ca95-443a-ac85-091500e3d5f9"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(7, 30, 0),
                             IsDeleted = false,
                             Price = 35000m,
                             StartTime = new TimeOnly(7, 0, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("bdd9c4dc-e143-4b03-8709-8f7aa37937de"),
+                            Id = new Guid("2c26ce59-e108-495c-9a45-01993b8a071e"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(7, 30, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(7, 0, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("f43d3ad7-e59f-4be5-8f54-e09951f54678"),
+                            Id = new Guid("b1f9f8fb-4428-4f06-a294-0be88f05ce1f"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(8, 0, 0),
                             IsDeleted = false,
                             Price = 50000m,
                             StartTime = new TimeOnly(7, 30, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("35ae9f2f-2b72-46fc-ae46-b07b9e0c5088"),
+                            Id = new Guid("8b3e4fa6-f588-4d2b-a9ee-5f7739e0279a"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(8, 0, 0),
                             IsDeleted = false,
                             Price = 70000m,
                             StartTime = new TimeOnly(7, 30, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("ba7bbcae-f53b-4964-a938-88df56be63fc"),
+                            Id = new Guid("0fe5965e-01ab-4e57-bcfd-98dc3ed4a9e4"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(8, 0, 0),
                             IsDeleted = false,
                             Price = 35000m,
                             StartTime = new TimeOnly(7, 30, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("3f173a2a-1577-4095-974d-c3cb50016067"),
+                            Id = new Guid("a5004e51-b57f-461b-9a42-398c7f0fa352"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(8, 0, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(7, 30, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("bb5822e6-63a1-4965-8db0-4a1c78c01eba"),
+                            Id = new Guid("1ad1dc94-71f8-48f5-8e7c-949d3808b68c"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(8, 30, 0),
                             IsDeleted = false,
                             Price = 50000m,
                             StartTime = new TimeOnly(8, 0, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("0d8ba7d7-4921-4752-9abc-3059c7bd4fb8"),
+                            Id = new Guid("d262e143-a5fe-4a97-acb3-6a978a60613c"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(8, 30, 0),
                             IsDeleted = false,
                             Price = 70000m,
                             StartTime = new TimeOnly(8, 0, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("88ae7576-3e4d-4d77-a76b-74e7011609ab"),
+                            Id = new Guid("31c3ddab-3c01-4110-b925-df4700d5791d"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(8, 30, 0),
                             IsDeleted = false,
                             Price = 35000m,
                             StartTime = new TimeOnly(8, 0, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("cb3eb77b-63eb-45de-a2ba-84cb18ecdf21"),
+                            Id = new Guid("2ad4a992-5fae-4ea9-aa29-6000f9626835"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(8, 30, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(8, 0, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("e58fa27e-9aac-48ea-8265-1c49c7de6e00"),
+                            Id = new Guid("c1202c49-b801-4ede-8096-4d0a7a7c54d9"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(9, 0, 0),
                             IsDeleted = false,
                             Price = 50000m,
                             StartTime = new TimeOnly(8, 30, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("3f192f6c-8872-4eef-85c1-bc22792395ce"),
+                            Id = new Guid("99623a2e-809e-4f3d-8044-45a36badec47"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(9, 0, 0),
                             IsDeleted = false,
                             Price = 70000m,
                             StartTime = new TimeOnly(8, 30, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("1677b28d-c671-4978-9c38-4e6c57338285"),
+                            Id = new Guid("2b551390-8cb7-47a1-a68e-545ae5d3e74c"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(9, 0, 0),
                             IsDeleted = false,
                             Price = 35000m,
                             StartTime = new TimeOnly(8, 30, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("2bc95dd0-92c4-4f45-9b24-0d39d27c3d13"),
+                            Id = new Guid("7191558e-a5cf-4a1b-b819-f0db5750aba7"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(9, 0, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(8, 30, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("5ec73b58-ed03-4a98-bb6b-70a9a96a93af"),
+                            Id = new Guid("795741a3-aed1-421d-84f5-0dd51daec831"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(9, 30, 0),
                             IsDeleted = false,
                             Price = 50000m,
                             StartTime = new TimeOnly(9, 0, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("d8615888-f429-4abf-8ea6-8f390a1aae4a"),
+                            Id = new Guid("d25bbd18-08e8-4eaa-8a9f-9364c13860e9"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(9, 30, 0),
                             IsDeleted = false,
                             Price = 70000m,
                             StartTime = new TimeOnly(9, 0, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("597ca8e7-039d-4207-9ef0-24fa253d8912"),
+                            Id = new Guid("b96f8849-4047-4da7-9ffa-7b01a9c95a90"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(9, 30, 0),
                             IsDeleted = false,
                             Price = 35000m,
                             StartTime = new TimeOnly(9, 0, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("0238adbf-a2e4-461c-a8ca-1078a36ec0eb"),
+                            Id = new Guid("b7721f55-cfbb-4c85-a847-49a825f16b2b"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(9, 30, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(9, 0, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("cb7f5778-6a17-461e-9a73-3ec3c839987e"),
+                            Id = new Guid("8444c62b-8b69-422c-8b02-e590ff9d8f50"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(10, 0, 0),
                             IsDeleted = false,
                             Price = 50000m,
                             StartTime = new TimeOnly(9, 30, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("2bcdf6d7-0dad-402f-8681-b3edef5b0194"),
+                            Id = new Guid("2affca85-f54d-4883-8cda-59b6de11c117"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(10, 0, 0),
                             IsDeleted = false,
                             Price = 70000m,
                             StartTime = new TimeOnly(9, 30, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("814e38c5-84ef-4dce-bf43-acd6a1f01fbe"),
+                            Id = new Guid("79ab0407-780f-4857-b411-fe6d16e1a13e"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(10, 0, 0),
                             IsDeleted = false,
                             Price = 35000m,
                             StartTime = new TimeOnly(9, 30, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("5a0a39d6-c9bf-41c4-836a-c6398011bda9"),
+                            Id = new Guid("90da06b6-a898-402f-aee5-08ba0d4e7f25"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             EndTime = new TimeOnly(10, 0, 0),
                             IsDeleted = false,
                             Price = 100000m,
                             StartTime = new TimeOnly(9, 30, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
@@ -887,6 +887,9 @@ namespace Rallyhub.Repository.Migrations
 
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
@@ -930,6 +933,9 @@ namespace Rallyhub.Repository.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Courts");
@@ -937,7 +943,7 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            Id = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             Address = "123 Nguyễn Huệ, Q1, HCM",
                             CloseTime = new TimeOnly(22, 0, 0),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -947,14 +953,14 @@ namespace Rallyhub.Repository.Migrations
                             MapUrl = "https://maps.google.com/?q=10.77,106.70",
                             Name = "Sân A - Minh Tuấn",
                             OpenTime = new TimeOnly(6, 0, 0),
-                            OwnerId = new Guid("67a3ac46-dbe0-4607-b1ba-aa605353e62c"),
+                            OwnerId = new Guid("95fee089-85d9-4424-97d0-80ac7ecba45f"),
                             PictureUrl = "https://images.example.com/courts/go-vap.jpg",
                             Status = "Active",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("5b383bb6-aa1e-4de7-aee6-ba3862ca2668"),
+                            Id = new Guid("e70101df-01de-44e7-83c3-d6756b1cc56d"),
                             Address = "123 Nguyễn Huệ, Q1, HCM",
                             CloseTime = new TimeOnly(22, 0, 0),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -964,14 +970,14 @@ namespace Rallyhub.Repository.Migrations
                             MapUrl = "https://maps.google.com/?q=10.77,106.70",
                             Name = "Sân B - Minh Tuấn",
                             OpenTime = new TimeOnly(6, 0, 0),
-                            OwnerId = new Guid("67a3ac46-dbe0-4607-b1ba-aa605353e62c"),
+                            OwnerId = new Guid("95fee089-85d9-4424-97d0-80ac7ecba45f"),
                             PictureUrl = "https://images.example.com/courts/go-vap.jpg",
                             Status = "Active",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("aa3f9604-71f8-46bc-8a14-eead7c4735ce"),
+                            Id = new Guid("321c4900-68e7-4780-934d-2928414af7fe"),
                             Address = "456 Lê Lợi, Q3, HCM",
                             CloseTime = new TimeOnly(23, 0, 0),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -981,14 +987,14 @@ namespace Rallyhub.Repository.Migrations
                             MapUrl = "https://maps.google.com/?q=10.78,106.69",
                             Name = "Sân C - Hải Đăng",
                             OpenTime = new TimeOnly(5, 30, 0),
-                            OwnerId = new Guid("1ce65ffc-99c3-48e5-be18-d94ee757f0d2"),
+                            OwnerId = new Guid("0127ab70-281c-4f47-827e-c0cf0445fbe7"),
                             PictureUrl = "https://images.example.com/courts/go-vap.jpg",
                             Status = "Active",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("83570bb6-0268-486a-a161-16d7d0fffd7d"),
+                            Id = new Guid("07c0a296-c6dc-455a-954b-82dd557f410a"),
                             Address = "456 Lê Lợi, Q3, HCM",
                             CloseTime = new TimeOnly(23, 0, 0),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
@@ -998,7 +1004,7 @@ namespace Rallyhub.Repository.Migrations
                             MapUrl = "https://maps.google.com/?q=10.78,106.69",
                             Name = "Sân D - Hải Đăng",
                             OpenTime = new TimeOnly(5, 30, 0),
-                            OwnerId = new Guid("1ce65ffc-99c3-48e5-be18-d94ee757f0d2"),
+                            OwnerId = new Guid("0127ab70-281c-4f47-827e-c0cf0445fbe7"),
                             PictureUrl = "https://images.example.com/courts/go-vap.jpg",
                             Status = "Active",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1033,19 +1039,19 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            Id = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("7bbf18fc-125e-44a2-a026-b9f8dbcd0f6d")
+                            UserId = new Guid("f014b885-130c-44a7-8b92-03240e56ddf5")
                         },
                         new
                         {
-                            Id = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            Id = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("669e0f3c-57e8-45d1-86eb-492af9c7c523")
+                            UserId = new Guid("74e2566a-4799-4776-aa99-afa7f9412d5c")
                         });
                 });
 
@@ -1090,50 +1096,50 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("7e71fe88-b40c-4c92-aa2d-ce5fad504c3a"),
+                            Id = new Guid("40c5d037-81b9-4c26-a04d-2ad5028a05fd"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Date = new DateOnly(2026, 4, 25),
                             EndTime = new TimeOnly(17, 0, 0),
                             IsDeleted = false,
                             Reason = "Bảo trì định kỳ",
                             StartTime = new TimeOnly(12, 0, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("3d49017a-5b66-4f6d-ade8-69838ebfe919"),
+                            Id = new Guid("853053de-3f6e-4b0c-91c0-d72e9c1b1517"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Date = new DateOnly(2026, 4, 25),
                             EndTime = new TimeOnly(17, 0, 0),
                             IsDeleted = false,
                             Reason = "Sơn lại mặt sân",
                             StartTime = new TimeOnly(12, 0, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("8a7fb788-37ec-450f-ae69-db18250278c8"),
+                            Id = new Guid("cff90351-df45-4514-8316-6ce354106ecb"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Date = new DateOnly(2026, 4, 25),
                             EndTime = new TimeOnly(17, 0, 0),
                             IsDeleted = false,
                             Reason = "Hỏng đèn chiếu sáng",
                             StartTime = new TimeOnly(12, 0, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("89c0324c-ffa6-408c-88d1-dbfbf873b884"),
+                            Id = new Guid("41806e89-a5b6-4404-9d5c-49ead9df56ac"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Date = new DateOnly(2026, 4, 25),
                             EndTime = new TimeOnly(17, 0, 0),
                             IsDeleted = false,
                             Reason = "Tổ chức sự kiện nội bộ",
                             StartTime = new TimeOnly(12, 0, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
@@ -1182,60 +1188,60 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("af511979-c5df-4054-a8c3-2e974dd42944"),
-                            BookingId = new Guid("9e164d23-d0a9-4bd9-a5dc-d9200b229fa0"),
+                            Id = new Guid("5a60dc88-248a-4886-bb2c-63ff1dbd4f00"),
+                            BookingId = new Guid("931fc5e4-664d-4b3f-92ff-03ce5d2e2086"),
                             Comment = "Sân rất tốt, sẽ quay lại!",
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IsDeleted = false,
                             Rating = 5,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("ff2438ca-2288-4c47-8402-4e99cd623f6e"),
-                            BookingId = new Guid("f5ea7bae-c94b-4a3b-abe7-e078a212b0e7"),
+                            Id = new Guid("30a74e45-9839-4d57-87e1-d6f4769aa358"),
+                            BookingId = new Guid("adb1b67d-6fb5-4431-bb2c-0f6e92d0c926"),
                             Comment = "Dịch vụ ổn, giá hợp lý.",
-                            CourtId = new Guid("5b383bb6-aa1e-4de7-aee6-ba3862ca2668"),
+                            CourtId = new Guid("e70101df-01de-44e7-83c3-d6756b1cc56d"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IsDeleted = false,
                             Rating = 4,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("b317847e-b4d7-4ddd-97f9-1a1b21e25926"),
-                            BookingId = new Guid("9e3283d1-526c-40ed-8eea-f35438d2b5f1"),
+                            Id = new Guid("fb2233f5-c08b-4763-b5b9-8905a808da7b"),
+                            BookingId = new Guid("ad57c07f-a0b7-4898-bfce-23855acbeaff"),
                             Comment = "Bình thường, sân hơi cũ.",
-                            CourtId = new Guid("aa3f9604-71f8-46bc-8a14-eead7c4735ce"),
+                            CourtId = new Guid("321c4900-68e7-4780-934d-2928414af7fe"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            CustomerId = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             IsDeleted = false,
                             Rating = 3,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("36ee3cfb-2223-46e2-b403-cf69c6410b39"),
-                            BookingId = new Guid("0b98da94-d94b-4924-99ec-bec0fc877be5"),
+                            Id = new Guid("9d2f4910-f8d2-4800-8ec2-3252bf2bd317"),
+                            BookingId = new Guid("2f305eaa-2245-4b04-9553-40f6fb3e0913"),
                             Comment = "Nhân viên thân thiện, sân sạch.",
-                            CourtId = new Guid("5b383bb6-aa1e-4de7-aee6-ba3862ca2668"),
+                            CourtId = new Guid("e70101df-01de-44e7-83c3-d6756b1cc56d"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            CustomerId = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             IsDeleted = false,
                             Rating = 5,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("bd00189d-6901-4968-9197-3fe5d2e097fb"),
-                            BookingId = new Guid("eedc7fea-fe8c-43ef-a428-324999075129"),
+                            Id = new Guid("8c6af176-81b9-4a0b-8e6f-97aad328ff29"),
+                            BookingId = new Guid("e9c9db67-186d-4110-8a41-a88bea3124f5"),
                             Comment = "Đèn chiếu sáng yếu vào ban đêm.",
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IsDeleted = false,
                             Rating = 2,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1274,46 +1280,46 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("da1c5444-5acc-4a2d-8b55-012ea00c8d35"),
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            Id = new Guid("1541f971-9010-4506-86dc-05533890cca8"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            CustomerId = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("182f6f15-b749-430b-9835-41f0888cd6f6"),
-                            CourtId = new Guid("5b383bb6-aa1e-4de7-aee6-ba3862ca2668"),
+                            Id = new Guid("f9bc7b7a-ebae-4202-8bfb-53ae63a808a7"),
+                            CourtId = new Guid("e70101df-01de-44e7-83c3-d6756b1cc56d"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            CustomerId = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("0bce6485-8480-4329-a295-3988ac10cc12"),
-                            CourtId = new Guid("aa3f9604-71f8-46bc-8a14-eead7c4735ce"),
+                            Id = new Guid("c7fbbb97-9ed1-40c3-8e44-9edf4491befd"),
+                            CourtId = new Guid("321c4900-68e7-4780-934d-2928414af7fe"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("8995e3f5-c843-4660-8331-1fe7e81f60db"),
-                            CourtId = new Guid("83570bb6-0268-486a-a161-16d7d0fffd7d"),
+                            Id = new Guid("2c5893b9-25d6-470f-a775-01bce00b561d"),
+                            CourtId = new Guid("07c0a296-c6dc-455a-954b-82dd557f410a"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("4af6ef7e-dea7-4a33-8962-13d908f52732"),
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            Id = new Guid("6e9be15c-4f68-4438-9ad2-45defcd6f24f"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
@@ -1376,73 +1382,73 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("9e878c9c-ec6e-426c-8ca4-d733f2c944e7"),
-                            BookingId = new Guid("9e164d23-d0a9-4bd9-a5dc-d9200b229fa0"),
+                            Id = new Guid("1a3b95a2-faab-4f4f-9918-a30c8d3279bd"),
+                            BookingId = new Guid("931fc5e4-664d-4b3f-92ff-03ce5d2e2086"),
                             Content = "Booking #1 đã được xác nhận.",
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             IsRead = true,
                             Title = "Đặt sân thành công",
                             Type = "Booking",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("beae052f-9c02-42b2-a57a-4a2b23b6a03e")
+                            UserId = new Guid("70c426f7-2219-4083-b3a4-8a6e9f3aec90")
                         },
                         new
                         {
-                            Id = new Guid("7b9860b3-ae1a-4d88-b3b5-0a8a1ae8d19a"),
-                            BookingId = new Guid("f5ea7bae-c94b-4a3b-abe7-e078a212b0e7"),
+                            Id = new Guid("05f904de-8ef0-4f4f-b46f-b2baac0a3afe"),
+                            BookingId = new Guid("adb1b67d-6fb5-4431-bb2c-0f6e92d0c926"),
                             Content = "Booking #2 đã được xác nhận.",
-                            CourtId = new Guid("5b383bb6-aa1e-4de7-aee6-ba3862ca2668"),
+                            CourtId = new Guid("e70101df-01de-44e7-83c3-d6756b1cc56d"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             IsRead = false,
                             Title = "Đặt sân thành công",
                             Type = "Booking",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("9181df9c-07a5-4447-80ec-adca5a26346a")
+                            UserId = new Guid("3aa29cf2-fb4e-4883-9da7-09f01aad3a24")
                         },
                         new
                         {
-                            Id = new Guid("b6a87197-8891-4044-8e1f-ea30a9c7808f"),
-                            BookingId = new Guid("9e3283d1-526c-40ed-8eea-f35438d2b5f1"),
+                            Id = new Guid("6d55c45e-e0d6-4c33-838f-c9b58fe302a5"),
+                            BookingId = new Guid("ad57c07f-a0b7-4898-bfce-23855acbeaff"),
                             Content = "Bạn có lịch chơi vào ngày mai.",
-                            CourtId = new Guid("aa3f9604-71f8-46bc-8a14-eead7c4735ce"),
+                            CourtId = new Guid("321c4900-68e7-4780-934d-2928414af7fe"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             IsRead = false,
                             Title = "Nhắc nhở lịch chơi",
                             Type = "Remind",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("7bbf18fc-125e-44a2-a026-b9f8dbcd0f6d")
+                            UserId = new Guid("f014b885-130c-44a7-8b92-03240e56ddf5")
                         },
                         new
                         {
-                            Id = new Guid("91f7acef-e0d5-4971-af92-2180c73c3ad5"),
-                            BookingId = new Guid("0b98da94-d94b-4924-99ec-bec0fc877be5"),
+                            Id = new Guid("7129634b-2ced-4328-b141-dbda4b8579d7"),
+                            BookingId = new Guid("2f305eaa-2245-4b04-9553-40f6fb3e0913"),
                             Content = "Booking #4 đã bị huỷ. Tiền sẽ hoàn.",
-                            CourtId = new Guid("83570bb6-0268-486a-a161-16d7d0fffd7d"),
+                            CourtId = new Guid("07c0a296-c6dc-455a-954b-82dd557f410a"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             IsRead = true,
                             Title = "Huỷ booking",
                             Type = "Cancel",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("669e0f3c-57e8-45d1-86eb-492af9c7c523")
+                            UserId = new Guid("74e2566a-4799-4776-aa99-afa7f9412d5c")
                         },
                         new
                         {
-                            Id = new Guid("fd301db7-b7bd-4d2e-8bf2-3c8226149557"),
-                            BookingId = new Guid("eedc7fea-fe8c-43ef-a428-324999075129"),
+                            Id = new Guid("f51a171f-57d3-410c-91c7-f6030b487227"),
+                            BookingId = new Guid("e9c9db67-186d-4110-8a41-a88bea3124f5"),
                             Content = "Đã hoàn 360,000đ vào ví của bạn.",
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             IsRead = false,
                             Title = "Hoàn tiền",
                             Type = "Refund",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("beae052f-9c02-42b2-a57a-4a2b23b6a03e")
+                            UserId = new Guid("70c426f7-2219-4083-b3a4-8a6e9f3aec90")
                         });
                 });
 
@@ -1493,7 +1499,7 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("4149c958-0eda-4ea0-847b-fd236775e45c"),
+                            Id = new Guid("fa2f9115-7ed1-451b-b36f-c5a22a3c2333"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Date = new DateOnly(2026, 4, 25),
                             DayOfWeek = 0,
@@ -1502,12 +1508,12 @@ namespace Rallyhub.Repository.Migrations
                             IsRecurring = false,
                             Price = 208400m,
                             StartTime = new TimeOnly(12, 0, 0),
-                            SubCourtDetailId = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
+                            SubCourtDetailId = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("1fe09796-441a-42a1-a272-44673714b4fa"),
+                            Id = new Guid("02a95818-600b-4ded-898b-041c836d4c5e"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Date = new DateOnly(2026, 4, 25),
                             DayOfWeek = 0,
@@ -1516,12 +1522,12 @@ namespace Rallyhub.Repository.Migrations
                             IsRecurring = false,
                             Price = 220500m,
                             StartTime = new TimeOnly(12, 0, 0),
-                            SubCourtDetailId = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
+                            SubCourtDetailId = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("4223cc91-3619-4c05-8ab0-1790e206f6a7"),
+                            Id = new Guid("b240bf91-b514-417d-ad9d-a73724c424d5"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Date = new DateOnly(2026, 4, 25),
                             DayOfWeek = 0,
@@ -1530,12 +1536,12 @@ namespace Rallyhub.Repository.Migrations
                             IsRecurring = false,
                             Price = 2054000m,
                             StartTime = new TimeOnly(12, 0, 0),
-                            SubCourtDetailId = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
+                            SubCourtDetailId = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("18e50c3d-9e4c-401a-b126-5485c74ced6b"),
+                            Id = new Guid("4aad9e2a-9f93-4666-9196-1c2e180438e8"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Date = new DateOnly(2026, 4, 25),
                             DayOfWeek = 0,
@@ -1544,12 +1550,12 @@ namespace Rallyhub.Repository.Migrations
                             IsRecurring = false,
                             Price = 220800m,
                             StartTime = new TimeOnly(12, 0, 0),
-                            SubCourtDetailId = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
+                            SubCourtDetailId = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("c4a7151b-89c3-4a3a-b2d5-c1e5bd7a6da3"),
+                            Id = new Guid("621eb4ab-451b-4c2b-a239-f6b8c91231a4"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Date = new DateOnly(1, 1, 1),
                             DayOfWeek = 1,
@@ -1558,7 +1564,7 @@ namespace Rallyhub.Repository.Migrations
                             IsRecurring = true,
                             Price = 200000m,
                             StartTime = new TimeOnly(18, 0, 0),
-                            SubCourtDetailId = new Guid("be2ad481-f3a4-4d79-9502-0d3a87ee73dc"),
+                            SubCourtDetailId = new Guid("ed040c6f-86f0-42f0-ae2d-4bb4a7048cd8"),
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
@@ -1621,36 +1627,36 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("67a3ac46-dbe0-4607-b1ba-aa605353e62c"),
+                            Id = new Guid("95fee089-85d9-4424-97d0-80ac7ecba45f"),
                             BusinessAddress = "123 Nguyễn Huệ, Q1, HCM",
                             BusinessName = "Sân Cầu Lông Minh Tuấn",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             TaxCode = "0123456789",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("beae052f-9c02-42b2-a57a-4a2b23b6a03e")
+                            UserId = new Guid("70c426f7-2219-4083-b3a4-8a6e9f3aec90")
                         },
                         new
                         {
-                            Id = new Guid("1ce65ffc-99c3-48e5-be18-d94ee757f0d2"),
+                            Id = new Guid("0127ab70-281c-4f47-827e-c0cf0445fbe7"),
                             BusinessAddress = "456 Lê Lợi, Q3, HCM",
                             BusinessName = "Trung Tâm Thể Thao Hải Đăng",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             TaxCode = "9876543210",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("9181df9c-07a5-4447-80ec-adca5a26346a")
+                            UserId = new Guid("3aa29cf2-fb4e-4883-9da7-09f01aad3a24")
                         },
                         new
                         {
-                            Id = new Guid("5f42e1b5-ff4e-4ace-918b-bd41e7f63f52"),
+                            Id = new Guid("e6faadf1-5124-48ab-8f11-5034c003d4b9"),
                             BusinessAddress = "Tôn Đức Thắng, HCM",
                             BusinessName = "Sân Cầu Lông Trần Phú",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             TaxCode = "98765434219",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("5b5cff3b-44e8-4c99-9f1c-1c0ef3f2f905")
+                            UserId = new Guid("9aa16a91-e515-4ab6-b804-83a012f7e2ca")
                         });
                 });
 
@@ -1736,34 +1742,34 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("4456bc5b-e9d1-4f63-b0b8-fd4fa5533dc8"),
+                            Id = new Guid("23be78b3-7ee3-4dc4-870a-44b36309c284"),
                             BusinessAddress = "123 Nguyễn Huệ, Q1, HCM",
                             BusinessLicenseUrl = "https://cdn.rallyhub.vn/license/1.jpg",
                             BusinessName = "Sân Cầu Lông Minh Tuấn",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            CustomerId = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             IdentityCardBackUrl = "https://cdn.rallyhub.vn/cccd/1_back.jpg",
                             IdentityCardFrontUrl = "https://cdn.rallyhub.vn/cccd/1_front.jpg",
                             IdentityNumber = "079200012345",
                             IsDeleted = false,
-                            OwnerId = new Guid("67a3ac46-dbe0-4607-b1ba-aa605353e62c"),
+                            OwnerId = new Guid("95fee089-85d9-4424-97d0-80ac7ecba45f"),
                             Status = "Approved",
                             TaxCode = "0123456789",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
-                            Id = new Guid("bc780fc3-bdda-42d2-8e86-6c304ffe855c"),
+                            Id = new Guid("853a212c-66df-436c-8d61-ffb113f0eb54"),
                             BusinessAddress = "456 Lê Lợi, Q3, HCM",
                             BusinessLicenseUrl = "https://cdn.rallyhub.vn/license/2.jpg",
                             BusinessName = "Trung Tâm Thể Thao Hải Đăng",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IdentityCardBackUrl = "https://cdn.rallyhub.vn/cccd/2_back.jpg",
                             IdentityCardFrontUrl = "https://cdn.rallyhub.vn/cccd/2_front.jpg",
                             IdentityNumber = "079200054321",
                             IsDeleted = false,
-                            OwnerId = new Guid("1ce65ffc-99c3-48e5-be18-d94ee757f0d2"),
+                            OwnerId = new Guid("0127ab70-281c-4f47-827e-c0cf0445fbe7"),
                             Status = "Approved",
                             TaxCode = "9876543210",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0))
@@ -1818,11 +1824,11 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("72fcd002-e562-4000-aa07-56e224c3ccd6"),
-                            BookingId = new Guid("9e164d23-d0a9-4bd9-a5dc-d9200b229fa0"),
-                            CourtId = new Guid("aa3f9604-71f8-46bc-8a14-eead7c4735ce"),
+                            Id = new Guid("588e77ad-bd00-409f-bab6-50e0b8e1b9c1"),
+                            BookingId = new Guid("931fc5e4-664d-4b3f-92ff-03ce5d2e2086"),
+                            CourtId = new Guid("321c4900-68e7-4780-934d-2928414af7fe"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            CustomerId = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             IsDeleted = false,
                             Reason = "Sân không đúng mô tả.",
                             Status = "Pending",
@@ -1830,11 +1836,11 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("bf3a13a1-ae3a-4f3f-9803-76fcb1ea8e4c"),
-                            BookingId = new Guid("f5ea7bae-c94b-4a3b-abe7-e078a212b0e7"),
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            Id = new Guid("940aa375-5e62-4b1b-a6e1-e16f438927c7"),
+                            BookingId = new Guid("adb1b67d-6fb5-4431-bb2c-0f6e92d0c926"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("7cd9a2a4-c528-4e8b-96b7-e26cffad667f"),
+                            CustomerId = new Guid("14204186-d031-4052-bb86-32af7692a2cc"),
                             IsDeleted = false,
                             Reason = "Chủ sân thái độ không tốt.",
                             Status = "Resolved",
@@ -1842,11 +1848,11 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("1a200c31-f53e-477c-9d1c-e34342ea9264"),
-                            BookingId = new Guid("9e3283d1-526c-40ed-8eea-f35438d2b5f1"),
-                            CourtId = new Guid("5b383bb6-aa1e-4de7-aee6-ba3862ca2668"),
+                            Id = new Guid("b5f3efd3-8039-4416-b1cd-a2db4ef90e27"),
+                            BookingId = new Guid("ad57c07f-a0b7-4898-bfce-23855acbeaff"),
+                            CourtId = new Guid("e70101df-01de-44e7-83c3-d6756b1cc56d"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IsDeleted = false,
                             Reason = "Cơ sở vật chất xuống cấp.",
                             Status = "Pending",
@@ -1854,11 +1860,11 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("3a1a135b-9453-4526-b3b7-bf7016e91157"),
-                            BookingId = new Guid("0b98da94-d94b-4924-99ec-bec0fc877be5"),
-                            CourtId = new Guid("aa3f9604-71f8-46bc-8a14-eead7c4735ce"),
+                            Id = new Guid("0d389f5c-d243-4ae6-9819-2211a257d141"),
+                            BookingId = new Guid("2f305eaa-2245-4b04-9553-40f6fb3e0913"),
+                            CourtId = new Guid("321c4900-68e7-4780-934d-2928414af7fe"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IsDeleted = false,
                             Reason = "Không hoàn tiền khi huỷ đúng hạn.",
                             Status = "Rejected",
@@ -1866,11 +1872,11 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("138b2ff8-9a13-4beb-a298-630b17088235"),
-                            BookingId = new Guid("eedc7fea-fe8c-43ef-a428-324999075129"),
-                            CourtId = new Guid("83570bb6-0268-486a-a161-16d7d0fffd7d"),
+                            Id = new Guid("e590cc75-eadf-486b-8851-9431052560a8"),
+                            BookingId = new Guid("e9c9db67-186d-4110-8a41-a88bea3124f5"),
+                            CourtId = new Guid("07c0a296-c6dc-455a-954b-82dd557f410a"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("f40bfb8a-dd3a-4c5e-ab90-8a56b38ba040"),
+                            CustomerId = new Guid("ddb9a44b-0e25-4364-a5de-42c8d6c57b0a"),
                             IsDeleted = false,
                             Reason = "Thông tin giờ mở cửa sai.",
                             Status = "Pending",
@@ -1910,8 +1916,8 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("bbc8f272-4da7-4333-8118-67e26ee239fa"),
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            Id = new Guid("cc307fef-d579-4b6b-9609-40c9bdb5a69d"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Sân nhỏ A1",
@@ -1919,8 +1925,8 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("be2ad481-f3a4-4d79-9502-0d3a87ee73dc"),
-                            CourtId = new Guid("44db4b6f-d1b6-4687-97e5-83110af6ca84"),
+                            Id = new Guid("ed040c6f-86f0-42f0-ae2d-4bb4a7048cd8"),
+                            CourtId = new Guid("8c439a86-f874-46e1-825e-646f900d77aa"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Sân nhỏ A2",
@@ -1928,8 +1934,8 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("1f7891f4-638b-40bf-ae17-b5e460817f40"),
-                            CourtId = new Guid("5b383bb6-aa1e-4de7-aee6-ba3862ca2668"),
+                            Id = new Guid("e3890d76-d401-431f-9286-5b43571f8822"),
+                            CourtId = new Guid("e70101df-01de-44e7-83c3-d6756b1cc56d"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Sân nhỏ B1",
@@ -1937,8 +1943,8 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("b9d06456-380c-4d6d-9b79-159ae7d6dad7"),
-                            CourtId = new Guid("5b383bb6-aa1e-4de7-aee6-ba3862ca2668"),
+                            Id = new Guid("0a99b240-4cac-4967-8cf1-c7eca180d738"),
+                            CourtId = new Guid("e70101df-01de-44e7-83c3-d6756b1cc56d"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Sân nhỏ B2",
@@ -1946,8 +1952,8 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f26ec4fb-c033-4a63-8b55-13c5e86b1fbd"),
-                            CourtId = new Guid("aa3f9604-71f8-46bc-8a14-eead7c4735ce"),
+                            Id = new Guid("002afa91-87ea-4069-b01a-b0695f01d92c"),
+                            CourtId = new Guid("321c4900-68e7-4780-934d-2928414af7fe"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Sân nhỏ C1",
@@ -1955,8 +1961,8 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f58c3b02-71d2-47b8-8799-4164673cff62"),
-                            CourtId = new Guid("aa3f9604-71f8-46bc-8a14-eead7c4735ce"),
+                            Id = new Guid("7a02a21e-c779-4f0f-8fb8-2b8280d2a0bc"),
+                            CourtId = new Guid("321c4900-68e7-4780-934d-2928414af7fe"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Sân nhỏ C2",
@@ -1964,8 +1970,8 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("f49bde94-c571-4b1d-a3a0-95257bfc722b"),
-                            CourtId = new Guid("83570bb6-0268-486a-a161-16d7d0fffd7d"),
+                            Id = new Guid("d09add50-3fab-4b28-be52-57a0046af06d"),
+                            CourtId = new Guid("07c0a296-c6dc-455a-954b-82dd557f410a"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Sân nhỏ D1",
@@ -1973,8 +1979,8 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9356263e-a962-400c-b22f-4f2d3ddfebf9"),
-                            CourtId = new Guid("83570bb6-0268-486a-a161-16d7d0fffd7d"),
+                            Id = new Guid("50a7d8a0-8750-441c-9ef7-a23e5024e8cb"),
+                            CourtId = new Guid("07c0a296-c6dc-455a-954b-82dd557f410a"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Name = "Sân nhỏ D2",
@@ -2025,58 +2031,58 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d4dab494-a410-4c50-a3e3-d3d0b1b54243"),
+                            Id = new Guid("15df93ad-b66d-4c4e-9688-42d1f1b9c653"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Reason = "Không thể thanh toán qua ví.",
                             Status = "Pending",
                             Title = "Lỗi thanh toán",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("beae052f-9c02-42b2-a57a-4a2b23b6a03e")
+                            UserId = new Guid("70c426f7-2219-4083-b3a4-8a6e9f3aec90")
                         },
                         new
                         {
-                            Id = new Guid("502fa2c5-fd01-4853-ae80-5bf821ce76d9"),
+                            Id = new Guid("ca831a17-a598-48dc-8383-663a4e07e689"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Reason = "Bản đồ không load được trên iOS.",
                             Status = "Resolved",
                             Title = "Lỗi hiển thị bản đồ",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("9181df9c-07a5-4447-80ec-adca5a26346a")
+                            UserId = new Guid("3aa29cf2-fb4e-4883-9da7-09f01aad3a24")
                         },
                         new
                         {
-                            Id = new Guid("443864f5-bbb5-4ca2-8b99-0ee2ee13b288"),
+                            Id = new Guid("3744f2bd-db27-4956-a8a0-c638949fb35e"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Reason = "Crash khi mở trang tìm kiếm sân.",
                             Status = "Pending",
                             Title = "App bị crash",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("7bbf18fc-125e-44a2-a026-b9f8dbcd0f6d")
+                            UserId = new Guid("f014b885-130c-44a7-8b92-03240e56ddf5")
                         },
                         new
                         {
-                            Id = new Guid("e435050a-a76b-4892-a849-77593b70b4ac"),
+                            Id = new Guid("c105d213-903b-4f10-8349-17ad56b2fe1b"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Reason = "OTP không gửi đến số điện thoại.",
                             Status = "Pending",
                             Title = "Không nhận được OTP",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("7bbf18fc-125e-44a2-a026-b9f8dbcd0f6d")
+                            UserId = new Guid("f014b885-130c-44a7-8b92-03240e56ddf5")
                         },
                         new
                         {
-                            Id = new Guid("bd2bcd63-d0cb-470c-ab03-ec6b9709a2b4"),
+                            Id = new Guid("a8a590ad-2ee6-4e3b-85a9-41a127710bcc"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             Reason = "Số dư hiển thị không khớp lịch sử.",
                             Status = "Resolved",
                             Title = "Sai số dư sau giao dịch",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("669e0f3c-57e8-45d1-86eb-492af9c7c523")
+                            UserId = new Guid("74e2566a-4799-4776-aa99-afa7f9412d5c")
                         });
                 });
 
@@ -2171,14 +2177,14 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("ce8bcb5c-e5fd-4b6f-bb8a-6e677ba5cb1c"),
+                            Id = new Guid("24149845-41a1-49f5-ac27-a91559d7008b"),
                             ActionCode = "ACT001",
                             Amount = 180000m,
                             BalanceAfter = 2000000m,
                             BalanceBefore = 2180000m,
                             BankAccountNumber = "2345678901",
                             BankRefCode = "REF001",
-                            BookingId = new Guid("9e164d23-d0a9-4bd9-a5dc-d9200b229fa0"),
+                            BookingId = new Guid("931fc5e4-664d-4b3f-92ff-03ce5d2e2086"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             SePayId = "SP001",
@@ -2187,18 +2193,18 @@ namespace Rallyhub.Repository.Migrations
                             TransferContent = "Thanh toán booking #1",
                             Type = "Payment",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            WalletId = new Guid("5b5d7138-9ee6-4f97-899c-47fd54761042")
+                            WalletId = new Guid("63632a52-abf9-444f-b919-6fc39f1e17f9")
                         },
                         new
                         {
-                            Id = new Guid("ab58af30-ffab-4e1b-9f19-b3a70683b655"),
+                            Id = new Guid("c4e41946-4e7f-4531-b88d-71758688d13d"),
                             ActionCode = "ACT002",
                             Amount = 270000m,
                             BalanceAfter = 3500000m,
                             BalanceBefore = 3770000m,
                             BankAccountNumber = "3456789012",
                             BankRefCode = "REF002",
-                            BookingId = new Guid("f5ea7bae-c94b-4a3b-abe7-e078a212b0e7"),
+                            BookingId = new Guid("adb1b67d-6fb5-4431-bb2c-0f6e92d0c926"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             SePayId = "SP002",
@@ -2207,18 +2213,18 @@ namespace Rallyhub.Repository.Migrations
                             TransferContent = "Thanh toán booking #2",
                             Type = "Payment",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            WalletId = new Guid("f41c5b74-e2a6-431f-99db-d97867a3277a")
+                            WalletId = new Guid("70e6c118-8e1b-4b12-b138-a29b47d2efd2")
                         },
                         new
                         {
-                            Id = new Guid("0f103039-c16c-43c4-a668-af9ecb491f92"),
+                            Id = new Guid("70dd923b-eebc-4b64-9e47-4136e1528eb6"),
                             ActionCode = "ACT003",
                             Amount = 200000m,
                             BalanceAfter = 2200000m,
                             BalanceBefore = 2000000m,
                             BankAccountNumber = "4567890123",
                             BankRefCode = "REF003",
-                            BookingId = new Guid("9e3283d1-526c-40ed-8eea-f35438d2b5f1"),
+                            BookingId = new Guid("ad57c07f-a0b7-4898-bfce-23855acbeaff"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             SePayId = "SP003",
@@ -2227,18 +2233,18 @@ namespace Rallyhub.Repository.Migrations
                             TransferContent = "Hoàn tiền booking #4",
                             Type = "Refund",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            WalletId = new Guid("b417767c-532b-4ae3-806c-86a3627c8b7d")
+                            WalletId = new Guid("3e150f3d-5d55-4328-99a6-9c7186ce981d")
                         },
                         new
                         {
-                            Id = new Guid("108985ee-dc7b-41df-89ea-b246480c3746"),
+                            Id = new Guid("8751cffe-20db-496c-8a00-04cc7ca18aaf"),
                             ActionCode = "ACT004",
                             Amount = 500000m,
                             BalanceAfter = 2000000m,
                             BalanceBefore = 1500000m,
                             BankAccountNumber = "5678901234",
                             BankRefCode = "REF004",
-                            BookingId = new Guid("eedc7fea-fe8c-43ef-a428-324999075129"),
+                            BookingId = new Guid("e9c9db67-186d-4110-8a41-a88bea3124f5"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             SePayId = "SP004",
@@ -2247,7 +2253,7 @@ namespace Rallyhub.Repository.Migrations
                             TransferContent = "Nạp tiền vào ví",
                             Type = "Deposit",
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            WalletId = new Guid("a898effa-d505-46e2-afa6-92535915bf18")
+                            WalletId = new Guid("20a79c42-5b41-459e-927c-ac58873b942f")
                         });
                 });
 
@@ -2314,7 +2320,7 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("6bb28b1c-fdb8-49d3-8a3c-0473e685b8ee"),
+                            Id = new Guid("b1a78501-1cd4-4d15-8fee-437302bbced0"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "admin@rallyhub.vn",
                             FirstName = "Quản",
@@ -2328,7 +2334,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("beae052f-9c02-42b2-a57a-4a2b23b6a03e"),
+                            Id = new Guid("70c426f7-2219-4083-b3a4-8a6e9f3aec90"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "owner1@rallyhub.vn",
                             FirstName = "Minh",
@@ -2342,7 +2348,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("9181df9c-07a5-4447-80ec-adca5a26346a"),
+                            Id = new Guid("3aa29cf2-fb4e-4883-9da7-09f01aad3a24"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "owner2@rallyhub.vn",
                             FirstName = "Hải",
@@ -2356,7 +2362,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("7bbf18fc-125e-44a2-a026-b9f8dbcd0f6d"),
+                            Id = new Guid("f014b885-130c-44a7-8b92-03240e56ddf5"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "customer1@gmail.com",
                             FirstName = "Lan",
@@ -2370,7 +2376,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("669e0f3c-57e8-45d1-86eb-492af9c7c523"),
+                            Id = new Guid("74e2566a-4799-4776-aa99-afa7f9412d5c"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "customer2@gmail.com",
                             FirstName = "Bảo",
@@ -2384,7 +2390,7 @@ namespace Rallyhub.Repository.Migrations
                         },
                         new
                         {
-                            Id = new Guid("5b5cff3b-44e8-4c99-9f1c-1c0ef3f2f905"),
+                            Id = new Guid("9aa16a91-e515-4ab6-b804-83a012f7e2ca"),
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             Email = "owner3@rallyhub.vn",
                             FirstName = "Trần",
@@ -2444,50 +2450,50 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("5b5d7138-9ee6-4f97-899c-47fd54761042"),
+                            Id = new Guid("63632a52-abf9-444f-b919-6fc39f1e17f9"),
                             Balance = 12000000m,
                             BankAccount = "2345678901",
                             BankName = "Techcombank",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("beae052f-9c02-42b2-a57a-4a2b23b6a03e"),
+                            UserId = new Guid("70c426f7-2219-4083-b3a4-8a6e9f3aec90"),
                             Version = 0
                         },
                         new
                         {
-                            Id = new Guid("f41c5b74-e2a6-431f-99db-d97867a3277a"),
+                            Id = new Guid("70e6c118-8e1b-4b12-b138-a29b47d2efd2"),
                             Balance = 8500000m,
                             BankAccount = "3456789012",
                             BankName = "BIDV",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("9181df9c-07a5-4447-80ec-adca5a26346a"),
+                            UserId = new Guid("3aa29cf2-fb4e-4883-9da7-09f01aad3a24"),
                             Version = 0
                         },
                         new
                         {
-                            Id = new Guid("b417767c-532b-4ae3-806c-86a3627c8b7d"),
+                            Id = new Guid("3e150f3d-5d55-4328-99a6-9c7186ce981d"),
                             Balance = 2000000m,
                             BankAccount = "4567890123",
                             BankName = "MB Bank",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("7bbf18fc-125e-44a2-a026-b9f8dbcd0f6d"),
+                            UserId = new Guid("f014b885-130c-44a7-8b92-03240e56ddf5"),
                             Version = 0
                         },
                         new
                         {
-                            Id = new Guid("a898effa-d505-46e2-afa6-92535915bf18"),
+                            Id = new Guid("20a79c42-5b41-459e-927c-ac58873b942f"),
                             Balance = 3500000m,
                             BankAccount = "5678901234",
                             BankName = "VPBank",
                             CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
                             IsDeleted = false,
                             UpdatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("669e0f3c-57e8-45d1-86eb-492af9c7c523"),
+                            UserId = new Guid("74e2566a-4799-4776-aa99-afa7f9412d5c"),
                             Version = 0
                         });
                 });
@@ -2497,13 +2503,13 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Campaign", "Campaign")
                         .WithMany("Bookings")
                         .HasForeignKey("CampaignId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Customer", "Customer")
                         .WithMany("Bookings")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Campaign");
@@ -2516,13 +2522,13 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Booking", "Booking")
                         .WithMany("BookingDetails")
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.SubCourt", "SubCourt")
                         .WithMany("BookingDetails")
                         .HasForeignKey("SubCourtId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Booking");
@@ -2535,7 +2541,7 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Owner", "Owner")
                         .WithMany("Campaigns")
                         .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Owner");
@@ -2546,13 +2552,13 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Campaign", "Campaign")
                         .WithMany("Courts")
                         .HasForeignKey("CampaignId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Court", "Court")
                         .WithMany("CampaignCourts")
                         .HasForeignKey("CourtId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Campaign");
@@ -2609,19 +2615,19 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Booking", "Booking")
                         .WithMany("Feedbacks")
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Court", "Court")
                         .WithMany("Feedbacks")
                         .HasForeignKey("CourtId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Customer", "Customer")
                         .WithMany("Feedbacks")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Booking");
@@ -2636,13 +2642,13 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Court", "Court")
                         .WithMany("LikeListDetails")
                         .HasForeignKey("CourtId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Customer", "Customer")
                         .WithMany("LikeListDetails")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Court");
@@ -2655,19 +2661,19 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Booking", "Booking")
                         .WithMany("Notifications")
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Court", "Court")
                         .WithMany("Notifications")
                         .HasForeignKey("CourtId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.User", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Booking");
@@ -2682,7 +2688,7 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.SubCourt", "SubCourtDetail")
                         .WithMany("OverideSlots")
                         .HasForeignKey("SubCourtDetailId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("SubCourtDetail");
@@ -2704,13 +2710,13 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Customer", "Customer")
                         .WithMany("OwnerRequests")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Owner", "Owner")
                         .WithOne("OwnerRequest")
                         .HasForeignKey("Rallyhub.Repository.Entity.OwnerRequest", "OwnerId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Customer");
 
@@ -2722,19 +2728,19 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Booking", "Booking")
                         .WithMany("Reports")
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Court", "Court")
                         .WithMany("Reports")
                         .HasForeignKey("CourtId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Customer", "Customer")
                         .WithMany("Reports")
                         .HasForeignKey("CustomerId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Booking");
@@ -2760,7 +2766,7 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.User", "User")
                         .WithMany("SystemReports")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -2771,13 +2777,13 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.Booking", "Booking")
                         .WithMany("Transactions")
                         .HasForeignKey("BookingId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Rallyhub.Repository.Entity.Wallet", "Wallet")
                         .WithMany("Transactions")
                         .HasForeignKey("WalletId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Booking");
@@ -2790,7 +2796,7 @@ namespace Rallyhub.Repository.Migrations
                     b.HasOne("Rallyhub.Repository.Entity.User", "User")
                         .WithOne("Wallet")
                         .HasForeignKey("Rallyhub.Repository.Entity.Wallet", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");

@@ -105,8 +105,8 @@
                     .HasDefaultValue("Active");
                 builder.HasOne(x => x.Customer)
                     .WithOne(x => x.User)
-                    .HasForeignKey<Customer>(x => x.UserId);
-                
+                    .HasForeignKey<Customer>(x => x.UserId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 var users  = new  List<User>
                 {
                     new()
@@ -195,11 +195,11 @@
                 builder.HasOne(x => x.Campaign)
                     .WithMany(x => x.Bookings)
                     .HasForeignKey(x  => x.CampaignId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Customer)
                     .WithMany(x => x.Bookings)
                     .HasForeignKey(x => x.CustomerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 var bookings = new List<Booking>
                 {
@@ -221,11 +221,11 @@
                 builder.HasOne(x => x.SubCourt)
                     .WithMany(x => x.BookingDetails)
                     .HasForeignKey(x => x.SubCourtId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Booking)
                     .WithMany(x => x.BookingDetails)
                     .HasForeignKey(x => x.BookingId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.Property(x => x.Date)
                     .IsRequired();
                 builder.Property(x => x.StartTime)
@@ -271,7 +271,7 @@
                 builder.HasOne(x => x.Owner)
                     .WithMany(x => x.Campaigns)
                     .HasForeignKey(x => x.OwnerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 var campaigns = new List<Campaign> 
                 {
@@ -298,11 +298,11 @@
                 builder.HasOne(x => x.Court)
                     .WithMany(x => x.CampaignCourts)
                     .HasForeignKey(x => x.CourtId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Campaign)
                     .WithMany(x => x.Courts)
                     .HasForeignKey(x => x.CampaignId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 var campaignCourts = new List<CampaignCourt>
                 {
@@ -325,6 +325,11 @@
                 builder.Property(x => x.EndTime)
                     .IsRequired()
                     .HasColumnType("time");
+                builder.HasOne(x => x.SubCourtDetail)
+                    .WithMany(x => x.ConfigSlots)
+                    .HasForeignKey(x => x.SubCourtDetailId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                    
                 var configSlots = new List<ConfigSlot>();
                 
                 var start = new TimeOnly(6, 0);
@@ -495,15 +500,15 @@
                 builder.HasOne(x => x.Court)
                     .WithMany(x => x.Feedbacks)
                     .HasForeignKey(x => x.CourtId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Customer)
                     .WithMany(x => x.Feedbacks)
                     .HasForeignKey(x => x.CustomerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Booking)
                     .WithMany(x => x.Feedbacks)
                     .HasForeignKey(x => x.BookingId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 var feedbacks = new List<Feedback>
                 {
@@ -521,11 +526,11 @@
                 builder.HasOne(x => x.Court)
                     .WithMany(x => x.LikeListDetails)
                     .HasForeignKey(x => x.CourtId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Customer)
                     .WithMany(x => x.LikeListDetails)
                     .HasForeignKey(x => x.CustomerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 var likeListDetails = new List<LikeListDetail>
                 {
                     new() { Id = Guid.NewGuid(), CourtId = CourtA, CustomerId = CustomerId1},
@@ -554,15 +559,15 @@
                 builder.HasOne(x => x.Booking)
                     .WithMany(x => x.Notifications)
                     .HasForeignKey(x => x.BookingId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.User)
                     .WithMany(x => x.Notifications)
                     .HasForeignKey(x => x.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Court)
                     .WithMany(x => x.Notifications)
                     .HasForeignKey(x => x.CourtId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 var notifications = new List<Notification>
                 {
@@ -580,7 +585,7 @@
                 builder.HasOne(x => x.SubCourtDetail)
                     .WithMany(x => x.OverideSlots)
                     .HasForeignKey(x => x.SubCourtDetailId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.Property(x => x.Date)
                     .IsRequired();
                 builder.Property(x => x.StartTime)
@@ -668,7 +673,7 @@
                 builder.HasOne(x => x.OwnerRequest)
                     .WithOne(x => x.Owner)
                     .HasForeignKey<OwnerRequest>(x => x.OwnerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.User)
                     .WithOne(x => x.Owner)
                     .HasForeignKey<Owner>(x => x.UserId)
@@ -714,11 +719,10 @@
                     .HasMaxLength(15);
                 builder.Property(x => x.RejectionReason)
                     .HasMaxLength(200);
-                
                 builder.HasOne(x => x.Customer)
                     .WithMany(x => x.OwnerRequests)
                     .HasForeignKey(x => x.CustomerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 var ownerRequests = new List<OwnerRequest>
                 {
                     new() { Id = Guid.NewGuid(), BusinessName = "Sân Cầu Lông Minh Tuấn",      TaxCode = "0123456789", BusinessAddress = "123 Nguyễn Huệ, Q1, HCM", BusinessLicenseUrl = "https://cdn.rallyhub.vn/license/1.jpg", IdentityNumber = "079200012345", IdentityCardFrontUrl = "https://cdn.rallyhub.vn/cccd/1_front.jpg", IdentityCardBackUrl = "https://cdn.rallyhub.vn/cccd/1_back.jpg", Status = "Approved", OwnerId = OwnerId1, CustomerId = CustomerId1},
@@ -738,15 +742,15 @@
                 builder.HasOne(x => x.Customer)
                     .WithMany(x => x.Reports)
                     .HasForeignKey(x => x.CustomerId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Court)
                     .WithMany(x => x.Reports)
                     .HasForeignKey(x => x.CourtId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Booking)
                     .WithMany(x => x.Reports)
                     .HasForeignKey(x => x.BookingId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 var reports = new List<Report>
                 {
@@ -798,7 +802,7 @@
                 builder.HasOne(x => x.User)
                     .WithMany(x => x.SystemReports)
                     .HasForeignKey(x => x.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 var systemReports = new List<SystemReport>
                 {
                     new() { Id = Guid.NewGuid(), Title = "Lỗi thanh toán",          Reason = "Không thể thanh toán qua ví.",       Status = "Pending",  UserId = UserId2,},
@@ -852,11 +856,11 @@
                 builder.HasOne(x => x.Booking)
                     .WithMany(x => x.Transactions)
                     .HasForeignKey(x => x.BookingId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 builder.HasOne(x => x.Wallet)
                     .WithMany(x => x.Transactions)
                     .HasForeignKey(x => x.WalletId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 var transactions = new List<Transaction>
                 {
@@ -885,7 +889,7 @@
                 builder.HasOne(x => x.User)
                     .WithOne(x => x.Wallet)
                     .HasForeignKey<Wallet> (x => x.UserId)
-                    .OnDelete(DeleteBehavior.Restrict);
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 var wallets = new List<Wallet>
                 {

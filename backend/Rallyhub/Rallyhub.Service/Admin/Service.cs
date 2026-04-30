@@ -1,7 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿
+using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 
 using Rallyhub.Repository;
-using Rallyhub.Repository.Entity;
+
 using Exception = System.Exception;
 
 namespace Rallyhub.Service.Admin;
@@ -9,10 +11,14 @@ namespace Rallyhub.Service.Admin;
 public class Service: IService
 {
     private readonly AppDbContext _dbContext;
-    public Service(AppDbContext dbContext)
+    private readonly IHttpContextAccessor _httpContextAccessor;
+
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
     {
         _dbContext = dbContext;
+        _httpContextAccessor = httpContextAccessor;
     }
+
     public async Task<Base.Response.PageResult<Response.UserDto>>
         GetUsers(string? searchTmp, 
             int pageIndex, 
@@ -21,6 +27,12 @@ public class Service: IService
             Enum.Enum.Role? role,
             Enum.Enum.StatusUsers? status)
     {
+        var roleAdmin = _httpContextAccessor.HttpContext.User.Claims
+                                .FirstOrDefault(x => x.Type == "Role")?.Value;
+        if (roleAdmin != Enum.Enum.Role.Admin.ToString())
+        {
+            throw new Exception("Bạn không được ủy quyền");
+        }
         var getAllUser = _dbContext.Users.Where(x => true);
 
         if (!string.IsNullOrWhiteSpace(searchTmp))
@@ -75,17 +87,23 @@ public class Service: IService
 
     public async Task<Response.UserDto> GetUserById(Guid id)
     {
+        var roleAdmin = _httpContextAccessor.HttpContext.User.Claims
+                                .FirstOrDefault(x => x.Type == "Role")?.Value;
+        if (roleAdmin != Enum.Enum.Role.Admin.ToString())
+        {
+            throw new Exception("Bạn không được ủy quyền");
+        }
         var user = await _dbContext.Users
             .Include(x => x.Customer)
             .Include(x => x.Owner).FirstOrDefaultAsync(x => x.Id == id);
         if (user == null)
         {
-            throw new Exception("User not found");
+            throw new Exception("user không tồn tại");
         }
 
         if (user.Role == Enum.Enum.Role.Customer.ToString())
         {
-            if(user.Customer == null) throw new Exception("Customer not found");
+            if(user.Customer == null) throw new Exception("Customer không tồn tại");
             var bookings = _dbContext.Bookings.Where(x => x.CustomerId == user.Customer.Id);
             var bookingDto = bookings.Select(x => new Response.BookingDto()
             {
@@ -106,12 +124,12 @@ public class Service: IService
                 Status = user.Status,
                 Bookings = resultBookingDto
             };
-            return result!;
+            return result;
         }
 
         if (user.Role == Enum.Enum.Role.Owner.ToString())
         {
-            if(user.Owner == null) throw new Exception("Owner not found");
+            if(user.Owner == null) throw new Exception("Owner không tồn tại");
             var courts = _dbContext.Courts.Where(x => x.OwnerId == user.Owner.Id);
             var courtDto = courts.Select(x => new Response.CourtDto()
             {
@@ -140,6 +158,29 @@ public class Service: IService
             };
             return result;
         }
-        throw new Exception("Error");
+        throw new Exception("Không có quyền xem user admin");
+    }
+
+    public Task<Base.Response.PageResult<Response.CourtDto>> 
+        GetCourt(string? searchTmp, int pageIndex, int pageSize, Guid? id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task DeleteCourt(Guid id)
+    {
+        // var roleAdmin = _httpContextAccessor.HttpContext.User.Claims
+        //                         .FirstOrDefault(x => x.Type == "Role")?.Value;
+        // if (roleAdmin != Enum.Enum.Role.Admin.ToString())
+        // {
+        //     throw new Exception("Bạn không được ủy quyền");
+        // }
+        var court = await  _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == id);
+        if (court == null)
+        {
+            throw new Exception("Không tìm thấy sân");
+        }
+        _dbContext.Courts.Remove(court);
+        await _dbContext.SaveChangesAsync();
     }
 }
