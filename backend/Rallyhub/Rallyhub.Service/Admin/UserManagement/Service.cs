@@ -1,12 +1,8 @@
-﻿
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-
 using Rallyhub.Repository;
 
-using Exception = System.Exception;
-
-namespace Rallyhub.Service.Admin;
+namespace Rallyhub.Service.Admin.UserManagement;
 
 public class Service: IService
 {
@@ -20,12 +16,7 @@ public class Service: IService
     }
 
     public async Task<Base.Response.PageResult<Response.UserDto>>
-        GetUsers(string? searchTmp, 
-            int pageIndex, 
-            int pageSize, 
-            Guid? id,
-            Enum.Enum.Role? role,
-            Enum.Enum.StatusUsers? status)
+        GetUsers(string? search, int pageIndex, int pageSize, Guid? id, Enum.Enum.Role? role, Enum.Enum.StatusUsers? status)
     {
         var roleAdmin = _httpContextAccessor.HttpContext.User.Claims
                                 .FirstOrDefault(x => x.Type == "Role")?.Value;
@@ -35,10 +26,10 @@ public class Service: IService
         }
         var getAllUser = _dbContext.Users.Where(x => true);
 
-        if (!string.IsNullOrWhiteSpace(searchTmp))
+        if (!string.IsNullOrWhiteSpace(search))
         {
-            getAllUser = getAllUser.Where(x => x.Email.Contains(searchTmp) ||
-                                               (x.PhoneNumber != null && x.PhoneNumber.Contains(searchTmp)));
+            getAllUser = getAllUser.Where(x => x.Email.Contains(search) ||
+                                               (x.PhoneNumber != null && x.PhoneNumber.Contains(search)));
         }
         if (id.HasValue)
         {
@@ -159,28 +150,5 @@ public class Service: IService
             return result;
         }
         throw new Exception("Không có quyền xem user admin");
-    }
-
-    public Task<Base.Response.PageResult<Response.CourtDto>> 
-        GetCourt(string? searchTmp, int pageIndex, int pageSize, Guid? id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public async Task DeleteCourt(Guid id)
-    {
-        // var roleAdmin = _httpContextAccessor.HttpContext.User.Claims
-        //                         .FirstOrDefault(x => x.Type == "Role")?.Value;
-        // if (roleAdmin != Enum.Enum.Role.Admin.ToString())
-        // {
-        //     throw new Exception("Bạn không được ủy quyền");
-        // }
-        var court = await  _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == id);
-        if (court == null)
-        {
-            throw new Exception("Không tìm thấy sân");
-        }
-        _dbContext.Courts.Remove(court);
-        await _dbContext.SaveChangesAsync();
     }
 }

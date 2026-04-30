@@ -10,7 +10,8 @@ using IdentityService = Rallyhub.Service.IdentityService;
 using UserService = Rallyhub.Service.User;
 using OtpService = Rallyhub.Service.OtpService;
 using CourtService = Rallyhub.Service.Court;
-using AdminService = Rallyhub.Service.Admin;
+using UserManagement_AdminService = Rallyhub.Service.Admin.UserManagement;
+using CourtManagement_AdminService = Rallyhub.Service.Admin.CourtManagement;
 
 using MapService = Rallyhub.Service.MapService;   
 // using DiscordService = Rallyhub.Service.DiscordService;
@@ -45,7 +46,8 @@ builder.Services.AddScoped<OtpService.IService, OtpService.Service>();
 builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
 
 builder.Services.AddScoped<MapService.IService, MapService.Service>();
-builder.Services.AddScoped<AdminService.IService, AdminService.Service>();
+builder.Services.AddScoped<UserManagement_AdminService.IService, UserManagement_AdminService.Service>();
+builder.Services.AddScoped<CourtManagement_AdminService.IService, CourtManagement_AdminService.Service>();
 
 builder.Services.AddHttpClient("VietMap", client =>
 {

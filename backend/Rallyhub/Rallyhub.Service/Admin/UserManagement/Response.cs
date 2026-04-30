@@ -1,6 +1,4 @@
-﻿using Rallyhub.Repository.Entity;
-
-namespace Rallyhub.Service.Admin;
+﻿namespace Rallyhub.Service.Admin.UserManagement;
 
 public class Response
 {
