@@ -11,4 +11,5 @@ public interface IService
             Enum.Enum.StatusUsers? status);
 
     public Task<Response.UserDto> GetUserById(Guid id);
+    
 }
