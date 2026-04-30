@@ -270,6 +270,7 @@ public class Service: IService
             user.Status = request.Status;
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
+            return;
         }
 
         if (user.Role == Enum.Enum.Role.Owner.ToString() && request.Status == Enum.Enum.StatusUsers.Locked.ToString())
