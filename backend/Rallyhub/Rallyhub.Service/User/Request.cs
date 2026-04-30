@@ -16,22 +16,6 @@ public class Request
         public required string  RawPassword { get; set; }
     }
     
-    public class OwnerRequestRequest :UserRequest
-    {
-        public required string BusinessName { get; set; }
-        public required string TaxCode { get; set; }
-        public required string BusinessAddress { get; set; }
-        public required IFormFile BusinessLicenseUrl { get; set; } // Ảnh giấy phép
-
-        public required string IdentityNumber { get; set; } // Số CCCD
-        public required IFormFile IdentityCardFrontUrl { get; set; } // Ảnh mặt trước CCCD
-        public required IFormFile IdentityCardBackUrl { get; set; } // Ảnh mặt sau CCCD
-    }
-
-    public class GetOwnerRequest
-    {
-        public int PageSize { get; set; } = 10;
-        public int PageIndex { get; set; } = 1;
-    }
+    
     
 }

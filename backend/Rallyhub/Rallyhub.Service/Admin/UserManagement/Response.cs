@@ -1,6 +1,4 @@
-﻿using Rallyhub.Repository.Entity;
-
-namespace Rallyhub.Service.Admin;
+﻿namespace Rallyhub.Service.Admin.UserManagement;
 
 public class Response
 {
@@ -45,5 +43,23 @@ public class Response
         public decimal Latitude { get; set; } //vĩ độ (10, 8)
         public decimal Longitude { get; set; } //kinh độ (11, 8)
         public string MapUrl  { get; set; } //link của gg map
+    }
+    
+    public class AdminGetOwnerRequestResponse
+    {
+        public Guid Id { get; set; }
+        public Guid UserId { get; set; }
+        public Guid CustomerId { get; set; }
+        public string? BusinessName { get; set; }
+        public string? TaxCode { get; set; }
+        public string? BusinessAddress { get; set; }
+        public string? BusinessLicenseUrl { get; set; } // Ảnh giấy phép
+
+        public string? IdentityNumber { get; set; } // Số CCCD
+        public string? IdentityCardFrontUrl { get; set; } // Ảnh mặt trước CCCD
+        public string? IdentityCardBackUrl { get; set; } // Ảnh mặt sau CCCD
+
+        public string? Status { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }
