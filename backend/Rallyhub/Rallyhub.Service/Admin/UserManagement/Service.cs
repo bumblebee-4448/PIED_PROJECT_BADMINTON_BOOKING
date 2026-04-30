@@ -4,7 +4,7 @@ using Rallyhub.Repository;
 
 namespace Rallyhub.Service.Admin.UserManagement;
 
-public class Service : IService
+public class Service: IService
 {
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -151,7 +151,7 @@ public class Service : IService
         }
         throw new Exception("Không có quyền xem user admin");
     }
-
+    
     public async Task<Base.Response.PageResult<Response.AdminGetOwnerRequestResponse>> AdminGetOwnerRequest(Base.Request.Pagination request)
     {
         var query = _dbContext.OwnerRequests.Where(x => x.Status == "Pending");
