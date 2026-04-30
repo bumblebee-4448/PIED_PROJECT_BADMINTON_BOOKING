@@ -1,9 +1,10 @@
-﻿namespace Rallyhub.Service.User;
+﻿namespace Rallyhub.Service.Customer;
 
 public class Response
 {
-    public class OwnerRequestResponse
+    public class GetOwnerRequestResponse
     {
+        public Guid Id { get; set; }
         public Guid CustomerId { get; set; }
         public Guid? OwnerId { get; set; } = null;
         public string? BusinessName { get; set; }

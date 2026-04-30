@@ -10,8 +10,13 @@ using IdentityService = Rallyhub.Service.IdentityService;
 using UserService = Rallyhub.Service.User;
 using OtpService = Rallyhub.Service.OtpService;
 using CourtService = Rallyhub.Service.Court;
-using UserManagement_AdminService = Rallyhub.Service.Admin.UserManagement;
-using CourtManagement_AdminService = Rallyhub.Service.Admin.CourtManagement;
+using MediaService = Rallyhub.Service.MediaService;
+using CloudinaryService = Rallyhub.Service.CloudinaryService;
+using AdminService = Rallyhub.Service.Admin;
+using CustomerService = Rallyhub.Service.Customer;
+using OwnerService = Rallyhub.Service.Owner;
+
+
 
 using MapService = Rallyhub.Service.MapService;   
 // using DiscordService = Rallyhub.Service.DiscordService;
@@ -44,10 +49,16 @@ builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<OtpService.IService, OtpService.Service>();
 builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
-
 builder.Services.AddScoped<MapService.IService, MapService.Service>();
-builder.Services.AddScoped<UserManagement_AdminService.IService, UserManagement_AdminService.Service>();
-builder.Services.AddScoped<CourtManagement_AdminService.IService, CourtManagement_AdminService.Service>();
+builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
+builder.Services.AddScoped<AdminService.IService, AdminService.Service>();
+
+builder.Services.AddScoped<CustomerService.IService, CustomerService.Service>();
+builder.Services.AddScoped<OwnerService.IService, OwnerService.Service>();
+
+
+
+
 
 builder.Services.AddHttpClient("VietMap", client =>
 {
