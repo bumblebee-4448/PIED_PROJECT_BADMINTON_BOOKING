@@ -151,6 +151,5 @@ public class Service: IService
         }
         throw new Exception("Không có quyền xem user admin");
     }
-
     
 }

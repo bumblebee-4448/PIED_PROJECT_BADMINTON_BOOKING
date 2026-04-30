@@ -6,4 +6,5 @@ public interface IService
         GetUsers(string? search, int pageIndex, int pageSize, Guid? id, Enum.Enum.Role? role, Enum.Enum.StatusUsers? status);
     public Task<Response.UserDto> GetUserById(Guid id);
     
+    
 }
