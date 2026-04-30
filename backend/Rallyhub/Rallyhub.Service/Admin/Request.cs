@@ -1,4 +1,4 @@
-﻿namespace Rallyhub.Service.Admin.UserManagement;
+﻿namespace Rallyhub.Service.Admin;
 
 public class Request
 {
@@ -16,5 +16,8 @@ public class Request
     {
         public Guid? Id  { get; set; }
     }
-    
+    public class DeleteCourt
+    {
+        public Guid? Id { get; set; }
+    }
 }

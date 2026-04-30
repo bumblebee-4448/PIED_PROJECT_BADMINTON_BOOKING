@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 
-namespace Rallyhub.Service.Admin.UserManagement;
+namespace Rallyhub.Service.Admin;
 
 public class Service: IService
 {
@@ -259,5 +259,21 @@ public class Service: IService
             return "Success";
         }
         return "Fail";
+    }
+    public async Task DeleteCourt(Guid id)
+    {
+        // var roleAdmin = _httpContextAccessor.HttpContext.User.Claims
+        //                         .FirstOrDefault(x => x.Type == "Role")?.Value;
+        // if (roleAdmin != Enum.Enum.Role.Admin.ToString())
+        // {
+        //     throw new Exception("Bạn không được ủy quyền");
+        // }
+        var court = await  _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == id);
+        if (court == null)
+        {
+            throw new Exception("Không tìm thấy sân");
+        }
+        _dbContext.Courts.Remove(court);
+        await _dbContext.SaveChangesAsync();
     }
 }

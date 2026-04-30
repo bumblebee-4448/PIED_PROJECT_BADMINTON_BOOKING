@@ -1,4 +1,4 @@
-﻿namespace Rallyhub.Service.Admin.UserManagement;
+﻿namespace Rallyhub.Service.Admin;
 
 public class Response
 {

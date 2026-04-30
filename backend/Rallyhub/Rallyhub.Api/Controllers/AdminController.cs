@@ -2,25 +2,24 @@
 using Microsoft.AspNetCore.Mvc;
 using Rallyhub.Api.Extention;
 using Rallyhub.Repository;
-using Rallyhub.Service.Base;
+using Rallyhub.Service.Admin;
 using Rallyhub.Service.Models;
 
 namespace Rallyhub.Api.Controllers;
-
 [ApiController]
 [Route("api/[controller]")]
-public class UserManagementAdminController: ControllerBase
+public class AdminController: ControllerBase
 {
     private readonly AppDbContext _dbContext;
-    private readonly Service.Admin.UserManagement.IService _adminService;
+    private readonly IService _adminService;
 
-    public UserManagementAdminController(AppDbContext dbContext, Service.Admin.UserManagement.IService adminService)
+    public AdminController(AppDbContext dbContext, IService adminService)
     {
         _dbContext = dbContext;
         _adminService = adminService;
     }
 
-    [HttpGet("")]
+    [HttpGet("getAllUser")]
     public async Task<IActionResult> getUser(string? search, int pageIndex, int pageSize, Guid? id, Service.Enum.Enum.Role? role, Service.Enum.Enum.StatusUsers? status)
     {
         var result = await _adminService.GetUsers(search, pageIndex, pageSize, id, role, status);
@@ -28,7 +27,7 @@ public class UserManagementAdminController: ControllerBase
             (result, "Danh sách user", HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("getUserById/{id}")]
     public async Task<IActionResult> GetUserById(Guid id)
     {
         var result = await _adminService.GetUserById(id);
@@ -38,7 +37,7 @@ public class UserManagementAdminController: ControllerBase
     
     [HttpGet("GetOwnerRequest")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> AdminGetOwnerRequest([FromQuery]Request.Pagination request)
+    public async Task<IActionResult> AdminGetOwnerRequest([FromQuery]Service.Base.Request.Pagination request)
     {
         var result = await _adminService.AdminGetOwnerRequest(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success you!", HttpContext.TraceIdentifier));
@@ -60,5 +59,12 @@ public class UserManagementAdminController: ControllerBase
         
         var result = await _adminService.AdminRejectOwnerRequest(ownerRequestId, rejectReason);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success you!", HttpContext.TraceIdentifier));
+    }
+    [HttpDelete("DeleteCourt/{id}")]
+    public async Task<IActionResult> DeleteCourt(Guid id)
+    {
+        await _adminService.DeleteCourt(id);
+        return Ok(Service.Models.ApiResponseFactory.SuccessResponse
+            ($"Xóa sân thành công",HttpContext.TraceIdentifier));
     }
 }

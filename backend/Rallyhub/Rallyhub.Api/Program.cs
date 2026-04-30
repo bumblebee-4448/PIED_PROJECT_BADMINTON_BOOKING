@@ -12,8 +12,7 @@ using OtpService = Rallyhub.Service.OtpService;
 using CourtService = Rallyhub.Service.Court;
 using MediaService = Rallyhub.Service.MediaService;
 using CloudinaryService = Rallyhub.Service.CloudinaryService;
-using UserManagement_AdminService = Rallyhub.Service.Admin.UserManagement;
-using CourtManagement_AdminService = Rallyhub.Service.Admin.CourtManagement;
+using AdminService = Rallyhub.Service.Admin;
 using CustomerService = Rallyhub.Service.Customer;
 using OwnerService = Rallyhub.Service.Owner;
 
@@ -52,8 +51,8 @@ builder.Services.AddScoped<OtpService.IService, OtpService.Service>();
 builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
 builder.Services.AddScoped<MapService.IService, MapService.Service>();
 builder.Services.AddScoped<MediaService.IService, CloudinaryService.Service>();
-builder.Services.AddScoped<UserManagement_AdminService.IService, UserManagement_AdminService.Service>();
-builder.Services.AddScoped<CourtManagement_AdminService.IService, CourtManagement_AdminService.Service>();
+builder.Services.AddScoped<AdminService.IService, AdminService.Service>();
+
 builder.Services.AddScoped<CustomerService.IService, CustomerService.Service>();
 builder.Services.AddScoped<OwnerService.IService, OwnerService.Service>();
 
