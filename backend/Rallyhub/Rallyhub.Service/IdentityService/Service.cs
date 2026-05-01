@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Configuration;
@@ -19,12 +20,14 @@ public class Service : IService
     private readonly OtpService.IService _otpService;       // Khai báo chuyên gia OTP
     private readonly JwtOptions _jwtOption = new();
     private readonly SecurityOptions _securityOptions = new();
+    private readonly IHttpContextAccessor _httpAccessor;
 
     public Service(AppDbContext dbContext, 
         IDistributedCache redisCache, 
         IConfiguration configuration,
         JwtService.IService jwtService,
-        OtpService.IService otpService)
+        OtpService.IService otpService,
+        IHttpContextAccessor httpContextAccesso)
     {
         _dbContext = dbContext;
         _redisCache = redisCache;
@@ -32,6 +35,7 @@ public class Service : IService
         _otpService = otpService;
         configuration.GetSection(nameof(JwtOptions)).Bind(_jwtOption);
         configuration.GetSection(nameof(SecurityOptions)).Bind(_securityOptions);
+        _httpAccessor = httpContextAccesso;
     }
     
     public async Task<string> RegisterTask(User.Request.RegisterRequest request)
@@ -51,10 +55,8 @@ public class Service : IService
             PhoneNumber = request.PhoneNumber,
             
         };
-        
         await _otpService.GenerateAndSendOtpAsync(request.Email, "Register", pendingUser);
-
-        return "Success";
+        return "Check mail, verify otp";
     }
     
     public async Task<Response.IdentityResponse> VerifyOtp(string email, string inputOtp)
@@ -68,7 +70,7 @@ public class Service : IService
             FirstName = pendingUser.FirstName,
             LastName = pendingUser.LastName,
             PhoneNumber = pendingUser.PhoneNumber,
-            Role = "Customer", // Set mặc định để tránh lỗi NULL ở Token
+            Role = "Customer",
             CreatedAt = DateTimeOffset.UtcNow,
         };
         _dbContext.Users.Add(newUser);
@@ -100,14 +102,6 @@ public class Service : IService
                 claims.Add(new Claim("OwnerId", owner.Id.ToString()));
             }
         }
-        // else if (user.Role == "Admin")
-        // {
-        //     var owner = _dbContext.Owners.FirstOrDefault(x => x.UserId == user.Id );
-        //     if (owner != null)
-        //     {
-        //         claims.Add(new Claim("AdminId", owner.Id.ToString()));
-        //     }
-        // }
         if (newUser.Role == "Customer")
         {
             var customer = _dbContext.Customers.FirstOrDefault(x => x.UserId == newUser.Id );
@@ -141,11 +135,17 @@ public class Service : IService
         {
             throw new Exception("Email hoặc mật khẩu không chính xác.");
         }
+
+        if (user.Status == "Ban")
+        {
+            throw new Exception("Your account has been banned.");
+        }
         var claims = new List<Claim>
         {
             new Claim("UserId", user.Id.ToString()), 
             new Claim("Email", user.Email),
             new Claim("Role", user.Role), 
+            new Claim("Status", user.Status),
             new Claim(ClaimTypes.Role, user.Role),
             new Claim(ClaimTypes.Expired, 
             DateTimeOffset.UtcNow.AddMinutes(_jwtOption.ExpireMinutes).ToString()),
@@ -159,14 +159,6 @@ public class Service : IService
                 claims.Add(new Claim("OwnerId", owner.Id.ToString()));
             }
         }
-        // else if (user.Role == "Admin")
-        // {
-        //     var owner = _dbContext.Owners.FirstOrDefault(x => x.UserId == user.Id );
-        //     if (owner != null)
-        //     {
-        //         claims.Add(new Claim("AdminId", owner.Id.ToString()));
-        //     }
-        // }
         if (user.Role == "Customer")
         {
             var customer = _dbContext.Customers.FirstOrDefault(x => x.UserId == user.Id );
@@ -184,29 +176,61 @@ public class Service : IService
         };
     }
 
-    public async Task<string> Logout(string token)
+    // public async Task<string> Logout(string token)
+    // {
+    //     try
+    //     {
+    //         var handler = new JwtSecurityTokenHandler();
+    //         var jwtToken = handler.ReadJwtToken(token);
+    //         var expDate = jwtToken.ValidTo;
+    //         var remainingTime = expDate - DateTime.UtcNow;
+    //
+    //         if (remainingTime.TotalSeconds > 0)
+    //         {
+    //             string blacklistKey = $"Blacklist:{token}";
+    //             await _redisCache.SetStringAsync(blacklistKey, "revoked", new DistributedCacheEntryOptions
+    //             {
+    //                 AbsoluteExpirationRelativeToNow = remainingTime
+    //             });
+    //         }
+    //
+    //         return "Success";
+    //     }
+    //     catch (Exception)
+    //     {
+    //         throw new Exception("Token không hợp lệ hoặc đã bị can thiệp.");
+    //     }
+    // }
+    
+    public async Task<string> ForgotPassword(Request.ForgotPasswordRequest request)
     {
-        try
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+        if (user == null)
         {
-            var handler = new JwtSecurityTokenHandler();
-            var jwtToken = handler.ReadJwtToken(token);
-            var expDate = jwtToken.ValidTo;
-            var remainingTime = expDate - DateTime.UtcNow;
+            throw new Exception("Email không tồn tại");
+        }
+        await _otpService.GenerateAndSendOtpAsync(request.Email, "ForgotPassword", user.Id.ToString());
+        return "Check mail, verify otp";
+    }
 
-            if (remainingTime.TotalSeconds > 0)
-            {
-                string blacklistKey = $"Blacklist:{token}";
-                await _redisCache.SetStringAsync(blacklistKey, "revoked", new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow = remainingTime
-                });
-            }
+    public async Task<string> ResetPassword(Request.ResetPasswordRequest request)
+    {
+        var userId = await _otpService.VerifyAndGetPayloadAsync<string>(request.Email, request.OtpCode, "ForgotPassword");
+        var userIdGuid = Guid.Parse(userId);
 
+        var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Id == userIdGuid);
+        if (user == null)
+            throw new Exception("Người dùng không tồn tại");
+        string pepperedNewPassword = request.NewPassword + _securityOptions.Pepper;
+        user.PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperedNewPassword, hashType: BCrypt.Net.HashType.SHA384);
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+
+        var result = await _dbContext.SaveChangesAsync();
+        if (result > 0)
+        {
             return "Success";
         }
-        catch (Exception)
-        {
-            throw new Exception("Token không hợp lệ hoặc đã bị can thiệp.");
-        }
+
+        return "Fail";
     }
 }

@@ -7,12 +7,10 @@ namespace Rallyhub.Service.Admin;
 public class Service: IService
 {
     private readonly AppDbContext _dbContext;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public Service(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
     {
-        _dbContext = dbContext;
-        _httpContextAccessor = httpContextAccessor;
+        _dbContext = dbContext; 
     }
 
     public async Task<Base.Response.PageResult<Response.UserDto>>
