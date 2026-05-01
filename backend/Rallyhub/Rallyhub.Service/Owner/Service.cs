@@ -7,7 +7,7 @@ using Exception = System.Exception;
 using StatusCreateCourt = Rallyhub.Service.Enum.Enum.StatusCreateCourt;
 namespace Rallyhub.Service.Owner;
 
-public class Service : IService 
+public class Service : IService
 {  
     private readonly AppDbContext _dbContext;  
     private readonly IHttpContextAccessor _httpContext;  
@@ -210,11 +210,16 @@ public class Service : IService
         
         //validate gap slot
         var duration = request.EndTime - request.StartTime;
-        if (duration.TotalMinutes % 30 != 0)
+        if (duration.TotalMinutes != 30)
         {
-            throw new Exception("Slot phải chia theo 30 phút");
+            throw new Exception("Mỗi slot phải đúng 30 phút");
         }
         
+        if (request.StartTime.Minute % 30 != 0 ||
+            request.EndTime.Minute % 30 != 0)
+        {
+            throw new Exception("Slot phải align 30 phút");
+        }
         //Create entity
         var newConfigSlot = new ConfigSlot
         {
@@ -234,6 +239,44 @@ public class Service : IService
             EndTime = newConfigSlot.EndTime,
             Price = newConfigSlot.Price,
         };
+    }
+
+    public async Task<List<Response.ConfigSlotResponse>> GetConfigSlotBySubCourtId(Guid subCourtId)
+    {
+        //Lấy token của OwnerId
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        if (string.IsNullOrEmpty(ownerIdClaim))  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        //check subCourt + ownerShip
+        var existSubCourt = _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefault(x => x.Id == subCourtId);
+        if (existSubCourt == null)
+        {
+            throw new Exception("Sân con không tồn tại");
+        }
+
+        if (existSubCourt.Court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Bạn không có quyền");
+        }
+        
+        //get ConfigSlot
+        var slots = await _dbContext.ConfigSlots
+            .Where(x => x.SubCourtDetailId == subCourtId)
+            .OrderBy(x => x.StartTime)
+            .Select(x => new Response.ConfigSlotResponse()
+            {
+                Id = x.Id,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                Price = x.Price,
+            }).ToListAsync();
+        return slots;
     }
 }
 

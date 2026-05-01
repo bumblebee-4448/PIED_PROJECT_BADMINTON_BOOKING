@@ -10,4 +10,5 @@ public interface IService
     //Owner: Tạo subcourt
     public Task<Response.SubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request);
     public Task<Response.CreateConfigSlotResponse> CreateConfigSlot(Request.CreateConfigSlotRequest request);
+    public Task<List<Response.ConfigSlotResponse>> GetConfigSlotBySubCourtId(Guid subCourtId);
 }

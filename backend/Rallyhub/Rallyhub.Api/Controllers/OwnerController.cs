@@ -49,5 +49,13 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Setup slot thành công"   
             , HttpContext.TraceIdentifier));  
     } 
+    
+    [HttpPost("GetConfigSlotBySubCourtId")]  
+    public async Task<IActionResult> GetConfigSlotBySubCourtId(Guid subCourtId)  
+    {  
+        var result = await _ownerService.GetConfigSlotBySubCourtId(subCourtId); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Setup slot thành công"   
+            , HttpContext.TraceIdentifier));  
+    } 
 
 }
