@@ -30,6 +30,6 @@ export const authService = {
   },
 
   logout: async (): Promise<void> => {
-    await apiClient.post(API_ENDPOINTS.AUTH.LOGOUT);
+    // Local logout only
   },
 };

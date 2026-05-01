@@ -1,37 +1,51 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuthStore } from "@/features/auth/store";
 import { toast } from "sonner";
+import { profileService } from "../services";
 import type { ProfileSchema, PasswordChangeSchema, OwnerRegistrationSchema } from "../schema";
-
-const MOCK_USER = {
-  id: "1",
-  name: "Nguyễn Văn A",
-  email: "nguyenvana@example.com",
-  phone: "0987654321",
-  preferredLocation: "Quận 1",
-  level: "intermediate",
-  avatar: "",
-  isOwner: false,
-};
+import type { User } from "@/features/auth/types";
 
 export function useProfile() {
-  const { logout } = useAuthStore();
-  
-  // Ép buộc sử dụng mock data theo yêu cầu của bạn để tránh lỗi API
-  const user = MOCK_USER;
-
+  const { logout, setAuth, user: storeUser, role, accessToken } = useAuthStore();
+  const [user, setUser] = useState<User | null>(storeUser);
+  const [isLoading, setIsLoading] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [isRegisteringOwner, setIsRegisteringOwner] = useState(false);
 
+  // Lấy thông tin user thực tế từ backend khi mount
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!accessToken) return;
+      setIsLoading(true);
+      try {
+        const profileData = await profileService.getMe();
+        setUser(profileData);
+        // Cập nhật store nếu có thay đổi
+        if (accessToken && role) {
+          setAuth(accessToken, role, profileData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch profile:", error);
+        // Nếu lỗi 401 thì có thể logout tùy theo policy
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [accessToken, role, setAuth]);
+
   const updateProfile = async (data: ProfileSchema) => {
     setIsSaving(true);
     try {
-      // Logic gọi API update profile ở đây
-      console.log("Updating profile...", data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const updatedUser = await profileService.updateProfile(data);
+      setUser(updatedUser);
+      if (accessToken && role) {
+        setAuth(accessToken, role, updatedUser);
+      }
       toast.success("Cập nhật thông tin thành công!");
-    } catch {
+    } catch (error) {
       toast.error("Cập nhật thất bại. Vui lòng thử lại.");
     } finally {
       setIsSaving(false);
@@ -41,11 +55,9 @@ export function useProfile() {
   const changePassword = async (data: PasswordChangeSchema) => {
     setIsChangingPassword(true);
     try {
-      // Logic gọi API đổi mật khẩu ở đây
-      console.log("Changing password...", data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await profileService.changePassword(data);
       toast.success("Đổi mật khẩu thành công!");
-    } catch {
+    } catch (error) {
       toast.error("Đổi mật khẩu thất bại.");
     } finally {
       setIsChangingPassword(false);
@@ -55,11 +67,9 @@ export function useProfile() {
   const registerOwner = async (data: OwnerRegistrationSchema) => {
     setIsRegisteringOwner(true);
     try {
-      // Logic gọi API đăng ký chủ sân ở đây
-      console.log("Registering as owner...", data);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await profileService.registerOwner(data);
       toast.success("Yêu cầu đăng ký đã được gửi!");
-    } catch {
+    } catch (error) {
       toast.error("Gửi yêu cầu thất bại.");
     } finally {
       setIsRegisteringOwner(false);
@@ -68,6 +78,7 @@ export function useProfile() {
 
   return {
     user,
+    isLoading,
     logout,
     isSaving,
     isChangingPassword,

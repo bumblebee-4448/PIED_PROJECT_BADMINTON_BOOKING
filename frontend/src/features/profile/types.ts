@@ -3,7 +3,7 @@ import type { UserRole } from "@/shared/types";
 export interface User {
   id: string;
   email: string;
-  name: string;
+  fullName: string;
   phone: string;
   avatar?: string;
   role: UserRole;
