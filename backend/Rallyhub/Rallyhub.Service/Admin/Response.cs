@@ -4,6 +4,7 @@ public class Response
 {
     public class UserDto
     {
+        public Guid  Id { get; set; }
         public string Email { get; set; }
         public string Role { get; set; } = "Customer";
         public string FirstName { get; set; }
@@ -13,6 +14,7 @@ public class Response
     }
     public class OwnerDto: UserDto
     {
+        public Guid  Id { get; set; } 
         public string BusinessName  { get; set; }
         public string TaxCode { get; set; }
         public string BusinessAddress { get; set; }
@@ -20,11 +22,13 @@ public class Response
     }
     public class CustomerDto: UserDto
     {
+        public Guid  Id { get; set; }
         public List<BookingDto> Bookings { get; set; }
     }
 
     public class BookingDto
     {
+        public Guid  Id { get; set; }
         public decimal TotalPrice { get; set; }
         public decimal? DiscountAmount { get; set; } = 0;
         public decimal FinalPrice { get; set; }
@@ -34,6 +38,7 @@ public class Response
 
     public class CourtDto
     {
+        public Guid  Id { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
         public TimeOnly OpenTime  { get; set; }
