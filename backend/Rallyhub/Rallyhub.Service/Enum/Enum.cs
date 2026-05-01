@@ -12,7 +12,7 @@ public class Enum
     public enum StatusUsers
     {
         Active,
-        Locked,
+        Banned,
         Unverified
     }
 
