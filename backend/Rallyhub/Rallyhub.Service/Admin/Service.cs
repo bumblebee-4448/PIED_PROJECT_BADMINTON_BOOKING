@@ -222,7 +222,9 @@ public class Service: IService
         var queryUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
         queryUser!.Role = "Owner";
         _dbContext.Owners.Add(newOwner);
-        _dbContext.Customers.Remove(query.Customer);
+        var customerId = query.Customer.Id;
+        var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.Id == customerId);
+        // _dbContext.Customers.Remove(customer!);
         var result = await _dbContext.SaveChangesAsync();
         if (result > 0)
         {
