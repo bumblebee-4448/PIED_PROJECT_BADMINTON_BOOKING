@@ -16,6 +16,10 @@ public class Request
         public required string  RawPassword { get; set; }
     }
     
-    
+    public class ChangePasswordRequest
+    {
+        public string OldPassword { get; set; } = string.Empty;
+        public string NewPassword { get; set; } = string.Empty;
+    }
     
 }
