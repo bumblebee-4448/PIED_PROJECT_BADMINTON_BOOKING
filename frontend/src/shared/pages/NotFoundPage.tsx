@@ -1,5 +1,5 @@
-import { useNavigate, Link } from "react-router-dom";
-import { FileQuestion, ArrowLeft } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
 
@@ -11,28 +11,42 @@ export function NotFoundPage() {
   const navigate = useNavigate();
 
   return (
-    <div className="flex min-h-[70vh] items-center justify-center bg-[#F1F5F9]/50 px-4">
-      <div className="max-w-md w-full bg-white p-10 rounded-[2.5rem] shadow-xl shadow-gray-200/50 text-center border border-gray-100">
-        <div className="w-20 h-20 bg-emerald-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-          <FileQuestion className="h-10 w-10 text-emerald-500" />
-        </div>
+    <div className="flex min-h-[70vh] items-center justify-center bg-[#F9FBFA] px-4 py-16 overflow-hidden">
+      <div className="max-w-2xl w-full text-center relative">
+        <h1 className="text-[10rem] md:text-[14rem] font-black text-[#0B2421] leading-none tracking-tighter opacity-[0.06] absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none">
+          404
+        </h1>
         
-        <h1 className="text-6xl font-black text-[#0B2421] mb-2 tracking-tighter">404</h1>
-        <h2 className="text-xl font-extrabold text-[#0B2421] mb-3">Lạc đường rồi!</h2>
-        <p className="text-gray-400 text-sm font-medium leading-relaxed mb-8">
-          Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển. Đừng lo, hãy quay lại nhé!
-        </p>
+        <div className="relative z-10">
+          <h2 className="text-4xl md:text-6xl font-black text-[#0B2421] mb-4 tracking-tight">
+            Lạc đường rồi!
+          </h2>
+          <p className="text-gray-400 text-lg md:text-xl font-medium leading-relaxed max-w-lg mx-auto mb-10">
+            Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển. 
+            Đừng lo, RallyHub sẽ giúp bạn quay lại đúng hướng.
+          </p>
+        </div>
 
-        <div className="flex flex-col gap-3">
-          <Button 
-            onClick={() => navigate(-1)}
-            className="w-full bg-[#0B2421] hover:bg-[#0B2421]/90 text-white rounded-2xl h-12 font-bold flex items-center justify-center gap-2 transition-all shadow-lg shadow-gray-200"
+        <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto relative z-20">
+          <Button
+            onClick={() => {
+              if (window.history.length > 2) {
+                navigate(-1);
+              } else {
+                navigate("/");
+              }
+            }}
+            className="flex-1 bg-[#00897B] hover:bg-[#00796B] text-white rounded-2xl h-14 text-base font-bold flex items-center justify-center gap-3 transition-all shadow-xl shadow-emerald-900/10 cursor-pointer"
           >
-            <ArrowLeft size={18} /> Quay lại trang trước
+            <ArrowLeft size={20} /> Quay lại
           </Button>
-          
-          <Button variant="ghost" asChild className="w-full h-12 rounded-2xl font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 transition-all">
-            <Link to="/">Về trang chủ</Link>
+
+          <Button
+            variant="ghost"
+            onClick={() => navigate("/")}
+            className="flex-1 h-14 rounded-2xl text-base font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 transition-all border border-emerald-100/50 hover:border-emerald-100 cursor-pointer"
+          >
+            Về trang chủ
           </Button>
         </div>
       </div>
