@@ -167,6 +167,74 @@ public class Service : IService
             Name = newSubCourt.Name,
         };
     }
+
+    public async Task<Response.CreateConfigSlotResponse> CreateConfigSlot(Request.CreateConfigSlotRequest request)
+    {
+        //Lấy token của OwnerId
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        if (string.IsNullOrEmpty(ownerIdClaim))  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        
+        //CheckSubCourt co ton tai va co thuoc Owner
+        var existSubCourt = await _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefaultAsync(x => x.Id == request.SubCourtId);
+        if (existSubCourt == null)
+        {
+            throw new Exception("Sân con không tồn tại!");
+        }
+
+        if (existSubCourt.Court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Bạn không có quyền");
+        }
+        //Validate time
+        if(request.StartTime >= request.EndTime)
+        {
+            throw new Exception("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc của khung giờ đó!");
+        }
+        //Validate overlap
+        var isOverlap = await _dbContext.ConfigSlots.AnyAsync(x =>
+            x.SubCourtDetailId == request.SubCourtId
+            && request.StartTime < x.EndTime 
+            && request.EndTime > x.StartTime);
+
+        if (isOverlap)
+        {
+            throw new Exception("Slot bị trùng thời gian");
+        }
+        
+        //validate gap slot
+        var duration = request.EndTime - request.StartTime;
+        if (duration.TotalMinutes % 30 != 0)
+        {
+            throw new Exception("Slot phải chia theo 30 phút");
+        }
+        
+        //Create entity
+        var newConfigSlot = new ConfigSlot
+        {
+            Id = Guid.NewGuid(),
+            SubCourtDetailId = request.SubCourtId,
+            StartTime = request.StartTime,
+            EndTime = request.EndTime,
+            Price = request.Price,
+        };
+        _dbContext.Add(newConfigSlot);
+        await _dbContext.SaveChangesAsync();
+
+        return new Response.CreateConfigSlotResponse
+        {
+            Id = newConfigSlot.Id,
+            StartTime = newConfigSlot.StartTime,
+            EndTime = newConfigSlot.EndTime,
+            Price = newConfigSlot.Price,
+        };
+    }
 }
 
     

@@ -19,4 +19,12 @@ public class Response
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
     }
+
+    public class CreateConfigSlotResponse
+    {
+        public Guid Id { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public decimal Price { get; set; }
+    }
 }
