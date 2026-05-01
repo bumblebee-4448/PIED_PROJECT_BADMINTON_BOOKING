@@ -19,7 +19,7 @@ export function GuestRoute({ children }: GuestRouteProps) {
 
   // Nếu đã đăng nhập → redirect về trang chính
   if (accessToken) {
-    const redirectTo = role === "admin" ? "/admin" : "/";
+    const redirectTo = role === "Admin" ? "/admin" : "/";
     return <Navigate to={redirectTo} replace />;
   }
 

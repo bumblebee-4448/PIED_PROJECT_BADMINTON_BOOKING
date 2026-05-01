@@ -38,4 +38,4 @@ export interface SelectOption {
 }
 
 // ─── User Roles ──────────────────────────────────────────
-export type UserRole = "customer" | "admin" | "owner";
+export type UserRole = "Customer" | "Admin" | "Owner";
