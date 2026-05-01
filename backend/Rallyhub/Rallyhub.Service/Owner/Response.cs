@@ -28,12 +28,12 @@ public class Response
         public decimal Price { get; set; }
     }
     
-    public class ConfigSlotResponse: CreateConfigSlotResponse
+    public class GetConfigSlotResponse: CreateConfigSlotResponse
     {
        
     }
 
-    public class CreateOverrideResponse
+    public class CreateOverrideSlotResponse
     {
         public Guid Id { get; set; }
         public DateOnly? Date { get; set; }
@@ -41,6 +41,11 @@ public class Response
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }
+    }
+
+    public class GetOverrideSlotResponse: CreateOverrideSlotResponse
+    {   
+        public bool IsRecurring { get; set; }
     }
     
 }

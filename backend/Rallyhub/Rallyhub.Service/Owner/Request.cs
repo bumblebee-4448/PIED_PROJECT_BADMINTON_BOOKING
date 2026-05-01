@@ -48,4 +48,5 @@ public class Request
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }
     }
+    
 }

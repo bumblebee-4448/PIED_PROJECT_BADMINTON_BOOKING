@@ -241,7 +241,7 @@ public class Service : IService
         };
     }
 
-    public async Task<List<Response.ConfigSlotResponse>> GetConfigSlotBySubCourtId(Guid subCourtId)
+    public async Task<List<Response.GetConfigSlotResponse>> GetConfigSlotBySubCourtId(Guid subCourtId)
     {
         //Lấy token của OwnerId
         var ownerIdClaim = _httpContext.HttpContext?.User?  
@@ -269,7 +269,7 @@ public class Service : IService
         var slots = await _dbContext.ConfigSlots
             .Where(x => x.SubCourtDetailId == subCourtId)
             .OrderBy(x => x.StartTime)
-            .Select(x => new Response.ConfigSlotResponse()
+            .Select(x => new Response.GetConfigSlotResponse()
             {
                 Id = x.Id,
                 StartTime = x.StartTime,
@@ -279,7 +279,7 @@ public class Service : IService
         return slots;
     }
 
-    public async Task<Response.CreateOverrideResponse> CreateOverrideSlot(Request.CreateOverrideSlotRequest request)
+    public async Task<Response.CreateOverrideSlotResponse> CreateOverrideSlot(Request.CreateOverrideSlotRequest request)
     {
         //Lấy token của OwnerId
         var ownerIdClaim = _httpContext.HttpContext?.User?  
@@ -383,7 +383,7 @@ public class Service : IService
         //
         _dbContext.Add(overrideSlot);
         await _dbContext.SaveChangesAsync();
-        return new Response.CreateOverrideResponse
+        return new Response.CreateOverrideSlotResponse
         {
             Id = overrideSlot.Id,
             DayOfWeek = overrideSlot.DayOfWeek,
@@ -392,6 +392,51 @@ public class Service : IService
             EndTime = overrideSlot.EndTime,
             Price = overrideSlot.Price,
         };
+    }
+
+    public async Task<List<Response.GetOverrideSlotResponse>> GetOverrideSlotBySubCourtId(Guid subCourtId)
+    {
+        //Lấy token của OwnerId
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        if (string.IsNullOrEmpty(ownerIdClaim))  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        
+        //check subCort + Owner
+        var subCourt = await _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefaultAsync(x => x.Id == subCourtId);
+        if (subCourt == null)
+        {
+            throw new Exception("Sân con không tồn tại!");
+        }
+
+        if (subCourt.Court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Bạn không có quyền");
+        }
+      
+        
+        var overrideSlots = await   _dbContext.OverideSlots
+            .Where(x => x.SubCourtDetailId == subCourtId)
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.DayOfWeek)
+            .ThenBy(x => x.StartTime)
+            .Select(x => new Response.GetOverrideSlotResponse
+            {
+                Id = x.Id,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                Price = x.Price,
+                DayOfWeek = x.DayOfWeek,
+                Date = x.Date,
+                IsRecurring = x.IsRecurring
+            }).ToListAsync();
+        
+       return overrideSlots;
     }
 }
 

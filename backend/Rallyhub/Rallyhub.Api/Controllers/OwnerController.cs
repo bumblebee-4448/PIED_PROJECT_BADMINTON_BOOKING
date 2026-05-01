@@ -32,7 +32,7 @@ public class OwnerController : ControllerBase
         var result = await _ownerService.GetAllCourts(request);  
         return Ok(ApiResponseFactory.SuccessResponse( result,"Danh sách tất cả các sân"   
             , HttpContext.TraceIdentifier));  
-    }
+    }   
     
     [HttpPost("CreateSubCourt")]  
     public async Task<IActionResult> CreateSubCourt(Request.CreateSubCourtRequest request)  
@@ -66,4 +66,11 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }
 
+    [HttpPost("GetOverrideSlotBySubCourtId")]  
+    public async Task<IActionResult> GetOverrideSlotBySubCourtId(Guid subCourtId)  
+    {  
+        var result = await _ownerService.GetOverrideSlotBySubCourtId(subCourtId); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Lấy thành công danh sách overrideslot"   
+            , HttpContext.TraceIdentifier));  
+    }
 }
