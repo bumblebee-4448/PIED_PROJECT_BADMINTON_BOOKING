@@ -1,8 +1,10 @@
 import { ArrowRight, Play } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "@/features/auth/store";
 import { ImageWithFallback } from "@/shared/components/common";
 
 export function HeroSection() {
+  const navigate = useNavigate();
   const { setLoginPromptOpen, accessToken } = useAuthStore();
 
   return (
@@ -11,6 +13,7 @@ export function HeroSection() {
       style={{ background: "linear-gradient(135deg, #f0fdf9 0%, #ffffff 50%)" }}
     >
       {/* Wave blobs - top right */}
+      {/* ... SVG content ... */}
       <svg
         className="absolute top-0 right-0 w-[65%] h-full"
         viewBox="0 0 700 700"
@@ -50,6 +53,7 @@ export function HeroSection() {
       </svg>
 
       {/* Bottom wave */}
+      {/* ... SVG content ... */}
       <svg
         className="absolute bottom-0 left-0 w-full"
         viewBox="0 0 1440 160"
@@ -141,7 +145,7 @@ export function HeroSection() {
                 if (!accessToken) {
                   setLoginPromptOpen(true);
                 } else {
-                  window.location.href = "#";
+                  navigate("/courts");
                 }
               }}
               className="flex items-center gap-2 px-8 py-4 rounded-full text-white hover-lift bg-primary-gradient"
