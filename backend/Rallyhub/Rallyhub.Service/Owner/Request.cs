@@ -37,4 +37,15 @@ public class Request
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }
     }
+    
+    public class CreateOverrideSlotRequest
+    {
+        public Guid SubCourtId { get; set; }
+        public bool IsRecurring { get; set; }
+        public DayOfWeek? DayOfWeek { get; set; }
+        public DateOnly? Date { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public decimal Price { get; set; }
+    }
 }

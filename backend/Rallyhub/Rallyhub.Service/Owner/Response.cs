@@ -32,4 +32,15 @@ public class Response
     {
        
     }
+
+    public class CreateOverrideResponse
+    {
+        public Guid Id { get; set; }
+        public DateOnly? Date { get; set; }
+        public DayOfWeek? DayOfWeek { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public decimal Price { get; set; }
+    }
+    
 }

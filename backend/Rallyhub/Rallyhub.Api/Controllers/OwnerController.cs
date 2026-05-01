@@ -46,7 +46,7 @@ public class OwnerController : ControllerBase
     public async Task<IActionResult> CreateConfigSlot(Request.CreateConfigSlotRequest request)  
     {  
         var result = await _ownerService.CreateConfigSlot(request); 
-        return Ok(ApiResponseFactory.SuccessResponse( result,"Setup slot thành công"   
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Cấu hình các slot thành công"   
             , HttpContext.TraceIdentifier));  
     } 
     
@@ -54,8 +54,16 @@ public class OwnerController : ControllerBase
     public async Task<IActionResult> GetConfigSlotBySubCourtId(Guid subCourtId)  
     {  
         var result = await _ownerService.GetConfigSlotBySubCourtId(subCourtId); 
-        return Ok(ApiResponseFactory.SuccessResponse( result,"Setup slot thành công"   
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Lấy thành công danh sách các slots"   
             , HttpContext.TraceIdentifier));  
-    } 
+    }
+    
+    [HttpPost("CreateOverrideSlot")]  
+    public async Task<IActionResult> CreateOverrideSlot(Request.CreateOverrideSlotRequest request)  
+    {  
+        var result = await _ownerService.CreateOverrideSlot(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Gọp slot thành công"   
+            , HttpContext.TraceIdentifier));  
+    }
 
 }

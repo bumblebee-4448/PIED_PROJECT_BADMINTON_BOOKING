@@ -278,6 +278,121 @@ public class Service : IService
             }).ToListAsync();
         return slots;
     }
+
+    public async Task<Response.CreateOverrideResponse> CreateOverrideSlot(Request.CreateOverrideSlotRequest request)
+    {
+        //Lấy token của OwnerId
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        if (string.IsNullOrEmpty(ownerIdClaim))  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        //check subCort + Owner
+        var subCourt = await _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefaultAsync(x => x.Id == request.SubCourtId);
+        if (subCourt == null)
+        {
+            throw new Exception("Sân con không tồn tại!");
+        }
+
+        if (subCourt.Court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Bạn không có quyền");
+        }
+        //Validate Date / DateOfWeek
+        if (request.IsRecurring)
+        {
+            if (request.DayOfWeek == null)
+            {
+                throw new Exception("Thiếu DateOfWeek");
+            }
+
+            if (request.Date != null)
+            {
+                throw new Exception("Recurring không được có Date");
+            }
+        }else
+        {
+            if (request.Date == null)
+            {
+                throw new Exception("Thiếu Date");
+            }
+        }
+        //Validate Time
+        if (request.StartTime >= request.EndTime)
+        {
+            throw new Exception("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc");
+        }
+        //Validate overlap với override 
+        var isOverlap = await _dbContext.OverideSlots.AnyAsync(x =>
+            x.SubCourtDetailId == request.SubCourtId &&
+            (
+                (request.IsRecurring && x.IsRecurring && x.DayOfWeek == request.DayOfWeek) || 
+                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date)
+            )&& request.StartTime < x.EndTime
+            && request.EndTime > x.StartTime
+        );
+        if (isOverlap)
+        {
+            throw new Exception("Override bị trùng thời ");
+        }
+        
+        //Validate align voiws ConfigSlot
+        var configSlots = await  _dbContext.ConfigSlots
+            .Where(x => x.SubCourtDetailId == request.SubCourtId)
+            .OrderBy(x => x.StartTime)
+            .ToListAsync();
+        
+        if (!configSlots.Any())
+        {
+            throw new Exception("SubCourt chưa có ConfigSlot");
+        }
+        
+        var validStart = configSlots.Any(x => x.StartTime == request.StartTime);
+        var validEnd   = configSlots.Any(x => x.EndTime == request.EndTime);
+
+        if (!validStart || !validEnd)
+            throw new Exception("Override phải align với ConfigSlot");
+
+        var coveredSlots = configSlots
+            .Where(x => x.StartTime >= request.StartTime &&
+                        x.EndTime <= request.EndTime)
+            .ToList();
+
+        var expected = (request.EndTime - request.StartTime).TotalMinutes;
+        var actual = coveredSlots.Sum(x => (x.EndTime - x.StartTime).TotalMinutes);
+
+        if (expected != actual)
+            throw new Exception("Override không cover full ConfigSlot");
+        
+        var overrideSlot = new OverideSlot
+        {
+            Id = Guid.NewGuid(),
+            SubCourtDetailId = request.SubCourtId,
+            IsRecurring = request.IsRecurring,
+            DayOfWeek = request.DayOfWeek ?? default,
+            Date = request.Date ?? default,
+            StartTime = request.StartTime,
+            EndTime = request.EndTime,
+            Price = request.Price,
+        };
+        
+        //
+        _dbContext.Add(overrideSlot);
+        await _dbContext.SaveChangesAsync();
+        return new Response.CreateOverrideResponse
+        {
+            Id = overrideSlot.Id,
+            DayOfWeek = overrideSlot.DayOfWeek,
+            Date = overrideSlot.Date,
+            StartTime = overrideSlot.StartTime,
+            EndTime = overrideSlot.EndTime,
+            Price = overrideSlot.Price,
+        };
+    }
 }
 
     
