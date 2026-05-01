@@ -1,98 +1,161 @@
-import { Link, Outlet, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Outlet, useNavigate, useLocation, Navigate } from "react-router-dom";
 import {
-  BookOpen,
-  LayoutDashboard,
-  ScrollText,
-  Users,
-  LogOut,
-  ChevronRight,
+  LayoutDashboard, Users, Building2, DollarSign,
+  LogOut, Menu, X, ChevronRight, Bell, ShieldCheck
 } from "lucide-react";
-
-import { cn } from "@/lib/utils";
-import { useLogout } from "@/features/auth";
+import { useAuthStore } from "@/features/auth/store";
 import { Button } from "@/shared/components/ui/button";
-import { Separator } from "@/shared/components/ui/separator";
-import { ThemeToggle } from "@/shared/components/common/ThemeToggle";
+import { cn } from "@/lib/utils";
 
-const sidebarLinks = [
-  { to: "/admin", label: "Dashboard", icon: LayoutDashboard, end: true },
-  { to: "/admin/rituals", label: "Quản lý nghi lễ", icon: ScrollText },
-  { to: "/admin/users", label: "Quản lý người dùng", icon: Users },
+const NAV_ITEMS = [
+  { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
+  { icon: Users, label: "Quản lý User", path: "/admin/users" },
+  { icon: Building2, label: "Quản lý Sản phẩm", path: "/admin/products" },
+  { icon: DollarSign, label: "Luồng tiền", path: "/admin/cashflow" },
 ];
 
 export function AdminLayout() {
+  const { user, logout, role } = useAuthStore();
+  const navigate = useNavigate();
   const location = useLocation();
-  const { mutate: logout } = useLogout();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const isActive = (path: string, end?: boolean) =>
-    end ? location.pathname === path : location.pathname.startsWith(path);
+  // Kiểm tra quyền admin
+  if (!user || role !== "admin") {
+    return <Navigate to="/login" replace />;
+  }
+
+  const isActive = (path: string) => {
+    if (path === "/admin") {
+      return location.pathname === "/admin";
+    }
+    return location.pathname.startsWith(path);
+  };
 
   return (
-    <div className="flex min-h-screen">
-      {/* ─── Sidebar ────────────────────────────────────── */}
-      <aside className="fixed inset-y-0 left-0 z-50 w-64 border-r bg-background flex flex-col">
-        <div className="flex h-16 items-center gap-2 border-b px-6">
-          <BookOpen className="h-6 w-6 text-primary" />
-          <span className="font-bold text-lg">Admin Panel</span>
+    <div className="flex h-screen overflow-hidden" style={{ background: "#f0f2f5" }}>
+      {/* Sidebar Overlay for Mobile */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 z-30 bg-black/50 lg:hidden" 
+          onClick={() => setSidebarOpen(false)} 
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside
+        className={cn(
+          "fixed lg:static inset-y-0 left-0 z-40 flex flex-col transition-transform duration-300",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        )}
+        style={{ 
+          width: "240px", 
+          background: "linear-gradient(180deg, #0D1B2A 0%, #1B2838 60%, #243447 100%)", 
+          flexShrink: 0 
+        }}
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-3 px-5 py-5 border-b border-white/10">
+          <div 
+            className="w-9 h-9 rounded-xl flex items-center justify-center" 
+            style={{ background: "linear-gradient(135deg,#00C896,#00897B)" }}
+          >
+            <ShieldCheck size={18} color="white" />
+          </div>
+          <div>
+            <p className="text-white font-extrabold text-base leading-tight">SmashBook</p>
+            <p className="text-white/50 text-[0.68rem]">Admin Panel</p>
+          </div>
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="ml-auto lg:hidden text-white hover:bg-white/10" 
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X size={18} />
+          </Button>
         </div>
 
-        <nav className="flex-1 space-y-1 p-4">
-          {sidebarLinks.map((link) => (
-            <Button
-              key={link.to}
-              variant={isActive(link.to, link.end) ? "secondary" : "ghost"}
-              className={cn(
-                "w-full justify-start gap-3",
-                isActive(link.to, link.end) && "text-primary",
-              )}
-              asChild
+        {/* Admin info */}
+        <div className="px-5 py-4 border-b border-white/10">
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-white text-sm"
+              style={{ background: "linear-gradient(135deg,#00C896,#00897B)" }}
             >
-              <Link to={link.to}>
-                <link.icon className="h-4 w-4" />
-                {link.label}
-                {isActive(link.to, link.end) && (
-                  <ChevronRight className="ml-auto h-4 w-4" />
-                )}
-              </Link>
+              AD
+            </div>
+            <div>
+              <p className="text-white font-bold text-[0.85rem]">{user.fullName || "Admin"}</p>
+              <div className="flex items-center gap-1">
+                <ShieldCheck size={10} className="text-[#00C896]" />
+                <span className="text-white/50 text-[0.68rem]">Super Admin</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Nav */}
+        <nav className="flex-1 px-3 py-4 flex flex-col gap-1">
+          {NAV_ITEMS.map(({ icon: Icon, label, path }) => (
+            <Button
+              key={path}
+              variant="ghost"
+              onClick={() => { navigate(path); setSidebarOpen(false); }}
+              className={cn(
+                "justify-start gap-3 px-3 py-2.5 h-auto rounded-xl transition-all border-l-[3px]",
+                isActive(path) 
+                  ? "bg-[#00C896]/15 text-[#00C896] font-bold border-[#00C896] hover:bg-[#00C896]/20 hover:text-[#00C896]" 
+                  : "text-white/55 border-transparent hover:bg-white/5 hover:text-white"
+              )}
+            >
+              <Icon size={17} />
+              {label}
+              {isActive(path) && <ChevronRight size={14} className="ml-auto" />}
             </Button>
           ))}
         </nav>
 
-        <Separator />
-
-        <div className="space-y-1 p-4">
-          <div className="flex items-center justify-between px-3 py-2">
-            <span className="text-xs text-muted-foreground">Giao diện</span>
-            <ThemeToggle />
-          </div>
-
+        {/* Logout */}
+        <div className="px-3 pb-5">
           <Button
             variant="ghost"
-            className="w-full justify-start gap-3"
-            asChild
+            onClick={() => { logout(); navigate("/login"); }}
+            className="w-full justify-start gap-3 px-3 py-2.5 h-auto rounded-xl text-white/50 hover:bg-white/10 hover:text-white"
           >
-            <Link to="/">← Về trang chính</Link>
-          </Button>
-
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 text-destructive hover:text-destructive"
-            onClick={() => logout()}
-          >
-            <LogOut className="h-4 w-4" />
-            Đăng xuất
+            <LogOut size={16} /> Đăng xuất
           </Button>
         </div>
       </aside>
 
-      {/* ─── Main Content ───────────────────────────────── */}
-      <div className="flex-1 pl-64">
-        <header className="sticky top-0 z-40 flex h-16 items-center border-b bg-background px-6">
-          <h1 className="text-lg font-semibold">
-            {sidebarLinks.find((l) => isActive(l.to, l.end))?.label ?? "Admin"}
-          </h1>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <header className="bg-white border-b border-gray-100 px-4 sm:px-6 py-3 flex items-center gap-3 flex-shrink-0">
+          <Button 
+            variant="secondary" 
+            size="icon"
+            onClick={() => setSidebarOpen(true)} 
+            className="lg:hidden rounded-xl bg-[#f3f4f6]"
+          >
+            <Menu size={18} />
+          </Button>
+          <div className="flex-1">
+            <p className="text-[0.78rem] text-[#9ca3af]">
+              Admin Panel • {new Date().toLocaleDateString("vi-VN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+            </p>
+          </div>
+          <Button 
+            variant="secondary" 
+            size="icon"
+            className="relative rounded-xl bg-[#f3f4f6]"
+          >
+            <Bell size={16} className="text-gray-500" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-red-500" />
+          </Button>
         </header>
-        <main className="p-6">
+
+        <main className="flex-1 overflow-y-auto">
           <Outlet />
         </main>
       </div>

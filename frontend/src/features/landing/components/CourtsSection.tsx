@@ -1,4 +1,3 @@
-import React from "react";
 import { CourtCard } from "./CourtCard";
 
 const courts = [
