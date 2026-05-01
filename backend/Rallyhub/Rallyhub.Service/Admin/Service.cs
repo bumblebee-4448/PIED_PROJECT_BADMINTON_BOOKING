@@ -1,22 +1,23 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
+using Rallyhub.Service.MailService;
 using StatusCreateCourt = Rallyhub.Service.Enum.Enum.StatusCreateCourt;
 namespace Rallyhub.Service.Admin;
 
 public class Service: IService
 {
     private readonly AppDbContext _dbContext;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly MailService.IService _mailService;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+    public Service(AppDbContext dbContext, MailService.IService mailService)
     {
         _dbContext = dbContext;
-        _httpContextAccessor = httpContextAccessor;
+        _mailService = mailService;
     }
 
     public async Task<Base.Response.PageResult<Response.UserDto>>
-        FilterUser(string? search, int pageIndex, int pageSize, Guid? id, Enum.Enum.Role? role, Enum.Enum.StatusUsers? status)
+        FilterUser(string? search, Guid? id, Enum.Enum.Role? role, Enum.Enum.StatusUsers? status, int pageIndex, int pageSize)
     {
         var getAllUser = _dbContext.Users.Where(x => true);
 
@@ -253,6 +254,7 @@ public class Service: IService
         }
         return "Fail";
     }
+
     public async Task DeleteCourt(Guid id)
     {
         var court = await  _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == id);
@@ -531,5 +533,40 @@ public class Service: IService
         }        
         court.Status = nameof(StatusCreateCourt.Rejected);  
         await _dbContext.SaveChangesAsync();  
+    }
+    public async Task<Response.RefundResponse> Refund(Request.RefundRequest request)
+    {
+        var user = await _dbContext.Users.Include(x => x.Customer)
+                                .FirstOrDefaultAsync(x => x.Customer!.Id == request.CustomerId);
+        if (user == null)
+        {
+            throw new Exception("Không tìm thấy user");
+        }
+        var bookingDetail = await _dbContext.BookingDetails
+                                .FirstOrDefaultAsync(x => x.Id == request.BookingDetailId);
+        if (bookingDetail == null)
+        {
+            throw new Exception("Không tìm thấy  booking detail");
+        }
+
+        if (bookingDetail.Status == Enum.Enum.StatusBookingDetails.Refunded.ToString())
+        {
+            throw new Exception("Đã hoàn tiền rồi");
+        }
+        bookingDetail.Status = Enum.Enum.StatusBookingDetails.Refunded.ToString();
+        _dbContext.BookingDetails.Update(bookingDetail);
+        await _dbContext.SaveChangesAsync();
+        await _mailService.SendMail(new MailContent()
+        {
+            To = user.Email,
+            Subject = $"Welcom to Rallyhub",
+            Body = $"Đã hoàn tiền thành công" + "\n"
+                + $"{request.ImageUrl}"
+        });
+        return new Response.RefundResponse()
+        {
+            Message = "Hoàn tiền thành công",
+            ImageUrl = request.ImageUrl
+        };
     }
 }

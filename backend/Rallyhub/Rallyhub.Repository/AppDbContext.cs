@@ -236,11 +236,11 @@
                     .HasColumnType("time");
                 var bookingDetails = new List<BookingDetail>
                 {
-                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt1, BookingId = BookingId1, Date = DateTimeOffset.Now.AddDays(-5), StartTime = new TimeOnly(8,  0), EndTime = new TimeOnly(10, 0), Price = 100_000},
-                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt3, BookingId = BookingId2, Date = DateTimeOffset.Now.AddDays(-5), StartTime = new TimeOnly(6, 0), EndTime = new TimeOnly(7, 0), Price = 100_000},
-                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt5, BookingId = BookingId3, Date = DateTimeOffset.Now.AddDays(-3), StartTime = new TimeOnly(7, 0), EndTime = new TimeOnly(8, 0), Price = 150_000},
-                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt7, BookingId = BookingId4, Date = DateTimeOffset.Now.AddDays(-3), StartTime = new TimeOnly(6, 0), EndTime = new TimeOnly(10, 0), Price = 150_000},
-                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt2, BookingId = BookingId5, Date = DateTimeOffset.Now.AddDays(1),  StartTime = new TimeOnly(9,  0), EndTime = new TimeOnly(10, 0), Price = 150_000},
+                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt1, BookingId = BookingId1, Date = DateTimeOffset.Now.AddDays(-5), StartTime = new TimeOnly(8,  0), EndTime = new TimeOnly(10, 0), Price = 100_000, Status = "Banked"},
+                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt3, BookingId = BookingId2, Date = DateTimeOffset.Now.AddDays(-5), StartTime = new TimeOnly(6, 0), EndTime = new TimeOnly(7, 0), Price = 100_000, Status = "Banked"},
+                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt5, BookingId = BookingId3, Date = DateTimeOffset.Now.AddDays(-3), StartTime = new TimeOnly(7, 0), EndTime = new TimeOnly(8, 0), Price = 150_000, Status = "Banked"},
+                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt7, BookingId = BookingId4, Date = DateTimeOffset.Now.AddDays(-3), StartTime = new TimeOnly(6, 0), EndTime = new TimeOnly(10, 0), Price = 150_000, Status = "Cancel"},
+                    new() { Id = Guid.NewGuid(), SubCourtId = SubCourt2, BookingId = BookingId5, Date = DateTimeOffset.Now.AddDays(1),  StartTime = new TimeOnly(9,  0), EndTime = new TimeOnly(10, 0), Price = 150_000, Status = "Banked"},
                 };
                 builder.HasData(bookingDetails);
             });

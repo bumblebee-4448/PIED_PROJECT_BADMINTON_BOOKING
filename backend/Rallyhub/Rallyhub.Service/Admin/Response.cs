@@ -80,4 +80,10 @@ public class Response
         public Guid OwnerId { get; set; }  
         public string Reason { get; set; } = null!;  
     }
+
+    public class RefundResponse
+    {
+        public string Message { get; set; }
+        public string ImageUrl  { get; set; }
+    }
 }

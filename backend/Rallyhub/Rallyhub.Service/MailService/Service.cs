@@ -33,7 +33,6 @@ public class Service : IService
         await smtp.ConnectAsync(_mailOptions.Host, _mailOptions.Port, SecureSocketOptions.StartTls);
         await smtp.AuthenticateAsync(_mailOptions.Mail, _mailOptions.Password);
         await smtp.SendAsync(email);
-
         await smtp.DisconnectAsync(true);
     }
 }

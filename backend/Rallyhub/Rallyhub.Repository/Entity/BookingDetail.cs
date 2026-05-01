@@ -13,6 +13,7 @@ public class BookingDetail : BaseEntity<Guid>, IAuditableEntity
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }
     public decimal Price { get; set; }
+    public string Status { get; set; } = "Pending";
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

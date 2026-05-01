@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 using Rallyhub.Repository.Entity;
+using Rallyhub.Service.MailService;
 using Exception = System.Exception;
 
 namespace Rallyhub.Service.Customer;
@@ -11,14 +12,16 @@ public class Service : IService
     private readonly AppDbContext _dbContext;
     private readonly MediaService.IService _mediaService;
     private readonly IHttpContextAccessor _httpContext;
+    private readonly Rallyhub.Service.MailService.IService _mailService;
 
-    public Service(AppDbContext dbContext, MediaService.IService mediaService, IHttpContextAccessor httpContext)
+    public Service(AppDbContext dbContext, MediaService.IService mediaService, IHttpContextAccessor httpContext, MailService.IService mailService)
     {
         _dbContext = dbContext;
         _mediaService = mediaService;
         _httpContext = httpContext;
+        _mailService = mailService;
     }
-    
+
     public async Task<string> OwnerRequest(Request.OwnerRequestRequest request)
     {
         var userId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
@@ -95,5 +98,49 @@ public class Service : IService
             TotalItems = totalCount,
         };
         return result;
+    }
+
+    public async Task<bool> CheckCancelBooking(Request.CancelBooking request)
+    {
+        var bookingDetail = await _dbContext.BookingDetails
+                                                .FirstOrDefaultAsync(x => x.Id == request.BookingDetailId);
+        if (bookingDetail == null)
+        {
+            throw new Exception("Không tìm thấy");
+        }
+        var timeCurrent = DateTime.Now; 
+        var bookingDateTime = bookingDetail.Date.Date.Add(bookingDetail.StartTime.ToTimeSpan());
+        var timeRemaining = bookingDateTime - timeCurrent;
+        if (timeRemaining < TimeSpan.FromHours(2))
+        {
+            return false; 
+        }
+        return true; 
+    }
+    public async Task CancelBooking(Request.CancelBooking request)
+    {
+        var checkCancelBooking = await CheckCancelBooking(request);
+        if (checkCancelBooking)
+        {
+            var user = await _dbContext.Users.Include(x => x.Customer)
+                .FirstOrDefaultAsync(x => x.Customer!.Id == request.CustomerId);
+            await _mailService.SendMail(new MailContent()
+            {
+                To = user.Email,
+                Subject = "Welcom to Rallyhub",
+                Body = "Tiền sẽ được hoàn từ 3 - 5 ngày tính từ lúc hủy"
+            });
+            var bookingDetail = await _dbContext.BookingDetails
+                                                    .FirstOrDefaultAsync(x => x.Id == request.BookingDetailId);
+            bookingDetail!.Status = Enum.Enum.StatusBookingDetails.RefundPending.ToString();
+            _dbContext.BookingDetails.Update(bookingDetail);
+            await _dbContext.SaveChangesAsync();
+            return;
+        }
+        var bookingDetailQuery = await _dbContext.BookingDetails
+                                                .FirstOrDefaultAsync(x => x.Id == request.BookingDetailId);
+        bookingDetailQuery!.Status = Enum.Enum.StatusBookingDetails.Cancelled.ToString();
+        _dbContext.BookingDetails.Update(bookingDetailQuery);
+        await _dbContext.SaveChangesAsync();
     }
 }

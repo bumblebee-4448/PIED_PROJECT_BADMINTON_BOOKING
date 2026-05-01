@@ -26,4 +26,11 @@ public class Request
     {  
         public required string Reason { get; set; }  
     }
+
+    public class RefundRequest
+    {
+        public required Guid CustomerId  { get; set; }
+        public required Guid BookingDetailId  { get; set; }
+        public required string ImageUrl  { get; set; }
+    }
 }
