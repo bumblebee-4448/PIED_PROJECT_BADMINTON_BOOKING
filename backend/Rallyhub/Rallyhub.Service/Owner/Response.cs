@@ -13,4 +13,10 @@ public class Response
         public string Name { get; set; } = null!;  
         public string Status { get; set; } = null!;  
     }
+    
+    public class SubCourtResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
 }

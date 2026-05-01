@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
+using Rallyhub.Repository.Entity;
+using Exception = System.Exception;
 using StatusCreateCourt = Rallyhub.Service.Enum.Enum.StatusCreateCourt;
 namespace Rallyhub.Service.Owner;
 
-public class Service : IService  
+public class Service : IService 
 {  
     private readonly AppDbContext _dbContext;  
     private readonly IHttpContextAccessor _httpContext;  
@@ -17,7 +19,8 @@ public class Service : IService
         _mediaService = mediaService;  
     }  
     public async Task<Response.CreateCourtResponse> CreateCourt(Request.CreateCourtRequest request)  
-    {        var ownerIdClaim = _httpContext.HttpContext?.User?  
+    {        
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
             .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
   
         if (string.IsNullOrEmpty(ownerIdClaim))  
@@ -115,6 +118,57 @@ public class Service : IService
             PageSize = request.PageSize,  
         };  
         return result;  
-    }}
+    }
+
+    public async Task<Response.SubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request)
+    {
+        //kiểm tra owner
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+  
+        if (string.IsNullOrEmpty(ownerIdClaim))  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }
+        var ownerIdGuid = Guid.Parse(ownerIdClaim); 
+        //check court tồn tại
+        var court = await _dbContext.Courts.
+            FirstOrDefaultAsync(x => x.Id == request.CourtId);
+        if (court == null)
+        {
+            throw new Exception("Không tìm thấy sân");
+        }
+        //check sân đó có phải của thằng đó không
+        if (court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Sân đó không phải của bạn");
+        }
+        //kiểm tra trùng tên
+        var isExistName = await _dbContext.SubCourts.AnyAsync(
+            x => x.CourtId == request.CourtId
+            && x.Name.Trim().ToLower() == request.Name.Trim().ToLower());
+        if (isExistName)
+        {
+            throw new Exception("Sân con đó đã tồn tại!");
+        }
+        //tạo sân
+        var newSubCourt =  new SubCourt
+        {
+            Id = Guid.NewGuid(),
+            CourtId =  request.CourtId,
+            Name = request.Name,
+        };
+        //lưu
+        _dbContext.Add(newSubCourt);
+        await _dbContext.SaveChangesAsync();
+        return new Response.SubCourtResponse
+        {
+            Id  = newSubCourt.Id,
+            Name = newSubCourt.Name,
+        };
+    }
+}
+
+    
     
     

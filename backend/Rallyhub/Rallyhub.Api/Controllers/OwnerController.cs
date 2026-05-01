@@ -33,5 +33,13 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Danh sách tất cả các sân"   
             , HttpContext.TraceIdentifier));  
     }
+    
+    [HttpPost("CreateSubCourt")]  
+    public async Task<IActionResult> CreateSubCourt(Request.CreateSubCourtRequest request)  
+    {  
+        var result = await _ownerService.CreateSubCourt(request);  
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo sân thành công, đang chờ Admin duyệt"   
+            , HttpContext.TraceIdentifier));  
+    } 
 
 }
