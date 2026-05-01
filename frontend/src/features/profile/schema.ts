@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const profileSchema = z.object({
-  name: z.string().min(2, "Họ và tên phải có ít nhất 2 ký tự"),
+  fullName: z.string().min(2, "Họ tên phải có ít nhất 2 ký tự"),
   email: z.string().email("Email không hợp lệ"),
   phone: z.string().regex(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
   preferredLocation: z.string().min(1, "Vui lòng chọn khu vực"),

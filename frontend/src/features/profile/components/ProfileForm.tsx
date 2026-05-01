@@ -6,7 +6,7 @@ import { Button } from "@/shared/components/ui/button";
 
 interface ProfileFormProps {
   initialData: {
-    name: string;
+    fullName: string;
     email: string;
     phone: string;
     location: string;
@@ -17,7 +17,7 @@ interface ProfileFormProps {
 }
 
 export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps) {
-  const [name, setName] = useState(initialData.name);
+  const [fullName, setFullName] = useState(initialData.fullName);
   const [email, setEmail] = useState(initialData.email);
   const [phone, setPhone] = useState(initialData.phone);
   const [location, setLocation] = useState(initialData.location);
@@ -26,7 +26,7 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
 
   // Cập nhật state khi initialData thay đổi (ví dụ khi mock data được load)
   useEffect(() => {
-    setName(initialData.name);
+    setFullName(initialData.fullName);
     setEmail(initialData.email);
     setPhone(initialData.phone);
     setLocation(initialData.location);
@@ -35,7 +35,7 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
 
   const handleSubmit = () => {
     onSave({
-      name,
+      fullName,
       email,
       phone,
       preferredLocation: location,
@@ -52,7 +52,7 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
       </h3>
       <div className="flex flex-col gap-4">
         {[
-          { label: "Họ và tên", value: name, onChange: setName, type: "text" },
+          { label: "Họ và tên", value: fullName, onChange: setFullName, type: "text" },
           { label: "Email", value: email, onChange: setEmail, type: "email" },
           { label: "Số điện thoại", value: phone, onChange: setPhone, type: "tel" },
         ].map(({ label, value, onChange, type }) => (

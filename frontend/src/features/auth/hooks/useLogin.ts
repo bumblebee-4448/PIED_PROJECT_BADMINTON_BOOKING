@@ -21,18 +21,40 @@ export const useLogin = () => {
 
       try {
         const decoded: any = jwtDecode(token);
-        
+
         // Map .NET Identity claims (URL format) to friendly properties
         const user = {
-          id: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
-          email: decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
-          fullName: decoded["FullName"] || decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"] || "User",
-          role: decoded["Role"] || decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || "Customer",
+          id: decoded[
+            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
+          ],
+          email:
+            decoded[
+              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
+            ],
+          fullName:
+            decoded["FullName"] ||
+            decoded[
+              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
+            ] ||
+            "User",
+          role:
+            decoded["Role"] ||
+            decoded[
+              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
+            ] ||
+            "Customer",
         };
 
         setAuth(token, user.role, user);
         toast.success("Đăng nhập thành công!");
-        navigate("/");
+
+        const roleRedirects: Record<string, string> = {
+          Admin: "/admin",
+          Owner: "/owner",
+          Customer: "/",
+        };
+
+        navigate(roleRedirects[user.role] || "/");
       } catch (error) {
         console.error("Token decode error:", error);
       }

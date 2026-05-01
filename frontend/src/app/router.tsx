@@ -11,7 +11,7 @@ import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { VerifyOtpPage } from "@/features/auth/pages/VerifyOtpPage";
 import { ProtectedRoute } from "@/shared/components/common";
 import { ProfilePage } from "@/features/profile";
-import AdminLayout from "@/shared/layouts/AdminLayout";
+import { AdminLayout } from "@/shared/layouts/AdminLayout";
 import { AdminDashboard, OwnerDashboard } from "@/features/dashboard";
 
 /**

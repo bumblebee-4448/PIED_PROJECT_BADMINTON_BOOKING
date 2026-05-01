@@ -2,10 +2,14 @@ import { Outlet, useLocation } from "react-router-dom";
 import { Navbar } from "@/features/landing";
 import { LoginPromptDialog } from "@/shared/components/common/LoginPromptDialog";
 import { UserProfileCard } from "@/features/auth/components/UserProfileCard";
+import { useMe } from "@/features/profile/hooks/useMe";
 
 export function UserLayout() {
   const location = useLocation();
   const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
+
+  // Sử dụng React Query tối ưu thay cho useEffect
+  useMe();
 
   return (
     <div className="min-h-screen flex flex-col">

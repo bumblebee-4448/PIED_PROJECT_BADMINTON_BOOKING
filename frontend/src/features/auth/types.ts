@@ -11,6 +11,7 @@ export interface User {
   role: string;
   avatar?: string;
   phone?: string;
+  isOwner?: boolean;
 }
 
 export interface AuthResponse {
