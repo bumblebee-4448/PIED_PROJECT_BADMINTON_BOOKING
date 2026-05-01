@@ -22,7 +22,7 @@ export function AdminLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Kiểm tra quyền admin
-  if (!user || role !== "admin") {
+  if (!user || role !== "Admin") {
     return <Navigate to="/login" replace />;
   }
 

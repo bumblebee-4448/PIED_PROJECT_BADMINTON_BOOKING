@@ -45,7 +45,7 @@ export function UserProfileCard() {
                 {user.fullName || "User"}
               </span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] flex items-center gap-1">
-                {role === "admin" ? (
+                {role === "Admin" ? (
                   <>
                     <ShieldCheck size={10} className="text-[#00CE98]" />
                     Quản trị viên
