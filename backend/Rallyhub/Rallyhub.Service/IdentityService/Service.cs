@@ -40,9 +40,11 @@ public class Service : IService
     
     public async Task<string> RegisterTask(User.Request.RegisterRequest request)
     {
-        if (await _dbContext.Users.AnyAsync(u => u.Email == request.Email))
+        var isExist = await _dbContext.Users.AnyAsync(x => x.Email == request.Email);
+        if (isExist)
+        {
             throw new Exception("Tài khoản đã tồn tại");
-
+        }
         string pepperedPassword = request.RawPassword + _securityOptions.Pepper;
         string hashedPassword = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperedPassword, hashType: BCrypt.Net.HashType.SHA384);
 

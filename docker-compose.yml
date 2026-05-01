@@ -1,50 +1,46 @@
 version: "3.8"
 
 services:
-  # Tầng dữ liệu: PostgreSQL
-  postgres-db:
-    image: postgres:16-alpine
-    container_name: rallyhub-postgres
+  db_postgres:
+    image: postgres:15
     environment:
+      POSTGRES_DB: Rallyhub
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: MyStrongPassword123@
-      POSTGRES_DB: Rallyhub
     ports:
       - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d Rallyhub"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Tầng bộ nhớ đệm: Redis
-  redis-cache:
-    image: redis:7-alpine
-    container_name: rallyhub-redis
+  cache_redis:
+    image: redis:alpine
     ports:
       - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
-  # Tầng Backend (C# 3 lớp)
-  backend-api:
+  api_backend:
     build:
-      context: ./backend/Rallyhub # Quan trọng: Trỏ đúng vào thư mục chứa Dockerfile BE
+      context: ./backend/Rallyhub
       dockerfile: Dockerfile
-    container_name: rallyhub-backend
     ports:
       - "5000:8080"
-    depends_on:
-      - postgres-db
-      - redis-cache
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
-      # Ghi đè bằng tài khoản chuẩn của bạn, Host trỏ về postgres-db
-      - ConnectionStrings__DefaultConnection=Host=postgres-db;Port=5432;Database=Rallyhub;Username=postgres;Password=MyStrongPassword123@;
-      - ConnectionStrings__Redis=redis-cache:6379,abortConnect=False
+      - ConnectionStrings__DefaultConnection=Host=db_postgres;Database=Rallyhub;Username=postgres;Password=MyStrongPassword123@
+      - ConnectionStrings__Redis=cache_redis:6379
+    depends_on:
+      db_postgres:
+        condition: service_healthy
+      cache_redis:
+        condition: service_healthy
 
-  # Tầng Frontend (React)
-  frontend-web:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    container_name: rallyhub-frontend
-    ports:
-      - "5173:5173"
-    environment:
-      - VITE_API_BASE_URL=http://localhost:5000
-    depends_on:
-      - backend-api
+volumes:
+  pgdata:

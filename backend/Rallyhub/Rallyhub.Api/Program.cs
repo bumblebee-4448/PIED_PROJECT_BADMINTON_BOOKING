@@ -3,6 +3,7 @@ using Quartz;
 using Rallyhub.Api.Extention;
 using Rallyhub.Api.Middleware;
 using Rallyhub.Repository;
+using Rallyhub.Service.BackgroundJobService;
 using TetPee.Api.Extention;
 using JwtService = Rallyhub.Service.JwtService;
 using MailService = Rallyhub.Service.MailService;
@@ -67,12 +68,25 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "RallyHub";
 });
 
-builder.Services.AddQuartz();
+// 1. xây dựng trạm và đăng ký công nhân
+builder.Services.AddQuartz(q =>
+{
+    // tạo một mã định danh cho công việc
+    var jobkey = new JobKey("SendOtpJob");
 
-// builder.Services.AddQuartzHostedService(options =>
-// {
-//     options.WaitForJobsToComplete = true; 
-// });
+    // đưa công nhân vào trạm
+    q.AddJob<SendOtpJob>(opts => opts.WithIdentity(jobkey));
+
+    // dán bảng giờ chạy cho công nhân này
+    q.AddTrigger(opts => opts
+        .ForJob(jobkey)
+        .WithIdentity("SendOtpJobTrigger")
+        // thiết lập chu kỳ: ví dụ 10 giây một lần
+        .WithSimpleSchedule(x => x.WithIntervalInSeconds(10).RepeatForever()));
+});
+
+// 2. kích hoạt người quản lý trạm để quartz chạy cùng ứng dụng
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 
@@ -91,11 +105,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// using (var scope = app.Services.CreateScope())
-// {
-//     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-//     db.Database.Migrate();
-// }
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
