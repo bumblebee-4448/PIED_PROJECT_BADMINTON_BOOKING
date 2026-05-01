@@ -54,7 +54,7 @@ npm dev
 Required frontend env vars:
 
 ```env
-VITE_API_URL=http://localhost:3000
+VITE_VITE_API_URL=http://localhost:3000
 ```
 
 ## Available Scripts
@@ -79,6 +79,6 @@ src/
 
 ## Deployment Notes
 
-- Set `VITE_API_URL` in the hosting dashboard (Vercel/Netlify).
+- Set `VITE_VITE_API_URL` in the hosting dashboard (Vercel/Netlify).
 - Use SPA rewrite rules for client-side routing.
 - Ensure backend CORS allows your frontend domain.
