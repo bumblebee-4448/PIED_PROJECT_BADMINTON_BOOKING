@@ -120,7 +120,7 @@ public class Service : IService
         return result;  
     }
 
-    public async Task<Response.SubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request)
+    public async Task<Response.CreateSubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request)
     {
         //kiểm tra owner
         var ownerIdClaim = _httpContext.HttpContext?.User?  
@@ -161,11 +161,67 @@ public class Service : IService
         //lưu
         _dbContext.Add(newSubCourt);
         await _dbContext.SaveChangesAsync();
-        return new Response.SubCourtResponse
+        return new Response.CreateSubCourtResponse
         {
             Id  = newSubCourt.Id,
             Name = newSubCourt.Name,
         };
+    }
+
+    public async Task<Base.Response.PageResult<Response.GetMySubCourtsResponse>> GetMySubCourts(Request.GetMySubCourtsRequest request)
+    {   
+        if (request.PageIndex <= 0)  
+        {            
+            throw new ArgumentException("PageIndex must be greater than 0");  
+        }  
+        if (request.PageSize <= 0)  
+        {            
+            throw new ArgumentException("PageSize must be greater than 0");  
+        }        
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        if (string.IsNullOrEmpty(ownerIdClaim))  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        var query =  _dbContext.SubCourts
+            .Include(x => x.Court)
+            .Where(x => x.Court.OwnerId == ownerIdGuid)
+            .AsQueryable();
+        if (request.CourtId.HasValue)
+        {
+            query = query.Where(x => x.Court.Id == request.CourtId.Value);
+        }
+
+        if (!string.IsNullOrEmpty(request.Name))
+        {
+            query = query.Where(x => x.Name.Trim().ToLower().Contains(request.Name.Trim().ToLower()));
+        }
+        
+        var totalItems = await query.CountAsync();  
+        query = query
+            .Skip((request.PageIndex - 1) * request.PageSize)  
+            .Take(request.PageSize);
+
+        var result = await query
+            .OrderBy(x => x.Name)
+            .Select(x => new Response.GetMySubCourtsResponse()
+            {
+                Id = x.Id,
+                Name = x.Name,
+                CourtId = x.CourtId,
+            }).ToListAsync();
+
+        var finalResult = new Base.Response.PageResult<Response.GetMySubCourtsResponse>
+        {
+            Items = result,
+            TotalItems = totalItems,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize,
+            
+        };
+        return finalResult;
     }
 
     public async Task<Response.CreateConfigSlotResponse> CreateConfigSlot(Request.CreateConfigSlotRequest request)

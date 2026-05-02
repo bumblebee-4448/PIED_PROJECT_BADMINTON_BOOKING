@@ -29,6 +29,14 @@ public class Request
         public Guid CourtId { get; set; }
         public string Name { get; set; } = null!;
     }
+    
+    public class GetMySubCourtsRequest  
+    {  
+        public Guid? CourtId { get; set; }
+        public string? Name { get; set; }  
+        public int PageIndex { get; set; } = 1;   
+        public int PageSize { get; set; } = 10;  
+    }
 
     public class CreateConfigSlotRequest
     {

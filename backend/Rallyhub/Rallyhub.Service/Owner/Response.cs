@@ -14,12 +14,19 @@ public class Response
         public string Status { get; set; } = null!;  
     }
     
-    public class SubCourtResponse
+    public class CreateSubCourtResponse
     {
         public Guid Id { get; set; }
         public string Name { get; set; } = null!;
     }
-
+    
+    public class GetMySubCourtsResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+        public Guid CourtId { get; set; }
+    }
+    
     public class CreateConfigSlotResponse
     {
         public Guid Id { get; set; }

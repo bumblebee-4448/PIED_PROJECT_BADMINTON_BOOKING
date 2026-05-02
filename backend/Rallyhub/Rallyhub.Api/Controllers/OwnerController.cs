@@ -42,6 +42,14 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     } 
     
+    [HttpGet("GetMySubCourts")] 
+    public async Task<IActionResult> GetMySubCourts([FromQuery] Request.GetMySubCourtsRequest request)  
+    {  
+        var result = await _ownerService.GetMySubCourts(request);  
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Lấy thành công danh sách sân con"   
+            , HttpContext.TraceIdentifier));  
+    } 
+    
     [HttpPost("CreateConfigSlot")]  
     public async Task<IActionResult> CreateConfigSlot(Request.CreateConfigSlotRequest request)  
     {  
@@ -50,7 +58,7 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     } 
     
-    [HttpPost("GetConfigSlotBySubCourtId")]  
+    [HttpGet("GetConfigSlotBySubCourtId")]  
     public async Task<IActionResult> GetConfigSlotBySubCourtId(Guid subCourtId)  
     {  
         var result = await _ownerService.GetConfigSlotBySubCourtId(subCourtId); 
@@ -66,7 +74,7 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }
 
-    [HttpPost("GetOverrideSlotBySubCourtId")]  
+    [HttpGet("GetOverrideSlotBySubCourtId")]  
     public async Task<IActionResult> GetOverrideSlotBySubCourtId(Guid subCourtId)  
     {  
         var result = await _ownerService.GetOverrideSlotBySubCourtId(subCourtId); 
@@ -81,7 +89,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo thành công exception slot"   
             , HttpContext.TraceIdentifier));  
     }
-    [HttpPost("GetExceptionSlotBySubCourtId")]  
+    [HttpGet("GetExceptionSlotBySubCourtId")]  
     public async Task<IActionResult> GetExceptionSlotResponse(Guid subCourtId)  
     {  
         var result = await _ownerService.GetExceptionSlotBySubCourtId(subCourtId); 

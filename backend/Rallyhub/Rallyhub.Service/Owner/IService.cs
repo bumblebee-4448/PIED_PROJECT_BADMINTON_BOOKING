@@ -8,7 +8,8 @@ public interface IService
     public Task<Base.Response.PageResult<Response.GetMyCourtsResponse>> GetAllCourts(Request.GetMyCourtsRequest request);
     
     //Owner: Tạo subcourt
-    public Task<Response.SubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request);
+    public Task<Response.CreateSubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request);
+    public Task<Base.Response.PageResult<Response.GetMySubCourtsResponse>> GetMySubCourts(Request.GetMySubCourtsRequest request);
     public Task<Response.CreateConfigSlotResponse> CreateConfigSlot(Request.CreateConfigSlotRequest request);
     public Task<List<Response.GetConfigSlotResponse>> GetConfigSlotBySubCourtId(Guid subCourtId);
     public Task<Response.CreateOverrideSlotResponse> CreateOverrideSlot(Request.CreateOverrideSlotRequest request);
