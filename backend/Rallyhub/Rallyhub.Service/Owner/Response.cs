@@ -68,4 +68,11 @@ public class Response
     {
         
     }
+    
+    public class GetSetupSlotResponse
+    {
+        public List<GetConfigSlotResponse> ConfigSlots { get; set; } = new ();
+        public List<GetOverrideSlotResponse> OverrideSlots { get; set; } = new ();
+        public List<GetExceptionSlotResponse> ExceptionSlots { get; set; } = new ();
+    }
 }

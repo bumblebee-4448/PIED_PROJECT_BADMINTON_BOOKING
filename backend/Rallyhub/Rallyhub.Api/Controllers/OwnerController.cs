@@ -96,5 +96,11 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo thành công exception slot"   
             , HttpContext.TraceIdentifier));  
     }
-    
+    [HttpGet("GetSetupSlotsBySubCourtId")]  
+    public async Task<IActionResult> GetSetupSlots(Guid subCourtId)  
+    {  
+        var result = await _ownerService.GetSetupSlots(subCourtId); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Xem toàn bộ cấu hình slot thành công"   
+            , HttpContext.TraceIdentifier));  
+    }
 }

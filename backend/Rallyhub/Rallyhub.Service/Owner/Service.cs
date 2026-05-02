@@ -601,6 +601,79 @@ public class Service : IService
             }).ToListAsync();
         return exceptionSlot;
     }
+
+    public async Task<Response.GetSetupSlotResponse> GetSetupSlots(Guid subCourtId)
+    {
+        //Lấy token của OwnerId
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        if (string.IsNullOrEmpty(ownerIdClaim))  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        
+        //check subCort + Owner
+        var subCourt = await _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefaultAsync(x => x.Id == subCourtId);
+        if (subCourt == null)
+        {
+            throw new Exception("Sân con không tồn tại!");
+        }
+
+        if (subCourt.Court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Bạn không có quyền");
+        }
+        
+        //lay configSlots
+        var configSlots = await _dbContext.ConfigSlots
+            .Where(x => x.SubCourtDetailId ==  subCourtId)
+            .OrderBy(x => x.SubCourtDetailId)
+            .Select(x => new Response.GetConfigSlotResponse
+            {
+                Id = x.Id,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                Price = x.Price,
+            }).ToListAsync();
+        //lay OverrideSlots
+        var overrideSlots = await _dbContext.OverideSlots
+            .Where(x => x.SubCourtDetailId == subCourtId)
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.DayOfWeek)
+            .ThenBy(x => x.SubCourtDetailId)
+            .Select(x => new Response.GetOverrideSlotResponse
+            {
+                Id = x.Id,
+                IsRecurring =  x.IsRecurring,
+                DayOfWeek = x.DayOfWeek,
+                Date =  x.Date,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                Price = x.Price,
+            }).ToListAsync();
+        //LayException
+        var exceptions = await _dbContext.Exceptions
+            .Where(x => x.SubCourtDetailId == subCourtId)
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.StartTime)
+            .Select(x => new Response.GetExceptionSlotResponse
+            {
+                Id = x.Id,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                Reason = x.Reason,
+                Date =   x.Date,
+            }).ToListAsync();
+        return new Response.GetSetupSlotResponse
+        {
+            ConfigSlots = configSlots,
+            ExceptionSlots = exceptions,
+            OverrideSlots = overrideSlots,
+        };
+    }
 }
 
     

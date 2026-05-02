@@ -16,4 +16,5 @@ public interface IService
     public Task<List<Response.GetOverrideSlotResponse>> GetOverrideSlotBySubCourtId(Guid subCourtId);
     public Task<Response.CreateExceptionSlotResponse> CreateExceptionSlot(Request.CreateExceptionSlotRequest request);
     public Task<List<Response.GetExceptionSlotResponse>> GetExceptionSlotBySubCourtId(Guid subCourtId);
+    public Task<Response.GetSetupSlotResponse> GetSetupSlots(Guid subCourtId);
 }
