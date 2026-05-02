@@ -86,4 +86,11 @@ public class Response
         public string Message { get; set; }
         public string ImageUrl  { get; set; }
     }
+
+    public class GetWalletResponse
+    {
+        public required string BankName  { get; set; }
+        public required string BankAccount { get; set; }
+        public decimal Balance { get; set; }
+    }
 }

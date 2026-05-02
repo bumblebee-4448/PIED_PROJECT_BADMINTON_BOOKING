@@ -52,4 +52,36 @@ public class CustomerController : ControllerBase
         await _customerService.CancelBooking(request);
         return Ok(ApiResponseFactory.SuccessResponse("Cancel Success", HttpContext.TraceIdentifier));
     }
+
+    [HttpGet("GetAllLikeList")]
+    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
+    public async Task<IActionResult> GetAllLikeList(int pageIndex = 1, int pageSize = 10)
+    {
+        var result = await _customerService.GetAllLikeList(pageIndex, pageSize);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Danh sách yêu thích",  HttpContext.TraceIdentifier));
+    }
+
+    [HttpPost("AddCourtLikeList")]
+    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
+    public async Task<IActionResult> AddCourtLikeList(Request.AddCourtLikeListRequest request)
+    {
+        await _customerService.AddCourtLikeList(request);
+        return Ok(ApiResponseFactory.SuccessResponse("Add Success", HttpContext.TraceIdentifier));
+    }
+
+    [HttpDelete("DeleteCourtLikeList")]
+    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
+    public async Task<IActionResult> DeleteCourtLikeList(Request.DeteleCourtLikeListRequest request)
+    {
+        await _customerService.DeleteCourtLikeList(request);
+        return Ok(ApiResponseFactory.SuccessResponse("Delete Success", HttpContext.TraceIdentifier));
+    }
+
+    [HttpGet("GetAllBooking")]
+    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
+    public async Task<IActionResult> GetAllBooking(int pageIndex = 1, int pageSize = 10)
+    {
+        var result = await _customerService.GetAllBooking(pageIndex, pageSize);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "List Booking", HttpContext.TraceIdentifier));
+    }
 }

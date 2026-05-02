@@ -21,6 +21,8 @@ public interface IService
     public Task RejectPendingCourt(Guid courtId, Request.RejectPendingCourtsRequest request);
 
     public Task<Response.RefundResponse> Refund(Request.RefundRequest request);
+
+    public Task<Response.GetWalletResponse> GetWallet(Request.GetWalletRequest request);
     /*
      CourtMethod
      */

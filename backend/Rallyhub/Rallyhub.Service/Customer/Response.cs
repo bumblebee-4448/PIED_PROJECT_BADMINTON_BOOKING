@@ -20,4 +20,17 @@ public class Response
         public string? RejectionReason { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
+    public class LikeListResponse
+    {
+        public Guid CourtId  { get; set; }
+        public string CourtName { get; set; }
+        public string CourtAddress { get; set; }
+    }
+
+    public class BookingResponse
+    {
+        public Guid Id { get; set; }
+        public decimal FinalPrice  { get; set; }
+        public string Status  { get; set; }
+    }
 }

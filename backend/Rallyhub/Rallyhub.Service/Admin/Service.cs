@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Quartz.Util;
 using Rallyhub.Repository;
 using Rallyhub.Service.MailService;
 using StatusCreateCourt = Rallyhub.Service.Enum.Enum.StatusCreateCourt;
@@ -568,5 +569,30 @@ public class Service: IService
             Message = "Hoàn tiền thành công",
             ImageUrl = request.ImageUrl
         };
+    }
+    public async Task<Response.GetWalletResponse> GetWallet(Request.GetWalletRequest request)
+    {
+        if(request.Email == null || request.Email == "")
+        {
+            throw new Exception("Email không hợp lệ");
+        }
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
+        if (user == null)
+        {
+            throw new Exception("User không tồn tại");
+        }
+        var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == user.Id);
+        if (wallet == null)
+        {
+            throw new Exception("User không có ví");
+        }
+
+        return new Response.GetWalletResponse()
+        {
+            BankName = wallet.BankName,
+            BankAccount = wallet.BankAccount,
+            Balance = wallet.Balance,
+        };
+        
     }
 }

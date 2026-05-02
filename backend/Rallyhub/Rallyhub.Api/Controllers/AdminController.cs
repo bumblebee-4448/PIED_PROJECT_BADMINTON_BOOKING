@@ -28,7 +28,7 @@ public class AdminController: ControllerBase
             (result, "Danh sách user", HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("getUserById/{id}")]
+    [HttpGet("getUserDetailById/{id}")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> UserDetail(Guid id)
     {

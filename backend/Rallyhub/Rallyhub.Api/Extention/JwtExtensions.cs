@@ -12,6 +12,7 @@ public static class JwtExtensions
     public const string CustomerPolicy = "CustomerPolicy";
     public const string OwnerPolicy = "OwnerPolicy";
     public const string OwnerOrAdminPolicy = "OwnerOrAdminPolicy";
+    public const string CustomerOrOwnerPolicy = "CustomerOrOwnerPolicy";
 
     
     public static void AddJwtServices(this IServiceCollection services, IConfiguration configuration)
@@ -54,7 +55,8 @@ public static class JwtExtensions
         
             options.AddPolicy(OwnerOrAdminPolicy, policy =>
                 policy.RequireRole("Owner", "Admin"));
-        
+            options.AddPolicy(CustomerOrOwnerPolicy, policy => 
+                policy.RequireRole("Customer", "Owner"));
             // [Authorize(Policy = JwtExtensions.SellerOrAdminPolicy)]
         }); 
     }

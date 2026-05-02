@@ -102,8 +102,11 @@ public class Service : IService
 
     public async Task<bool> CheckCancelBooking(Request.CancelBooking request)
     {
-        var bookingDetail = await _dbContext.BookingDetails
-                                                .FirstOrDefaultAsync(x => x.Id == request.BookingDetailId);
+        var getCustomerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var customerId = Guid.Parse(getCustomerId!);
+        var bookingDetail = await _dbContext.BookingDetails.Include(x => x.Booking)
+                                                .FirstOrDefaultAsync(x => x.Id == request.BookingDetailId &&
+                                                                                        x.Booking.CustomerId == customerId);
         if (bookingDetail == null)
         {
             throw new Exception("Không tìm thấy");
@@ -119,11 +122,13 @@ public class Service : IService
     }
     public async Task CancelBooking(Request.CancelBooking request)
     {
+        var getCustomerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var customerId = Guid.Parse(getCustomerId!);
         var checkCancelBooking = await CheckCancelBooking(request);
         if (checkCancelBooking)
         {
             var user = await _dbContext.Users.Include(x => x.Customer)
-                .FirstOrDefaultAsync(x => x.Customer!.Id == request.CustomerId);
+                .FirstOrDefaultAsync(x => x.Customer!.Id == customerId);
             await _mailService.SendMail(new MailContent()
             {
                 To = user.Email,
@@ -142,5 +147,124 @@ public class Service : IService
         bookingDetailQuery!.Status = Enum.Enum.StatusBookingDetails.Cancelled.ToString();
         _dbContext.BookingDetails.Update(bookingDetailQuery);
         await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<Base.Response.PageResult<Response.LikeListResponse>> GetAllLikeList(int pageIndex, int  pageSize)
+    {
+        var getCustomerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var customerId = Guid.Parse(getCustomerId!);
+        var likeList = _dbContext.LikeListDetails
+                                                        .Include(x => x.Court)
+                                                        .Where(x => x.CustomerId == customerId && 
+                                                                                x.IsDeleted == false);
+        if (!await likeList.AnyAsync())
+        {
+            return new Base.Response.PageResult<Response.LikeListResponse>()
+            {
+                Items = [],
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalItems = 0,
+            };
+        }
+        var pageQuery = likeList.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+        var selectQuery = pageQuery.Select(x => new Response.LikeListResponse()
+        {
+            CourtId = x.CourtId,
+            CourtName = x.Court.Name,
+            CourtAddress = x.Court.Address,
+        });
+        var listResult = await selectQuery.ToListAsync();
+        return new Base.Response.PageResult<Response.LikeListResponse>()
+        {
+            Items = listResult,
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            TotalItems = await likeList.CountAsync(),
+        };
+    }
+
+    public async Task AddCourtLikeList(Request.AddCourtLikeListRequest request)
+    {
+        var getCustomerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var customerId = Guid.Parse(getCustomerId!);
+        var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == request.CourtId);
+        if (court == null)
+        {
+            throw new Exception("Sân không tồn tại trên hệ thống");
+
+        }
+        var likeList = await _dbContext.LikeListDetails
+            .FirstOrDefaultAsync(x => x.CourtId == request.CourtId &&  
+                                      x.CustomerId == customerId);
+        if (likeList != null)
+        {
+            if (likeList.IsDeleted)
+            {
+                likeList.IsDeleted = false;
+                _dbContext.LikeListDetails.Update(likeList);
+                await _dbContext.SaveChangesAsync();
+                return;
+            }
+            throw new Exception("Đã tồn tại trong danh sách yêu thích");
+        }
+        if (court.Name != request.CourtName || court.Address != request.CourtAddress)
+        {
+            throw new Exception("Error tên hoặc địa chỉ không khớp");
+        }
+        var courtLike = new LikeListDetail()
+        {
+            Id = Guid.NewGuid(),
+            CustomerId = customerId,
+            CourtId = request.CourtId,
+        };
+        await _dbContext.LikeListDetails.AddAsync(courtLike);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task DeleteCourtLikeList(Request.DeteleCourtLikeListRequest request)
+    {
+        var getCustomerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var customerId = Guid.Parse(getCustomerId!);
+        var courtLike = await _dbContext.LikeListDetails.FirstOrDefaultAsync(x => x.CourtId == request.CourtId && x.CustomerId == customerId);
+        if (courtLike == null)
+        {
+            throw new Exception("Sân không nằm trong danh sách yêu thích");
+        }
+        courtLike.IsDeleted = true;
+        _dbContext.LikeListDetails.Update(courtLike);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<Base.Response.PageResult<Response.BookingResponse>> GetAllBooking(int pageIndex, int pageSize)
+    {
+        var getCustomerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var customerId = Guid.Parse(getCustomerId!);
+        var bookingList = _dbContext.Bookings.Where(x => x.CustomerId == customerId);
+        if (!await bookingList.AnyAsync())
+        {
+            return new Base.Response.PageResult<Response.BookingResponse>()
+            {
+                Items = [],
+                PageIndex = pageIndex,
+                PageSize = pageSize,
+                TotalItems = 0
+            };
+        }
+        var pageQuery = bookingList.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+        var selectQuery = pageQuery.Select(x => new Response.BookingResponse()
+        {
+            Id =  x.Id,
+            FinalPrice = x.FinalPrice,
+            Status = x.Status,
+        });
+        var result = await selectQuery.ToListAsync();
+        return new Base.Response.PageResult<Response.BookingResponse>()
+        {
+            Items = result,
+            PageIndex = pageIndex,
+            PageSize = pageSize,
+            TotalItems = await bookingList.CountAsync()
+        };
     }
 }

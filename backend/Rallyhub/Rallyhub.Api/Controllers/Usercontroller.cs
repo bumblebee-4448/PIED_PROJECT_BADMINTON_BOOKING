@@ -55,4 +55,12 @@ public class Usercontroller : ControllerBase
 
         return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
     }
+
+    [HttpPatch("UpdateProfile")]
+    [Authorize(Policy = JwtExtensions.CustomerOrOwnerPolicy)]
+    public async Task<IActionResult> UpdateProfile(Request.UpdateProfile request)
+    {
+        await _userService.UpdateProfile(request);
+        return Ok(ApiResponseFactory.SuccessResponse("Updated Profile Success", HttpContext.TraceIdentifier));
+    }
 }

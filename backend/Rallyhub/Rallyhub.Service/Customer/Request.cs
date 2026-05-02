@@ -24,7 +24,18 @@ public class Request
 
     public class CancelBooking
     {
-        public required Guid CustomerId  { get; set; }
         public Guid? BookingDetailId  { get; set; }
-        }
+    }
+
+    public class AddCourtLikeListRequest
+    {
+        public Guid CourtId  { get; set; }
+        public string CourtName  { get; set; }
+        public string CourtAddress   { get; set; }
+    }
+    public class DeteleCourtLikeListRequest
+    {
+        public Guid CourtId  { get; set; }
+    }
+    
 }
