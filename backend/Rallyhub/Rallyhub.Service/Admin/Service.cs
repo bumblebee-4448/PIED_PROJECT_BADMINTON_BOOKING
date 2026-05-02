@@ -7,16 +7,14 @@ namespace Rallyhub.Service.Admin;
 public class Service: IService
 {
     private readonly AppDbContext _dbContext;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
     public Service(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
     {
-        _dbContext = dbContext;
-        _httpContextAccessor = httpContextAccessor;
+        _dbContext = dbContext; 
     }
 
     public async Task<Base.Response.PageResult<Response.UserDto>>
-        GetUsers(string? search, int pageIndex, int pageSize, Guid? id, Enum.Enum.Role? role, Enum.Enum.StatusUsers? status)
+        FilterUser(string? search, int pageIndex, int pageSize, Guid? id, Enum.Enum.Role? role, Enum.Enum.StatusUsers? status)
     {
         var getAllUser = _dbContext.Users.Where(x => true);
 
@@ -37,7 +35,7 @@ public class Service: IService
         {
             getAllUser = getAllUser.Where(x => x.Status == status.ToString());
         }
-        var toTalItems = getAllUser.Count();
+        var toTalItems = await getAllUser.CountAsync();
         if (toTalItems < 1)
         {
             return new Base.Response.PageResult<Response.UserDto>()
@@ -52,6 +50,7 @@ public class Service: IService
         var pagedQuery = sortName.Skip((pageIndex - 1) * pageSize).Take(pageSize);
         var selectQuery = pagedQuery.Select(x => new Response.UserDto()
         {
+            Id  = x.Id,
             Email = x.Email,
             Role = x.Role,
             FirstName =  x.FirstName,
@@ -70,7 +69,7 @@ public class Service: IService
         return result;
     }
 
-    public async Task<Response.UserDto> GetUserById(Guid id)
+    public async Task<Response.UserDto> UserDetail(Guid id)
     {
         var user = await _dbContext.Users
             .Include(x => x.Customer)
@@ -86,6 +85,7 @@ public class Service: IService
             var bookings = _dbContext.Bookings.Where(x => x.CustomerId == user.Customer.Id);
             var bookingDto = bookings.Select(x => new Response.BookingDto()
             {
+                Id = x.Id,
                 TotalPrice = x.TotalPrice,
                 DiscountAmount =  x.DiscountAmount,
                 FinalPrice =  x.FinalPrice,
@@ -95,6 +95,7 @@ public class Service: IService
             var resultBookingDto = await bookingDto.ToListAsync();
             var result = new Response.CustomerDto()
             {
+                Id =  user.Id,
                 Email = user.Email,
                 Role = user.Role,
                 FirstName =  user.FirstName,
@@ -112,6 +113,7 @@ public class Service: IService
             var courts = _dbContext.Courts.Where(x => x.OwnerId == user.Owner.Id);
             var courtDto = courts.Select(x => new Response.CourtDto()
             {
+                Id =  x.Id,
                 Name = x.Name,
                 Address = x.Address,
                 OpenTime = x.OpenTime,
@@ -124,6 +126,7 @@ public class Service: IService
             var resultCourtDto =  await courtDto.ToListAsync();
             var result = new Response.OwnerDto()
             {
+                Id =   user.Id,
                 Email = user.Email,
                 Role = user.Role,
                 FirstName = user.FirstName,
@@ -217,8 +220,11 @@ public class Service: IService
         query.UpdatedAt = DateTimeOffset.UtcNow;
         var userId = query.Customer.UserId;
         var queryUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        queryUser!.Status = "Owner";
+        queryUser!.Role = "Owner";
         _dbContext.Owners.Add(newOwner);
+        var customerId = query.Customer.Id;
+        var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.Id == customerId);
+        // _dbContext.Customers.Remove(customer!);
         var result = await _dbContext.SaveChangesAsync();
         if (result > 0)
         {
@@ -260,6 +266,11 @@ public class Service: IService
     }
     public async Task UpdateStatusUser(Request.UpdateStatusUserResponse request)
     {
+        if (request.Status != Enum.Enum.StatusUsers.Banned.ToString() && 
+            request.Status != Enum.Enum.StatusUsers.Active.ToString())
+        {
+            throw new Exception($"Không thể update status {request.Status}");
+        }
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
         if (user == null)
         {
@@ -267,14 +278,21 @@ public class Service: IService
         }
         if (user.Role == Enum.Enum.Role.Customer.ToString())
         {
+            if (user.Status == request.Status)
+            {
+                throw new Exception($"User đang có status {request.Status} không thể update sang {request.Status}");
+            }
             user.Status = request.Status;
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
             return;
         }
-
-        if (user.Role == Enum.Enum.Role.Owner.ToString() && request.Status == Enum.Enum.StatusUsers.Locked.ToString())
+        if (user.Role == Enum.Enum.Role.Owner.ToString() && request.Status == Enum.Enum.StatusUsers.Banned.ToString())
         {
+            if (user.Status == request.Status)
+            {
+                throw new Exception($"User đang có status {request.Status} không thể update sang {request.Status}");
+            }
             var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == request.Id);
             if (owner == null)
             {
@@ -361,6 +379,10 @@ public class Service: IService
         }
         if (user.Role == Enum.Enum.Role.Owner.ToString() && request.Status == Enum.Enum.StatusUsers.Active.ToString())
         {
+            if (user.Status == request.Status)
+            {
+                throw new Exception($"User đang có status {request.Status} không thể update sang {request.Status}");
+            }
             var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == request.Id);
             if (owner == null)
             {

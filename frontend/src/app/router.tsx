@@ -9,6 +9,11 @@ import { HomePage } from "@/features/landing/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { VerifyOtpPage } from "@/features/auth/pages/VerifyOtpPage";
+import { ProtectedRoute } from "@/shared/components/common";
+import { ProfilePage } from "@/features/profile";
+import { AdminLayout } from "@/shared/layouts/AdminLayout";
+import { AdminDashboard, OwnerDashboard } from "@/features/dashboard";
+import { CourtSearchPage } from "@/features/courts";
 
 /**
  * React Router v6 config – createBrowserRouter (Data API).
@@ -22,6 +27,7 @@ export const router = createBrowserRouter([
     element: <UserLayout />,
     children: [
       { index: true, element: <HomePage /> },
+      { path: "courts", element: <CourtSearchPage /> },
       // { path: "rituals", element: <RitualCatalog /> },
       // { path: "rituals/:id", element: <RitualDetail /> },
       {
@@ -51,14 +57,14 @@ export const router = createBrowserRouter([
       { path: "unauthorized", element: <UnauthorizedPage /> },
 
       // Protected: cần đăng nhập
-      // {
-      //   path: "profile",
-      //   element: (
-      //     <ProtectedRoute>
-      //       <ProfilePage />
-      //     </ProtectedRoute>
-      //   ),
-      // },
+      {
+        path: "profile",
+        element: (
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        ),
+      },
 
       // 404 fallback cho user layout
       { path: "*", element: <NotFoundPage /> },
@@ -66,19 +72,28 @@ export const router = createBrowserRouter([
   },
 
   // ─── Admin layout (Protected, admin only) ───────────
-  // {
-  //   path: "admin",
-  //   element: (
-  //     <ProtectedRoute allowedRoles={["admin"]}>
-  //       {withSuspense(<AdminLayout />)}
-  //     </ProtectedRoute>
-  //   ),
-  //   children: [
-  //     { index: true, element: withSuspense(<DashboardPage />) },
-  //     { path: "rituals", element: withSuspense(<ManageRitualList />) },
-  //     { path: "rituals/create", element: withSuspense(<ManageRitualCreate />) },
-  //     { path: "rituals/:id/edit", element: withSuspense(<ManageRitualEdit />) },
-  //     { path: "users", element: withSuspense(<UserManagementPage />) },
-  //   ],
-  // },
+  {
+    path: "admin",
+    element: (
+      <ProtectedRoute allowedRoles={["Admin"]}>
+        <AdminLayout/>
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <AdminDashboard /> },
+    ],
+  },
+
+  // ─── Owner layout (Protected, admin only) ───────────
+  {
+    path: "owner",
+    element: (
+      <ProtectedRoute allowedRoles={["Owner"]}>
+        <AdminLayout/>
+      </ProtectedRoute>
+    ),
+    children: [
+      { index: true, element: <OwnerDashboard /> },
+    ],
+  },
 ]);

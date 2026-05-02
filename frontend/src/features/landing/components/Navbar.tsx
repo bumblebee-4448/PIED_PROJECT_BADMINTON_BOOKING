@@ -1,18 +1,28 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { Search, Menu, X } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store";
+import { cn } from "@/lib/utils";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = React.useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { accessToken, setLoginPromptOpen } = useAuthStore();
+
+  const NAV_ITEMS = [
+    { label: "Trang chủ", path: "/" },
+    { label: "Tìm sân", path: "/courts" },
+    { label: "Dịch vụ", path: "/services" },
+    { label: "Bảng giá", path: "/pricing" },
+    { label: "Liên hệ", path: "/contact" },
+  ];
 
   const handleBookingClick = () => {
     if (!accessToken) {
       setLoginPromptOpen(true);
     } else {
-      navigate("/search");
+      navigate("/courts");
     }
   };
 
@@ -20,11 +30,21 @@ export function Navbar() {
     navigate("/login");
   };
 
+  const handleNavItemClick = (path: string) => {
+    if (path.startsWith("/")) {
+      navigate(path);
+      setMenuOpen(false);
+    }
+  };
+
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center gap-2">
+        <div 
+          className="flex items-center gap-2 cursor-pointer" 
+          onClick={() => navigate("/")}
+        >
           <div
             className="w-10 h-10 rounded-xl flex items-center justify-center"
             style={{ background: "linear-gradient(135deg, #00C896, #00897B)" }}
@@ -58,18 +78,23 @@ export function Navbar() {
 
         {/* Desktop Nav */}
         <div className="hidden md:flex items-center gap-8">
-          {["Trang chủ", "Tìm sân", "Sân cầu lông", "Bảng giá", "Liên hệ"].map(
-            (item, i) => (
-              <a
+          {NAV_ITEMS.map((item, i) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button
                 key={i}
-                href="#"
-                className="text-gray-600 hover:text-emerald-600 transition-colors duration-200"
-                style={{ fontWeight: 500 }}
+                onClick={() => handleNavItemClick(item.path)}
+                className={cn(
+                  "transition-all duration-300 text-sm font-bold relative py-2 outline-none",
+                  isActive 
+                    ? "text-emerald-600 after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-emerald-600 after:rounded-full after:animate-in after:fade-in after:slide-in-from-bottom-1" 
+                    : "text-gray-600 hover:text-emerald-600"
+                )}
               >
-                {item}
-              </a>
-            ),
-          )}
+                {item.label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Search + CTA */}
@@ -118,18 +143,15 @@ export function Navbar() {
       {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100 px-6 py-4 flex flex-col gap-4">
-          {["Trang chủ", "Giới thiệu", "Sân cầu", "Bảng giá", "Liên hệ"].map(
-            (item, i) => (
-              <a
-                key={i}
-                href="#"
-                className="text-gray-600 hover:text-emerald-600 py-1"
-                style={{ fontWeight: 500 }}
-              >
-                {item}
-              </a>
-            ),
-          )}
+          {NAV_ITEMS.map((item, i) => (
+            <button
+              key={i}
+              onClick={() => handleNavItemClick(item.path)}
+              className="text-left text-gray-600 hover:text-emerald-600 py-1 text-sm font-medium"
+            >
+              {item.label}
+            </button>
+          ))}
           <button
             onClick={handleBookingClick}
             className="px-5 py-2 rounded-full text-white text-sm w-full"
