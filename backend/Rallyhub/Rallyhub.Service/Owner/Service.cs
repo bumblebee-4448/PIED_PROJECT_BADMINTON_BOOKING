@@ -674,6 +674,88 @@ public class Service : IService
             OverrideSlots = overrideSlots,
         };
     }
+
+    public async Task<List<Response.SlotResponse>> GetAvailableSlots(Request.GetAvailableSlotsRequest request)
+    {
+        var subCourt = await _dbContext.SubCourts
+            .FirstOrDefaultAsync(x => x.Id == request.SubCourtId);
+
+        if (subCourt == null)
+            throw new Exception("Sân con không tồn tại");
+        //lay config slot
+        var configSlots = await _dbContext.ConfigSlots
+            .Where(x => x.SubCourtDetailId == request.SubCourtId)
+            .OrderBy(x => x.StartTime)
+            .ToListAsync();
+        
+        //lay override
+        var overrides = await _dbContext.OverideSlots
+            .Where(x => 
+                x.SubCourtDetailId == request.SubCourtId &&
+                ( 
+                     (!x.IsRecurring && x.Date == request.Date) || 
+                     (x.IsRecurring && x.DayOfWeek == request.Date.DayOfWeek)
+                            
+                )).ToListAsync();
+        //lay exceptionslot
+        var exceptions = await  _dbContext.Exceptions
+            .Where(x => 
+                x.SubCourtDetailId == request.SubCourtId &&
+                x.Date == request.Date)
+            .ToListAsync();
+        //Build slot tu config
+        var result = configSlots.Select(x => new Response.SlotResponse
+        {
+            StartTime =  x.StartTime,
+            EndTime =  x.EndTime,
+            Price = x.Price,
+            IsAvailable = true
+        }).ToList();
+        
+        //Apply override 
+        foreach (var ov in overrides)
+        {
+            //remove slot bi override
+            result.RemoveAll(x => 
+                x.StartTime >= ov.StartTime && 
+                x.EndTime <= ov.EndTime);
+            //add slot moi
+            result.Add(new Response.SlotResponse
+            {
+                StartTime = ov.StartTime,
+                EndTime = ov.EndTime,
+                Price = ov.Price,
+                IsAvailable = true
+            });
+        }
+        //Apply exception 
+        foreach (var ex in exceptions)
+        {
+            result.RemoveAll(x =>
+                x.StartTime < ex.EndTime &&
+                x.EndTime > ex.StartTime);
+        }
+        
+        //*****//
+        //Check applying Booking ...
+        //Check bookingDetails -> set IsAvailable = false
+        // var bookings = await _dbContext.BookingDetails
+        //     .Where(x =>
+        //         x.SubCourtId == request.SubCourtId &&
+        //         x.Date == request.Date)
+        //     .ToListAsync();
+        //
+        result = result.OrderBy(x => x.StartTime).ToList();
+        // foreach (var slot in result)
+        // {
+        //     slot.IsAvailable = !bookings.Any(b =>
+        //         b.StartTime < slot.EndTime &&
+        //         b.EndTime > slot.StartTime);
+        // }
+        //sort
+        
+        return result;
+    }
 }
 
     

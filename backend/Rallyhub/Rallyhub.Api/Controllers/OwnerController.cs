@@ -103,4 +103,12 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Xem toàn bộ cấu hình slot thành công"   
             , HttpContext.TraceIdentifier));  
     }
+    
+    [HttpGet("GetAvailableSlots")]  
+    public async Task<IActionResult> GetAvailableSlots([FromQuery]Request.GetAvailableSlotsRequest request)  
+    {  
+        var result = await _ownerService.GetAvailableSlots(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Lấy slot đang trống thành công"   
+            , HttpContext.TraceIdentifier));  
+    }
 }

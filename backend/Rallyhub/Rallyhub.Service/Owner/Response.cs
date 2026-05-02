@@ -75,4 +75,12 @@ public class Response
         public List<GetOverrideSlotResponse> OverrideSlots { get; set; } = new ();
         public List<GetExceptionSlotResponse> ExceptionSlots { get; set; } = new ();
     }
+
+    public class SlotResponse
+    {
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public decimal Price { get; set; }
+        public bool IsAvailable { get; set; }
+    }
 }

@@ -66,6 +66,10 @@ public class Request
         public string Reason { get; set; } = null!;
     }
     
-    
-    
+    public class GetAvailableSlotsRequest
+    {
+        public Guid SubCourtId { get; set; }
+        public DateOnly Date { get; set; }
+    }
+ 
 }
