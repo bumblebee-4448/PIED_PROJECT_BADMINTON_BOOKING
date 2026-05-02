@@ -5,6 +5,9 @@ namespace Rallyhub.Service.BackgroundJobService;
 
 public class SendOtpJob : IJob
 {
+    public const string EmailKey = "Email";
+    public const string OtpKey = "OtpCode";
+    
     private readonly IService _mailService;
 
     public SendOtpJob(IService mailService)
@@ -14,8 +17,8 @@ public class SendOtpJob : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        string email = context.MergedJobDataMap.GetString("Email")!;
-        string otpCode = context.MergedJobDataMap.GetString("OtpCode")!;
+        string email = context.MergedJobDataMap.GetString(EmailKey)!;
+        string otpCode = context.MergedJobDataMap.GetString(OtpKey)!;
 
         // 2. Tạo form HTML
         string htmlBody = MailTemplate.GenerateOtpTemplate(email, otpCode);

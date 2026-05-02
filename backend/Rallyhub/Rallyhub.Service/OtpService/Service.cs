@@ -9,6 +9,7 @@ namespace Rallyhub.Service.OtpService;
 
 public class Service : IService
 {
+    
     private readonly IDistributedCache _redisCache;
     private readonly ISchedulerFactory _schedulerFactory;
 
@@ -42,8 +43,8 @@ public class Service : IService
         // await scheduler.ScheduleJob(job, TriggerBuilder.Create().StartNow().Build());
 
         var jobdata = new JobDataMap();
-        jobdata.Put("email", email);
-        jobdata.Put("otpcode", otpCode);
+        jobdata[SendOtpJob.EmailKey] = email;
+        jobdata[SendOtpJob.OtpKey] = otpCode;
 
         var trigger = TriggerBuilder.Create()
             .ForJob(new JobKey("sendotpjob")) // trỏ đúng vào tên thẻ nhân viên đã đăng ký ở program.cs
