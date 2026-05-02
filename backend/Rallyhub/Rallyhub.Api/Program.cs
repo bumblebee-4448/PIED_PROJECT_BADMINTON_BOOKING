@@ -70,17 +70,14 @@ builder.Services.AddStackExchangeRedisCache(options =>
 
 builder.Services.AddQuartz(q =>
 {
-    // 1. tạo mã định danh (thẻ nhân viên) cho công việc này
     var jobkey = new JobKey("sendotpjob");
 
-    // 2. đăng ký công việc vào hệ thống
     q.AddJob<SendOtpJob>(opts => opts
             .WithIdentity(jobkey)
-            .StoreDurably() // cực kỳ quan trọng: lưu hồ sơ lại dù chưa có lịch chạy cụ thể
+            .StoreDurably()
     );
 });
 
-// phần này bạn giữ nguyên, nó là ông quản lý đảm bảo quartz chạy cùng ứng dụng
 builder.Services.AddQuartzHostedService(options =>
 {
     options.WaitForJobsToComplete = true; 

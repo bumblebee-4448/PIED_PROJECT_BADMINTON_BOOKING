@@ -34,12 +34,25 @@ public class Service : IService
             new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
 
         var scheduler = await _schedulerFactory.GetScheduler();
-        var job = JobBuilder.Create<SendOtpJob>()
-            .WithIdentity($"SendOtp_{actionType}_{email}_{Guid.NewGuid()}", "MailJobs")
-            .UsingJobData("Email", email)
-            .UsingJobData("OtpCode", otpCode)
+        // var job = JobBuilder.Create<SendOtpJob>()
+        //     .WithIdentity($"SendOtp_{actionType}_{email}_{Guid.NewGuid()}", "MailJobs")
+        //     .UsingJobData("Email", email)
+        //     .UsingJobData("OtpCode", otpCode)
+        //     .Build();
+        // await scheduler.ScheduleJob(job, TriggerBuilder.Create().StartNow().Build());
+
+        var jobdata = new JobDataMap();
+        jobdata.Put("email", email);
+        jobdata.Put("otpcode", otpCode);
+
+        var trigger = TriggerBuilder.Create()
+            .ForJob(new JobKey("sendotpjob")) // trỏ đúng vào tên thẻ nhân viên đã đăng ký ở program.cs
+            .WithIdentity($"trigger_{actionType}_{email}_{Guid.NewGuid()}", "mailtriggers")
+            .UsingJobData(jobdata)
+            .StartNow()
             .Build();
-        await scheduler.ScheduleJob(job, TriggerBuilder.Create().StartNow().Build());
+
+        await scheduler.ScheduleJob(trigger);
     }
 
     public async Task<T> VerifyAndGetPayloadAsync<T>(string email, string inputOtp, string actionType)
