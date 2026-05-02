@@ -17,9 +17,15 @@ interface GuestRouteProps {
 export function GuestRoute({ children }: GuestRouteProps) {
   const { accessToken, role } = useAuthStore();
 
-  // Nếu đã đăng nhập → redirect về trang chính
-  if (accessToken) {
-    const redirectTo = role === "admin" ? "/admin" : "/";
+  // Nếu đã đăng nhập → redirect về trang chính dựa theo Role
+  if (accessToken && role) {
+    const roleRedirects: Record<string, string> = {
+      Admin: "/admin",
+      Owner: "/owner",
+      Customer: "/",
+    };
+
+    const redirectTo = roleRedirects[role] || "/";
     return <Navigate to={redirectTo} replace />;
   }
 

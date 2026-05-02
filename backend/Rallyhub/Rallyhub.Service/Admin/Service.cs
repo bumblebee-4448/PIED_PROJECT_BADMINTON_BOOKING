@@ -224,8 +224,11 @@ public class Service: IService
         query.UpdatedAt = DateTimeOffset.UtcNow;
         var userId = query.Customer.UserId;
         var queryUser = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        queryUser!.Status = "Owner";
+        queryUser!.Role = "Owner";
         _dbContext.Owners.Add(newOwner);
+        var customerId = query.Customer.Id;
+        var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.Id == customerId);
+        // _dbContext.Customers.Remove(customer!);
         var result = await _dbContext.SaveChangesAsync();
         if (result > 0)
         {

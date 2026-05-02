@@ -1,4 +1,3 @@
-import React from "react";
 import { Search, Calendar, Clock, Star, Shield, Zap } from "lucide-react";
 import { SectionHeader } from "./SectionHeader";
 

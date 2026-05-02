@@ -26,7 +26,7 @@ public class Usercontroller : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success, check mail to verify otp", HttpContext.TraceIdentifier));
     }
     
-    [HttpPost("Verify-otp")]
+    [HttpPost("VerifyOtp")]
     public async Task<IActionResult> VerifyOtp(Service.IdentityService.Request.VerifyOtpRequest request)
     {
         var result = await _identityService.VerifyOtp(request.Email, request.OtpCode);
@@ -40,19 +40,41 @@ public class Usercontroller : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse(result, "Welcome", HttpContext.TraceIdentifier));
     }
     
-    [HttpPost("Logout")]
-    [Authorize]
-    public async Task<IActionResult> Logout()
+    // [HttpPost("Logout")]
+    // [Authorize]
+    // public async Task<IActionResult> Logout()
+    // {
+    //     var authHeader = Request.Headers["Authorization"].ToString();
+    //     if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
+    //     {
+    //         return BadRequest(new { Message = "Không tìm thấy Token để đăng xuất." });
+    //     }
+    //     var token = authHeader.Substring("Bearer ".Length).Trim();
+    //
+    //     string result = await _identityService.Logout(token);
+    //
+    //     return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
+    // }
+    
+    [HttpPost("ForgotPassword")]
+    public async Task<IActionResult> ForgotPassword(Service.IdentityService.Request.ForgotPasswordRequest request)
     {
-        var authHeader = Request.Headers["Authorization"].ToString();
-        if (string.IsNullOrEmpty(authHeader) || !authHeader.StartsWith("Bearer "))
-        {
-            return BadRequest(new { Message = "Không tìm thấy Token để đăng xuất." });
-        }
-        var token = authHeader.Substring("Bearer ".Length).Trim();
-
-        string result = await _identityService.Logout(token);
-
+        var result = await _identityService.ForgotPassword(request);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
+    }
+    
+    [HttpPut("ResetPassword")]
+    public async Task<IActionResult> ResetPassword(Service.IdentityService.Request.ResetPasswordRequest request)
+    {
+        var result = await _identityService.ResetPassword(request);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
+    }
+    
+    [HttpPut("ChangePassword")]
+    [Authorize]
+    public async Task<IActionResult> ChangePassword(Request.ChangePasswordRequest request)
+    {
+        var result = await _userService.ChangePassword(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Thank you!", HttpContext.TraceIdentifier));
     }
 

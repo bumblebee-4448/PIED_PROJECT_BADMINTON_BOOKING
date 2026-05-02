@@ -4,17 +4,6 @@ namespace Rallyhub.Service.Owner;
 
 public class Request
 {
-    public class CreateOwnerRequest
-    {
-        public required string BusinessName  { get; set; }
-        public required string TaxCode { get; set; }
-        public required string BusinessAddress { get; set; }
-        public string? BusinessLicenseUrl { get; set; } // Ảnh giấy phép
-
-        public string? IdentityNumber { get; set; } // Số CCCD
-        public string? IdentityCardFrontUrl { get; set; } // Ảnh mặt trước CCCD
-        public string? IdentityCardBackUrl { get; set; }
-    }
     
     public class CreateCourtRequest  
     {  
@@ -34,4 +23,53 @@ public class Request
         public int PageIndex { get; set; } = 1;   
         public int PageSize { get; set; } = 10;  
     }
+
+    public class CreateSubCourtRequest
+    {
+        public Guid CourtId { get; set; }
+        public string Name { get; set; } = null!;
+    }
+    
+    public class GetMySubCourtsRequest  
+    {  
+        public Guid? CourtId { get; set; }
+        public string? Name { get; set; }  
+        public int PageIndex { get; set; } = 1;   
+        public int PageSize { get; set; } = 10;  
+    }
+
+    public class CreateConfigSlotRequest
+    {
+        public Guid SubCourtId { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public decimal Price { get; set; }
+    }
+    
+    public class CreateOverrideSlotRequest
+    {
+        public Guid SubCourtId { get; set; }
+        public bool IsRecurring { get; set; }
+        public DayOfWeek? DayOfWeek { get; set; }
+        public DateOnly? Date { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public decimal Price { get; set; }
+    }
+    
+    public class CreateExceptionSlotRequest
+    {
+        public Guid SubCourtId { get; set; } 
+        public DateOnly Date { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public string Reason { get; set; } = null!;
+    }
+    
+    public class GetAvailableSlotsRequest
+    {
+        public Guid SubCourtId { get; set; }
+        public DateOnly Date { get; set; }
+    }
+ 
 }

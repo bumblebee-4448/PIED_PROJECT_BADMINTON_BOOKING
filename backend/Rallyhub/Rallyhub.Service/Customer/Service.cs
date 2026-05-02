@@ -37,7 +37,11 @@ public class Service : IService
         {
             throw new Exception($"Tên {request.FirstName} {request.FirstName} không khớp với tên của tài khoản này");
         }
-        
+        var isExistIdentityNumber = await _dbContext.OwnerRequests.AnyAsync(x => x.IdentityNumber == request.IdentityNumber);
+        if (isExistIdentityNumber)
+        {
+            throw new Exception("Identity number already exists");
+        }
         var ownerRequest = new OwnerRequest()
         {
             BusinessName = request.BusinessName,

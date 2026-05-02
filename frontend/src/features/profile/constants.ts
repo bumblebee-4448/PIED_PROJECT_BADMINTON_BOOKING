@@ -1,0 +1,32 @@
+export const DISTRICTS = [
+  "Tất cả",
+  "Quận 1",
+  "Quận 3",
+  "Quận 4",
+  "Quận 5",
+  "Quận 6",
+  "Quận 7",
+  "Quận 8",
+  "Quận 10",
+  "Quận 11",
+  "Quận 12",
+  "Tân Bình",
+  "Bình Tân",
+  "Bình Thạnh",
+  "Tân Phú",
+  "Gò Vấp",
+  "Phú Nhuận",
+  "Thủ Đức",
+  "Hóc Môn",
+  "Củ Chi",
+  "Nhà Bè",
+  "Bình Chánh",
+  "Cần Giờ",
+];
+
+export const LEVELS = [
+  { value: "beginner", label: "Mới chơi" },
+  { value: "intermediate", label: "Trung bình" },
+  { value: "advanced", label: "Khá/Giỏi" },
+  { value: "professional", label: "Chuyên nghiệp" },
+];

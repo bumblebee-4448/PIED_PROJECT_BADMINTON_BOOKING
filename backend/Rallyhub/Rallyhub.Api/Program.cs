@@ -3,6 +3,7 @@ using Quartz;
 using Rallyhub.Api.Extention;
 using Rallyhub.Api.Middleware;
 using Rallyhub.Repository;
+using Rallyhub.Service.BackgroundJobService;
 using TetPee.Api.Extention;
 using JwtService = Rallyhub.Service.JwtService;
 using MailService = Rallyhub.Service.MailService;
@@ -68,11 +69,10 @@ builder.Services.AddStackExchangeRedisCache(options =>
 });
 
 builder.Services.AddQuartz();
-
-// builder.Services.AddQuartzHostedService(options =>
-// {
-//     options.WaitForJobsToComplete = true; 
-// });
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true; 
+});
 
 builder.Services.AddTransient<GlobalExceptionHandlerMiddleware>();
 

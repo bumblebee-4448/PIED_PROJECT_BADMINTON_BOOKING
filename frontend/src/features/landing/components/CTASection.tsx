@@ -1,5 +1,3 @@
-import React from "react";
-
 export function CTASection() {
   return (
     <section className="relative py-24 overflow-hidden">

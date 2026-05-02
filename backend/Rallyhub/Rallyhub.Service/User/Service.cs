@@ -1,8 +1,13 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Configuration;
 using Quartz.Util;
 using Rallyhub.Repository;
 using Rallyhub.Repository.Entity;
+using Rallyhub.Service.IdentityService;
+using Rallyhub.Service.JwtService;
 using Exception = System.Exception;
 
 namespace Rallyhub.Service.User;
@@ -10,17 +15,59 @@ namespace Rallyhub.Service.User;
 public class Service : IService
 {
     private readonly AppDbContext _dbContext;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IDistributedCache _redisCache; // Giữ lại chỉ để dùng cho tính năng Logout
+    private readonly JwtService.IService _jwtService;
+    private readonly OtpService.IService _otpService;       // Khai báo chuyên gia OTP
+    private readonly JwtOptions _jwtOption = new();
+    private readonly SecurityOptions _securityOptions = new();
+    private readonly IHttpContextAccessor _httpAccessor;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+    public Service(AppDbContext dbContext, 
+        IDistributedCache redisCache, 
+        IConfiguration configuration,
+        JwtService.IService jwtService,
+        OtpService.IService otpService,
+        IHttpContextAccessor httpContextAccesso)
     {
         _dbContext = dbContext;
-        _httpContextAccessor = httpContextAccessor;
+        _redisCache = redisCache;
+        _jwtService = jwtService;
+        _otpService = otpService;
+        configuration.GetSection(nameof(JwtOptions)).Bind(_jwtOption);
+        configuration.GetSection(nameof(SecurityOptions)).Bind(_securityOptions);
+        _httpAccessor = httpContextAccesso;
     }
+    
+    public async Task<string> ChangePassword(Request.ChangePasswordRequest request)
+    {
+        var userId = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        var userIdGuild = Guid.Parse(userId!);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userIdGuild);
+        if (user == null)
+        {
+            throw new Exception("người dùng không tồn tại.");
+        }
+        string pepperedOldPassword = request.OldPassword + _securityOptions.Pepper;
+        bool isOldPasswordValid = BCrypt.Net.BCrypt.EnhancedVerify(pepperedOldPassword, user.PasswordHash);
+        if (!isOldPasswordValid)
+            throw new Exception("Mật khẩu hiện tại không chính xác.");
+        if (request.OldPassword == request.NewPassword)
+            throw new Exception("Mật khẩu mới không được trùng với mật khẩu cũ.");
 
+        string pepperedNewPassword = request.NewPassword + _securityOptions.Pepper;
+        user.PasswordHash = BCrypt.Net.BCrypt.EnhancedHashPassword(pepperedNewPassword, hashType: BCrypt.Net.HashType.SHA384);
+        user.UpdatedAt = DateTimeOffset.UtcNow;
+
+        var result = await _dbContext.SaveChangesAsync();
+        if (result > 0)
+        {
+            return "Success";
+        }
+        return "Fail";
+    }
     public async Task UpdateProfile(Request.UpdateProfile request)
     {
-        var getUserId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        var getUserId = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
         var userId = Guid.Parse(getUserId!);
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
         user!.FirstName = request.FirstName;
