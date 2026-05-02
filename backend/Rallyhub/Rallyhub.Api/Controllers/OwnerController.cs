@@ -81,5 +81,12 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo thành công exception slot"   
             , HttpContext.TraceIdentifier));  
     }
+    [HttpPost("GetExceptionSlotBySubCourtId")]  
+    public async Task<IActionResult> GetExceptionSlotResponse(Guid subCourtId)  
+    {  
+        var result = await _ownerService.GetExceptionSlotBySubCourtId(subCourtId); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo thành công exception slot"   
+            , HttpContext.TraceIdentifier));  
+    }
     
 }
