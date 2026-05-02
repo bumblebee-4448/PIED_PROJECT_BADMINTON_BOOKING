@@ -48,4 +48,17 @@ public class Response
         public bool IsRecurring { get; set; }
     }
     
+    public class CreateExceptionSlotResponse
+    {
+        public Guid Id { get; set; }
+        public DateOnly Date { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public string Reason { get; set; } = null!;
+    }
+    
+    public class GetExceptionSlotResponse: CreateExceptionSlotResponse
+    {
+        
+    }
 }

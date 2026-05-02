@@ -73,4 +73,13 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Lấy thành công danh sách overrideslot"   
             , HttpContext.TraceIdentifier));  
     }
+    
+    [HttpPost("CreateExceptionSlot")]  
+    public async Task<IActionResult> CreateExceptionSlot(Request.CreateExceptionSlotRequest request)  
+    {  
+        var result = await _ownerService.CreateExceptionSlot(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo thành công exception slot"   
+            , HttpContext.TraceIdentifier));  
+    }
+    
 }

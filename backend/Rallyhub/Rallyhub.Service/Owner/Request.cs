@@ -49,4 +49,15 @@ public class Request
         public decimal Price { get; set; }
     }
     
+    public class CreateExceptionSlotRequest
+    {
+        public Guid SubCourtId { get; set; } 
+        public DateOnly Date { get; set; }
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public string Reason { get; set; } = null!;
+    }
+    
+    
+    
 }

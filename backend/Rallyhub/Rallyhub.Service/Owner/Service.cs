@@ -418,8 +418,7 @@ public class Service : IService
         {
             throw new Exception("Bạn không có quyền");
         }
-      
-        
+        //
         var overrideSlots = await   _dbContext.OverideSlots
             .Where(x => x.SubCourtDetailId == subCourtId)
             .OrderBy(x => x.Date)
@@ -437,6 +436,114 @@ public class Service : IService
             }).ToListAsync();
         
        return overrideSlots;
+    }
+
+    public async Task<Response.CreateExceptionSlotResponse> CreateExceptionSlot(Request.CreateExceptionSlotRequest request)
+    {
+        //Lấy token của OwnerId
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        if (string.IsNullOrEmpty(ownerIdClaim))  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        
+        //check subCort + Owner
+        var subCourt = await _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefaultAsync(x => x.Id == request.SubCourtId);
+        if (subCourt == null)
+        {
+            throw new Exception("Sân con không tồn tại!");
+        }
+
+        if (subCourt.Court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Bạn không có quyền");
+        }
+        //Validate time
+        if (request.StartTime >= request.EndTime)
+        {
+            throw new Exception("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc");
+        }
+
+        if (request.Date < DateOnly.FromDateTime(DateTime.UtcNow))
+        {
+            throw new Exception("Không thể block slot trong quá khứ");
+        }
+        //check overrlap voi Exception khac
+        var isOverlap = await  _dbContext.Exceptions.AnyAsync(x => 
+            x.SubCourtDetailId == request.SubCourtId &&
+            x.Date == request.Date &&
+            request.StartTime < x.EndTime &&
+            request.EndTime > x.StartTime);
+
+        if (isOverlap)
+        {
+            throw new Exception("Khoảng thời gian này đã bị block rồi");
+        }
+
+        var nexExceptionSlot = new Repository.Entity.Exception
+        {
+            Id = Guid.NewGuid(),
+            SubCourtDetailId = request.SubCourtId,
+            Date = request.Date,
+            StartTime = request.StartTime, 
+            EndTime = request.EndTime,
+            Reason = request.Reason,
+        };
+        _dbContext.Exceptions.Add(nexExceptionSlot);
+        await _dbContext.SaveChangesAsync();
+        var result = new Response.CreateExceptionSlotResponse
+        {
+            Id = nexExceptionSlot.Id,
+            Date = nexExceptionSlot.Date,
+            StartTime = nexExceptionSlot.StartTime,
+            EndTime = nexExceptionSlot.EndTime,
+            Reason = nexExceptionSlot.Reason,
+        };
+        return result;
+    }
+
+    public async Task<List<Response.GetExceptionSlotResponse>> GetExceptionSlotBySubCourtId(Guid subCourtId)
+    {
+        //Lấy token của OwnerId
+        var ownerIdClaim = _httpContext.HttpContext?.User?  
+            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        if (string.IsNullOrEmpty(ownerIdClaim))  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        
+        //check subCort + Owner
+        var subCourt = await _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefaultAsync(x => x.Id == subCourtId);
+        if (subCourt == null)
+        {
+            throw new Exception("Sân con không tồn tại!");
+        }
+
+        if (subCourt.Court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Bạn không có quyền");
+        }
+        //
+        var exceptionSlot = await _dbContext.Exceptions
+            .Where(x => x.SubCourtDetailId == subCourtId)
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.StartTime)
+            .Select(x => new Response.GetExceptionSlotResponse
+            {
+                Id = x.Id,
+                Date = x.Date,
+                StartTime = x.StartTime,                                        
+                EndTime = x.EndTime,
+                Reason = x.Reason,
+            }).ToListAsync();
+        return exceptionSlot;
     }
 }
 
