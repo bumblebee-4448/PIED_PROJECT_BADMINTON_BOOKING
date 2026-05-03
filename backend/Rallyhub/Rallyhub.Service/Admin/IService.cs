@@ -22,7 +22,7 @@ public interface IService
 
     public Task<Response.RefundResponse> Refund(Request.RefundRequest request);
 
-    public Task<Response.GetWalletResponse> GetWallet(Request.GetWalletRequest request);
+    public Task<Response.GetWalletResponse> GetWallet(string email);
     /*
      CourtMethod
      */

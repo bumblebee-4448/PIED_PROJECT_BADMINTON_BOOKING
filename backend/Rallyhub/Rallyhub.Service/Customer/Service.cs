@@ -142,6 +142,7 @@ public class Service : IService
             var bookingDetail = await _dbContext.BookingDetails
                                                     .FirstOrDefaultAsync(x => x.Id == request.BookingDetailId);
             bookingDetail!.Status = Enum.Enum.StatusBookingDetails.RefundPending.ToString();
+            bookingDetail.UpdatedAt = DateTimeOffset.UtcNow;
             _dbContext.BookingDetails.Update(bookingDetail);
             await _dbContext.SaveChangesAsync();
             return;
@@ -149,6 +150,7 @@ public class Service : IService
         var bookingDetailQuery = await _dbContext.BookingDetails
                                                 .FirstOrDefaultAsync(x => x.Id == request.BookingDetailId);
         bookingDetailQuery!.Status = Enum.Enum.StatusBookingDetails.Cancelled.ToString();
+        bookingDetailQuery.UpdatedAt = DateTimeOffset.UtcNow;
         _dbContext.BookingDetails.Update(bookingDetailQuery);
         await _dbContext.SaveChangesAsync();
     }
@@ -206,6 +208,7 @@ public class Service : IService
             if (likeList.IsDeleted)
             {
                 likeList.IsDeleted = false;
+                likeList.UpdatedAt = DateTimeOffset.UtcNow;
                 _dbContext.LikeListDetails.Update(likeList);
                 await _dbContext.SaveChangesAsync();
                 return;
@@ -236,6 +239,7 @@ public class Service : IService
             throw new Exception("Sân không nằm trong danh sách yêu thích");
         }
         courtLike.IsDeleted = true;
+        courtLike.UpdatedAt = DateTimeOffset.UtcNow;
         _dbContext.LikeListDetails.Update(courtLike);
         await _dbContext.SaveChangesAsync();
     }
