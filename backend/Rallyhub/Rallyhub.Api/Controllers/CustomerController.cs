@@ -45,12 +45,12 @@ public class CustomerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse(result, "Check Success", HttpContext.TraceIdentifier));
     }
 
-    [HttpPost("CancelBooking")]
+    [HttpPatch("CancelBooking")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> CheckCancel(Request.CancelBooking request)
     {
         await _customerService.CancelBooking(request);
-        return Ok(ApiResponseFactory.SuccessResponse("Cancel Success", HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.SuccessResponse("Cancel booking Success", HttpContext.TraceIdentifier));
     }
 
     [HttpGet("GetAllLikeList")]

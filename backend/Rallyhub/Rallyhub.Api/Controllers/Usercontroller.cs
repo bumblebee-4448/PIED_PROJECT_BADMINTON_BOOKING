@@ -101,7 +101,7 @@ public class Usercontroller : ControllerBase
         await _userService.CreateWallet(request);
         return Ok(ApiResponseFactory.SuccessResponse("Create wallet success", HttpContext.TraceIdentifier));
     }
-    [HttpPost("UpdateWallet")]
+    [HttpPatch("UpdateWallet")]
     [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]
     public async Task<IActionResult> UpdateWallet(Request.CreateAndUpdateWalletRequest request)
     {
