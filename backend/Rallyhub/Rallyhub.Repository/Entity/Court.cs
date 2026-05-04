@@ -8,6 +8,7 @@ public class Court : BaseEntity<Guid>, IAuditableEntity
     public required string Address { get; set; }
     public required TimeOnly OpenTime  { get; set; }
     public required TimeOnly CloseTime { get; set; }
+    public int? TimeRefundBefor { get; set; } = 120;
     public string Status { get; set; } = "Active";//"Pending", "InActive"
     
     public required decimal Latitude { get; set; } //vĩ độ (10, 8)
@@ -15,7 +16,7 @@ public class Court : BaseEntity<Guid>, IAuditableEntity
     public required string MapUrl  { get; set; } //link của gg map
     
     public required string PictureUrl { get; set; }
-    public  string? Description { get; set; }
+    public string? Description { get; set; } = null;
     
     public Guid OwnerId  { get; set; }
     public Owner Owner { get; set; }

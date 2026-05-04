@@ -7,6 +7,8 @@ using Rallyhub.Service.Models;
 using Enum = Rallyhub.Service.Enum.Enum;
 
 namespace Rallyhub.Api.Controllers;
+
+[Authorize(Policy = JwtExtensions.AdminPolicy)]
 [ApiController]
 [Route("api/[controller]")]
 public class AdminController: ControllerBase
@@ -19,7 +21,6 @@ public class AdminController: ControllerBase
     }
 
     [HttpGet("getAllUser")]
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> FilterUser
         (string? search, Guid? id, Enum.Role? role, Enum.StatusUsers? status, int pageIndex = 1, int pageSize = 10)
     {
@@ -29,7 +30,6 @@ public class AdminController: ControllerBase
     }
 
     [HttpGet("getUserDetailById/{id}")]
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> UserDetail(Guid id)
     {
         var result = await _adminService.UserDetail(id);
@@ -38,7 +38,6 @@ public class AdminController: ControllerBase
     }
     
     [HttpGet("GetOwnerRequest")]
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> AdminGetOwnerRequest([FromQuery]Service.Base.Request.Pagination request)
     {
         var result = await _adminService.AdminGetOwnerRequest(request);
@@ -46,7 +45,6 @@ public class AdminController: ControllerBase
     }
     
     [HttpGet("AcceptCreateOwner")]
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> AdminAcceptOwnerRequest(Guid ownerRequestId)
     {
         
@@ -55,7 +53,6 @@ public class AdminController: ControllerBase
     }
     
     [HttpGet("RejectCreateOwner")]
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> AdminRejectOwnerRequest(Guid ownerRequestId, string? rejectReason)
     {
         
@@ -63,7 +60,6 @@ public class AdminController: ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success you!", HttpContext.TraceIdentifier));
     }
     [HttpDelete("DeleteCourt/{id}")]
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> DeleteCourt(Guid id)
     {
         await _adminService.DeleteCourt(id);
@@ -71,7 +67,6 @@ public class AdminController: ControllerBase
             ($"Xóa sân thành công",HttpContext.TraceIdentifier));
     }
     [HttpPatch("UpdateStatusUser")]
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> UpdateStatusUser(Service.Admin.Request.UpdateStatusUserResponse request)
     {
         await _adminService.UpdateStatusUser(request);
@@ -106,11 +101,16 @@ public class AdminController: ControllerBase
             , HttpContext.TraceIdentifier));  
     }
 
-    [HttpPost("Refund")]
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpPatch("Refund")]
     public async Task<IActionResult> Refund(Request.RefundRequest request)
     {
         var result = await _adminService.Refund(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Refund Success", HttpContext.TraceIdentifier));
+    }
+    [HttpGet("GetWallet")]
+    public async Task<IActionResult> GetWallet(string email)
+    {
+        var result = await _adminService.GetWallet(email);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Thông tin ví của user", HttpContext.TraceIdentifier));
     }
 }

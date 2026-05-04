@@ -18,7 +18,6 @@ public class Service : IService
     
     public async Task<Base.Response.PageResult<Response.SearchCourtResponse>> SearchByFilter(Request.SearchByFilterRequest request)
     {
-
         var  query = _dbContext.Courts
             .Where(x => x.Status == nameof(StatusCourt.Active))
             .Select(x => new
@@ -79,6 +78,32 @@ public class Service : IService
         
         return result;
     }
-    
-    
+
+    public async Task<Response.SearchCourtResponse> GetCourtsById(Guid courtId)
+    {
+        var courtResult = await _dbContext.Courts
+            .Where(x => x.Id == courtId)
+            .Select(court => new Response.SearchCourtByIdResponse
+            {
+                CourtId = court.Id,
+                Name = court.Name,
+                Address = court.Address,
+                Status = court.Status,
+                AverageRating = court.Feedbacks.Any() ? court.Feedbacks.Average(f => (double)f.Rating) : 0,
+                OpenTime = court.OpenTime,
+                CloseTime = court.CloseTime,
+                PhoneNumber = court.Owner != null && court.Owner.User != null ? court.Owner.User.PhoneNumber : "",
+                PictureUrl = court.PictureUrl,
+                MapUrl = court.MapUrl,
+                Description = court.Description
+            })
+            .FirstOrDefaultAsync();
+
+        if (courtResult == null)
+        {
+            throw new Exception($"court with id {courtId} not found");
+        }
+
+        return courtResult;
+    }
 }

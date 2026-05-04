@@ -287,7 +287,34 @@ public class Service: IService
             {
                 throw new Exception($"User đang có status {request.Status} không thể update sang {request.Status}");
             }
+            var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == request.Id);
+            var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == request.Id);
+            if (wallet != null && request.Status == Enum.Enum.StatusUsers.Banned.ToString())
+            {
+                wallet.IsDeleted = true;
+                wallet.UpdatedAt = DateTimeOffset.UtcNow;
+                _dbContext.Wallets.Update(wallet);
+            }
+            if (wallet != null && request.Status == Enum.Enum.StatusUsers.Active.ToString())
+            {
+                wallet.IsDeleted = false;
+                wallet.UpdatedAt = DateTimeOffset.UtcNow;
+                _dbContext.Wallets.Update(wallet);
+            }
+            if (customer != null && request.Status == Enum.Enum.StatusUsers.Banned.ToString())
+            {
+                customer.IsDeleted = true;
+                customer.UpdatedAt = DateTimeOffset.UtcNow;
+                _dbContext.Customers.Update(customer);
+            }
+            if (customer != null && request.Status == Enum.Enum.StatusUsers.Active.ToString())
+            {
+                customer.IsDeleted = false;
+                customer.UpdatedAt = DateTimeOffset.UtcNow;
+                _dbContext.Customers.Update(customer);
+            }
             user.Status = request.Status;
+            user.UpdatedAt = DateTimeOffset.UtcNow;
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
             return;
@@ -298,6 +325,13 @@ public class Service: IService
             {
                 throw new Exception($"User đang có status {request.Status} không thể update sang {request.Status}");
             }
+            var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == request.Id);
+            if (wallet != null)
+            {
+                wallet.IsDeleted = true;
+                wallet.UpdatedAt = DateTimeOffset.UtcNow;
+                _dbContext.Wallets.Update(wallet);
+            }
             var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == request.Id);
             if (owner == null)
             {
@@ -307,6 +341,7 @@ public class Service: IService
             if (!courtList.Any())
             {
                 user.Status = request.Status;
+                user.UpdatedAt = DateTimeOffset.UtcNow;
                 _dbContext.Users.Update(user);
                 await _dbContext.SaveChangesAsync();
                 return;
@@ -319,8 +354,9 @@ public class Service: IService
                     foreach (var item in likeListDetail)
                     {
                         item.IsDeleted = true;
-                        _dbContext.LikeListDetails.Update(item);
+                        item.UpdatedAt =  DateTimeOffset.UtcNow;
                     }
+                    _dbContext.LikeListDetails.UpdateRange(likeListDetail);
                 }
                 var campaignCourt = await _dbContext.CampaignCourts.Where(x => x.CourtId == court.Id).ToListAsync();
                 if (campaignCourt.Any())
@@ -329,13 +365,15 @@ public class Service: IService
                     if (campaign != null)
                     {
                         campaign.IsDeleted = true;
+                        campaign.UpdatedAt = DateTimeOffset.UtcNow;
                         _dbContext.Campaigns.Update(campaign);
                     }
+                    
                     foreach (var item in campaignCourt)
                     {
                         item.IsDeleted = true;
-                        _dbContext.CampaignCourts.Update(item);
                     }
+                    _dbContext.CampaignCourts.UpdateRange(campaignCourt);
                 }
                 var subCourtList = await _dbContext.SubCourts.Where(x => x.CourtId == court.Id).ToListAsync();
                 if (subCourtList.Any())
@@ -348,8 +386,9 @@ public class Service: IService
                             foreach (var item in exceptionList)
                             {
                                 item.IsDeleted = true;
-                                _dbContext.Exceptions.Update(item);
+                                item.UpdatedAt =  DateTimeOffset.UtcNow;
                             }
+                            _dbContext.Exceptions.UpdateRange(exceptionList);
                         }
                         var configSlotList = await _dbContext.ConfigSlots.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
                         if (configSlotList.Any())
@@ -357,8 +396,9 @@ public class Service: IService
                             foreach (var item in configSlotList)
                             {
                                 item.IsDeleted = true;
-                                _dbContext.ConfigSlots.Update(item);
+                                
                             }
+                            _dbContext.ConfigSlots.UpdateRange(configSlotList);
                         }
                         var overrideSlotList = await _dbContext.OverideSlots.Where(x => x.SubCourtDetailId ==  subCourt.Id).ToListAsync();
                         if (overrideSlotList.Any())
@@ -366,18 +406,22 @@ public class Service: IService
                             foreach (var item in overrideSlotList)
                             {
                                 item.IsDeleted = true;
-                                _dbContext.OverideSlots.Update(item);
+                                item.UpdatedAt =  DateTimeOffset.UtcNow;
                             }
+                            _dbContext.OverideSlots.UpdateRange(overrideSlotList);
                         }
                         subCourt.IsDeleted = true;
+                        subCourt.UpdatedAt = DateTimeOffset.UtcNow;
                         _dbContext.SubCourts.Update(subCourt);
                     }
                 }
                 court.IsDeleted = true;
+                court.UpdatedAt = DateTimeOffset.UtcNow;
                 _dbContext.Courts.Update(court);
             }
             owner.IsDeleted = true;
             user.Status = request.Status;
+            user.UpdatedAt = DateTimeOffset.UtcNow;
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
             return;
@@ -388,6 +432,13 @@ public class Service: IService
             {
                 throw new Exception($"User đang có status {request.Status} không thể update sang {request.Status}");
             }
+            var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == request.Id);
+            if (wallet != null)
+            {
+                wallet.IsDeleted = false;
+                wallet.UpdatedAt = DateTimeOffset.UtcNow;
+                _dbContext.Wallets.Update(wallet);
+            }
             var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == request.Id);
             if (owner == null)
             {
@@ -397,6 +448,7 @@ public class Service: IService
             if (!courtList.Any())
             {
                 user.Status = request.Status;
+                user.UpdatedAt = DateTimeOffset.UtcNow;
                 _dbContext.Users.Update(user);
                 await _dbContext.SaveChangesAsync();
                 return;
@@ -409,8 +461,9 @@ public class Service: IService
                     foreach (var item in likeListDetail)
                     {
                         item.IsDeleted = false;
-                        _dbContext.LikeListDetails.Update(item);
+                        item.UpdatedAt = DateTimeOffset.UtcNow;
                     }
+                    _dbContext.LikeListDetails.UpdateRange(likeListDetail);
                 }
                 var campaignCourt = await _dbContext.CampaignCourts.Where(x => x.CourtId == court.Id).ToListAsync();
                 if (campaignCourt.Any())
@@ -419,13 +472,15 @@ public class Service: IService
                     if (campaign != null)
                     {
                         campaign.IsDeleted = false;
+                        campaign.UpdatedAt = DateTimeOffset.UtcNow;
                         _dbContext.Campaigns.Update(campaign);
                     }
                     foreach (var item in campaignCourt)
                     {
                         item.IsDeleted = false;
-                        _dbContext.CampaignCourts.Update(item);
+                        item.UpdatedAt = DateTimeOffset.UtcNow;
                     }
+                    _dbContext.CampaignCourts.UpdateRange(campaignCourt);
                 }
                 var subCourtList = await _dbContext.SubCourts.Where(x => x.CourtId == court.Id).ToListAsync();
                 if (subCourtList.Any())
@@ -438,8 +493,9 @@ public class Service: IService
                             foreach (var item in exceptionList)
                             {
                                 item.IsDeleted = false;
-                                _dbContext.Exceptions.Update(item);
+                                item.UpdatedAt = DateTimeOffset.UtcNow;
                             }
+                            _dbContext.Exceptions.UpdateRange(exceptionList);
                         }
                         var configSlotList = await _dbContext.ConfigSlots.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
                         if (configSlotList.Any())
@@ -447,8 +503,9 @@ public class Service: IService
                             foreach (var item in configSlotList)
                             {
                                 item.IsDeleted = false;
-                                _dbContext.ConfigSlots.Update(item);
+                                item.UpdatedAt = DateTimeOffset.UtcNow;
                             }
+                            _dbContext.ConfigSlots.UpdateRange(configSlotList);
                         }
                         var overrideSlotList = await _dbContext.OverideSlots.Where(x => x.SubCourtDetailId ==  subCourt.Id).ToListAsync();
                         if (overrideSlotList.Any())
@@ -456,19 +513,23 @@ public class Service: IService
                             foreach (var item in overrideSlotList)
                             {
                                 item.IsDeleted = false;
-                                _dbContext.OverideSlots.Update(item);
+                                item.UpdatedAt = DateTimeOffset.UtcNow;
                             }
+                            _dbContext.OverideSlots.UpdateRange(overrideSlotList);
                         }
                         subCourt.IsDeleted = false;
+                        subCourt.UpdatedAt = DateTimeOffset.UtcNow;
                         _dbContext.SubCourts.Update(subCourt);
                     }
                 }
                 court.IsDeleted = false;
+                court.UpdatedAt = DateTimeOffset.UtcNow;
                 _dbContext.Courts.Update(court);
                 
             }
             owner.IsDeleted = false;
             user.Status = request.Status;
+            user.UpdatedAt = DateTimeOffset.UtcNow;
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
         }
@@ -581,6 +642,7 @@ public class Service: IService
             throw new Exception("Đã hoàn tiền rồi");
         }
         bookingDetail.Status = Enum.Enum.StatusBookingDetails.Refunded.ToString();
+        bookingDetail.UpdatedAt = DateTimeOffset.UtcNow;
         _dbContext.BookingDetails.Update(bookingDetail);
         await _dbContext.SaveChangesAsync();
         await _mailService.SendMail(new MailContent()
@@ -596,13 +658,13 @@ public class Service: IService
             ImageUrl = request.ImageUrl
         };
     }
-    public async Task<Response.GetWalletResponse> GetWallet(Request.GetWalletRequest request)
+    public async Task<Response.GetWalletResponse> GetWallet(string email)
     {
-        if(request.Email == null || request.Email == "")
+        if(email == null || email == "")
         {
             throw new Exception("Email không hợp lệ");
         }
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
         if (user == null)
         {
             throw new Exception("User không tồn tại");
