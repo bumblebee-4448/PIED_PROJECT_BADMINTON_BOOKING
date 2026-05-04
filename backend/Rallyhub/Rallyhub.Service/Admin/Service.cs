@@ -273,7 +273,7 @@ public class Service: IService
         _dbContext.Courts.Remove(court);
         await _dbContext.SaveChangesAsync();
     }
-    public async Task UpdateStatusUser(Request.UpdateStatusUserResponse request)
+    public async Task BanAndUnbanUser(Request.UpdateStatusUserResponse request)
     {
         if (request.Status != Enum.Enum.StatusUsers.Banned.ToString() && 
             request.Status != Enum.Enum.StatusUsers.Active.ToString())
@@ -639,6 +639,9 @@ public class Service: IService
             ImageUrl = request.ImageUrl
         };
     }
+
+    
+
     public async Task<Response.GetWalletResponse> GetWallet(Request.GetWalletRequest request)
     {
         if(request.Email == null || request.Email == "")
@@ -662,5 +665,22 @@ public class Service: IService
             BankAccount = wallet.BankAccount,
             Balance = wallet.Balance,
         };
+    }
+    public async Task<List<Response.GetBookingDetailStatusRefundPendingResponse>> GetBookingDetailStatusRefundPending()
+    {
+        var bookingDetailStatusRefundPending =
+            _dbContext.BookingDetails.Include(x => x.Booking)
+                .Where(x => x.Status == Enum.Enum.StatusBookingDetails.RefundPending.ToString());
+        var selectQuery = bookingDetailStatusRefundPending
+            .Select(x => new Response.GetBookingDetailStatusRefundPendingResponse()
+            {
+                BookingDetailId = x.Id,
+                CustomerId = x.Booking.CustomerId,
+                Email = x.Booking.Customer.User.Email,
+                Status = x.Status,
+                Price = x.Price
+            });
+        var result = await selectQuery.ToListAsync();
+        return result;
     }
 }

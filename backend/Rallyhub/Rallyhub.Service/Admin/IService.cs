@@ -13,7 +13,7 @@ public interface IService
     public Task<Base.Response.PageResult<Response.AdminGetOwnerRequestResponse>> AdminGetOwnerRequest(Base.Request.Pagination request);
     public Task<string> AdminAcceptOwnerRequest(Guid ownerRequestId);
     public Task<string> AdminRejectOwnerRequest(Guid ownerRequestId, string? rejectReason);
-    public Task UpdateStatusUser(Request.UpdateStatusUserResponse request);
+    public Task BanAndUnbanUser(Request.UpdateStatusUserResponse request);
     public Task<Base.Response.PageResult<Response.GetPendingCourtsResponse>> GetPendingCourts  
         (Request.GetPendingCourtsRequest request);  
   
@@ -21,6 +21,7 @@ public interface IService
     public Task RejectPendingCourt(Guid courtId, Request.RejectPendingCourtsRequest request);
 
     public Task<Response.RefundResponse> Refund(Request.RefundRequest request);
+    public Task<List<Response.GetBookingDetailStatusRefundPendingResponse>> GetBookingDetailStatusRefundPending();
 
     public Task<Response.GetWalletResponse> GetWallet(Request.GetWalletRequest request);
     /*

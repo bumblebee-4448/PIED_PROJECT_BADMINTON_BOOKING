@@ -69,11 +69,11 @@ public class AdminController: ControllerBase
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
             ($"Xóa sân thành công",HttpContext.TraceIdentifier));
     }
-    [HttpPatch("UpdateStatusUser")]
+    [HttpPatch("BanAndUnbanUser")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> UpdateStatusUser(Service.Admin.Request.UpdateStatusUserResponse request)
+    public async Task<IActionResult> BanAndUnbanUser(Service.Admin.Request.UpdateStatusUserResponse request)
     {
-        await _adminService.UpdateStatusUser(request);
+        await _adminService.BanAndUnbanUser(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
             ($"Update status thành công",HttpContext.TraceIdentifier));
     }
@@ -115,5 +115,12 @@ public class AdminController: ControllerBase
     {
         var result = await _adminService.GetWallet(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Thông tin ví của user", HttpContext.TraceIdentifier));
+    }
+    [HttpGet("GetBookingDetailStatusRefundPending")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    public async Task<IActionResult> GetBookingDetailStatusRefundPending()
+    {
+        var result = await _adminService.GetBookingDetailStatusRefundPending();
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Danh sách booking detail refund pending", HttpContext.TraceIdentifier));
     }
 }

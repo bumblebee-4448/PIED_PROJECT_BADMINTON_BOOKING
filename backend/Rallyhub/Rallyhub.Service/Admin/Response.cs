@@ -94,4 +94,13 @@ public class Response
         public required string BankAccount { get; set; }
         public decimal Balance { get; set; }
     }
+
+    public class GetBookingDetailStatusRefundPendingResponse
+    {
+        public Guid BookingDetailId  { get; set; }
+        public Guid CustomerId  { get; set; }
+        public string Email   { get; set; }
+        public string Status  { get; set; }
+        public decimal Price  { get; set; }
+    }
 }
