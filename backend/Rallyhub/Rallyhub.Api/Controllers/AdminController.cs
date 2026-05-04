@@ -122,6 +122,6 @@ public class AdminController: ControllerBase
     public async Task<IActionResult> GetBookingDetailStatusRefundPending()
     {
         var result = await _adminService.GetBookingDetailStatusRefundPending();
-        return Ok(ApiResponseFactory.SuccessResponse(result, "Thông tin ví của user", HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Danh sách Booking Detail Status Refund Pending", HttpContext.TraceIdentifier));
     }
 }
