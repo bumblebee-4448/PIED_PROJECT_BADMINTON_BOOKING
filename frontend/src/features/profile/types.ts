@@ -3,9 +3,11 @@ import type { UserRole } from "@/shared/types";
 export interface User {
   id: string;
   email: string;
-  fullName: string;
-  phone: string;
-  avatar?: string;
+  firstName: string;
+  lastName: string;
+  fullName?: string;
+  phoneNumber: string;
+  avartarUrl?: string | null;
   role: UserRole;
   preferredLocation?: string;
   level?: string;
@@ -13,12 +15,13 @@ export interface User {
 }
 
 export interface ProfileUpdateInput {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone: string;
+  phoneNumber: string;
   preferredLocation: string;
   level: string;
-  avatar?: string;
+  avartarUrl?: string | null;
 }
 
 export interface PasswordChangeInput {

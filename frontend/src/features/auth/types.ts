@@ -7,10 +7,12 @@ export type RegisterInput = z.infer<typeof registerSchema>;
 export interface User {
   id: string;
   email: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
+  fullName?: string;
   role: string;
-  avatar?: string;
-  phone?: string;
+  avartarUrl?: string | null;
+  phoneNumber?: string;
   isOwner?: boolean;
 }
 

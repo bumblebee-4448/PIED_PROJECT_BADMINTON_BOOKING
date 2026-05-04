@@ -34,17 +34,17 @@ export function UserProfileCard() {
           {/* User Header */}
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#004E43] to-[#00CE98] flex items-center justify-center text-white shadow-inner overflow-hidden">
-              {user.avatar ? (
-                <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
-              ) : user.fullName ? (
-                <span className="text-lg font-bold">{user.fullName.charAt(0).toUpperCase()}</span>
+              {user.avartarUrl ? (
+                <img src={user.avartarUrl} alt="avatar" className="w-full h-full object-cover" />
+              ) : user.firstName ? (
+                <span className="text-lg font-bold">{user.firstName.charAt(0).toUpperCase()}</span>
               ) : (
                 <User size={24} />
               )}
             </div>
             <div className="flex flex-col overflow-hidden">
-              <span className="font-extrabold text-[#091E1B] truncate" title={user.fullName}>
-                {user.fullName || "User"}
+              <span className="font-extrabold text-[#091E1B] truncate" title={`${user.lastName} ${user.firstName}`}>
+                {user.lastName} {user.firstName}
               </span>
               <span className="text-[10px] font-bold uppercase tracking-widest text-[#9CA3AF] flex items-center gap-1">
                 {role === "Admin" ? (
@@ -98,10 +98,10 @@ export function UserProfileCard() {
         )}
       >
         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#004E43] to-[#00CE98] flex items-center justify-center text-white group-hover:scale-110 transition-transform overflow-hidden">
-           {user.avatar ? (
-             <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+           {user.avartarUrl ? (
+             <img src={user.avartarUrl} alt="avatar" className="w-full h-full object-cover" />
            ) : (
-             <span className="text-xs font-black">{user.fullName?.charAt(0).toUpperCase() || "U"}</span>
+             <span className="text-xs font-black">{user.firstName?.charAt(0).toUpperCase() || "U"}</span>
            )}
         </div>
         

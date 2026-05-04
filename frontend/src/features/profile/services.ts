@@ -8,8 +8,8 @@ export const profileService = {
     return apiClient.get(API_ENDPOINTS.USER.ME);
   },
 
-  updateProfile: async (data: ProfileSchema): Promise<User> => {
-    return apiClient.put(API_ENDPOINTS.USER.PROFILE, data);
+  updateProfile: async (data: ProfileSchema): Promise<string> => {
+    return apiClient.patch(API_ENDPOINTS.USER.PROFILE, data);
   },
 
   changePassword: async (data: PasswordChangeSchema): Promise<void> => {
