@@ -18,23 +18,22 @@ public class AdminController: ControllerBase
         _adminService = adminService;
     }
 
-    [HttpGet("getAllUser")]
+    [HttpGet("FilterUser")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> FilterUser
-        (string? search, Guid? id, Enum.Role? role, Enum.StatusUsers? status, int pageIndex = 1, int pageSize = 10)
+    public async Task<IActionResult> FilterUser([FromQuery]Request.FilterUserRequest request)
     {
-        var result = await _adminService.FilterUser(search, id, role, status, pageIndex, pageSize);
+        var result = await _adminService.FilterUser(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
             (result, "Danh sách user", HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("getUserDetailById/{id}")]
+    [HttpGet("UserDetail")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> UserDetail(Guid id)
+    public async Task<IActionResult> UserDetail([FromQuery] Request.UserDetailRequest request)
     {
-        var result = await _adminService.UserDetail(id);
+        var result = await _adminService.UserDetail(request);
         return Ok(ApiResponseFactory.SuccessResponse
-            (result, $"Thông tin chi tiết của user {id}",  HttpContext.TraceIdentifier));
+            (result, $"Thông tin chi tiết của user {request}",  HttpContext.TraceIdentifier));
     }
     
     [HttpGet("GetOwnerRequest")]
@@ -112,9 +111,9 @@ public class AdminController: ControllerBase
     }
     [HttpGet("GetWallet")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> GetWallet(string email)
+    public async Task<IActionResult> GetWallet([FromQuery]Request.GetWalletRequest request)
     {
-        var result = await _adminService.GetWallet(email);
+        var result = await _adminService.GetWallet(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Thông tin ví của user", HttpContext.TraceIdentifier));
     }
 }

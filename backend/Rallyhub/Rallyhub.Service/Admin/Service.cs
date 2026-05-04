@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Ocsp;
 using Quartz.Util;
 using Rallyhub.Repository;
 using Rallyhub.Service.MailService;
@@ -18,26 +19,26 @@ public class Service: IService
     }
 
     public async Task<Base.Response.PageResult<Response.UserDto>>
-        FilterUser(string? search, Guid? id, Enum.Enum.Role? role, Enum.Enum.StatusUsers? status, int pageIndex, int pageSize)
+        FilterUser(Request.FilterUserRequest request)
     {
-        var getAllUser = _dbContext.Users.Where(x => true);
+        var getAllUser = _dbContext.Users.Where(x => x.Role != Enum.Enum.Role.Admin.ToString());
 
-        if (!string.IsNullOrWhiteSpace(search))
+        if (!string.IsNullOrWhiteSpace(request.Search))
         {
-            getAllUser = getAllUser.Where(x => x.Email.Contains(search) ||
-                                               (x.PhoneNumber != null && x.PhoneNumber.Contains(search)));
+            getAllUser = getAllUser.Where(x => x.Email.Contains(request.Search) ||
+                                               (x.PhoneNumber != null && x.PhoneNumber.Contains(request.Search)));
         }
-        if (id.HasValue)
+        if (request.Id.HasValue)
         {
-            getAllUser = getAllUser.Where(x => x.Id == id);
+            getAllUser = getAllUser.Where(x => x.Id == request.Id);
         }
-        if (role.HasValue)
+        if (request.Role.HasValue)
         {
-            getAllUser = getAllUser.Where(x => x.Role == role.ToString());
+            getAllUser = getAllUser.Where(x => x.Role == request.Role.ToString());
         }
-        if (status.HasValue)
+        if (request.Status.HasValue)
         {
-            getAllUser = getAllUser.Where(x => x.Status == status.ToString());
+            getAllUser = getAllUser.Where(x => x.Status == request.Status.ToString());
         }
         var toTalItems = await getAllUser.CountAsync();
         if (toTalItems < 1)
@@ -45,13 +46,13 @@ public class Service: IService
             return new Base.Response.PageResult<Response.UserDto>()
             {
                 Items = [],
-                PageIndex = pageIndex,
-                PageSize = pageSize,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize,
                 TotalItems = toTalItems,
             };
         }
         var sortName = getAllUser.OrderBy(x => x.FirstName);
-        var pagedQuery = sortName.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+        var pagedQuery = sortName.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
         var selectQuery = pagedQuery.Select(x => new Response.UserDto()
         {
             Id  = x.Id,
@@ -60,24 +61,25 @@ public class Service: IService
             FirstName =  x.FirstName,
             LastName =  x.LastName,
             PhoneNumber = x.PhoneNumber,
+            AvatarUrl = x.AvatarUrl,
             Status = x.Status,
         });
         var listResult = await selectQuery.ToListAsync();
         var result = new Base.Response.PageResult<Response.UserDto>()
         {
             Items = listResult,
-            PageIndex = pageIndex,
-            PageSize = pageSize,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize,
             TotalItems = toTalItems,
         };
         return result;
     }
 
-    public async Task<Response.UserDto> UserDetail(Guid id)
+    public async Task<Response.UserDto> UserDetail(Request.UserDetailRequest request)
     {
         var user = await _dbContext.Users
             .Include(x => x.Customer)
-            .Include(x => x.Owner).FirstOrDefaultAsync(x => x.Id == id);
+            .Include(x => x.Owner).FirstOrDefaultAsync(x => x.Id == request.Id);
         if (user == null)
         {
             throw new Exception("user không tồn tại");
@@ -105,6 +107,7 @@ public class Service: IService
                 FirstName =  user.FirstName,
                 LastName =  user.LastName,
                 PhoneNumber = user.PhoneNumber,
+                AvatarUrl = user.AvatarUrl,
                 Status = user.Status,
                 Bookings = resultBookingDto
             };
@@ -136,6 +139,7 @@ public class Service: IService
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = user.PhoneNumber,
+                AvatarUrl = user.AvatarUrl,
                 Status = user.Status,
                 BusinessAddress = user.Owner.BusinessAddress,
                 BusinessName = user.Owner.BusinessName,
@@ -635,13 +639,13 @@ public class Service: IService
             ImageUrl = request.ImageUrl
         };
     }
-    public async Task<Response.GetWalletResponse> GetWallet(string email)
+    public async Task<Response.GetWalletResponse> GetWallet(Request.GetWalletRequest request)
     {
-        if(email == null || email == "")
+        if(request.Email == null || request.Email == "")
         {
             throw new Exception("Email không hợp lệ");
         }
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == email);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Email == request.Email);
         if (user == null)
         {
             throw new Exception("User không tồn tại");
@@ -658,6 +662,5 @@ public class Service: IService
             BankAccount = wallet.BankAccount,
             Balance = wallet.Balance,
         };
-        
     }
 }

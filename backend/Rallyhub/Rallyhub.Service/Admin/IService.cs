@@ -8,8 +8,8 @@ public interface IService
      UserMethod
      */
     public Task<Base.Response.PageResult<Response.UserDto>>
-        FilterUser(string? search, Guid? id, Enum.Enum.Role? role, Enum.Enum.StatusUsers? status, int pageIndex, int pageSize);
-    public Task<Response.UserDto> UserDetail(Guid id);
+        FilterUser(Request.FilterUserRequest request);
+    public Task<Response.UserDto> UserDetail(Request.UserDetailRequest request);
     public Task<Base.Response.PageResult<Response.AdminGetOwnerRequestResponse>> AdminGetOwnerRequest(Base.Request.Pagination request);
     public Task<string> AdminAcceptOwnerRequest(Guid ownerRequestId);
     public Task<string> AdminRejectOwnerRequest(Guid ownerRequestId, string? rejectReason);
@@ -22,7 +22,7 @@ public interface IService
 
     public Task<Response.RefundResponse> Refund(Request.RefundRequest request);
 
-    public Task<Response.GetWalletResponse> GetWallet(string email);
+    public Task<Response.GetWalletResponse> GetWallet(Request.GetWalletRequest request);
     /*
      CourtMethod
      */
