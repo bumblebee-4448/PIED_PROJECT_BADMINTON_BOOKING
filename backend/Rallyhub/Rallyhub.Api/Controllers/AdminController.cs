@@ -20,20 +20,21 @@ public class AdminController: ControllerBase
 
     [HttpGet("FilterUser")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> FilterUser([FromQuery]Request.FilterUserRequest request)
+    public async Task<IActionResult> FilterUser
+        ([FromQuery]Request.FilterUserRequest request)
     {
         var result = await _adminService.FilterUser(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
             (result, "Danh sách user", HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("UserDetail")]
+    [HttpGet("getUserDetailById")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> UserDetail([FromQuery] Request.UserDetailRequest request)
+    public async Task<IActionResult> UserDetail([FromQuery]Request.UserDetailRequest  request)
     {
         var result = await _adminService.UserDetail(request);
         return Ok(ApiResponseFactory.SuccessResponse
-            (result, $"Thông tin chi tiết của user {request}",  HttpContext.TraceIdentifier));
+            (result, $"Thông tin chi tiết của user",  HttpContext.TraceIdentifier));
     }
     
     [HttpGet("GetOwnerRequest")]
@@ -71,7 +72,7 @@ public class AdminController: ControllerBase
     }
     [HttpPatch("BanAndUnbanUser")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> BanAndUnbanUser(Service.Admin.Request.UpdateStatusUserResponse request)
+    public async Task<IActionResult> BanAndUnbanUser(Service.Admin.Request.BanAndUnbanUserRequest request)
     {
         await _adminService.BanAndUnbanUser(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
@@ -121,6 +122,6 @@ public class AdminController: ControllerBase
     public async Task<IActionResult> GetBookingDetailStatusRefundPending()
     {
         var result = await _adminService.GetBookingDetailStatusRefundPending();
-        return Ok(ApiResponseFactory.SuccessResponse(result, "Danh sách booking detail refund pending", HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Thông tin ví của user", HttpContext.TraceIdentifier));
     }
 }

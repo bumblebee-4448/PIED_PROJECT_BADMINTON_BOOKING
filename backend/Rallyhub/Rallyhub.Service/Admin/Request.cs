@@ -2,7 +2,7 @@
 
 public class Request
 {
-    public class UpdateStatusUserResponse
+    public class BanAndUnbanUserRequest
     {
         public Guid Id  { get; set; }
         public string Status { get; set; }

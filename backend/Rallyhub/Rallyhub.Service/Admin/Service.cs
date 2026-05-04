@@ -273,7 +273,7 @@ public class Service: IService
         _dbContext.Courts.Remove(court);
         await _dbContext.SaveChangesAsync();
     }
-    public async Task BanAndUnbanUser(Request.UpdateStatusUserResponse request)
+    public async Task BanAndUnbanUser(Request.BanAndUnbanUserRequest request)
     {
         if (request.Status != Enum.Enum.StatusUsers.Banned.ToString() && 
             request.Status != Enum.Enum.StatusUsers.Active.ToString())
