@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
-import { DISTRICTS, LEVELS } from "../constants";
 import type { ProfileSchema } from "../schema";
 import { Button } from "@/shared/components/ui/button";
 
@@ -10,8 +9,6 @@ interface ProfileFormProps {
     lastName: string;
     email: string;
     phoneNumber: string;
-    location: string;
-    level: string;
     avartarUrl?: string | null;
   };
   onSave: (data: ProfileSchema) => void;
@@ -23,8 +20,6 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
   const [lastName, setLastName] = useState(initialData.lastName);
   const [email, setEmail] = useState(initialData.email);
   const [phoneNumber, setPhoneNumber] = useState(initialData.phoneNumber);
-  const [location, setLocation] = useState(initialData.location);
-  const [level, setLevel] = useState(initialData.level);
   const [saved, setSaved] = useState(false);
 
   // Cập nhật state khi initialData thay đổi (ví dụ khi mock data được load)
@@ -33,8 +28,6 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
     setLastName(initialData.lastName);
     setEmail(initialData.email);
     setPhoneNumber(initialData.phoneNumber);
-    setLocation(initialData.location);
-    setLevel(initialData.level);
   }, [initialData]);
 
   const handleSubmit = () => {
@@ -43,8 +36,6 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
       lastName,
       email,
       phoneNumber,
-      preferredLocation: location,
-      level,
       avartarUrl: initialData.avartarUrl,
     });
     setSaved(true);

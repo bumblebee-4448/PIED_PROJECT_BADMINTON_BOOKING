@@ -37,9 +37,7 @@ export function ProfilePage() {
 
   const initials = user.firstName && user.lastName
     ? `${user.lastName[0]}${user.firstName[0]}`
-    : user.fullName
-    ? user.fullName.split(" ").map((n) => n[0]).slice(-2).join("")
-    : "U";
+    : user.firstName ? user.firstName[0] : "U";
 
   const handleLogout = () => {
     logout();
@@ -77,8 +75,6 @@ export function ProfilePage() {
           lastName: user.lastName || "",
           email: user.email || "",
           phoneNumber: user.phoneNumber || "",
-          location: user.preferredLocation || "Tân Bình",
-          level: user.level || "intermediate",
           avartarUrl: user.avartarUrl,
         }}
         onSave={updateProfile}

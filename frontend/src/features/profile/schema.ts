@@ -5,8 +5,6 @@ export const profileSchema = z.object({
   lastName: z.string().min(1, "Họ không được để trống"),
   email: z.string().email("Email không hợp lệ"),
   phoneNumber: z.string().regex(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
-  preferredLocation: z.string().min(1, "Vui lòng chọn khu vực"),
-  level: z.string().min(1, "Vui lòng chọn trình độ"),
   avartarUrl: z.string().nullable().optional(),
 });
 

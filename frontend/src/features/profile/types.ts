@@ -5,12 +5,9 @@ export interface User {
   email: string;
   firstName: string;
   lastName: string;
-  fullName?: string;
   phoneNumber: string;
   avartarUrl?: string | null;
   role: UserRole;
-  preferredLocation?: string;
-  level?: string;
   isOwner?: boolean;
 }
 
@@ -19,8 +16,6 @@ export interface ProfileUpdateInput {
   lastName: string;
   email: string;
   phoneNumber: string;
-  preferredLocation: string;
-  level: string;
   avartarUrl?: string | null;
 }
 
