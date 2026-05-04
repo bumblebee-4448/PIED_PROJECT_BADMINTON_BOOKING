@@ -12,7 +12,7 @@ export interface BookingHistoryItem {
   price: number;
   status: BookingStatus;
   createdAt: string; // Order Date
-  
+
   // Potential fields for UI polish
   courtImageUrl?: string;
   rating?: number;
@@ -26,16 +26,14 @@ export interface BookingHistoryResponse {
   pageSize: number;
 }
 
-export interface CheckCancelRequest {
-  bookingDetailId: string;
-}
-
 export interface CheckCancelResponse {
   success: boolean;
   message: string;
   data: boolean; // True if can cancel
 }
 
-export interface CancelBookingRequest {
-  bookingDetailId: string;
-}
+// ─── UI-specific types ───────────────────────────────────
+export type FilterStatus = "all" | "ongoing" | "completed" | "cancelled";
+
+// ─── Constants ───────────────────────────────────────────
+export const DEFAULT_PAGE_SIZE = 10;

@@ -119,19 +119,23 @@ export function BookingCard({ booking, onCancelClick, onViewDetail }: BookingCar
 
           <div className="flex items-center gap-4 w-full md:w-auto">
             {booking.status === "Banked" && (
-              <button 
+              <Button
+                variant="ghost"
                 onClick={() => onCancelClick?.(booking.id)}
-                className="flex-1 md:flex-none text-red-500 font-bold text-sm hover:text-red-600 transition-colors px-4"
+                className="flex-1 md:flex-none text-red-500 font-bold text-sm hover:text-red-600 hover:bg-red-50 transition-colors px-4 rounded-2xl"
               >
                 Hủy đặt sân
-              </button>
+              </Button>
             )}
             
             {booking.status === "Complete" && (
-              <button className="flex-1 md:flex-none flex items-center justify-center gap-2 text-gray-500 font-bold text-sm hover:text-gray-700 transition-colors px-4">
+              <Button
+                variant="ghost"
+                className="flex-1 md:flex-none flex items-center justify-center gap-2 text-gray-500 font-bold text-sm hover:text-gray-700 hover:bg-gray-100 transition-colors px-4 rounded-2xl"
+              >
                 <Flag size={14} />
                 Báo cáo
-              </button>
+              </Button>
             )}
 
             <Button 

@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
-
-export type FilterStatus = "all" | "ongoing" | "completed" | "cancelled";
+import type { FilterStatus } from "../types";
 
 interface BookingFiltersProps {
   activeStatus: FilterStatus;

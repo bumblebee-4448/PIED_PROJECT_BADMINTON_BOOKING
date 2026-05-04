@@ -1,8 +1,9 @@
 import React from "react";
-import { BookingFilters, type FilterStatus } from "../components/BookingFilters";
+import { BookingFilters } from "../components/BookingFilters";
 import { BookingCard } from "../components/BookingCard";
 import { CancelBookingDialog } from "../components/CancelBookingDialog";
-import { useBookings } from "../hooks";
+import { useBookings } from "../hooks/useBookings";
+import { useFilteredBookings } from "../hooks/useFilteredBookings";
 import { Loader2, ClipboardList } from "lucide-react";
 import { 
   Pagination, 
@@ -13,35 +14,22 @@ import {
   PaginationPrevious 
 } from "@/shared/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { DEFAULT_PAGE_SIZE, type FilterStatus } from "../types";
 
 export function BookingHistoryPage() {
   const [pageIndex, setPageIndex] = React.useState(1);
   const [activeStatus, setActiveStatus] = React.useState<FilterStatus>("all");
   const [cancellingId, setCancellingId] = React.useState<string | null>(null);
 
-  const { data, isLoading, isError } = useBookings(pageIndex, 10);
+  const { data, isLoading, isError } = useBookings(pageIndex, DEFAULT_PAGE_SIZE);
+  const { filteredItems, counts } = useFilteredBookings(data, activeStatus);
 
   const handleStatusChange = (status: FilterStatus) => {
     setActiveStatus(status);
     setPageIndex(1); // Reset to first page on filter change
   };
 
-  // Logic to filter data locally if backend doesn't support status filter yet
-  // In a real app, status should be passed to useBookings hook
-  const filteredItems = React.useMemo(() => {
-    if (!data?.items) return [];
-    
-    switch (activeStatus) {
-      case "ongoing":
-        return data.items.filter(item => item.status === "Banked");
-      case "completed":
-        return data.items.filter(item => item.status === "Complete");
-      case "cancelled":
-        return data.items.filter(item => ["Cancel", "Cancelled", "RefundPending"].includes(item.status));
-      default:
-        return data.items;
-    }
-  }, [data, activeStatus]);
+  const totalPages = data ? Math.ceil(data.totalItems / DEFAULT_PAGE_SIZE) : 0;
 
   if (isLoading) {
     return (
@@ -86,12 +74,7 @@ export function BookingHistoryPage() {
         <BookingFilters 
           activeStatus={activeStatus} 
           onStatusChange={handleStatusChange}
-          counts={{
-            all: data?.totalItems || 0,
-            ongoing: data?.items.filter(i => i.status === "Banked").length || 0,
-            completed: data?.items.filter(i => i.status === "Complete").length || 0,
-            cancelled: data?.items.filter(i => ["Cancel", "Cancelled", "RefundPending"].includes(i.status)).length || 0,
-          }}
+          counts={counts}
         />
 
         {/* Booking List */}
@@ -118,7 +101,7 @@ export function BookingHistoryPage() {
         </div>
 
         {/* Pagination */}
-        {data && data.totalItems > 10 && (
+        {totalPages > 1 && (
           <div className="mt-12">
             <Pagination>
               <PaginationContent>
@@ -129,7 +112,7 @@ export function BookingHistoryPage() {
                   />
                 </PaginationItem>
                 
-                {Array.from({ length: Math.ceil(data.totalItems / 10) }).map((_, i) => (
+                {Array.from({ length: totalPages }).map((_, i) => (
                   <PaginationItem key={i}>
                     <PaginationLink 
                       isActive={pageIndex === i + 1}
@@ -144,7 +127,7 @@ export function BookingHistoryPage() {
                 <PaginationItem>
                   <PaginationNext 
                     onClick={() => setPageIndex(p => p + 1)}
-                    className={cn("cursor-pointer", pageIndex >= Math.ceil(data.totalItems / 10) && "pointer-events-none opacity-50")}
+                    className={cn("cursor-pointer", pageIndex >= totalPages && "pointer-events-none opacity-50")}
                   />
                 </PaginationItem>
               </PaginationContent>

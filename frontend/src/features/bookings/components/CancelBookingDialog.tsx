@@ -1,4 +1,3 @@
-import React from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -9,7 +8,8 @@ import {
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
-import { useCheckCancel, useCancelBooking } from "../hooks";
+import { useCheckCancel } from "../hooks/useCheckCancel";
+import { useCancelBooking } from "../hooks/useCancelBooking";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -20,14 +20,10 @@ interface CancelBookingDialogProps {
 }
 
 export function CancelBookingDialog({ bookingId, isOpen, onClose }: CancelBookingDialogProps) {
-  const { mutate: checkCancel, data: checkData, isPending: isChecking } = useCheckCancel();
+  // useCheckCancel giờ là query — tự động fetch khi bookingId có giá trị
+  // Không cần useEffect nữa
+  const { data: checkData, isLoading: isChecking } = useCheckCancel(isOpen ? bookingId : null);
   const { mutate: cancelBooking, isPending: isCancelling } = useCancelBooking();
-
-  React.useEffect(() => {
-    if (isOpen && bookingId) {
-      checkCancel(bookingId);
-    }
-  }, [isOpen, bookingId, checkCancel]);
 
   const handleConfirm = () => {
     if (!bookingId) return;
