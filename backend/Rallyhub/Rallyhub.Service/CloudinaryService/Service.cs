@@ -37,7 +37,10 @@ public class Service : IService
         await using var stream = file.OpenReadStream();
         var uploadParams = new ImageUploadParams()
         {
-            File = new FileDescription(file.FileName, stream)
+            File = new FileDescription(file.FileName, stream),
+            Folder = "Rallyhub",
+            UseFilename = true,
+            UniqueFilename = true
         };
         var uploadResult = await _cloudinary.UploadAsync(uploadParams);
         return uploadResult.SecureUrl.ToString();
