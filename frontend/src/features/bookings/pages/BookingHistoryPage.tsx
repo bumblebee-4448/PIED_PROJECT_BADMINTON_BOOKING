@@ -12,6 +12,7 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from "@/shared/components/ui/pagination";
+import { cn } from "@/lib/utils";
 
 export function BookingHistoryPage() {
   const [pageIndex, setPageIndex] = React.useState(1);
@@ -160,8 +161,4 @@ export function BookingHistoryPage() {
       />
     </div>
   );
-}
-
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
 }

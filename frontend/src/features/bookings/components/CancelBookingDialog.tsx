@@ -11,6 +11,7 @@ import { Button } from "@/shared/components/ui/button";
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { useCheckCancel, useCancelBooking } from "../hooks";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface CancelBookingDialogProps {
   bookingId: string | null;
@@ -103,9 +104,4 @@ export function CancelBookingDialog({ bookingId, isOpen, onClose }: CancelBookin
       </DialogContent>
     </Dialog>
   );
-}
-
-// Shorthand for cn if not available in this scope (it is in the project though)
-function cn(...inputs: any[]) {
-  return inputs.filter(Boolean).join(" ");
 }
