@@ -8,6 +8,7 @@ public class Court : BaseEntity<Guid>, IAuditableEntity
     public required string Address { get; set; }
     public required TimeOnly OpenTime  { get; set; }
     public required TimeOnly CloseTime { get; set; }
+    public int? TimeRefundBefor { get; set; } = 120;
     public string Status { get; set; } = "Active";//"Pending", "InActive"
     
     public required decimal Latitude { get; set; } //vĩ độ (10, 8)
