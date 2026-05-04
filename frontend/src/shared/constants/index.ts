@@ -52,6 +52,9 @@ export const API_ENDPOINTS = {
     GET_ALL_LIKE_LIST: "/api/Customer/GetAllLikeList",
     ADD_COURT_LIKE: "/api/Customer/AddCourtLikeList",
     DELETE_COURT_LIKE: "/api/Customer/DeleteCourtLikeList",
+    GET_ALL_BOOKING: "/api/Customer/GetAllBooking",
+    CHECK_CANCEL_BOOKING: "/api/Customer/CheckCancelBooking",
+    CANCEL_BOOKING: "/api/Customer/CancelBooking",
   },
 } as const;
 
@@ -65,6 +68,7 @@ export const QUERY_KEYS = {
   RITUAL_DETAIL: (id: string) => ["ritual", id] as const, // Chi tiết 1 ritual
   RITUAL_CATEGORIES: ["ritual-categories"] as const, // Danh sách categories
   FAVORITES: ["favorites"] as const, // Danh sách sân yêu thích
+  BOOKINGS: ["bookings"] as const, // Danh sách lịch sử đặt sân
 } as const;
 
 /**

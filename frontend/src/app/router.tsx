@@ -16,6 +16,7 @@ import { FavoritesPage } from "@/features/favorites";
 import { AdminLayout } from "@/shared/layouts/AdminLayout";
 import { AdminDashboard, OwnerDashboard } from "@/features/dashboard";
 import { CourtSearchPage } from "@/features/courts";
+import { BookingHistoryPage } from "@/features/bookings";
 
 /**
  * React Router v6 config – createBrowserRouter (Data API).
@@ -80,6 +81,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <FavoritesPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "history",
+        element: (
+          <ProtectedRoute>
+            <BookingHistoryPage />
           </ProtectedRoute>
         ),
       },
