@@ -21,4 +21,21 @@ public class Request
         public int PageSize { get; set; } = 10;
         public int PageIndex { get; set; } = 1;
     }
+
+    public class CancelBooking
+    {
+        public Guid? BookingDetailId  { get; set; }
+    }
+
+    public class AddCourtLikeListRequest
+    {
+        public Guid CourtId  { get; set; }
+        public string CourtName  { get; set; }
+        public string CourtAddress   { get; set; }
+    }
+    public class DeteleCourtLikeListRequest
+    {
+        public Guid CourtId  { get; set; }
+    }
+    
 }

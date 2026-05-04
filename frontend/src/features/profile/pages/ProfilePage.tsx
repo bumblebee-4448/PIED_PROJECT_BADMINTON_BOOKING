@@ -35,8 +35,8 @@ export function ProfilePage() {
     );
   }
 
-  const initials = user.name
-    ? user.name.split(" ").map((n) => n[0]).slice(-2).join("")
+  const initials = user.fullName
+    ? user.fullName.split(" ").map((n) => n[0]).slice(-2).join("")
     : "U";
 
   const handleLogout = () => {
@@ -71,7 +71,7 @@ export function ProfilePage() {
       {/* Basic info form */}
       <ProfileForm
         initialData={{
-          name: user.name || "",
+          fullName: user.fullName || "",
           email: user.email || "",
           phone: user.phone || "",
           location: (user as any).preferredLocation || "Tân Bình",

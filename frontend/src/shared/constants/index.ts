@@ -19,8 +19,8 @@ export const API_ENDPOINTS = {
    * - PROFILE: Update profile user hiện tại
    */
   USER: {
-    ME: "/user/me",
-    PROFILE: "/user/profile",
+    ME: "/User/Me",
+    PROFILE: "/User/Profile",
   },
   /**
    * Ritual endpoints - Dùng với BaseService (rituals/services.ts).

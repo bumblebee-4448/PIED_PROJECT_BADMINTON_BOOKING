@@ -40,4 +40,12 @@ public class Enum
         Rejected,
         Pending
     }
+
+    public enum StatusBookingDetails
+    {
+        Pending,
+        Cancelled,
+        Refunded,
+        RefundPending
+    }
 }

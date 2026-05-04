@@ -4,6 +4,7 @@ using Rallyhub.Api.Extention;
 using Rallyhub.Repository;
 using Rallyhub.Service.Admin;
 using Rallyhub.Service.Models;
+using Enum = Rallyhub.Service.Enum.Enum;
 
 namespace Rallyhub.Api.Controllers;
 [ApiController]
@@ -19,14 +20,15 @@ public class AdminController: ControllerBase
 
     [HttpGet("getAllUser")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> FilterUser(string? search, int pageIndex, int pageSize, Guid? id, Service.Enum.Enum.Role? role, Service.Enum.Enum.StatusUsers? status)
+    public async Task<IActionResult> FilterUser
+        (string? search, Guid? id, Enum.Role? role, Enum.StatusUsers? status, int pageIndex = 1, int pageSize = 10)
     {
-        var result = await _adminService.FilterUser(search, pageIndex, pageSize, id, role, status);
+        var result = await _adminService.FilterUser(search, id, role, status, pageIndex, pageSize);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
             (result, "Danh sách user", HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("getUserById/{id}")]
+    [HttpGet("getUserDetailById/{id}")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> UserDetail(Guid id)
     {
@@ -99,5 +101,20 @@ public class AdminController: ControllerBase
         await _adminService.ApprovePendingCourt(courtId);  
         return Ok(ApiResponseFactory.SuccessResponse( "","Duyệt sân thành công"   
             , HttpContext.TraceIdentifier));  
+    }
+
+    [HttpPatch("Refund")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    public async Task<IActionResult> Refund(Request.RefundRequest request)
+    {
+        var result = await _adminService.Refund(request);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Refund Success", HttpContext.TraceIdentifier));
+    }
+    [HttpGet("GetWallet")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    public async Task<IActionResult> GetWallet(string email)
+    {
+        var result = await _adminService.GetWallet(email);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Thông tin ví của user", HttpContext.TraceIdentifier));
     }
 }

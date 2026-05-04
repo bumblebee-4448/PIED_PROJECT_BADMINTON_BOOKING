@@ -22,7 +22,10 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       isLoginPromptOpen: false,
       setAuth: (accessToken, role, user) => set({ accessToken, role, user }),
-      logout: () => set({ accessToken: null, role: null, user: null }),
+      logout: () => {
+        set({ accessToken: null, role: null, user: null });
+        localStorage.removeItem('auth-storage'); // Xóa sạch key khỏi LS
+      },
       setLoginPromptOpen: (open) => set({ isLoginPromptOpen: open }),
     }),
     {

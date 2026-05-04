@@ -17,7 +17,7 @@ import { Button } from "@/shared/components/ui/button";
 export function UserProfileCard() {
   const [isOpen, setIsOpen] = useState(false);
   const { accessToken, user, role } = useAuthStore();
-  const { mutate: logout, isPending } = useLogout();
+  const { mutate: logout, isLoading } = useLogout();
 
   if (!accessToken || !user) return null;
 
@@ -33,8 +33,10 @@ export function UserProfileCard() {
         <div className="p-5">
           {/* User Header */}
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#004E43] to-[#00CE98] flex items-center justify-center text-white shadow-inner">
-              {user.fullName ? (
+            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#004E43] to-[#00CE98] flex items-center justify-center text-white shadow-inner overflow-hidden">
+              {user.avatar ? (
+                <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+              ) : user.fullName ? (
                 <span className="text-lg font-bold">{user.fullName.charAt(0).toUpperCase()}</span>
               ) : (
                 <User size={24} />
@@ -74,11 +76,11 @@ export function UserProfileCard() {
             <Button 
               variant="ghost" 
               onClick={() => logout()}
-              disabled={isPending}
+              disabled={isLoading}
               className="w-full justify-start gap-3 rounded-xl hover:bg-red-50 text-red-500 font-bold h-10 px-3"
             >
               <LogOut size={18} />
-              <span>{isPending ? "Đang xử lý..." : "Đăng xuất"}</span>
+              <span>{isLoading ? "Đang xử lý..." : "Đăng xuất"}</span>
             </Button>
           </div>
         </div>
@@ -95,8 +97,12 @@ export function UserProfileCard() {
             : "bg-white text-[#091E1B] shadow-gray-200 hover:bg-gray-50"
         )}
       >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#004E43] to-[#00CE98] flex items-center justify-center text-white group-hover:scale-110 transition-transform">
-           <span className="text-xs font-black">{user.fullName?.charAt(0).toUpperCase() || "U"}</span>
+        <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#004E43] to-[#00CE98] flex items-center justify-center text-white group-hover:scale-110 transition-transform overflow-hidden">
+           {user.avatar ? (
+             <img src={user.avatar} alt="avatar" className="w-full h-full object-cover" />
+           ) : (
+             <span className="text-xs font-black">{user.fullName?.charAt(0).toUpperCase() || "U"}</span>
+           )}
         </div>
         
         <span className="font-bold text-sm">Tài khoản</span>

@@ -80,4 +80,17 @@ public class Response
         public Guid OwnerId { get; set; }  
         public string Reason { get; set; } = null!;  
     }
+
+    public class RefundResponse
+    {
+        public string Message { get; set; }
+        public string ImageUrl  { get; set; }
+    }
+
+    public class GetWalletResponse
+    {
+        public required string BankName  { get; set; }
+        public required string BankAccount { get; set; }
+        public decimal Balance { get; set; }
+    }
 }

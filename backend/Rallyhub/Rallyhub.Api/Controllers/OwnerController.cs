@@ -32,6 +32,83 @@ public class OwnerController : ControllerBase
         var result = await _ownerService.GetAllCourts(request);  
         return Ok(ApiResponseFactory.SuccessResponse( result,"Danh sách tất cả các sân"   
             , HttpContext.TraceIdentifier));  
+    }   
+    
+    [HttpPost("CreateSubCourt")]  
+    public async Task<IActionResult> CreateSubCourt(Request.CreateSubCourtRequest request)  
+    {  
+        var result = await _ownerService.CreateSubCourt(request);  
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo sân con thành công"   
+            , HttpContext.TraceIdentifier));  
+    } 
+    
+    [HttpGet("GetMySubCourts")] 
+    public async Task<IActionResult> GetMySubCourts([FromQuery] Request.GetMySubCourtsRequest request)  
+    {  
+        var result = await _ownerService.GetMySubCourts(request);  
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Lấy thành công danh sách sân con"   
+            , HttpContext.TraceIdentifier));  
+    } 
+    
+    [HttpPost("CreateConfigSlot")]  
+    public async Task<IActionResult> CreateConfigSlot(Request.CreateConfigSlotRequest request)  
+    {  
+        var result = await _ownerService.CreateConfigSlot(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Cấu hình các slot thành công"   
+            , HttpContext.TraceIdentifier));  
+    } 
+    
+    [HttpGet("GetConfigSlotBySubCourtId")]  
+    public async Task<IActionResult> GetConfigSlotBySubCourtId(Guid subCourtId)  
+    {  
+        var result = await _ownerService.GetConfigSlotBySubCourtId(subCourtId); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Lấy thành công danh sách các slots"   
+            , HttpContext.TraceIdentifier));  
+    }
+    
+    [HttpPost("CreateOverrideSlot")]  
+    public async Task<IActionResult> CreateOverrideSlot(Request.CreateOverrideSlotRequest request)  
+    {  
+        var result = await _ownerService.CreateOverrideSlot(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Gọp slot thành công"   
+            , HttpContext.TraceIdentifier));  
     }
 
+    [HttpGet("GetOverrideSlotBySubCourtId")]  
+    public async Task<IActionResult> GetOverrideSlotBySubCourtId(Guid subCourtId)  
+    {  
+        var result = await _ownerService.GetOverrideSlotBySubCourtId(subCourtId); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Lấy thành công danh sách overrideslot"   
+            , HttpContext.TraceIdentifier));  
+    }
+    
+    [HttpPost("CreateExceptionSlot")]  
+    public async Task<IActionResult> CreateExceptionSlot(Request.CreateExceptionSlotRequest request)  
+    {  
+        var result = await _ownerService.CreateExceptionSlot(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo thành công exception slot"   
+            , HttpContext.TraceIdentifier));  
+    }
+    [HttpGet("GetExceptionSlotBySubCourtId")]  
+    public async Task<IActionResult> GetExceptionSlotResponse(Guid subCourtId)  
+    {  
+        var result = await _ownerService.GetExceptionSlotBySubCourtId(subCourtId); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Tạo thành công exception slot"   
+            , HttpContext.TraceIdentifier));  
+    }
+    [HttpGet("GetSetupSlotsBySubCourtId")]  
+    public async Task<IActionResult> GetSetupSlots(Guid subCourtId)  
+    {  
+        var result = await _ownerService.GetSetupSlots(subCourtId); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Xem toàn bộ cấu hình slot thành công"   
+            , HttpContext.TraceIdentifier));  
+    }
+    
+    [HttpGet("GetAvailableSlots")]  
+    public async Task<IActionResult> GetAvailableSlots([FromQuery]Request.GetAvailableSlotsRequest request)  
+    {  
+        var result = await _ownerService.GetAvailableSlots(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Lấy slot đang trống thành công"   
+            , HttpContext.TraceIdentifier));  
+    }
 }
