@@ -6,8 +6,8 @@ using Rallyhub.Service.Owner;
 
 namespace Rallyhub.Api.Controllers;
 
-[Authorize]
 [ApiController]
+[Authorize(Policy = JwtExtensions.OwnerPolicy)]
 [Route("api/[controller]")]
 public class OwnerController : ControllerBase
 {
@@ -26,11 +26,11 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }  
   
-    [HttpGet("GetMyCourts")]  
+    [HttpGet("GetPendingCourts")]  
     public async Task<IActionResult> GetAllCourts([FromQuery] Request.GetMyCourtsRequest request)  
     {  
-        var result = await _ownerService.GetAllCourts(request);  
-        return Ok(ApiResponseFactory.SuccessResponse( result,"Danh sách tất cả các sân"   
+        var result = await _ownerService.GetPendingCourts(request);  
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Xem danh sách các sân đã đăng kí thành công"   
             , HttpContext.TraceIdentifier));  
     }   
     
@@ -51,7 +51,7 @@ public class OwnerController : ControllerBase
     } 
     
     [HttpPost("CreateConfigSlot")]  
-    public async Task<IActionResult> CreateConfigSlot(Request.CreateConfigSlotRequest request)  
+    public async Task<IActionResult> CreateConfigSlot([FromBody] Request.CreateConfigSlotRequest request)  
     {  
         var result = await _ownerService.CreateConfigSlot(request); 
         return Ok(ApiResponseFactory.SuccessResponse( result,"Cấu hình các slot thành công"   
