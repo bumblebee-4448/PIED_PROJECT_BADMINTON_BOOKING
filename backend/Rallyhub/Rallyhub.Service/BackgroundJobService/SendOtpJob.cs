@@ -21,7 +21,7 @@ public class SendOtpJob : IJob
         string htmlBody = MailTemplate.GenerateOtpTemplate(email, otpCode);
 
         // 3. Đưa cho MailService đi gửi
-        await _mailService.SendMail(new MailContent 
+        await _mailService.SendMail(new MailContent()
         {
             To = email,
             Subject = "Mã xác thực tài khoản RallyHub",
