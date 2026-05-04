@@ -16,10 +16,18 @@ public class CourtController: ControllerBase
         _courtService = courtService;
     }
 
-    [HttpGet("")]
+    [HttpGet("GetByFilters")]
     public async Task<IActionResult> GetCourtsByFilter([FromQuery] Request.SearchByFilterRequest request)
     {
         var result = await _courtService.SearchByFilter(request);
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
+            , HttpContext.TraceIdentifier));
+    }
+    
+    [HttpGet("GetById")]
+    public async Task<IActionResult> GetCourtsById([FromQuery] Guid courtId)
+    {
+        var result = await _courtService.GetCourtsById(courtId);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }

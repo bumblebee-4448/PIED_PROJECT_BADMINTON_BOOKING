@@ -38,7 +38,8 @@ public class Enum
     {
         Approved,
         Rejected,
-        Pending
+        Pending,
+        Active
     }
 
     public enum StatusBookingDetails
