@@ -83,7 +83,6 @@ export function ProfilePage() {
 
       {/* Password change */}
       <PasswordSection
-        phone={user.phoneNumber || ""}
         onUpdate={changePassword}
         isLoading={isChangingPassword}
       />
