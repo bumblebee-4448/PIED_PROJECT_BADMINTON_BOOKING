@@ -10,7 +10,7 @@ export const API_ENDPOINTS = {
     LOGIN: "/User/Login",
     REGISTER: "/User/Register",
     LOGOUT: "/User/Logout",
-    VERIFY_OTP: "/User/Verify-otp",
+    VERIFY_OTP: "/User/VerifyOtp",
     REFRESH: "/User/Refresh", // Placeholder if backend adds it later
   },
   /**
@@ -19,8 +19,8 @@ export const API_ENDPOINTS = {
    * - PROFILE: Update profile user hiện tại
    */
   USER: {
-    ME: "/User/Me",
-    PROFILE: "/User/Profile",
+    ME: "/User/GetMe",
+    PROFILE: "/User/UpdateProfile",
   },
   /**
    * Ritual endpoints - Dùng với BaseService (rituals/services.ts).
