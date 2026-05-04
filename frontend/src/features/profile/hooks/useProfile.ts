@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { profileService } from "../services";
 import { QUERY_KEYS } from "@/shared/constants";
 import { useMe } from "./useMe";
-import type { ProfileSchema, PasswordChangeSchema, OwnerRegistrationSchema } from "../schema";
+import type { ProfileSchema, OwnerRegistrationSchema, ChangePasswordSchema } from "../schema";
 
 export function useProfile() {
   const queryClient = useQueryClient();
@@ -28,12 +28,13 @@ export function useProfile() {
 
   // 2. Mutation đổi mật khẩu
   const changePasswordMutation = useMutation({
-    mutationFn: (data: PasswordChangeSchema) => profileService.changePassword(data),
+    mutationFn: (data: ChangePasswordSchema) => profileService.changePassword(data),
     onSuccess: () => {
       toast.success("Đổi mật khẩu thành công!");
     },
-    onError: () => {
-      toast.error("Đổi mật khẩu thất bại.");
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || "Đổi mật khẩu thất bại.";
+      toast.error(message);
     },
   });
 
