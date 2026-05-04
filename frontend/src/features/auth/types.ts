@@ -1,8 +1,10 @@
 import { z } from "zod";
-import { loginSchema, registerSchema } from "./schema";
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } from "./schema";
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
 export interface User {
   id?: string;

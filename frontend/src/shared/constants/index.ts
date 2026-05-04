@@ -11,6 +11,8 @@ export const API_ENDPOINTS = {
     REGISTER: "/User/Register",
     LOGOUT: "/User/Logout",
     VERIFY_OTP: "/User/VerifyOtp",
+    FORGOT_PASSWORD: "/User/ForgotPassword",
+    RESET_PASSWORD: "/User/ResetPassword",
     REFRESH: "/User/Refresh", // Placeholder if backend adds it later
   },
   /**

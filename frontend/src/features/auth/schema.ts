@@ -26,3 +26,24 @@ export const registerSchema = z.object({
     .string()
     .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự" }),
 });
+
+export const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email không được để trống" })
+    .email({ message: "Email không hợp lệ" }),
+});
+
+export const resetPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, { message: "Email không được để trống" })
+    .email({ message: "Email không hợp lệ" }),
+  otpCode: z
+    .string()
+    .min(6, { message: "Mã OTP phải có 6 ký tự" })
+    .max(6, { message: "Mã OTP phải có 6 ký tự" }),
+  newPassword: z
+    .string()
+    .min(6, { message: "Mật khẩu mới phải có ít nhất 6 ký tự" }),
+});
