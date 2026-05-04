@@ -45,6 +45,14 @@ export const API_ENDPOINTS = {
   RITUAL_CATEGORY: {
     BASE: "/ritual-category",
   },
+  /**
+   * Customer endpoints - Quản lý sân yêu thích.
+   */
+  CUSTOMER: {
+    GET_ALL_LIKE_LIST: "/api/Customer/GetAllLikeList",
+    ADD_COURT_LIKE: "/api/Customer/AddCourtLikeList",
+    DELETE_COURT_LIKE: "/api/Customer/DeleteCourtLikeList",
+  },
 } as const;
 
 /**
@@ -56,6 +64,7 @@ export const QUERY_KEYS = {
   RITUALS: ["rituals"] as const, // Danh sách rituals (với filters)
   RITUAL_DETAIL: (id: string) => ["ritual", id] as const, // Chi tiết 1 ritual
   RITUAL_CATEGORIES: ["ritual-categories"] as const, // Danh sách categories
+  FAVORITES: ["favorites"] as const, // Danh sách sân yêu thích
 } as const;
 
 /**

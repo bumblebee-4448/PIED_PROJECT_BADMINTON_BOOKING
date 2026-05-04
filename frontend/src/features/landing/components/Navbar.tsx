@@ -13,9 +13,9 @@ export function Navbar() {
   const NAV_ITEMS = [
     { label: "Trang chủ", path: "/" },
     { label: "Tìm sân", path: "/courts" },
-    { label: "Dịch vụ", path: "/services" },
-    { label: "Bảng giá", path: "/pricing" },
-    { label: "Liên hệ", path: "/contact" },
+    { label: "Yêu thích", path: "/favorites" },
+    { label: "Matching", path: "/matching" },
+    { label: "Lịch sử", path: "/history"},
   ];
 
   const handleBookingClick = () => {
@@ -106,17 +106,17 @@ export function Navbar() {
               placeholder="Tìm sân..."
               className="bg-transparent outline-none text-sm text-gray-600 w-28"
             />
-          </div>
-          <button
-            onClick={handleBookingClick}
+            </div>
+              <button
+                onClick={handleBookingClick}
             className="px-5 py-2 rounded-full text-white text-sm transition-all duration-200 hover:shadow-lg hover:scale-105"
-            style={{
-              background: "linear-gradient(135deg, #00C896, #00897B)",
+                style={{
+                  background: "linear-gradient(135deg, #00C896, #00897B)",
               fontWeight: 600,
-            }}
-          >
-            Đặt sân ngay
-          </button>
+                }}
+              >
+                Đặt sân ngay
+              </button>
           {!accessToken && (
             <button
               onClick={handleLoginClick}
