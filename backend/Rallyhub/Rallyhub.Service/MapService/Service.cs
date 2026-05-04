@@ -22,7 +22,7 @@ public class Service : IService
         CancellationToken cancellationToken)
     {
         var markers = await _dbContext.Courts
-            .Where(x => x.Status == nameof(StatusCourt.Approved)
+            .Where(x => x.Status == nameof(StatusCourt.Active)
                         && x.Latitude >= request.MinLat && x.Latitude <= request.MaxLat
                         && x.Longitude >= request.MinLon && x.Longitude <= request.MaxLon)
             .Select(x => new Response.CourtMapItem
@@ -42,7 +42,7 @@ public class Service : IService
         CancellationToken cancellationToken)
     {
         var allCourts = await _dbContext.Courts
-            .Where(x => x.Status == nameof(StatusCourt.Approved))
+            .Where(x => x.Status == nameof(StatusCourt.Active))
             .Select(x => new Response.CourtMapItem
             {
                 Id = x.Id,

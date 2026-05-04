@@ -80,6 +80,7 @@ public class AdminController: ControllerBase
     }
     
     [HttpGet("GetAllPendingCourts")]  
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> GetAllPendingCourts([FromQuery] Request.GetPendingCourtsRequest request)  
     {  
         var result = await _adminService.GetPendingCourts(request);  
@@ -88,6 +89,7 @@ public class AdminController: ControllerBase
     }  
   
     [HttpPatch("RejectPendingCourt/{courtId}")]  
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> RejectPendingCourt(Guid courtId,  [FromBody] Request.RejectPendingCourtsRequest request)  
     {  
         await _adminService.RejectPendingCourt(courtId, request);  
@@ -95,7 +97,8 @@ public class AdminController: ControllerBase
             , HttpContext.TraceIdentifier));  
     }  
   
-    [HttpPatch("ApprovePendingCourt/{courtId}")]  
+    [HttpPatch("ApprovePendingCourt/{courtId}")] 
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> ApprovePendingCourt(Guid courtId)  
     {  
         await _adminService.ApprovePendingCourt(courtId);  

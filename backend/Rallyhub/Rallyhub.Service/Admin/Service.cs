@@ -478,11 +478,14 @@ public class Service: IService
     (Request.GetPendingCourtsRequest request)  
 {  
     if (request.PageIndex <= 0)  
-    {        throw new ArgumentException("PageIndex must be greater than 0");  
+    {        
+        throw new ArgumentException("PageIndex must be greater than 0");  
     }  
     if (request.PageSize <= 0)  
-    {        throw new ArgumentException("PageSize must be greater than 0");  
-    }    var query = _dbContext.Courts.Where(x => x.Status == nameof(StatusCreateCourt.Pending));  
+    {        
+        throw new ArgumentException("PageSize must be greater than 0");  
+    }    
+    var query = _dbContext.Courts.Where(x => x.Status == nameof(StatusCreateCourt.Pending));  
     if (!string.IsNullOrEmpty(request.Name))  
     {        query = query.Where(x =>   
             x.Name.Trim().ToLower()  
@@ -511,7 +514,9 @@ public class Service: IService
   
     public async Task ApprovePendingCourt(Guid courtId)  
     {  
-        var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == courtId);  
+        var court = await _dbContext.Courts
+            .Include(x => x.Owner.User)
+            .FirstOrDefaultAsync(x => x.Id == courtId);  
         if (court == null)  
         {        
             throw new Exception("Court not found");  
@@ -520,13 +525,22 @@ public class Service: IService
         {        
             throw new Exception("Cannot approve court");  
         }        
-        court.Status = nameof(StatusCreateCourt.Approved);  
+        court.Status = nameof(StatusCreateCourt.Active);  
         await _dbContext.SaveChangesAsync();  
+        string htmlBody = MailTemplate.ApproveCourtTemplate(court.Owner.User.Email, court.Name);
+        await _mailService.SendMail(new MailContent
+        {
+            To = court.Owner.User.Email,
+            Subject = "Approved court",
+            Body = htmlBody,
+        });
     }  
   
     public async Task RejectPendingCourt(Guid courtId, Request.RejectPendingCourtsRequest request)  
     {  
-        var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == courtId);  
+        var court = await _dbContext.Courts
+            .Include(x => x.Owner.User)
+            .FirstOrDefaultAsync(x => x.Id == courtId);  
         if (court == null)  
         {        
             throw new Exception("Court not found");  
@@ -535,8 +549,17 @@ public class Service: IService
         {        
             throw new Exception("Cannot approve court");  
         }        
-        court.Status = nameof(StatusCreateCourt.Rejected);  
+        court.Status = nameof(StatusCreateCourt.Inactive);  
         await _dbContext.SaveChangesAsync();  
+        string htmlBody = MailTemplate.RejectCourtTemplate(court.Owner.User.Email, court.Name, request.Reason);
+        // Console.WriteLine(court.Owner.User.Email);
+        await _mailService.SendMail(new MailContent
+        {
+            To = court.Owner.User.Email,
+            Subject = "Rejected court", 
+            Body = htmlBody,
+        });  
+        
     }
     public async Task<Response.RefundResponse> Refund(Request.RefundRequest request)
     {

@@ -36,10 +36,11 @@ public class Enum
     
     public enum StatusCreateCourt
     {
-        Approved,
-        Rejected,
+        Active,
+        Inactive,
         Pending
     }
+    
 
     public enum StatusBookingDetails
     {

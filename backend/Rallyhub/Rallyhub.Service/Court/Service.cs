@@ -20,7 +20,7 @@ public class Service : IService
     {
 
         var  query = _dbContext.Courts
-            .Where(x => x.Status == nameof(StatusCourt.Approved))
+            .Where(x => x.Status == nameof(StatusCourt.Active))
             .Select(x => new
             {
                 Court = x,
