@@ -13,51 +13,52 @@ export const useLogin = () => {
   return useMutation({
     mutationFn: (data: LoginInput) => authService.login(data),
     onSuccess: (response: any) => {
-      const token = response.accessToken;
-      if (!token) {
+      // The response might be just the 'data' object from axios interceptor
+      const accessToken = response.accessToken;
+      
+      if (!accessToken) {
         toast.error("Không nhận được token từ server");
         return;
       }
 
-      try {
-        const decoded: any = jwtDecode(token);
+      let role = response.role;
+      let user = response.user;
 
-        // Map .NET Identity claims (URL format) to friendly properties
-        const user = {
-          id: decoded[
-            "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"
-          ],
-          email:
-            decoded[
-              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"
-            ],
-          fullName:
-            decoded["FullName"] ||
-            decoded[
-              "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name"
-            ] ||
-            "User",
-          role:
-            decoded["Role"] ||
-            decoded[
-              "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
-            ] ||
-            "Customer",
-        };
+      // If role or user info is missing in response, decode it from JWT
+      if (!role || !user) {
+        try {
+          const decoded: any = jwtDecode(accessToken);
+          
+          role = role || 
+                 decoded["Role"] || 
+                 decoded["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"] || 
+                 "Customer";
 
-        setAuth(token, user.role, user);
-        toast.success("Đăng nhập thành công!");
+          const decodedUser = {
+            id: decoded["UserId"] || 
+                decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier"],
+            email: decoded["Email"] || 
+                   decoded["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"],
+            firstName: decoded["FirstName"] || "",
+            lastName: decoded["LastName"] || "",
+          };
 
-        const roleRedirects: Record<string, string> = {
-          Admin: "/admin",
-          Owner: "/owner",
-          Customer: "/",
-        };
-
-        navigate(roleRedirects[user.role] || "/");
-      } catch (error) {
-        console.error("Token decode error:", error);
+          user = { ...decodedUser, ...user };
+        } catch (error) {
+          console.error("Token decode error:", error);
+        }
       }
+
+      setAuth(accessToken, role, user);
+      toast.success("Đăng nhập thành công!");
+
+      const roleRedirects: Record<string, string> = {
+        Admin: "/admin",
+        Owner: "/owner",
+        Customer: "/",
+      };
+
+      navigate(roleRedirects[role] || "/");
     },
   });
 };
