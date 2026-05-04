@@ -34,7 +34,7 @@ export const authService = {
   },
 
   resetPassword: async (data: ResetPasswordInput): Promise<void> => {
-    return apiClient.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data);
+    return apiClient.put(API_ENDPOINTS.AUTH.RESET_PASSWORD, data);
   },
 
   logout: async (): Promise<void> => {
