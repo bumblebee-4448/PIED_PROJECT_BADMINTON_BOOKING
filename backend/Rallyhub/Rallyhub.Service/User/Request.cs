@@ -21,6 +21,7 @@ public class Request
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
         public string? PhoneNumber { get; set; }
+        public string? AvartarUrl  { get; set; }
     }
     
     public class ChangePasswordRequest
@@ -28,5 +29,9 @@ public class Request
         public string OldPassword { get; set; } = string.Empty;
         public string NewPassword { get; set; } = string.Empty;
     }
-    
+    public class CreateAndUpdateWalletRequest
+    {
+        public required string BankName { get; set; } 
+        public required string BankAccount { get; set; }
+    }
 }

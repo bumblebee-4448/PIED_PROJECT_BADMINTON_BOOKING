@@ -35,9 +35,9 @@ export function ProfilePage() {
     );
   }
 
-  const initials = user.fullName
-    ? user.fullName.split(" ").map((n) => n[0]).slice(-2).join("")
-    : "U";
+  const initials = user.firstName && user.lastName
+    ? `${user.lastName[0]}${user.firstName[0]}`
+    : user.firstName ? user.firstName[0] : "U";
 
   const handleLogout = () => {
     logout();
@@ -63,19 +63,19 @@ export function ProfilePage() {
 
       {/* Avatar */}
       <AvatarUpload
-        currentAvatar={user.avatar}
+        currentAvatar={user.avartarUrl || undefined}
         initials={initials}
-        onAvatarChange={(base64) => updateProfile({ ...user, avatar: base64 } as any)}
+        onAvatarChange={(url) => updateProfile({ ...user, avartarUrl: url } as any)}
       />
 
       {/* Basic info form */}
       <ProfileForm
         initialData={{
-          fullName: user.fullName || "",
+          firstName: user.firstName || "",
+          lastName: user.lastName || "",
           email: user.email || "",
-          phone: user.phone || "",
-          location: (user as any).preferredLocation || "Tân Bình",
-          level: (user as any).level || "intermediate",
+          phoneNumber: user.phoneNumber || "",
+          avartarUrl: user.avartarUrl,
         }}
         onSave={updateProfile}
         isSaving={isSaving}
@@ -83,7 +83,7 @@ export function ProfilePage() {
 
       {/* Password change */}
       <PasswordSection
-        phone={user.phone || ""}
+        phone={user.phoneNumber || ""}
         onUpdate={changePassword}
         isLoading={isChangingPassword}
       />

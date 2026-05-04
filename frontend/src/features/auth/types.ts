@@ -5,12 +5,13 @@ export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export interface User {
-  id: string;
+  id?: string;
   email: string;
-  fullName: string;
-  role: string;
-  avatar?: string;
-  phone?: string;
+  firstName: string;
+  lastName: string;
+  role?: string;
+  avartarUrl?: string | null;
+  phoneNumber?: string;
   isOwner?: boolean;
 }
 

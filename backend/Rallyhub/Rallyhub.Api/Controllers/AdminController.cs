@@ -103,11 +103,18 @@ public class AdminController: ControllerBase
             , HttpContext.TraceIdentifier));  
     }
 
-    [HttpPost("Refund")]
+    [HttpPatch("Refund")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> Refund(Request.RefundRequest request)
     {
         var result = await _adminService.Refund(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Refund Success", HttpContext.TraceIdentifier));
+    }
+    [HttpGet("GetWallet")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    public async Task<IActionResult> GetWallet(string email)
+    {
+        var result = await _adminService.GetWallet(email);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Thông tin ví của user", HttpContext.TraceIdentifier));
     }
 }
