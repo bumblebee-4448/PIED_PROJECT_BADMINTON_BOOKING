@@ -287,7 +287,6 @@
                                                                                                                                                                                                         EndDate   = new DateTime(2026, 6, 20, 23, 59, 59, DateTimeKind.Utc), OwnerId = OwnerId2},
                     new() { Id = Guid.NewGuid(), Code = "LOYAL5",    IsGlobal = false, DiscountPercent = 5,  MaxDiscountAmount = 30_000,  MinBookingAmount = 100_000, UsageLimit = 500, UsedCount = 87, StartDate = new DateTime(2026, 6, 12, 0, 0, 0, DateTimeKind.Utc),
                                                                                                                                                                                                         EndDate   = new DateTime(2026, 6, 20, 23, 59, 59, DateTimeKind.Utc), OwnerId = OwnerId2},
-
                 };
                 builder.HasData(campaigns);
                 
