@@ -2276,7 +2276,7 @@ namespace Rallyhub.Repository.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("AvartarUrl")
+                    b.Property<string>("AvatarUrl")
                         .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("CreatedAt")

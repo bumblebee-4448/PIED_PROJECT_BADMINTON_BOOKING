@@ -16,15 +16,36 @@ public class SendOtpJob : IJob
     {
         string email = context.MergedJobDataMap.GetString("Email")!;
         string otpCode = context.MergedJobDataMap.GetString("OtpCode")!;
+        string actionType = context.MergedJobDataMap.GetString("ActionType")!;
 
-        // 2. Tạo form HTML
-        string htmlBody = MailTemplate.GenerateOtpTemplate(email, otpCode);
+        string subject = "";
+        string htmlBody = "";
+        
+        switch (actionType)
+        {
+            case "Register":
+                subject = "Người tình trong mộng Ralluhub";
+                htmlBody = MailTemplate.GenerateOtpRegisterTemplate(email, otpCode);
+                break;
+            
+            case "ForgotPassword":
+                subject = "Người tình trong mộng Ralluhub";
+                htmlBody = MailTemplate.GeneratePasswordResetTemplate(email, otpCode);
+                break;
+            case "Approval":
+                subject = "Người tình trong mộng Ralluhub";
+                htmlBody = MailTemplate.GenerateApprovalTemplate(email);
+                break;
+            // case "Rejection":
+            //     subject = "rallyhub - yêu cầu khôi phục mật khẩu";
+            //     htmlBody = MailTemplate.GenerateRejectionTemplate(email, );
+            //     break;
+        }
 
-        // 3. Đưa cho MailService đi gửi
         await _mailService.SendMail(new MailContent()
         {
             To = email,
-            Subject = "Mã xác thực tài khoản RallyHub",
+            Subject = subject,
             Body = htmlBody
         });
     }
