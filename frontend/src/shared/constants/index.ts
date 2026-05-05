@@ -56,6 +56,13 @@ export const API_ENDPOINTS = {
     CHECK_CANCEL_BOOKING: "/api/Customer/CheckCancelBooking",
     CANCEL_BOOKING: "/api/Customer/CancelBooking",
   },
+  /**
+   * Court endpoints
+   */
+  COURT: {
+    GET_BY_FILTERS: "/Court/GetByFilters",
+    GET_BY_ID: "/Court/GetById",
+  },
 } as const;
 
 /**
@@ -69,6 +76,8 @@ export const QUERY_KEYS = {
   RITUAL_CATEGORIES: ["ritual-categories"] as const, // Danh sách categories
   FAVORITES: ["favorites"] as const, // Danh sách sân yêu thích
   BOOKINGS: ["bookings"] as const, // Danh sách lịch sử đặt sân
+  COURTS: (filters?: any) => ["courts", filters] as const, // Danh sách sân (với filters)
+  COURT_DETAIL: (id: string) => ["court", id] as const, // Chi tiết 1 sân
 } as const;
 
 /**
