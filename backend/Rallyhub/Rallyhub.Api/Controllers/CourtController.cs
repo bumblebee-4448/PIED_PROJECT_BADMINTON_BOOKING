@@ -6,8 +6,8 @@ using Rallyhub.Service.Models;
 
 namespace Rallyhub.Api.Controllers;
 
-[ApiController]
-[Authorize(Policy = JwtExtensions.CustomerPolicy)]
+//[ApiController]
+//[Authorize(Policy = JwtExtensions.CustomerPolicy)]
 [Route("[controller]")]
 public class CourtController: ControllerBase
 {
@@ -30,6 +30,14 @@ public class CourtController: ControllerBase
     public async Task<IActionResult> GetCourtsById([FromRoute] Guid courtId)
     {
         var result = await _courtService.GetCourtsDetailById(courtId);
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
+            , HttpContext.TraceIdentifier));
+    }
+    
+    [HttpGet("GetSubCourt{courtId}")]
+    public async Task<IActionResult> GetSubCourt([FromRoute] Guid courtId)
+    {
+        var result = await _courtService.GetSubCourtById(courtId);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }

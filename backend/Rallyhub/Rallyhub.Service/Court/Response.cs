@@ -20,5 +20,17 @@ public class Response
         public string PhoneNumber { get; set; } = null!;
         public string MapUrl { get; set; } = null!;
     }
+
+    public class SubCourtResponse
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; } = null!;
+    }
+
+    public class ListSubCourtResponse
+    {
+        public List<SubCourtResponse> SubCourts { get; set; } = new();
+        public int TotalSubCount { get; set; }
+    }
     
 }

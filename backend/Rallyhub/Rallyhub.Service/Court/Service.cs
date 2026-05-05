@@ -112,4 +112,26 @@ public class Service : IService
 
         return courtResult;
     }
+
+    public async Task<Response.ListSubCourtResponse> GetSubCourtById(Guid courtId)
+    {
+        var allSubCourts = await _dbContext.SubCourts
+            .Where(x => x.CourtId == courtId && x.Court.Status == nameof(StatusCourt.Active))
+            .OrderBy(x => x.Name)
+            .Select(x => new Response.SubCourtResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+            }).ToListAsync();
+        if (allSubCourts.Count == 0)
+        {
+            throw new Exception($"court with id {courtId} not found");
+        }
+
+        return new Response.ListSubCourtResponse
+        {
+            SubCourts = allSubCourts,
+            TotalSubCount = allSubCourts.Count 
+        };
+    }
 }
