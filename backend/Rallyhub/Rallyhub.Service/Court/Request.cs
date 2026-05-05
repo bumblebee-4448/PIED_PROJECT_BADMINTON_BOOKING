@@ -11,6 +11,10 @@ public class Request
         public string? SortBy { get; set; }
         public bool IsDescending { get; set; }
     }
-
+    public class GetAvailableSlotsRequest
+    {
+        public Guid SubCourtId { get; set; }
+        public DateOnly Date { get; set; }
+    }
 }
  

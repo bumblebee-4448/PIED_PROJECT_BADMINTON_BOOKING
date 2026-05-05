@@ -33,4 +33,11 @@ public class Response
         public int TotalSubCount { get; set; }
     }
     
+    public class SlotResponse
+    {
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public decimal Price { get; set; }
+        public bool IsAvailable { get; set; }
+    }
 }
