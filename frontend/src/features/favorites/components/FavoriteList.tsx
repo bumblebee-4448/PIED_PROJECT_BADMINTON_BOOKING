@@ -4,9 +4,10 @@ import { EmptyState } from "@/shared/components/common/EmptyState";
 
 interface FavoriteListProps {
   courts: CourtLike[];
+  onViewDetail?: (id: string) => void;
 }
 
-export function FavoriteList({ courts }: FavoriteListProps) {
+export function FavoriteList({ courts, onViewDetail }: FavoriteListProps) {
   if (courts.length === 0) {
     return (
       <EmptyState 
@@ -19,7 +20,11 @@ export function FavoriteList({ courts }: FavoriteListProps) {
   return (
     <div className="flex flex-col gap-6">
       {courts.map((court) => (
-        <FavoriteCourtCard key={court.courtId} court={court} />
+        <FavoriteCourtCard 
+          key={court.courtId} 
+          court={court} 
+          onViewDetail={onViewDetail}
+        />
       ))}
     </div>
   );

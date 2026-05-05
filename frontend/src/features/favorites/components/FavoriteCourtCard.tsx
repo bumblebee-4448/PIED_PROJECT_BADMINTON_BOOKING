@@ -7,9 +7,10 @@ import { cn } from "@/lib/utils";
 
 interface FavoriteCourtCardProps {
   court: CourtLike;
+  onViewDetail?: (id: string) => void;
 }
 
-export function FavoriteCourtCard({ court }: FavoriteCourtCardProps) {
+export function FavoriteCourtCard({ court, onViewDetail }: FavoriteCourtCardProps) {
   const { mutate: removeFavorite, isPending } = useRemoveFavorite();
 
   const getTagColor = (tag?: string) => {
@@ -56,34 +57,11 @@ export function FavoriteCourtCard({ court }: FavoriteCourtCardProps) {
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5 bg-orange-50 px-2 py-1 rounded-lg border border-orange-100">
               <Star size={12} className="fill-orange-400 text-orange-400" />
-              <span className="text-xs font-bold text-orange-600">{court.rating || 4.8}</span>
-            </div>
-            <span className="text-[10px] font-bold text-gray-300 uppercase tracking-widest">
-              ({court.reviews || 186})
-            </span>
-          </div>
-
-          <div className="flex items-center justify-between mt-4">
-            <div className="flex items-baseline gap-1">
-              <span className="text-2xl font-black text-emerald-600">
-                {(court.price || 100000).toLocaleString('vi-VN')}đ
-              </span>
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">/ GIỜ</span>
-            </div>
-
-            <div className={cn(
-              "px-4 py-1.5 rounded-full text-[10px] font-bold flex items-center gap-2 border",
-              (court.availableSlots || 0) > 0 
-                ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
-                : "bg-red-50 text-red-600 border-red-100"
-            )}>
-              <div className={cn(
-                "w-1.5 h-1.5 rounded-full animate-pulse",
-                (court.availableSlots || 0) > 0 ? "bg-emerald-500" : "bg-red-500"
-              )} />
-              {court.availableSlots || 0} TRỐNG
+              <span className="text-xs font-bold text-orange-600">{court.rating || 0}</span>
             </div>
           </div>
+
+          {/* Removed price and available slots section as per request */}
         </div>
 
         {/* Action Buttons */}
@@ -113,6 +91,7 @@ export function FavoriteCourtCard({ court }: FavoriteCourtCardProps) {
           <Button 
             variant="ghost" 
             className="flex-1 gap-2 text-gray-400 hover:text-[#0B2421] hover:bg-gray-50 font-bold text-xs h-10 rounded-xl"
+            onClick={() => onViewDetail?.(court.courtId)}
           >
             Chi tiết
             <ArrowRight size={16} />

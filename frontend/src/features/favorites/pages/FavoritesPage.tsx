@@ -1,10 +1,19 @@
+import { useState } from "react";
 import { useFavorites } from "../hooks/useFavorites";
 import { FavoriteList } from "../components/FavoriteList";
 import { LoadingSpinner } from "@/shared/components/common/LoadingSpinner";
 import { ErrorState } from "@/shared/components/common/ErrorState";
+import { CourtDetailDialog } from "@/features/courts/components/CourtDetailDialog";
 
 export function FavoritesPage() {
   const { data, isLoading, isError, error } = useFavorites();
+  const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const handleViewDetail = (id: string) => {
+    setSelectedCourtId(id);
+    setIsDialogOpen(true);
+  };
 
   if (isLoading) {
     return (
@@ -29,6 +38,12 @@ export function FavoritesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50/50 pt-28 pb-20">
+      <CourtDetailDialog 
+        courtId={selectedCourtId}
+        isOpen={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+      />
+
       <div className="max-w-4xl mx-auto px-6">
         {/* Header Section */}
         <div className="mb-10">
@@ -41,7 +56,10 @@ export function FavoritesPage() {
         </div>
 
         {/* List Section */}
-        <FavoriteList courts={favoriteCourts} />
+        <FavoriteList 
+          courts={favoriteCourts} 
+          onViewDetail={handleViewDetail}
+        />
       </div>
     </div>
   );
