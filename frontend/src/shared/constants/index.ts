@@ -61,7 +61,7 @@ export const API_ENDPOINTS = {
    */
   COURT: {
     GET_BY_FILTERS: "/Court/GetByFilters",
-    GET_BY_ID: "/Court/GetById",
+    GET_BY_ID: "/Court/GetCourtDetailsById",
   },
 } as const;
 
