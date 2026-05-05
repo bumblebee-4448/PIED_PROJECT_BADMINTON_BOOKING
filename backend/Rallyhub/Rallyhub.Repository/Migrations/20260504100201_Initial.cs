@@ -24,7 +24,7 @@ namespace Rallyhub.Repository.Migrations
                     FirstName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     LastName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     PhoneNumber = table.Column<string>(type: "character varying(11)", maxLength: 11, nullable: true),
-                    AvartarUrl = table.Column<string>(type: "text", nullable: true),
+                    AvatarUrl = table.Column<string>(type: "text", nullable: true),
                     Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false, defaultValue: "Active"),
                     CreatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -605,7 +605,7 @@ namespace Rallyhub.Repository.Migrations
 
             migrationBuilder.InsertData(
                 table: "Users",
-                columns: new[] { "Id", "AvartarUrl", "CreatedAt", "Email", "FirstName", "IsDeleted", "LastName", "PasswordHash", "PhoneNumber", "Role", "Status", "UpdatedAt" },
+                columns: new[] { "Id", "AvatarUrl", "CreatedAt", "Email", "FirstName", "IsDeleted", "LastName", "PasswordHash", "PhoneNumber", "Role", "Status", "UpdatedAt" },
                 values: new object[,]
                 {
                     { new Guid("2cceeefc-9d4a-4256-b905-a0fcdcebd8be"), null, new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)), "customer2@gmail.com", "Bảo", false, "Châu", "hashed_pw_5", "0900000005", "Customer", "Active", new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)) },

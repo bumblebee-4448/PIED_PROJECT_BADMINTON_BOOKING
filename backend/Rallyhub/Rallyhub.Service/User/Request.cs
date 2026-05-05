@@ -21,7 +21,7 @@ public class Request
         public required string FirstName { get; set; }
         public required string LastName { get; set; }
         public string? PhoneNumber { get; set; }
-        public string? AvartarUrl  { get; set; }
+        public string? AvatarUrl  { get; set; }
     }
     
     public class ChangePasswordRequest

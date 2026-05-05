@@ -30,12 +30,21 @@ public class Request
     public class AddCourtLikeListRequest
     {
         public Guid CourtId  { get; set; }
-        public string CourtName  { get; set; }
-        public string CourtAddress   { get; set; }
+        public required string CourtName  { get; set; }
+        public required string CourtAddress   { get; set; }
     }
     public class DeteleCourtLikeListRequest
     {
         public Guid CourtId  { get; set; }
     }
-    
+    public class LikeListDetailRequest
+    {
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
+    public class GetAllBookingRequest
+    {
+        public int PageIndex { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+    }
 }

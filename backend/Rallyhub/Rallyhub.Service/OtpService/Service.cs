@@ -28,7 +28,6 @@ public class Service : IService
         const string chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         string otpCode = RandomNumberGenerator.GetString(chars, 6);
         var session = new { OtpCode = otpCode, ActionType = actionType, DataPayload = payloadData };
-
         string redisKey = $"OTP:{actionType}:{email}";
         await _redisCache.SetStringAsync(redisKey, System.Text.Json.JsonSerializer.Serialize(session), 
             new DistributedCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(5) });
@@ -38,6 +37,7 @@ public class Service : IService
             .WithIdentity($"SendOtp_{actionType}_{email}_{Guid.NewGuid()}", "MailJobs")
             .UsingJobData("Email", email)
             .UsingJobData("OtpCode", otpCode)
+            .UsingJobData("ActionType", actionType)
             .Build();
         await scheduler.ScheduleJob(job, TriggerBuilder.Create().StartNow().Build());
     }
