@@ -55,9 +55,9 @@ public class CustomerController : ControllerBase
 
     [HttpGet("GetAllLikeList")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
-    public async Task<IActionResult> GetAllLikeList(int pageIndex = 1, int pageSize = 10)
+    public async Task<IActionResult> GetAllLikeList([FromQuery] Request.LikeListDetailRequest request)
     {
-        var result = await _customerService.GetAllLikeList(pageIndex, pageSize);
+        var result = await _customerService.GetAllLikeList(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Danh sách yêu thích",  HttpContext.TraceIdentifier));
     }
 
@@ -79,9 +79,9 @@ public class CustomerController : ControllerBase
 
     [HttpGet("GetAllBooking")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
-    public async Task<IActionResult> GetAllBooking(int pageIndex = 1, int pageSize = 10)
+    public async Task<IActionResult> GetAllBooking([FromQuery] Request.GetAllBookingRequest request)
     {
-        var result = await _customerService.GetAllBooking(pageIndex, pageSize);
+        var result = await _customerService.GetAllBooking(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "List Booking", HttpContext.TraceIdentifier));
     }
 }

@@ -74,7 +74,7 @@ public class Service : IService
         user!.FirstName = request.FirstName;
         user.LastName = request.LastName;
         user.PhoneNumber = request.PhoneNumber;
-        user.AvartarUrl = request.AvartarUrl;
+        user.AvatarUrl = request.AvatarUrl;
         user.UpdatedAt = DateTimeOffset.UtcNow;
         _dbContext.Users.Update(user);
         await _dbContext.SaveChangesAsync();
@@ -97,7 +97,7 @@ public class Service : IService
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 PhoneNumber = (user.PhoneNumber == null ? "": user.PhoneNumber),
-                AvartarUrl = user.AvartarUrl,
+                AvatarUrl = user.AvatarUrl,
                 BusinessName = owner!.BusinessName,
                 BusinessAddress = owner.BusinessAddress,
                 TaxCode = owner.TaxCode,
@@ -113,7 +113,7 @@ public class Service : IService
             FirstName = user.FirstName,
             LastName = user.LastName,
             PhoneNumber = (user.PhoneNumber == null ? "": user.PhoneNumber),
-            AvartarUrl = user.AvartarUrl,
+            AvatarUrl = user.AvatarUrl,
         };
     }
 
