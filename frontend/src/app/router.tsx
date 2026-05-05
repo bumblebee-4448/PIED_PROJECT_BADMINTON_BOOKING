@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import { UserLayout } from "@/shared/layouts/UserLayout";
 import { GuestRoute } from "@/shared/components/common/GuestRoute";
-import { UnauthorizedPage, NotFoundPage } from "@/shared/pages";
+import { UnauthorizedPage, NotFoundPage, ComingSoonPage } from "@/shared/pages";
 
 // ─── Feature pages ───────────────────────────────────────
 import { HomePage } from "@/features/landing/pages/HomePage";
@@ -31,6 +31,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "courts", element: <CourtSearchPage /> },
+      { path: "matching", element: <ComingSoonPage /> },
       // { path: "rituals", element: <RitualCatalog /> },
       // { path: "rituals/:id", element: <RitualDetail /> },
       {

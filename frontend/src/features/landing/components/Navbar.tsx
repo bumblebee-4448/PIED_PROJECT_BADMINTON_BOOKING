@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Search, Menu, X } from "lucide-react";
+import {  Menu, X } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store";
 import { cn } from "@/lib/utils";
 
@@ -97,16 +97,8 @@ export function Navbar() {
           })}
         </div>
 
-        {/* Search + CTA */}
+        {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-gray-100 rounded-full px-4 py-2">
-            <Search size={15} className="text-gray-400" />
-            <input
-              type="text"
-              placeholder="Tìm sân..."
-              className="bg-transparent outline-none text-sm text-gray-600 w-28"
-            />
-            </div>
               <button
                 onClick={handleBookingClick}
             className="px-5 py-2 rounded-full text-white text-sm transition-all duration-200 hover:shadow-lg hover:scale-105"
