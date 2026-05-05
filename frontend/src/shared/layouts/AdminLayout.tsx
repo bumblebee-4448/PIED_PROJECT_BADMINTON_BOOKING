@@ -9,6 +9,7 @@ import {
   Bell,
   ShieldCheck,
   Search,
+  FileCheck,
 } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store";
 import { Button } from "@/shared/components/ui/button";
@@ -19,6 +20,7 @@ import { useMe } from "@/features/profile/hooks/useMe";
 const ADMIN_NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
   { icon: Users, label: "Người dùng", path: "/admin/users" },
+  { icon: FileCheck, label: "Duyệt chủ sân", path: "/admin/owner-requests" },
   { icon: Building2, label: "Sân cầu lông", path: "/admin/courts" },
   { icon: DollarSign, label: "Tài chính", path: "/admin/finance" },
 ];
@@ -38,10 +40,16 @@ export function AdminLayout() {
   // Sử dụng React Query tối ưu thay cho useEffect
   const { isLoading: isProfileLoading } = useMe();
 
-  const normalizedRole = role ? (role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()) : "";
+  const normalizedRole = role
+    ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
+    : "";
 
   // Kiểm tra quyền truy cập (Admin hoặc Owner)
-  if (!accessToken || !user || (normalizedRole !== "Admin" && normalizedRole !== "Owner")) {
+  if (
+    !accessToken ||
+    !user ||
+    (normalizedRole !== "Admin" && normalizedRole !== "Owner")
+  ) {
     return <Navigate to="/login" replace />;
   }
 
@@ -51,7 +59,9 @@ export function AdminLayout() {
       <div className="h-screen w-screen flex items-center justify-center bg-[#F1F5F9]">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-emerald-500/20 border-t-emerald-500 rounded-full animate-spin" />
-          <p className="text-emerald-900/40 font-bold text-xs uppercase tracking-[0.2em]">Đang đồng bộ dữ liệu...</p>
+          <p className="text-emerald-900/40 font-bold text-xs uppercase tracking-[0.2em]">
+            Đang đồng bộ dữ liệu...
+          </p>
         </div>
       </div>
     );
@@ -67,12 +77,12 @@ export function AdminLayout() {
   return (
     <div className="flex h-screen overflow-hidden bg-[#F1F5F9]">
       <UserProfileCard />
-      
+
       {/* Sidebar Overlay for Mobile */}
       {sidebarOpen && (
-        <div 
-          className="fixed inset-0 z-30 bg-[#091E1B]/20 backdrop-blur-sm lg:hidden" 
-          onClick={() => setSidebarOpen(false)} 
+        <div
+          className="fixed inset-0 z-30 bg-[#091E1B]/20 backdrop-blur-sm lg:hidden"
+          onClick={() => setSidebarOpen(false)}
         />
       )}
 
@@ -80,7 +90,7 @@ export function AdminLayout() {
       <aside
         className={cn(
           "fixed lg:static inset-y-0 left-0 z-40 flex flex-col transition-all duration-300 bg-[#0B2421] text-white shadow-xl",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+          sidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
         )}
         style={{ width: "260px" }}
       >
@@ -91,33 +101,54 @@ export function AdminLayout() {
               <ShieldCheck size={24} className="text-[#0B2421]" />
             </div>
             <div>
-              <h1 className="font-black text-xl leading-tight tracking-tight uppercase italic text-white">Rally<span className="text-[#00CE98]">Hub</span></h1>
-              <p className="text-[9px] text-gray-500 font-bold tracking-[0.2em] uppercase">Badminton CMS</p>
+              <h1 className="font-black text-xl leading-tight tracking-tight uppercase italic text-white">
+                Rally<span className="text-[#00CE98]">Hub</span>
+              </h1>
+              <p className="text-[9px] text-gray-500 font-bold tracking-[0.2em] uppercase">
+                Badminton CMS
+              </p>
             </div>
           </div>
         </div>
 
         {/* 2. MIDDLE: Navigation */}
         <nav className="flex-1 px-4 space-y-1.5 overflow-y-auto custom-scrollbar">
-          <p className="px-4 text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] mb-4 opacity-70">Main Content</p>
-          {(normalizedRole === "Admin" ? ADMIN_NAV_ITEMS : OWNER_NAV_ITEMS).map(({ icon: Icon, label, path }) => (
-            <button
-              key={path}
-              onClick={() => { navigate(path); setSidebarOpen(false); }}
-              className={cn(
-                "w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 group relative",
-                isActive(path) 
-                  ? "bg-[#00CE98]/10 text-[#00CE98]" 
-                  : "text-gray-400 hover:bg-white/5 hover:text-white"
-              )}
-            >
-              <Icon size={19} className={cn("transition-colors", isActive(path) ? "text-[#00CE98]" : "group-hover:text-white")} />
-              <span className="text-[13px] font-bold tracking-wide">{label}</span>
-              {isActive(path) && (
-                <div className="absolute right-4 w-1.5 h-1.5 rounded-full bg-[#00CE98] shadow-[0_0_12px_#00CE98]" />
-              )}
-            </button>
-          ))}
+          <p className="px-4 text-[10px] font-black text-gray-600 uppercase tracking-[0.2em] mb-4 opacity-70">
+            Main Content
+          </p>
+          {(normalizedRole === "Admin" ? ADMIN_NAV_ITEMS : OWNER_NAV_ITEMS).map(
+            ({ icon: Icon, label, path }) => (
+              <button
+                key={path}
+                onClick={() => {
+                  navigate(path);
+                  setSidebarOpen(false);
+                }}
+                className={cn(
+                  "w-full flex items-center gap-3.5 px-4 py-3 rounded-2xl transition-all duration-300 group relative",
+                  isActive(path)
+                    ? "bg-[#00CE98]/10 text-[#00CE98]"
+                    : "text-gray-400 hover:bg-white/5 hover:text-white",
+                )}
+              >
+                <Icon
+                  size={19}
+                  className={cn(
+                    "transition-colors",
+                    isActive(path)
+                      ? "text-[#00CE98]"
+                      : "group-hover:text-white",
+                  )}
+                />
+                <span className="text-[13px] font-bold tracking-wide">
+                  {label}
+                </span>
+                {isActive(path) && (
+                  <div className="absolute right-4 w-1.5 h-1.5 rounded-full bg-[#00CE98] shadow-[0_0_12px_#00CE98]" />
+                )}
+              </button>
+            ),
+          )}
         </nav>
 
         {/* 3. BOTTOM: Session Section (Simplified) */}
@@ -137,30 +168,39 @@ export function AdminLayout() {
         {/* Header */}
         <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-20">
           <div className="flex items-center gap-4">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
-              onClick={() => setSidebarOpen(true)} 
+              onClick={() => setSidebarOpen(true)}
               className="lg:hidden rounded-xl hover:bg-gray-100"
             >
               <Menu size={20} />
             </Button>
-            <h2 className="text-xl font-extrabold text-[#0B2421] tracking-tight">{normalizedRole} Portal</h2>
+            <h2 className="text-xl font-extrabold text-[#0B2421] tracking-tight">
+              {normalizedRole} Portal
+            </h2>
           </div>
 
           <div className="hidden md:flex items-center gap-4 flex-1 max-w-md mx-8">
             <div className="relative w-full group">
-              <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors pointer-events-none" />
-              <input 
-                type="text" 
-                placeholder="Tìm kiếm tác vụ..." 
+              <Search
+                size={16}
+                className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors pointer-events-none"
+              />
+              <input
+                type="text"
+                placeholder="Tìm kiếm tác vụ..."
                 className="w-full bg-gray-100 border-transparent focus:bg-white focus:border-emerald-500/50 focus:ring-4 focus:ring-emerald-500/5 h-11 pl-11 pr-4 rounded-2xl text-sm transition-all outline-none font-medium"
               />
             </div>
           </div>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="relative rounded-2xl text-gray-400 hover:bg-gray-100 h-11 w-11 transition-all">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative rounded-2xl text-gray-400 hover:bg-gray-100 h-11 w-11 transition-all"
+            >
               <Bell size={20} />
               <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-red-500 border-2 border-white" />
             </Button>
