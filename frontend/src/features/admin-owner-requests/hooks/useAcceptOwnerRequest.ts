@@ -7,8 +7,8 @@ export function useAcceptOwnerRequest() {
 
   return useMutation({
     mutationFn: async (ownerRequestId: string) => {
-      const response = await apiClient.post("/api/Admin/OwnerRequest/Approve", {
-        ownerRequestId,
+      const response = await apiClient.get("/api/Admin/AcceptCreateOwner", {
+        params: { ownerRequestId },
       });
       return response;
     },

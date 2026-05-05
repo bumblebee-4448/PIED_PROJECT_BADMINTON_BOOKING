@@ -17,6 +17,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
+import { toast } from "sonner";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Badge } from "@/shared/components/ui/badge";
@@ -63,6 +74,10 @@ export function OwnerRequestsPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectingId, setRejectingId] = useState<string | null>(null);
 
+  // State cho confirm dialog
+  const [isAcceptConfirmOpen, setIsAcceptConfirmOpen] = useState(false);
+  const [acceptingId, setAcceptingId] = useState<string | null>(null);
+
   const { data, isLoading } = useOwnerRequests({
     search: search || undefined,
     pageSize,
@@ -73,8 +88,22 @@ export function OwnerRequestsPage() {
   const rejectMutation = useRejectOwnerRequest();
 
   const handleAccept = (id: string) => {
-    if (confirm("Bạn có chắc muốn phê duyệt đơn đăng ký này?")) {
-      acceptMutation.mutate(id);
+    setAcceptingId(id);
+    setIsAcceptConfirmOpen(true);
+  };
+
+  const submitAccept = () => {
+    if (acceptingId) {
+      acceptMutation.mutate(acceptingId, {
+        onSuccess: () => {
+          setIsAcceptConfirmOpen(false);
+          setAcceptingId(null);
+        },
+        onError: () => {
+          setIsAcceptConfirmOpen(false);
+          setAcceptingId(null);
+        },
+      });
     }
   };
 
@@ -86,7 +115,7 @@ export function OwnerRequestsPage() {
 
   const submitReject = () => {
     if (!rejectReason.trim()) {
-      alert("Vui lòng nhập lý do từ chối");
+      toast.error("Vui lòng nhập lý do từ chối");
       return;
     }
     if (rejectingId) {
@@ -201,17 +230,14 @@ export function OwnerRequestsPage() {
                       </div>
                       <div>
                         <p className="font-medium text-gray-900 text-sm">
-                          {request.firstName ||
-                          request.customer?.firstName ||
-                          request.lastName ||
+                          {request.customer?.firstName ||
                           request.customer?.lastName
-                            ? `${request.firstName || request.customer?.firstName || ""} ${request.lastName || request.customer?.lastName || ""}`
+                            ? `${request.customer?.firstName || ""} ${request.customer?.lastName || ""}`
                             : request.businessName}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {request.customerEmail ||
-                            request.customer?.email ||
-                            request.customerId}
+                          {request.customer?.email ||
+                            "Xem chi tiết để biết thông tin"}
                         </p>
                       </div>
                     </div>
@@ -322,15 +348,9 @@ export function OwnerRequestsPage() {
                   <div>
                     <p className="text-xs text-gray-500">Họ và tên</p>
                     <p className="text-sm font-medium text-gray-900">
-                      {selectedRequest.firstName ||
-                        selectedRequest.customer?.firstName ||
-                        ""}{" "}
-                      {selectedRequest.lastName ||
-                        selectedRequest.customer?.lastName ||
-                        ""}
-                      {!selectedRequest.firstName &&
-                        !selectedRequest.customer?.firstName &&
-                        !selectedRequest.lastName &&
+                      {selectedRequest.customer?.firstName || ""}{" "}
+                      {selectedRequest.customer?.lastName || ""}
+                      {!selectedRequest.customer?.firstName &&
                         !selectedRequest.customer?.lastName && (
                           <span className="text-gray-400 font-normal">
                             Chưa cung cấp
@@ -342,12 +362,11 @@ export function OwnerRequestsPage() {
                     <p className="text-xs text-gray-500">Số điện thoại</p>
                     <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
                       <Phone size={12} className="text-emerald-500" />
-                      {selectedRequest.phoneNumber ||
-                        selectedRequest.customer?.phoneNumber || (
-                          <span className="text-gray-400 font-normal">
-                            Chưa cung cấp
-                          </span>
-                        )}
+                      {selectedRequest.customer?.phoneNumber || (
+                        <span className="text-gray-400 font-normal">
+                          Chưa cung cấp
+                        </span>
+                      )}
                     </p>
                   </div>
                   <div>
@@ -363,12 +382,11 @@ export function OwnerRequestsPage() {
                   <div>
                     <p className="text-xs text-gray-500">Email</p>
                     <p className="text-sm font-medium text-gray-900">
-                      {selectedRequest.customerEmail ||
-                        selectedRequest.customer?.email || (
-                          <span className="text-gray-400 font-normal">
-                            Chưa cung cấp
-                          </span>
-                        )}
+                      {selectedRequest.customer?.email || (
+                        <span className="text-gray-400 font-normal">
+                          Chưa cung cấp
+                        </span>
+                      )}
                     </p>
                   </div>
                 </div>
@@ -445,13 +463,6 @@ export function OwnerRequestsPage() {
               {/* Actions for pending */}
               {selectedRequest.status === "Pending" && (
                 <div className="flex gap-3 pt-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setIsDetailOpen(false)}
-                  >
-                    Đóng
-                  </Button>
                   <Button
                     variant="outline"
                     className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
@@ -531,6 +542,44 @@ export function OwnerRequestsPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Accept Confirmation Alert Dialog */}
+      <AlertDialog
+        open={isAcceptConfirmOpen}
+        onOpenChange={setIsAcceptConfirmOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-emerald-700">
+              <CheckCircle size={20} />
+              Xác nhận phê duyệt
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn phê duyệt đơn đăng ký này? Hành động này
+              không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setAcceptingId(null)}>
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={submitAccept}
+              className="bg-emerald-600 hover:bg-emerald-700"
+              disabled={acceptMutation.isPending}
+            >
+              {acceptMutation.isPending ? (
+                <>
+                  <Loader2 size={16} className="animate-spin mr-2" />
+                  Đang xử lý...
+                </>
+              ) : (
+                "Phê duyệt"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

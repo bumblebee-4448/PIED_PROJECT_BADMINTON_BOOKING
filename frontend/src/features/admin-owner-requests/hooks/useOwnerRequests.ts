@@ -9,7 +9,7 @@ export function useOwnerRequests(params: GetOwnerRequestsParams = {}) {
   return useQuery<GetOwnerRequestsResponse>({
     queryKey: ["admin", "owner-requests", params],
     queryFn: async () => {
-      const response = await apiClient.get("/api/Admin/OwnerRequest", {
+      const response = await apiClient.get("/api/Admin/GetOwnerRequest", {
         params,
       });
       // apiClient interceptor đã unwrap response.data.data

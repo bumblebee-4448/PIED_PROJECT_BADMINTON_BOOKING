@@ -10,6 +10,7 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
+import { toast } from "sonner";
 import { useOwnerRegistration } from "../hooks/useOwnerRegistration";
 import { useOwnerRegistrationStore } from "../store";
 import type { OwnerRegistrationForm } from "../types";
@@ -64,16 +65,20 @@ export function OwnerRegistrationDialog() {
     for (const field of requiredFields) {
       const value = formData[field];
       if (!value || (typeof value === "string" && value.trim() === "")) {
-        alert(
-          "Vui lòng điền đầy đủ thông tin và tải lên tất cả các tài liệu cần thiết.",
-        );
+        toast.error("Thiếu thông tin", {
+          description:
+            "Vui lòng điền đầy đủ thông tin và tải lên tất cả các tài liệu cần thiết.",
+        });
         return;
       }
     }
 
     // Kiểm tra user data có sẵn không
     if (!user?.firstName || !user?.lastName || !user?.phoneNumber) {
-      alert("Thông tin tài khoản không đầy đủ. Vui lòng cập nhật hồ sơ trước.");
+      toast.error("Thông tin không đầy đủ", {
+        description:
+          "Thông tin tài khoản không đầy đủ. Vui lòng cập nhật hồ sơ trước.",
+      });
       return;
     }
 
