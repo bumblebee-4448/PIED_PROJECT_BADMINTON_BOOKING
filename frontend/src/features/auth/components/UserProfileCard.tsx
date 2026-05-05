@@ -7,7 +7,8 @@ import {
   ChevronUp, 
   ChevronDown,
   ShieldCheck,
-  UserCircle
+  UserCircle,
+  History
 } from "lucide-react";
 import { useAuthStore } from "../store";
 import { useLogout } from "../hooks";
@@ -63,6 +64,16 @@ export function UserProfileCard() {
           </div>
 
           <div className="space-y-2">
+            <Link to="/history" onClick={() => setIsOpen(false)}>
+              <Button 
+                variant="ghost" 
+                className="w-full justify-start gap-3 rounded-xl hover:bg-[#F3F4F6] text-[#374151] font-bold h-10 px-3"
+              >
+                <History size={18} className="text-[#6B7280]" />
+                <span>Lịch sử đặt sân</span>
+              </Button>
+            </Link>
+
             <Link to="/profile" onClick={() => setIsOpen(false)}>
               <Button 
                 variant="ghost" 

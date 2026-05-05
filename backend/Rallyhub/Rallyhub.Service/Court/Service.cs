@@ -18,6 +18,14 @@ public class Service : IService
     
     public async Task<Base.Response.PageResult<Response.SearchCourtResponse>> SearchByFilter(Request.SearchByFilterRequest request)
     {
+        if (request.PageIndex <= 0)  
+        {        
+            throw new ArgumentException("PageIndex must be greater than 0");  
+        }  
+        if (request.PageSize <= 0)  
+        {        
+            throw new ArgumentException("PageSize must be greater than 0");  
+        }    
         var  query = _dbContext.Courts
             .Where(x => x.Status == nameof(StatusCourt.Active))
             .Select(x => new
@@ -61,9 +69,6 @@ public class Service : IService
             Address =  x.Court.Address,
             Status = x.Court.Status,
             AverageRating = x.AverageRating,
-            PictureUrl = x.Court.PictureUrl,
-            MapUrl = x.Court.MapUrl,
-            PhoneNumber = x.Court.Owner.User.PhoneNumber!,
         });
         
         var listResult = await selectedQuery.ToListAsync();
@@ -79,7 +84,7 @@ public class Service : IService
         return result;
     }
 
-    public async Task<Response.SearchCourtResponse> GetCourtsById(Guid courtId)
+    public async Task<Response.SearchCourtResponse> GetCourtsDetailById(Guid courtId)
     {
         var courtResult = await _dbContext.Courts
             .Where(x => x.Id == courtId)

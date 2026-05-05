@@ -1,11 +1,13 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Rallyhub.Api.Extention;
 using Rallyhub.Service.Court;
 using Rallyhub.Service.Models;
 
 namespace Rallyhub.Api.Controllers;
 
-
 [ApiController]
+[Authorize(Policy = JwtExtensions.CustomerPolicy)]
 [Route("[controller]")]
 public class CourtController: ControllerBase
 {
@@ -24,10 +26,10 @@ public class CourtController: ControllerBase
             , HttpContext.TraceIdentifier));
     }
     
-    [HttpGet("GetById")]
+    [HttpGet("GetCourtDetailsById")]
     public async Task<IActionResult> GetCourtsById([FromQuery] Guid courtId)
     {
-        var result = await _courtService.GetCourtsById(courtId);
+        var result = await _courtService.GetCourtsDetailById(courtId);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }
