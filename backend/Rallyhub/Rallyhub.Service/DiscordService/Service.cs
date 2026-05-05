@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Json;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -41,7 +41,7 @@ public class Service : IService
 
         var content =
             $"{_options.Mention}\n" +
-            "Unhandled exception in TetPee.Api\n" +
+            "Unhandled exception in Rallyhub.Api\n" +
             $"Environment: {_environment.EnvironmentName}\n" +
             $"Request: {context.Request.Method} {context.Request.Path}\n" +
             $"StatusCode: {statusCode}\n" +
