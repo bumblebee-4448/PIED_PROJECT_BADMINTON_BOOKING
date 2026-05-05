@@ -4,7 +4,6 @@ import { useProfile } from "../hooks/useProfile";
 import { AvatarUpload } from "../components/AvatarUpload";
 import { ProfileForm } from "../components/ProfileForm";
 import { PasswordSection } from "../components/PasswordSection";
-import { OwnerRegistrationSection } from "../components/OwnerRegistrationSection";
 import { Button } from "@/shared/components/ui/button";
 
 export function ProfilePage() {
@@ -14,10 +13,8 @@ export function ProfilePage() {
     logout,
     isSaving,
     isChangingPassword,
-    isRegisteringOwner,
     updateProfile,
     changePassword,
-    registerOwner,
   } = useProfile();
 
   if (!user) {
@@ -35,9 +32,12 @@ export function ProfilePage() {
     );
   }
 
-  const initials = user.firstName && user.lastName
-    ? `${user.lastName[0]}${user.firstName[0]}`
-    : user.firstName ? user.firstName[0] : "U";
+  const initials =
+    user.firstName && user.lastName
+      ? `${user.lastName[0]}${user.firstName[0]}`
+      : user.firstName
+        ? user.firstName[0]
+        : "U";
 
   const handleLogout = () => {
     logout();
@@ -65,7 +65,9 @@ export function ProfilePage() {
       <AvatarUpload
         currentAvatar={user.avartarUrl || undefined}
         initials={initials}
-        onAvatarChange={(url) => updateProfile({ ...user, avartarUrl: url } as any)}
+        onAvatarChange={(url) =>
+          updateProfile({ ...user, avartarUrl: url } as any)
+        }
       />
 
       {/* Basic info form */}
@@ -86,14 +88,6 @@ export function ProfilePage() {
         onUpdate={changePassword}
         isLoading={isChangingPassword}
       />
-
-      {/* Register as owner */}
-      {!user.isOwner && (
-        <OwnerRegistrationSection
-          onRegister={registerOwner}
-          isLoading={isRegisteringOwner}
-        />
-      )}
 
       {/* Logout */}
       <Button
