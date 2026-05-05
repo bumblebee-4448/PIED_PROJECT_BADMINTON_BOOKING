@@ -1,7 +1,11 @@
-import { Star, MapPin, Phone } from "lucide-react";
+import { Star, MapPin, Phone, Heart } from "lucide-react";
 import type { Court } from "../types";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/shared/components/ui/badge";
+import { useAuthStore } from "@/features/auth/store";
+import { useFavorites } from "@/features/favorites/hooks/useFavorites";
+import { useAddFavorite, useRemoveFavorite } from "@/features/favorites/hooks/useFavoriteMutations";
+import { Button } from "@/shared/components/ui/button";
 
 interface CourtCardProps {
   court: Court;
@@ -9,6 +13,33 @@ interface CourtCardProps {
 }
 
 export function CourtCard({ court, onClick }: CourtCardProps) {
+  const { user, setLoginPromptOpen } = useAuthStore();
+  const { data: favoritesResponse } = useFavorites(1, 100);
+  const { mutate: addFavorite, isPending: isAdding } = useAddFavorite();
+  const { mutate: removeFavorite, isPending: isRemoving } = useRemoveFavorite();
+
+  const isFavorite = favoritesResponse?.items.some(f => f.courtId === court.courtId);
+  const isLoading = isAdding || isRemoving;
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!user) {
+      setLoginPromptOpen(true);
+      return;
+    }
+
+    if (isFavorite) {
+      removeFavorite(court.courtId);
+    } else {
+      addFavorite({ 
+        courtId: court.courtId,
+        courtName: court.name,
+        courtAddress: court.address 
+      });
+    }
+  };
+
   return (
     <div 
       onClick={() => onClick?.(court.courtId)}
@@ -23,10 +54,32 @@ export function CourtCard({ court, onClick }: CourtCardProps) {
           alt={court.name} 
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
         />
-        <div className="absolute top-2 left-2">
+        <div className="absolute top-2 left-2 flex flex-col gap-1.5">
           <Badge variant="secondary" className="bg-white/90 backdrop-blur-md text-[8px] font-bold text-emerald-600 border-emerald-50">
             {court.status.toUpperCase()}
           </Badge>
+        </div>
+
+        {/* Favorite Button */}
+        <div className="absolute top-2 right-2">
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={handleFavoriteClick}
+            disabled={isLoading}
+            className={cn(
+              "w-8 h-8 rounded-full bg-white/70 backdrop-blur-md border border-white/50 shadow-sm transition-all duration-300 hover:scale-110 active:scale-95 group/heart",
+              isFavorite ? "text-red-500 bg-white/90" : "text-gray-400 hover:text-red-400"
+            )}
+          >
+            <Heart 
+              size={16} 
+              className={cn(
+                "transition-all duration-300",
+                isFavorite ? "fill-current scale-110" : "group-hover/heart:scale-110"
+              )} 
+            />
+          </Button>
         </div>
       </div>
 
