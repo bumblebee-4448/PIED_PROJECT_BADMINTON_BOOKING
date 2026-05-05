@@ -69,6 +69,7 @@ public class Service : IService
             Address =  x.Court.Address,
             Status = x.Court.Status,
             AverageRating = x.AverageRating,
+            PictureUrl = x.Court.PictureUrl,
         });
         
         var listResult = await selectedQuery.ToListAsync();
@@ -84,7 +85,7 @@ public class Service : IService
         return result;
     }
 
-    public async Task<Response.SearchCourtResponse> GetCourtsDetailById(Guid courtId)
+    public async Task<Response.SearchCourtByIdResponse> GetCourtsDetailById(Guid courtId)
     {
         var courtResult = await _dbContext.Courts
             .Where(x => x.Id == courtId)

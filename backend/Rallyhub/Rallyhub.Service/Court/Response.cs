@@ -9,6 +9,7 @@ public class Response
         public string Address { get; set; } = null!;
         public string Status { get; set; } = null!;
         public double AverageRating { get; set; }
+        public string PictureUrl { get; set; } = null!;
         
     }
     public class SearchCourtByIdResponse : SearchCourtResponse
@@ -17,7 +18,6 @@ public class Response
         public TimeOnly CloseTime { get; set; }
         public  string? Description { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
-        public string PictureUrl { get; set; } = null!;
         public string MapUrl { get; set; } = null!;
     }
     

@@ -26,8 +26,8 @@ public class CourtController: ControllerBase
             , HttpContext.TraceIdentifier));
     }
     
-    [HttpGet("GetCourtDetailsById")]
-    public async Task<IActionResult> GetCourtsById([FromQuery] Guid courtId)
+    [HttpGet("GetCourtDetailsById{courtId}")]
+    public async Task<IActionResult> GetCourtsById([FromRoute] Guid courtId)
     {
         var result = await _courtService.GetCourtsDetailById(courtId);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
