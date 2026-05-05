@@ -45,6 +45,24 @@ export const API_ENDPOINTS = {
   RITUAL_CATEGORY: {
     BASE: "/ritual-category",
   },
+  /**
+   * Customer endpoints - Quản lý sân yêu thích.
+   */
+  CUSTOMER: {
+    GET_ALL_LIKE_LIST: "/api/Customer/GetAllLikeList",
+    ADD_COURT_LIKE: "/api/Customer/AddCourtLikeList",
+    DELETE_COURT_LIKE: "/api/Customer/DeleteCourtLikeList",
+    GET_ALL_BOOKING: "/api/Customer/GetAllBooking",
+    CHECK_CANCEL_BOOKING: "/api/Customer/CheckCancelBooking",
+    CANCEL_BOOKING: "/api/Customer/CancelBooking",
+  },
+  /**
+   * Court endpoints
+   */
+  COURT: {
+    GET_BY_FILTERS: "/Court/GetByFilters",
+    GET_BY_ID: "/Court/GetById",
+  },
 } as const;
 
 /**
@@ -56,6 +74,10 @@ export const QUERY_KEYS = {
   RITUALS: ["rituals"] as const, // Danh sách rituals (với filters)
   RITUAL_DETAIL: (id: string) => ["ritual", id] as const, // Chi tiết 1 ritual
   RITUAL_CATEGORIES: ["ritual-categories"] as const, // Danh sách categories
+  FAVORITES: ["favorites"] as const, // Danh sách sân yêu thích
+  BOOKINGS: ["bookings"] as const, // Danh sách lịch sử đặt sân
+  COURTS: (filters?: any) => ["courts", filters] as const, // Danh sách sân (với filters)
+  COURT_DETAIL: (id: string) => ["court", id] as const, // Chi tiết 1 sân
 } as const;
 
 /**
