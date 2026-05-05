@@ -26,7 +26,7 @@ public class Response
         public string LastName { get; set; }
         public string PhoneNumber { get; set; }
 
-        public string AvartarUrl { get; set; } =
+        public string AvatarUrl { get; set; } =
             "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSZUbcFx4F7w7LahVB5sGpVUOQxBRycQa4sA&s";
     }
 

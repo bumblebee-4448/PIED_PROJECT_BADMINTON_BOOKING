@@ -20,21 +20,21 @@ public class AdminController: ControllerBase
         _adminService = adminService;
     }
 
-    [HttpGet("getAllUser")]
+    [HttpGet("FilterUser")]
     public async Task<IActionResult> FilterUser
-        (string? search, Guid? id, Enum.Role? role, Enum.StatusUsers? status, int pageIndex = 1, int pageSize = 10)
+        ([FromQuery]Request.FilterUserRequest request)
     {
-        var result = await _adminService.FilterUser(search, id, role, status, pageIndex, pageSize);
+        var result = await _adminService.FilterUser(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
             (result, "Danh sách user", HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("getUserDetailById/{id}")]
-    public async Task<IActionResult> UserDetail(Guid id)
+    [HttpGet("getUserDetailById")]
+    public async Task<IActionResult> UserDetail([FromQuery]Request.UserDetailRequest  request)
     {
-        var result = await _adminService.UserDetail(id);
+        var result = await _adminService.UserDetail(request);
         return Ok(ApiResponseFactory.SuccessResponse
-            (result, $"Thông tin chi tiết của user {id}",  HttpContext.TraceIdentifier));
+            (result, $"Thông tin chi tiết của user",  HttpContext.TraceIdentifier));
     }
     
     [HttpGet("GetOwnerRequest")]
@@ -47,7 +47,6 @@ public class AdminController: ControllerBase
     [HttpGet("AcceptCreateOwner")]
     public async Task<IActionResult> AdminAcceptOwnerRequest(Guid ownerRequestId)
     {
-        
         var result = await _adminService.AdminAcceptOwnerRequest(ownerRequestId);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success you!", HttpContext.TraceIdentifier));
     }
@@ -66,10 +65,10 @@ public class AdminController: ControllerBase
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
             ($"Xóa sân thành công",HttpContext.TraceIdentifier));
     }
-    [HttpPatch("UpdateStatusUser")]
-    public async Task<IActionResult> UpdateStatusUser(Service.Admin.Request.UpdateStatusUserResponse request)
+    [HttpPatch("BanAndUnbanUser")]
+    public async Task<IActionResult> BanAndUnbanUser(Service.Admin.Request.BanAndUnbanUserRequest request)
     {
-        await _adminService.UpdateStatusUser(request);
+        await _adminService.BanAndUnbanUser(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse
             ($"Update status thành công",HttpContext.TraceIdentifier));
     }
@@ -105,9 +104,15 @@ public class AdminController: ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse(result, "Refund Success", HttpContext.TraceIdentifier));
     }
     [HttpGet("GetWallet")]
-    public async Task<IActionResult> GetWallet(string email)
+    public async Task<IActionResult> GetWallet([FromQuery]Request.GetWalletRequest request)
     {
-        var result = await _adminService.GetWallet(email);
+        var result = await _adminService.GetWallet(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Thông tin ví của user", HttpContext.TraceIdentifier));
+    }
+    [HttpGet("GetBookingDetailStatusRefundPending")]
+    public async Task<IActionResult> GetBookingDetailStatusRefundPending()
+    {
+        var result = await _adminService.GetBookingDetailStatusRefundPending();
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Danh sách Booking Detail Status Refund Pending", HttpContext.TraceIdentifier));
     }
 }

@@ -10,6 +10,7 @@ public class Response
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string? PhoneNumber { get; set; }
+        public string? AvatarUrl { get; set; }
         public string Status { get; set; } = "Active";
     }
     public class OwnerDto: UserDto
@@ -92,5 +93,14 @@ public class Response
         public required string BankName  { get; set; }
         public required string BankAccount { get; set; }
         public decimal Balance { get; set; }
+    }
+
+    public class GetBookingDetailStatusRefundPendingResponse
+    {
+        public Guid BookingDetailId  { get; set; }
+        public Guid CustomerId  { get; set; }
+        public string Email   { get; set; }
+        public string Status  { get; set; }
+        public decimal Price  { get; set; }
     }
 }

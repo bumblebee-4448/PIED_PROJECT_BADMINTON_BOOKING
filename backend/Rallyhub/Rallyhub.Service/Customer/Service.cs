@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Org.BouncyCastle.Ocsp;
 using Rallyhub.Repository;
 using Rallyhub.Repository.Entity;
 using Rallyhub.Service.MailService;
@@ -155,7 +156,7 @@ public class Service : IService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<Base.Response.PageResult<Response.LikeListResponse>> GetAllLikeList(int pageIndex, int  pageSize)
+    public async Task<Base.Response.PageResult<Response.LikeListResponse>> GetAllLikeList(Request.LikeListDetailRequest request)
     {
         var getCustomerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         var customerId = Guid.Parse(getCustomerId!);
@@ -168,12 +169,12 @@ public class Service : IService
             return new Base.Response.PageResult<Response.LikeListResponse>()
             {
                 Items = [],
-                PageIndex = pageIndex,
-                PageSize = pageSize,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize,
                 TotalItems = 0,
             };
         }
-        var pageQuery = likeList.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+        var pageQuery = likeList.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
         var selectQuery = pageQuery.Select(x => new Response.LikeListResponse()
         {
             CourtId = x.CourtId,
@@ -184,8 +185,8 @@ public class Service : IService
         return new Base.Response.PageResult<Response.LikeListResponse>()
         {
             Items = listResult,
-            PageIndex = pageIndex,
-            PageSize = pageSize,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize,
             TotalItems = await likeList.CountAsync(),
         };
     }
@@ -244,7 +245,7 @@ public class Service : IService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<Base.Response.PageResult<Response.BookingResponse>> GetAllBooking(int pageIndex, int pageSize)
+    public async Task<Base.Response.PageResult<Response.BookingResponse>> GetAllBooking(Request.GetAllBookingRequest request)
     {
         var getCustomerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         var customerId = Guid.Parse(getCustomerId!);
@@ -254,12 +255,12 @@ public class Service : IService
             return new Base.Response.PageResult<Response.BookingResponse>()
             {
                 Items = [],
-                PageIndex = pageIndex,
-                PageSize = pageSize,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize,
                 TotalItems = 0
             };
         }
-        var pageQuery = bookingList.Skip((pageIndex - 1) * pageSize).Take(pageSize);
+        var pageQuery = bookingList.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
         var selectQuery = pageQuery.Select(x => new Response.BookingResponse()
         {
             Id =  x.Id,
@@ -270,8 +271,8 @@ public class Service : IService
         return new Base.Response.PageResult<Response.BookingResponse>()
         {
             Items = result,
-            PageIndex = pageIndex,
-            PageSize = pageSize,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize,
             TotalItems = await bookingList.CountAsync()
         };
     }

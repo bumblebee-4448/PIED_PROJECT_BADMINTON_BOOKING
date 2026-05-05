@@ -20,9 +20,7 @@ public class Service : IService
     }  
     public async Task<Response.CreateCourtResponse> CreateCourt(Request.CreateCourtRequest request)  
     {        
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
-  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -74,18 +72,18 @@ public class Service : IService
             Status = court.Status,  
         };  
     }  
-    public async Task<Base.Response.PageResult<Response.GetMyCourtsResponse>> GetAllCourts(Request.GetMyCourtsRequest request)  
+    public async Task<Base.Response.PageResult<Response.GetMyCourtsResponse>> GetPendingCourts(Request.GetMyCourtsRequest request)  
     {        
         if (request.PageIndex <= 0)  
         {            
-            throw new ArgumentException("PageIndex must be greater than 0");  
+            throw new ArgumentException("Số trang phải lớn hơn 0");  
         }  
         if (request.PageSize <= 0)  
         {            
-            throw new ArgumentException("PageSize must be greater than 0");  
+            throw new ArgumentException("Các phần tử trong trang phải lớn hơn 0");  
         }        
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
+
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -123,8 +121,7 @@ public class Service : IService
     public async Task<Response.CreateSubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request)
     {
         //kiểm tra owner
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
   
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
@@ -178,8 +175,7 @@ public class Service : IService
         {            
             throw new ArgumentException("PageSize must be greater than 0");  
         }        
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -227,8 +223,7 @@ public class Service : IService
     public async Task<Response.CreateConfigSlotResponse> CreateConfigSlot(Request.CreateConfigSlotRequest request)
     {
         //Lấy token của OwnerId
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -300,8 +295,7 @@ public class Service : IService
     public async Task<List<Response.GetConfigSlotResponse>> GetConfigSlotBySubCourtId(Guid subCourtId)
     {
         //Lấy token của OwnerId
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -338,8 +332,7 @@ public class Service : IService
     public async Task<Response.CreateOverrideSlotResponse> CreateOverrideSlot(Request.CreateOverrideSlotRequest request)
     {
         //Lấy token của OwnerId
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -453,8 +446,7 @@ public class Service : IService
     public async Task<List<Response.GetOverrideSlotResponse>> GetOverrideSlotBySubCourtId(Guid subCourtId)
     {
         //Lấy token của OwnerId
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -497,8 +489,7 @@ public class Service : IService
     public async Task<Response.CreateExceptionSlotResponse> CreateExceptionSlot(Request.CreateExceptionSlotRequest request)
     {
         //Lấy token của OwnerId
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -565,8 +556,7 @@ public class Service : IService
     public async Task<List<Response.GetExceptionSlotResponse>> GetExceptionSlotBySubCourtId(Guid subCourtId)
     {
         //Lấy token của OwnerId
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -605,8 +595,7 @@ public class Service : IService
     public async Task<Response.GetSetupSlotResponse> GetSetupSlots(Guid subCourtId)
     {
         //Lấy token của OwnerId
-        var ownerIdClaim = _httpContext.HttpContext?.User?  
-            .FindFirst(ClaimTypes.NameIdentifier)?.Value;  
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (string.IsNullOrEmpty(ownerIdClaim))  
         {            
             throw new Exception("Owner không tồn tại");  
@@ -679,7 +668,6 @@ public class Service : IService
     {
         var subCourt = await _dbContext.SubCourts
             .FirstOrDefaultAsync(x => x.Id == request.SubCourtId);
-
         if (subCourt == null)
             throw new Exception("Sân con không tồn tại");
         //lay config slot
