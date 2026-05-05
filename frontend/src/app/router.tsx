@@ -9,6 +9,7 @@ import { HomePage } from "@/features/landing/pages/HomePage";
 import { LoginPage } from "@/features/auth/pages/LoginPage";
 import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { VerifyOtpPage } from "@/features/auth/pages/VerifyOtpPage";
+import { ResetPasswordPage } from "@/features/auth/pages/ResetPasswordPage";
 import { ProtectedRoute } from "@/shared/components/common";
 import { ProfilePage } from "@/features/profile";
 import { AdminLayout } from "@/shared/layouts/AdminLayout";
@@ -51,6 +52,14 @@ export const router = createBrowserRouter([
         element: (
           <GuestRoute>
             <VerifyOtpPage />
+          </GuestRoute>
+        ),
+      },
+      {
+        path: "reset-password",
+        element: (
+          <GuestRoute>
+            <ResetPasswordPage />
           </GuestRoute>
         ),
       },

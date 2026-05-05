@@ -1,16 +1,19 @@
 import { z } from "zod";
-import { loginSchema, registerSchema } from "./schema";
+import { loginSchema, registerSchema, forgotPasswordSchema, resetPasswordSchema } from "./schema";
 
 export type LoginInput = z.infer<typeof loginSchema>;
 export type RegisterInput = z.infer<typeof registerSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
 
 export interface User {
-  id: string;
+  id?: string;
   email: string;
-  fullName: string;
-  role: string;
-  avatar?: string;
-  phone?: string;
+  firstName: string;
+  lastName: string;
+  role?: string;
+  avartarUrl?: string | null;
+  phoneNumber?: string;
   isOwner?: boolean;
 }
 

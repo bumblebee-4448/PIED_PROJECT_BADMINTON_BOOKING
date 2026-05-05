@@ -3,22 +3,20 @@ import type { UserRole } from "@/shared/types";
 export interface User {
   id: string;
   email: string;
-  fullName: string;
-  phone: string;
-  avatar?: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  avartarUrl?: string | null;
   role: UserRole;
-  preferredLocation?: string;
-  level?: string;
   isOwner?: boolean;
 }
 
 export interface ProfileUpdateInput {
-  name: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  phone: string;
-  preferredLocation: string;
-  level: string;
-  avatar?: string;
+  phoneNumber: string;
+  avartarUrl?: string | null;
 }
 
 export interface PasswordChangeInput {

@@ -1,45 +1,42 @@
 import { useState, useEffect } from "react";
 import { Check } from "lucide-react";
-import { DISTRICTS, LEVELS } from "../constants";
 import type { ProfileSchema } from "../schema";
 import { Button } from "@/shared/components/ui/button";
 
 interface ProfileFormProps {
   initialData: {
-    fullName: string;
+    firstName: string;
+    lastName: string;
     email: string;
-    phone: string;
-    location: string;
-    level: string;
+    phoneNumber: string;
+    avartarUrl?: string | null;
   };
   onSave: (data: ProfileSchema) => void;
   isSaving: boolean;
 }
 
 export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps) {
-  const [fullName, setFullName] = useState(initialData.fullName);
+  const [firstName, setFirstName] = useState(initialData.firstName);
+  const [lastName, setLastName] = useState(initialData.lastName);
   const [email, setEmail] = useState(initialData.email);
-  const [phone, setPhone] = useState(initialData.phone);
-  const [location, setLocation] = useState(initialData.location);
-  const [level, setLevel] = useState(initialData.level);
+  const [phoneNumber, setPhoneNumber] = useState(initialData.phoneNumber);
   const [saved, setSaved] = useState(false);
 
   // Cập nhật state khi initialData thay đổi (ví dụ khi mock data được load)
   useEffect(() => {
-    setFullName(initialData.fullName);
+    setFirstName(initialData.firstName);
+    setLastName(initialData.lastName);
     setEmail(initialData.email);
-    setPhone(initialData.phone);
-    setLocation(initialData.location);
-    setLevel(initialData.level);
+    setPhoneNumber(initialData.phoneNumber);
   }, [initialData]);
 
   const handleSubmit = () => {
     onSave({
-      fullName,
+      firstName,
+      lastName,
       email,
-      phone,
-      preferredLocation: location,
-      level,
+      phoneNumber,
+      avartarUrl: initialData.avartarUrl,
     });
     setSaved(true);
     setTimeout(() => setSaved(false), 2500);
@@ -51,10 +48,51 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
         Thông tin cơ bản
       </h3>
       <div className="flex flex-col gap-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                color: "#6b7280",
+                display: "block",
+                marginBottom: "6px",
+              }}
+            >
+              Họ
+            </label>
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl outline-none text-sm"
+              style={{ border: "1.5px solid #e5e7eb", background: "#f9fafb" }}
+            />
+          </div>
+          <div>
+            <label
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                color: "#6b7280",
+                display: "block",
+                marginBottom: "6px",
+              }}
+            >
+              Tên
+            </label>
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              className="w-full px-4 py-2.5 rounded-xl outline-none text-sm"
+              style={{ border: "1.5px solid #e5e7eb", background: "#f9fafb" }}
+            />
+          </div>
+        </div>
         {[
-          { label: "Họ và tên", value: fullName, onChange: setFullName, type: "text" },
           { label: "Email", value: email, onChange: setEmail, type: "email" },
-          { label: "Số điện thoại", value: phone, onChange: setPhone, type: "tel" },
+          { label: "Số điện thoại", value: phoneNumber, onChange: setPhoneNumber, type: "tel" },
         ].map(({ label, value, onChange, type }) => (
           <div key={label}>
             <label
@@ -77,7 +115,7 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
             />
           </div>
         ))}
-        <div>
+        {/* <div>
           <label
             style={{
               fontSize: "0.75rem",
@@ -124,7 +162,7 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
               </option>
             ))}
           </select>
-        </div>
+        </div> */}
       </div>
       {saved && (
         <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "#ECFDF5" }}>

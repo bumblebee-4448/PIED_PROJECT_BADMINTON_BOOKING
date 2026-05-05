@@ -1,90 +1,63 @@
-import { useState, useEffect } from "react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuthStore } from "@/features/auth/store";
 import { toast } from "sonner";
 import { profileService } from "../services";
-import type { ProfileSchema, PasswordChangeSchema, OwnerRegistrationSchema } from "../schema";
-import type { User } from "@/features/auth/types";
+import { QUERY_KEYS } from "@/shared/constants";
+import { useMe } from "./useMe";
+import type { ProfileSchema, OwnerRegistrationSchema, ChangePasswordSchema } from "../schema";
 
 export function useProfile() {
-  const { logout, setAuth, user: storeUser, role, accessToken } = useAuthStore();
-  const [user, setUser] = useState<User | null>(storeUser);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [isRegisteringOwner, setIsRegisteringOwner] = useState(false);
+  const queryClient = useQueryClient();
+  const { logout, user: storeUser } = useAuthStore();
+  
+  // Sử dụng useMe để lấy dữ liệu đồng bộ
+  const { data: user, isLoading } = useMe();
 
-  // Lấy thông tin user thực tế từ backend khi mount
-  useEffect(() => {
-    const fetchProfile = async () => {
-      if (!accessToken) return;
-      setIsLoading(true);
-      try {
-        const profileData = await profileService.getMe();
-        setUser(profileData);
-        // Cập nhật store nếu có thay đổi
-        if (accessToken && role) {
-          setAuth(accessToken, role, profileData);
-        }
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
-        // Nếu lỗi 401 thì có thể logout tùy theo policy
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    fetchProfile();
-  }, [accessToken, role, setAuth]);
-
-  const updateProfile = async (data: ProfileSchema) => {
-    setIsSaving(true);
-    try {
-      const updatedUser = await profileService.updateProfile(data);
-      setUser(updatedUser);
-      if (accessToken && role) {
-        setAuth(accessToken, role, updatedUser);
-      }
-      toast.success("Cập nhật thông tin thành công!");
-    } catch (error) {
+  // 1. Mutation cập nhật Profile
+  const updateProfileMutation = useMutation({
+    mutationFn: (data: ProfileSchema) => profileService.updateProfile(data),
+    onSuccess: async (message) => {
+      toast.success(message || "Cập nhật thông tin thành công!");
+      // Refresh dữ liệu user
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ME });
+    },
+    onError: () => {
       toast.error("Cập nhật thất bại. Vui lòng thử lại.");
-    } finally {
-      setIsSaving(false);
-    }
-  };
+    },
+  });
 
-  const changePassword = async (data: PasswordChangeSchema) => {
-    setIsChangingPassword(true);
-    try {
-      await profileService.changePassword(data);
+  // 2. Mutation đổi mật khẩu
+  const changePasswordMutation = useMutation({
+    mutationFn: (data: ChangePasswordSchema) => profileService.changePassword(data),
+    onSuccess: () => {
       toast.success("Đổi mật khẩu thành công!");
-    } catch (error) {
-      toast.error("Đổi mật khẩu thất bại.");
-    } finally {
-      setIsChangingPassword(false);
-    }
-  };
+    },
+    onError: (error: any) => {
+      const message = error?.response?.data?.message || "Đổi mật khẩu thất bại.";
+      toast.error(message);
+    },
+  });
 
-  const registerOwner = async (data: OwnerRegistrationSchema) => {
-    setIsRegisteringOwner(true);
-    try {
-      await profileService.registerOwner(data);
+  // 3. Mutation đăng ký chủ sân
+  const registerOwnerMutation = useMutation({
+    mutationFn: (data: OwnerRegistrationSchema) => profileService.registerOwner(data),
+    onSuccess: () => {
       toast.success("Yêu cầu đăng ký đã được gửi!");
-    } catch (error) {
+    },
+    onError: () => {
       toast.error("Gửi yêu cầu thất bại.");
-    } finally {
-      setIsRegisteringOwner(false);
-    }
-  };
+    },
+  });
 
   return {
-    user,
+    user: user || storeUser, // Ưu tiên data từ react-query, fallback về store
     isLoading,
     logout,
-    isSaving,
-    isChangingPassword,
-    isRegisteringOwner,
-    updateProfile,
-    changePassword,
-    registerOwner,
+    isSaving: updateProfileMutation.isPending,
+    isChangingPassword: changePasswordMutation.isPending,
+    isRegisteringOwner: registerOwnerMutation.isPending,
+    updateProfile: updateProfileMutation.mutateAsync,
+    changePassword: changePasswordMutation.mutateAsync,
+    registerOwner: registerOwnerMutation.mutateAsync,
   };
 }

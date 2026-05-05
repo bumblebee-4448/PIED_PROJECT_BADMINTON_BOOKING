@@ -12,6 +12,12 @@ public class Response
         public string PhoneNumber { get; set; } = null!;
         public string PictureUrl { get; set; } = null!;
         public string MapUrl { get; set; } = null!;
-
     }
+    public class SearchCourtByIdResponse : SearchCourtResponse
+    {
+        public TimeOnly OpenTime  { get; set; }
+        public TimeOnly CloseTime { get; set; }
+        public  string? Description { get; set; } = null!;
+    }
+    
 }

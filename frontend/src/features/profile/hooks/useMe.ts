@@ -16,9 +16,15 @@ export const useMe = () => {
   });
 
   // Đồng bộ hóa dữ liệu Query vào AuthStore khi có kết quả mới
+  const storeUser = useAuthStore((state) => state.user);
   useEffect(() => {
     if (query.data && accessToken && role) {
-      setAuth(accessToken, role, query.data);
+      // Kết hợp data mới từ GetMe với id/role hiện tại (vì GetMe không trả về id/role)
+      const mergedUser = {
+        ...storeUser,
+        ...query.data,
+      };
+      setAuth(accessToken, role, mergedUser);
     }
   }, [query.data, accessToken, role, setAuth]);
 

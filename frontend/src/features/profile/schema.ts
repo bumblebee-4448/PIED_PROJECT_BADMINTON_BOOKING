@@ -1,17 +1,11 @@
 import { z } from "zod";
 
 export const profileSchema = z.object({
-  fullName: z.string().min(2, "Họ tên phải có ít nhất 2 ký tự"),
+  firstName: z.string().min(1, "Tên không được để trống"),
+  lastName: z.string().min(1, "Họ không được để trống"),
   email: z.string().email("Email không hợp lệ"),
-  phone: z.string().regex(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
-  preferredLocation: z.string().min(1, "Vui lòng chọn khu vực"),
-  level: z.string().min(1, "Vui lòng chọn trình độ"),
-  avatar: z.string().optional(),
-});
-
-export const passwordChangeSchema = z.object({
-  otp: z.string().length(6, "Mã OTP phải có 6 chữ số"),
-  newPassword: z.string().min(6, "Mật khẩu phải có ít nhất 6 ký tự"),
+  phoneNumber: z.string().regex(/^[0-9]{10}$/, "Số điện thoại phải có 10 chữ số"),
+  avartarUrl: z.string().nullable().optional(),
 });
 
 export const ownerRegistrationSchema = z.object({
@@ -20,6 +14,15 @@ export const ownerRegistrationSchema = z.object({
   idCard: z.string().min(9, "Số CCCD/CMND không hợp lệ"),
 });
 
+export const changePasswordSchema = z.object({
+  oldPassword: z
+    .string()
+    .min(6, { message: "Mật khẩu cũ phải có ít nhất 6 ký tự" }),
+  newPassword: z
+    .string()
+    .min(6, { message: "Mật khẩu mới phải có ít nhất 6 ký tự" }),
+});
+
+export type ChangePasswordSchema = z.infer<typeof changePasswordSchema>;
 export type ProfileSchema = z.infer<typeof profileSchema>;
-export type PasswordChangeSchema = z.infer<typeof passwordChangeSchema>;
 export type OwnerRegistrationSchema = z.infer<typeof ownerRegistrationSchema>;

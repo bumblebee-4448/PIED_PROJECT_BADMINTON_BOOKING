@@ -1,6 +1,6 @@
 import { apiClient } from "@/lib/axios";
 import { API_ENDPOINTS } from "@/shared/constants";
-import type { LoginInput, RegisterInput, AuthResponse } from "./types";
+import type { LoginInput, RegisterInput, AuthResponse, ForgotPasswordInput, ResetPasswordInput } from "./types";
 
 export const authService = {
   login: async (data: LoginInput): Promise<AuthResponse> => {
@@ -27,6 +27,14 @@ export const authService = {
 
   verifyOtp: async (email: string, otpCode: string): Promise<string> => {
     return apiClient.post(API_ENDPOINTS.AUTH.VERIFY_OTP, { email, otpCode });
+  },
+
+  forgotPassword: async (data: ForgotPasswordInput): Promise<void> => {
+    return apiClient.post(API_ENDPOINTS.AUTH.FORGOT_PASSWORD, data);
+  },
+
+  resetPassword: async (data: ResetPasswordInput): Promise<void> => {
+    return apiClient.put(API_ENDPOINTS.AUTH.RESET_PASSWORD, data);
   },
 
   logout: async (): Promise<void> => {
