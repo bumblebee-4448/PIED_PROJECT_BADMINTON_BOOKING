@@ -1,16 +1,20 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { Search, List, Map as MapIcon, Loader2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { useCourts } from "../hooks/useCourts";
 import { CourtCard } from "../components/CourtCard";
 import { CourtFilters } from "../components/CourtFilters";
 import { CourtDetailDialog } from "../components/CourtDetailDialog";
+import { CourtMap } from "../components/CourtMap";
 import { cn } from "@/lib/utils";
 import { useCourtSearch } from "../hooks/useCourtSearch";
 
 export function CourtSearchPage() {
-  const [selectedDistrict, setSelectedDistrict] = useState("Tất cả");
-  const { searchQuery, setSearchQuery, debouncedSearch } = useCourtSearch();
+  const { 
+    searchQuery, 
+    setSearchQuery, 
+    debouncedSearch,
+  } = useCourtSearch();
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   
   // Detail Dialog State
@@ -20,16 +24,15 @@ export function CourtSearchPage() {
 
   const filters = useMemo(() => ({
     search: debouncedSearch,
-    district: selectedDistrict,
-  }), [debouncedSearch, selectedDistrict]);
+  }), [debouncedSearch]);
 
   const { data: response, isLoading, isError } = useCourts(filters);
   const courts = response?.items || [];
 
-  const handleCardClick = (id: string) => {
+  const handleCardClick = useCallback((id: string) => {
     setSelectedCourtId(id);
     setIsDialogOpen(true);
-  };
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#F9FBFA] pb-20 pt-20">
@@ -45,8 +48,6 @@ export function CourtSearchPage() {
         <CourtFilters 
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          selectedDistrict={selectedDistrict}
-          setSelectedDistrict={setSelectedDistrict}
         />
       </div>
 
@@ -121,11 +122,11 @@ export function CourtSearchPage() {
             )}
           </div>
         ) : (
-          <div className="bg-white rounded-[2.5rem] h-[60vh] flex items-center justify-center border border-gray-100 shadow-sm">
-            <div className="text-center">
-              <MapIcon size={48} className="mx-auto text-emerald-200 mb-4" />
-              <p className="text-gray-400 font-bold">Chức năng bản đồ đang được phát triển...</p>
-            </div>
+          <div className="h-[70vh] w-full">
+            <CourtMap 
+              onMarkerClick={handleCardClick} 
+              searchQuery={debouncedSearch}
+            />
           </div>
         )}
       </div>

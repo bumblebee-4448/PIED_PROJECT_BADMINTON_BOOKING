@@ -107,10 +107,6 @@ export function CourtCard({ court, onClick }: CourtCardProps) {
               <Star size={10} className="fill-orange-400 text-orange-400" />
               <span className="text-[10px] font-black text-orange-600">{court.averageRating}</span>
             </div>
-            {/* Placeholder for reviews since not in filter API snippet */}
-            <span className="text-[8px] font-bold text-gray-300 uppercase tracking-widest">
-              (ĐANG CẬP NHẬT)
-            </span>
           </div>
         </div>
 

@@ -37,3 +37,32 @@ export interface CourtListResponse {
   pageSize: number;
   pageIndex: number;
 }
+
+export interface CourtMapItem {
+  id: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface MapSearchResponse {
+  listCourts: CourtMapItem[];
+  totalCount: number;
+}
+
+export interface BoundingBoxRequest {
+  minLon: number;
+  minLat: number;
+  maxLon: number;
+  maxLat: number;
+}
+
+export interface RadiusRequest {
+  latitude: number;
+  longitude: number;
+  radiusKm?: number;
+}
+
+export interface TextSearchRequest {
+  text: string;
+  radiusKm?: number;
+}
