@@ -32,10 +32,10 @@ public class SendOtpJob : IJob
                 subject = "Người tình trong mộng Ralluhub";
                 htmlBody = MailTemplate.GeneratePasswordResetTemplate(email, otpCode);
                 break;
-            case "Approval":
-                subject = "Người tình trong mộng Ralluhub";
-                htmlBody = MailTemplate.GenerateApprovalTemplate(email);
-                break;
+            // case "Approval":
+            //     subject = "Người tình trong mộng Ralluhub";
+            //     htmlBody = MailTemplate.GenerateApprovalTemplate(email);
+            //     break;
             // case "Rejection":
             //     subject = "rallyhub - yêu cầu khôi phục mật khẩu";
             //     htmlBody = MailTemplate.GenerateRejectionTemplate(email, );

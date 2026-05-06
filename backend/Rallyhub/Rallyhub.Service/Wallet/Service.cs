@@ -50,6 +50,7 @@ public class Service : IService
 
         wallet.BankAccount = request.BankAccount;
         wallet.BankName = request.BankName;
+        wallet.BankAccountName = request.BankAccountName;
         var result = await _dbcontext.SaveChangesAsync();
         if (result > 0)
         {
@@ -58,9 +59,26 @@ public class Service : IService
         return "Failed add infor wallet";
     }
 
-    public Task<string> GetInforWallet()
+    public async Task<Response.GetInfoWalletResponse> GetInforWallet()
     {
-        throw new NotImplementedException();
+        var userIdGuild = Guid.Parse(_httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")!.Value);
+        var wallet = await _dbcontext.Wallets.Include(wallet => wallet.User).FirstOrDefaultAsync(x => x.UserId == userIdGuild);
+        if (wallet == null)
+        {
+            throw new Exception("Wallet not found");
+        }
+
+        var selectQuery = new Response.GetInfoWalletResponse()
+        {
+            Id = wallet.Id,
+            FirstName = wallet.User.FirstName,
+            LastName = wallet.User.LastName,
+            BankName = wallet.BankName,
+            BankAccount = wallet.BankAccount,
+            BankAccountName = wallet.BankAccountName,
+            Balance = wallet.Balance,
+        };
+        return selectQuery;
     }
     
     public async Task<string> RemoveBankWallet()
@@ -74,6 +92,7 @@ public class Service : IService
 
         wallet.BankAccount = null;
         wallet.BankName = null;
+        wallet.BankAccountName = null;
         var result = await _dbcontext.SaveChangesAsync();
         if (result > 0)
         {
@@ -81,6 +100,5 @@ public class Service : IService
         }
         return "Failed remove bank wallet";
     }
-
     
 }

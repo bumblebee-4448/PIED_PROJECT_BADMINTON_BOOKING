@@ -248,6 +248,17 @@ public class Service: IService
         var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.Id == customerId);
         // _dbContext.Customers.Remove(customer!);
         var result = await _dbContext.SaveChangesAsync();
+        //gửi mail
+        var subject = "Người tình trong mộng Ralluhub";
+        var bodyMail = "Hồ sơ đăng ký làm chủ sân cầu lông của bạn đã được ban quản trị xét duyệt thành công.<br>" +
+                       "Ngay bây giờ, bạn đã có thể đăng nhập vào hệ thống quản lý của rallyhub để thiết lập giá sân, lịch hoạt động và đón những vị khách đầu tiên.";
+        await _mailService.SendMail(new MailContent()
+        {
+            To = newOwner.User.Email,
+            Subject = subject,
+            Body = MailTemplate.GenerateApprovalTemplate(newOwner.User.Email, bodyMail),
+        });
+        
         if (result > 0)
         {
             return "Success";
@@ -270,6 +281,16 @@ public class Service: IService
         query.RejectionReason = rejectReason;
         query.UpdatedAt = DateTimeOffset.UtcNow;
         var result = await _dbContext.SaveChangesAsync();
+        //gửi mail
+        var subject = "Người tình trong mộng Ralluhub";
+        var bodyMail = "Cảm ơn bạn đã gửi hồ sơ đăng ký đối tác cho rallyhub.<br>" +
+                       "Tuy nhiên, sau khi xem xét, chúng tôi chưa thể duyệt hồ sơ của bạn vào lúc này.";
+        await _mailService.SendMail(new MailContent()
+        {
+            To = query.Customer.User.Email,
+            Subject = subject,
+            Body = MailTemplate.GenerateRejectionTemplate(query.Customer.User.Email, bodyMail, rejectReason),
+        });
         if (result > 0)
         {
             return "Success";

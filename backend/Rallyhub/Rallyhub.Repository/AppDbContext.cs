@@ -74,6 +74,7 @@
         public DbSet<Transaction>  Transactions { get; set; }
         public DbSet<User>  Users { get; set; }
         public DbSet<Wallet>  Wallets { get; set; }
+        public DbSet<Withdrawal> Withdrawals { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -875,7 +876,7 @@
             {
                 builder.HasKey(x => x.Id);
                 builder.Property(x => x.BankName)
-                    .HasMaxLength(50);
+                    .HasMaxLength(250);
                 builder.Property(x => x.BankAccount)
                     .HasMaxLength(100);
                 builder.Property(x => x.Balance)
@@ -897,6 +898,46 @@
                     new() { Id = WalletId4, BankName = "VPBank",      BankAccount = "5678901234", Balance = 3_500_000,  Version = 0, UserId = UserId5},
                 };
                 builder.HasData(wallets);
+            });
+            
+            modelBuilder.Entity<Withdrawal>(builder =>
+            {
+                builder.HasKey(x => x.Id);
+                builder.Property(x => x.Amount)
+                    .IsRequired()
+                    .HasColumnType("decimal(18,2)");
+                builder.Property(x => x.BankName)
+                    .IsRequired()
+                    .HasMaxLength(250);
+                builder.Property(x => x.BankAccountNumber)
+                    .IsRequired()
+                    .HasMaxLength(100);
+                builder.Property(x => x.BankAccountName)
+                    .IsRequired()
+                    .HasMaxLength(250);
+                builder.Property(x => x.Status)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .HasDefaultValue("Pending");
+                builder.Property(x => x.RejectionReason)
+                    .HasMaxLength(500);
+                builder.Property(x => x.AdminNote)
+                    .HasMaxLength(500);
+                
+                builder.HasOne(x => x.Wallet)
+                    .WithMany(x => x.Withdrawals)
+                    .HasForeignKey(x => x.WalletId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                    
+                builder.HasOne(x => x.ProcessedByAdmin)
+                    .WithMany()
+                    .HasForeignKey(x => x.ProcessedByAdminId)
+                    .OnDelete(DeleteBehavior.Restrict);
+                    
+                builder.HasOne(x => x.Transaction)
+                    .WithMany()
+                    .HasForeignKey(x => x.TransactionId)
+                    .OnDelete(DeleteBehavior.SetNull);
             });
         }
     }
