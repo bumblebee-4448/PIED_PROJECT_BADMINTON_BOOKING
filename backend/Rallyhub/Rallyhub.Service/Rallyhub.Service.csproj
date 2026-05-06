@@ -25,7 +25,6 @@
 
     <ItemGroup>
       <Folder Include="SepayService\" />
-      <Folder Include="Wallet\" />
     </ItemGroup>
 
 </Project>

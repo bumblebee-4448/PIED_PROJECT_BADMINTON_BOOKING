@@ -18,6 +18,8 @@ using CustomerService = Rallyhub.Service.Customer;
 using OwnerService = Rallyhub.Service.Owner;
 using MapService = Rallyhub.Service.MapService;
 using TransactionService = Rallyhub.Service.Transaction;
+using WalletService = Rallyhub.Service.Wallet;
+
 // using DiscordService = Rallyhub.Service.DiscordService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,6 +56,7 @@ builder.Services.AddScoped<AdminService.IService, AdminService.Service>();
 builder.Services.AddScoped<CustomerService.IService, CustomerService.Service>();
 builder.Services.AddScoped<OwnerService.IService, OwnerService.Service>();
 builder.Services.AddScoped<TransactionService.IService, TransactionService.Service>();
+builder.Services.AddScoped<WalletService.IService, WalletService.Service>();
 
 
 

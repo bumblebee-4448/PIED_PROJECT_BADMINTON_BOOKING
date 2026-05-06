@@ -5,6 +5,7 @@ public class Response
     public class GetOwnerRequestResponse
     {
         public Guid Id { get; set; }
+        public Guid UserId { get; set; }
         public Guid CustomerId { get; set; }
         public Guid? OwnerId { get; set; } = null;
         public string? BusinessName { get; set; }

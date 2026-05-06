@@ -79,6 +79,7 @@ public class Service : IService
         var selectOwnerRequest = ownerRequestQuery.Select(x => new Response.GetOwnerRequestResponse()
         {
             Id =  x.Id,
+            UserId = x.Customer.UserId,
             CustomerId = x.CustomerId,
             OwnerId = x.OwnerId,
             BusinessName = x.BusinessName,

@@ -117,40 +117,19 @@ public class Service : IService
         };
     }
 
-    public async Task CreateWallet(Request.CreateAndUpdateWalletRequest request)
-    {
-        var getUserId = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
-        var userId = Guid.Parse(getUserId!);
-        var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId);
-        if (wallet != null)
-        {
-            throw new Exception("Ví đã tồn tại");
-        }
-        var userWallet = new Repository.Entity.Wallet()
-        {
-            UserId = userId,
-            BankName =  request.BankName,
-            BankAccount =  request.BankAccount,
-            Balance = 0,
-            CreatedAt = DateTimeOffset.UtcNow,
-        };
-        await _dbContext.Wallets.AddAsync(userWallet);
-        await _dbContext.SaveChangesAsync();
-    }
-
-    public async Task UpdateWallet(Request.CreateAndUpdateWalletRequest request)
-    {
-        var getUserId = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
-        var userId = Guid.Parse(getUserId!);
-        var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId);
-        if (wallet == null)
-        {
-            throw new Exception("Ví chưa được tạo");
-        }
-        wallet.BankName = request.BankName;
-        wallet.BankAccount = request.BankAccount;
-        wallet.UpdatedAt = DateTimeOffset.UtcNow;
-        _dbContext.Wallets.Update(wallet);
-        await _dbContext.SaveChangesAsync();
-    }
+    // public async Task UpdateWallet(Request.CreateAndUpdateWalletRequest request)
+    // {
+    //     var getUserId = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+    //     var userId = Guid.Parse(getUserId!);
+    //     var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId);
+    //     if (wallet == null)
+    //     {
+    //         throw new Exception("Ví chưa được tạo");
+    //     }
+    //     wallet.BankName = request.BankName;
+    //     wallet.BankAccount = request.BankAccount;
+    //     wallet.UpdatedAt = DateTimeOffset.UtcNow;
+    //     _dbContext.Wallets.Update(wallet);
+    //     await _dbContext.SaveChangesAsync();
+    // }
 }

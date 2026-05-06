@@ -15,27 +15,27 @@ namespace Rallyhub.Service.IdentityService;
 public class Service : IService
 {
     private readonly AppDbContext _dbContext;
-    private readonly IDistributedCache _redisCache; // Giữ lại chỉ để dùng cho tính năng Logout
+    // private readonly IDistributedCache _redisCache; // Giữ lại chỉ để dùng cho tính năng Logout
     private readonly JwtService.IService _jwtService;
     private readonly OtpService.IService _otpService;       // Khai báo chuyên gia OTP
     private readonly JwtOptions _jwtOption = new();
     private readonly SecurityOptions _securityOptions = new();
-    private readonly IHttpContextAccessor _httpAccessor;
+    private readonly Wallet.IService _walletService;
 
     public Service(AppDbContext dbContext, 
-        IDistributedCache redisCache, 
+        // IDistributedCache redisCache, 
         IConfiguration configuration,
         JwtService.IService jwtService,
         OtpService.IService otpService,
-        IHttpContextAccessor httpContextAccesso)
+        Wallet.IService walletService)
     {
         _dbContext = dbContext;
-        _redisCache = redisCache;
+        // _redisCache = redisCache;
         _jwtService = jwtService;
         _otpService = otpService;
         configuration.GetSection(nameof(JwtOptions)).Bind(_jwtOption);
         configuration.GetSection(nameof(SecurityOptions)).Bind(_securityOptions);
-        _httpAccessor = httpContextAccesso;
+        _walletService = walletService;
     }
     
     public async Task<string> RegisterTask(User.Request.RegisterRequest request)
@@ -76,7 +76,7 @@ public class Service : IService
             CreatedAt = DateTimeOffset.UtcNow,
         };
         _dbContext.Users.Add(newUser);
-
+        
         var newCustomer = new Repository.Entity.Customer()
         {
             UserId = newUser.Id,
@@ -84,8 +84,9 @@ public class Service : IService
         _dbContext.Customers.Add(newCustomer);
         
         var result = await _dbContext.SaveChangesAsync(); 
-        
         if (result <= 0) throw new Exception("Fail");
+        await _walletService.CreateWallet(newUser.Id);
+        
         var claims = new List<Claim>
         {
             new Claim("UserId", newUser.Id.ToString()), 
@@ -177,32 +178,6 @@ public class Service : IService
             AccessToken = token
         };
     }
-
-    // public async Task<string> Logout(string token)
-    // {
-    //     try
-    //     {
-    //         var handler = new JwtSecurityTokenHandler();
-    //         var jwtToken = handler.ReadJwtToken(token);
-    //         var expDate = jwtToken.ValidTo;
-    //         var remainingTime = expDate - DateTime.UtcNow;
-    //
-    //         if (remainingTime.TotalSeconds > 0)
-    //         {
-    //             string blacklistKey = $"Blacklist:{token}";
-    //             await _redisCache.SetStringAsync(blacklistKey, "revoked", new DistributedCacheEntryOptions
-    //             {
-    //                 AbsoluteExpirationRelativeToNow = remainingTime
-    //             });
-    //         }
-    //
-    //         return "Success";
-    //     }
-    //     catch (Exception)
-    //     {
-    //         throw new Exception("Token không hợp lệ hoặc đã bị can thiệp.");
-    //     }
-    // }
     
     public async Task<string> ForgotPassword(Request.ForgotPasswordRequest request)
     {

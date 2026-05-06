@@ -1,4 +1,4 @@
-﻿    using Microsoft.EntityFrameworkCore;
+    using Microsoft.EntityFrameworkCore;
     using Rallyhub.Repository.Entity;
     using Exception = Rallyhub.Repository.Entity.Exception;
 
@@ -875,16 +875,15 @@
             {
                 builder.HasKey(x => x.Id);
                 builder.Property(x => x.BankName)
-                    .IsRequired()
                     .HasMaxLength(50);
                 builder.Property(x => x.BankAccount)
-                    .IsRequired()
                     .HasMaxLength(100);
                 builder.Property(x => x.Balance)
                     .IsRequired()
                     .HasColumnType("decimal(18,2)")
                     .HasDefaultValue(0);
-                builder.Property(x => x.Version);
+                builder.Property(x => x.Version)
+                    .IsConcurrencyToken();
                 builder.HasOne(x => x.User)
                     .WithOne(x => x.Wallet)
                     .HasForeignKey<Wallet> (x => x.UserId)
