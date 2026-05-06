@@ -41,7 +41,7 @@ export const API_ENDPOINTS = {
    */
   COURT: {
     GET_BY_FILTERS: "/Court/GetByFilters",
-    GET_BY_ID: "/Court/GetCourtDetailsById",
+    GET_BY_ID: "/Court/GetCourtDetailsById{courtId}",
   },
   MAP: {
     BOXING_BOX: "/Map/boxing-box",

@@ -25,9 +25,7 @@ export const courtService = {
 
   // Lấy thông tin chi tiết của một sân cụ thể bằng ID
   getCourtById: async (id: string): Promise<CourtDetail> => {
-    return apiClient.get(API_ENDPOINTS.COURT.GET_BY_ID, {
-      params: { courtId: id },
-    });
+    return apiClient.get(API_ENDPOINTS.COURT.GET_BY_ID.replace("{courtId}", id));
   },
 
   // Map Search APIs
