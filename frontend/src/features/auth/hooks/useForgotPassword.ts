@@ -14,9 +14,5 @@ export const useForgotPassword = () => {
       // Redirect to reset-password page, passing email in state
       navigate("/reset-password", { state: { email: variables.email } });
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || "Gửi yêu cầu thất bại. Vui lòng thử lại.";
-      toast.error(message);
-    },
   });
 };

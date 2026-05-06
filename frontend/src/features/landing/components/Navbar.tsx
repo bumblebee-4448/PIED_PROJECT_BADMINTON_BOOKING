@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import {  Menu, X } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store";
 import { cn } from "@/lib/utils";
+import { OwnerRegistrationButton } from "@/features/owner-registration";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -15,7 +16,7 @@ export function Navbar() {
     { label: "Tìm sân", path: "/courts" },
     { label: "Yêu thích", path: "/favorites" },
     { label: "Matching", path: "/matching" },
-    { label: "Lịch sử", path: "/history"},
+    { label: "Lịch sử", path: "/history" },
   ];
 
   const handleBookingClick = () => {
@@ -41,8 +42,8 @@ export function Navbar() {
     <nav className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-sm">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo */}
-        <div 
-          className="flex items-center gap-2 cursor-pointer" 
+        <div
+          className="flex items-center gap-2 cursor-pointer"
           onClick={() => navigate("/")}
         >
           <div
@@ -86,9 +87,9 @@ export function Navbar() {
                 onClick={() => handleNavItemClick(item.path)}
                 className={cn(
                   "transition-all duration-300 text-sm font-bold relative py-2 outline-none",
-                  isActive 
-                    ? "text-emerald-600 after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-emerald-600 after:rounded-full after:animate-in after:fade-in after:slide-in-from-bottom-1" 
-                    : "text-gray-600 hover:text-emerald-600"
+                  isActive
+                    ? "text-emerald-600 after:absolute after:bottom-[-4px] after:left-0 after:right-0 after:h-0.5 after:bg-emerald-600 after:rounded-full after:animate-in after:fade-in after:slide-in-from-bottom-1"
+                    : "text-gray-600 hover:text-emerald-600",
                 )}
               >
                 {item.label}
@@ -102,13 +103,14 @@ export function Navbar() {
               <button
                 onClick={handleBookingClick}
             className="px-5 py-2 rounded-full text-white text-sm transition-all duration-200 hover:shadow-lg hover:scale-105"
-                style={{
-                  background: "linear-gradient(135deg, #00C896, #00897B)",
+            style={{
+              background: "linear-gradient(135deg, #00C896, #00897B)",
               fontWeight: 600,
-                }}
-              >
-                Đặt sân ngay
-              </button>
+            }}
+          >
+            Đặt sân ngay
+          </button>
+          <OwnerRegistrationButton variant="header" />
           {!accessToken && (
             <button
               onClick={handleLoginClick}

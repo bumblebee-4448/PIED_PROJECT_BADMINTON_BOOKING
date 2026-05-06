@@ -5,6 +5,13 @@ import { env } from "@/lib/env";
 import { useAuthStore } from "@/features/auth/store";
 import { API_ENDPOINTS } from "@/shared/constants";
 
+// ─── Custom Types ────────────────────────────────────────
+declare module "axios" {
+  export interface AxiosRequestConfig {
+    skipToast?: boolean;
+  }
+}
+
 // ─── Axios Instance ──────────────────────────────────────
 export const apiClient = axios.create({
   baseURL: env.VITE_API_URL,
@@ -186,9 +193,19 @@ apiClient.interceptors.response.use(
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     // 🔴 XỬ LÝ LỖI CHUNG (400, 403, 404, 500...)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+    
+    // Nếu request yêu cầu skip toast thì skip luôn
+    if (originalRequest.skipToast) {
+      return Promise.reject(error);
+    }
+
     // Normalize error message từ server
+    // BE thường trả về: { message: "...", statusCode: 400, ... }
     const message =
-      error.response?.data?.message ?? error.message ?? "Đã có lỗi xảy ra";
+      error.response?.data?.message || 
+      error.response?.data?.Message || // Case sensitive fallback
+      error.message || 
+      "Đã có lỗi xảy ra";
 
     // Toast error cho user TRỪ KHI là logout endpoint (useLogout hook tự toast)
     const isLogoutEndpoint = originalRequest.url?.includes("/auth/logout");

@@ -17,6 +17,7 @@ import { AdminLayout } from "@/shared/layouts/AdminLayout";
 import { AdminDashboard, OwnerDashboard } from "@/features/dashboard";
 import { CourtSearchPage } from "@/features/courts";
 import { BookingHistoryPage } from "@/features/bookings";
+import { OwnerRequestsPage } from "@/features/admin-owner-requests";
 
 /**
  * React Router v6 config – createBrowserRouter (Data API).
@@ -104,11 +105,12 @@ export const router = createBrowserRouter([
     path: "admin",
     element: (
       <ProtectedRoute allowedRoles={["Admin"]}>
-        <AdminLayout/>
+        <AdminLayout />
       </ProtectedRoute>
     ),
     children: [
       { index: true, element: <AdminDashboard /> },
+      { path: "owner-requests", element: <OwnerRequestsPage /> },
     ],
   },
 
@@ -117,11 +119,9 @@ export const router = createBrowserRouter([
     path: "owner",
     element: (
       <ProtectedRoute allowedRoles={["Owner"]}>
-        <AdminLayout/>
+        <AdminLayout />
       </ProtectedRoute>
     ),
-    children: [
-      { index: true, element: <OwnerDashboard /> },
-    ],
+    children: [{ index: true, element: <OwnerDashboard /> }],
   },
 ]);

@@ -153,7 +153,12 @@ public class Service: IService
     
     public async Task<Base.Response.PageResult<Response.AdminGetOwnerRequestResponse>> AdminGetOwnerRequest(Base.Request.Pagination request)
     {
-        var query = _dbContext.OwnerRequests.Where(x => x.Status == "Pending");
+        //Customer và User để lấy thông tin cá nhân
+        var query = _dbContext.OwnerRequests
+            .Include(x => x.Customer)
+            .ThenInclude(c => c.User)
+            .Where(x => x.Status == "Pending");
+
         if (request.Id != null)
         {
             query = query.Where(x => x.CustomerId == request.Id);
@@ -168,14 +173,17 @@ public class Service: IService
                 x.TaxCode.Contains(request.Search));
         }
 
+        var total = await query.CountAsync();
+
         query = query.OrderBy(x => x.CreatedAt);
         query = query
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize);
+
         var selectOwenerRequest = query.Select(x => new Response.AdminGetOwnerRequestResponse()
         {
             Id = x.Id,
-            UserId =  x.Customer.UserId,
+            UserId = x.Customer.UserId,
             CustomerId = x.CustomerId,
             BusinessName = x.BusinessName,
             TaxCode = x.TaxCode,
@@ -186,9 +194,15 @@ public class Service: IService
             IdentityCardBackUrl = x.IdentityCardBackUrl,
             Status = x.Status,
             CreatedAt = x.CreatedAt,
+            // Thông tin customer từ User entity
+            FirstName = x.Customer.User.FirstName,
+            LastName = x.Customer.User.LastName,
+            Email = x.Customer.User.Email,
+            PhoneNumber = x.Customer.User.PhoneNumber,
+            AvatarUrl = x.Customer.User.AvatarUrl,
         });
+
         var listOwnerRequest = await selectOwenerRequest.ToListAsync();
-        var total = listOwnerRequest.Count();
 
         var result = new Base.Response.PageResult<Response.AdminGetOwnerRequestResponse>()
         {

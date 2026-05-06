@@ -21,9 +21,6 @@ export function useProfile() {
       // Refresh dữ liệu user
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.ME });
     },
-    onError: () => {
-      toast.error("Cập nhật thất bại. Vui lòng thử lại.");
-    },
   });
 
   // 2. Mutation đổi mật khẩu
@@ -32,10 +29,6 @@ export function useProfile() {
     onSuccess: () => {
       toast.success("Đổi mật khẩu thành công!");
     },
-    onError: (error: any) => {
-      const message = error?.response?.data?.message || "Đổi mật khẩu thất bại.";
-      toast.error(message);
-    },
   });
 
   // 3. Mutation đăng ký chủ sân
@@ -43,9 +36,6 @@ export function useProfile() {
     mutationFn: (data: OwnerRegistrationSchema) => profileService.registerOwner(data),
     onSuccess: () => {
       toast.success("Yêu cầu đăng ký đã được gửi!");
-    },
-    onError: () => {
-      toast.error("Gửi yêu cầu thất bại.");
     },
   });
 

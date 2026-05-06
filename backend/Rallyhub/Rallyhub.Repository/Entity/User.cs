@@ -10,7 +10,7 @@ public class User : BaseEntity<Guid>, IAuditableEntity
     public required string FirstName { get; set; }
     public required string LastName { get; set; }
     public string? PhoneNumber { get; set; }
-    public string? AvatarUrl { get; set; }
+    public string? AvatarUrl { get; set; } = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSZUbcFx4F7w7LahVB5sGpVUOQxBRycQa4sA&s";
     public string Status {get; set;} = "Active";
     
     public Customer? Customer { get; set; }

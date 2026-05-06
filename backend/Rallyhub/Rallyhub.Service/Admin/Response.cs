@@ -51,7 +51,7 @@ public class Response
         public string MapUrl  { get; set; } //link của gg map
     }
     
-    public class AdminGetOwnerRequestResponse
+    public class AdminGetOwnerRequestResponse : UserDto
     {
         public Guid Id { get; set; }
         public Guid UserId { get; set; }

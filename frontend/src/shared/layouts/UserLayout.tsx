@@ -3,6 +3,7 @@ import { Navbar } from "@/features/landing";
 import { LoginPromptDialog } from "@/shared/components/common/LoginPromptDialog";
 import { UserProfileCard } from "@/features/auth/components/UserProfileCard";
 import { useMe } from "@/features/profile/hooks/useMe";
+import { OwnerRegistrationDialog } from "@/features/owner-registration";
 
 export function UserLayout() {
   const location = useLocation();
@@ -14,7 +15,8 @@ export function UserLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       <LoginPromptDialog />
-      
+      <OwnerRegistrationDialog />
+
       {/* ─── Profile Sticky Card (Visible for all logged-in roles) ─── */}
       {!hideHeaderFooter && <UserProfileCard />}
 
@@ -29,7 +31,9 @@ export function UserLayout() {
       {/* ─── Footer ─────────────────────────────────────── */}
       {!hideHeaderFooter && (
         <footer
-          style={{ background: "linear-gradient(180deg, #0B2421 0%, #05100E 100%)" }}
+          style={{
+            background: "linear-gradient(180deg, #0B2421 0%, #05100E 100%)",
+          }}
           className="text-white pt-20 pb-10 border-t border-emerald-900/30"
         >
           <div className="max-w-7xl mx-auto px-6">
@@ -50,7 +54,7 @@ export function UserLayout() {
                       fontSize: "1.5rem",
                       fontWeight: 800,
                       color: "#FFFFFF",
-                      letterSpacing: "-0.5px"
+                      letterSpacing: "-0.5px",
                     }}
                   >
                     RallyHub
@@ -63,8 +67,8 @@ export function UserLayout() {
                     lineHeight: 1.8,
                   }}
                 >
-                  Nền tảng đặt sân cầu lông hàng đầu Việt Nam. Kết nối người chơi
-                  với sân cầu lông chất lượng cao chỉ trong vài click.
+                  Nền tảng đặt sân cầu lông hàng đầu Việt Nam. Kết nối người
+                  chơi với sân cầu lông chất lượng cao chỉ trong vài click.
                 </p>
                 <div className="flex gap-4 mt-8">
                   {["📘", "📸", "🐦", "📺"].map((icon, i) => (
@@ -113,9 +117,7 @@ export function UserLayout() {
                 },
               ].map((col, i) => (
                 <div key={i}>
-                  <h4
-                    className="text-white font-bold mb-6 text-base tracking-tight"
-                  >
+                  <h4 className="text-white font-bold mb-6 text-base tracking-tight">
                     {col.title}
                   </h4>
                   <ul className="flex flex-col gap-4">
@@ -135,9 +137,7 @@ export function UserLayout() {
             </div>
 
             {/* Divider */}
-            <div
-              className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6"
-            >
+            <div className="border-t border-white/5 pt-8 flex flex-col md:flex-row justify-between items-center gap-6">
               <p className="text-emerald-100/30 text-sm font-medium">
                 © 2025 RallyHub. All rights reserved. Made with 🏸 in Vietnam.
               </p>

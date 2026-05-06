@@ -13,9 +13,5 @@ export const useResetPassword = () => {
       toast.success("Mật khẩu của bạn đã được đặt lại thành công. Vui lòng đăng nhập lại.");
       navigate("/login");
     },
-    onError: (error: any) => {
-      const message = error.response?.data?.message || "Đặt lại mật khẩu thất bại. Vui lòng thử lại.";
-      toast.error(message);
-    },
   });
 };
