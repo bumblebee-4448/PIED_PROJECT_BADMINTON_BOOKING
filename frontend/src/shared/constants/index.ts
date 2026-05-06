@@ -26,26 +26,6 @@ export const API_ENDPOINTS = {
     CHANGE_PASSWORD: "/User/ChangePassword",
   },
   /**
-   * Ritual endpoints - Dùng với BaseService (rituals/services.ts).
-   * BaseService tự động xử lý tất cả CRUD operations:
-   * - getAll() → GET /ritual
-   * - getById(id) → GET /ritual/:id
-   * - create() → POST /ritual
-   * - update(id) → PUT /ritual/:id
-   * - remove(id) → PATCH /ritual/:id/soft-remove (custom override)
-   * - getSelectOptions() → GET /ritual/select
-   */
-  RITUAL: {
-    BASE: "/ritual",
-  },
-  /**
-   * Ritual Category endpoints - Dùng với BaseService (rituals/services.ts).
-   * BaseService tự động xử lý, giống như RITUAL.
-   */
-  RITUAL_CATEGORY: {
-    BASE: "/ritual-category",
-  },
-  /**
    * Customer endpoints - Quản lý sân yêu thích.
    */
   CUSTOMER: {
@@ -63,6 +43,11 @@ export const API_ENDPOINTS = {
     GET_BY_FILTERS: "/Court/GetByFilters",
     GET_BY_ID: "/Court/GetCourtDetailsById",
   },
+  MAP: {
+    BOXING_BOX: "/Map/boxing-box",
+    RADIUS: "/Map/radius",
+    TEXT: "/Map/text",
+  },
 } as const;
 
 /**
@@ -71,13 +56,11 @@ export const API_ENDPOINTS = {
  */
 export const QUERY_KEYS = {
   ME: ["me"] as const, // User profile hiện tại
-  RITUALS: ["rituals"] as const, // Danh sách rituals (với filters)
-  RITUAL_DETAIL: (id: string) => ["ritual", id] as const, // Chi tiết 1 ritual
-  RITUAL_CATEGORIES: ["ritual-categories"] as const, // Danh sách categories
   FAVORITES: ["favorites"] as const, // Danh sách sân yêu thích
   BOOKINGS: ["bookings"] as const, // Danh sách lịch sử đặt sân
   COURTS: (filters?: any) => ["courts", filters] as const, // Danh sách sân (với filters)
   COURT_DETAIL: (id: string) => ["court", id] as const, // Chi tiết 1 sân
+  MAP_SEARCH: (filters: any) => ["map-search", filters] as const, // Tìm kiếm bản đồ
 } as const;
 
 /**

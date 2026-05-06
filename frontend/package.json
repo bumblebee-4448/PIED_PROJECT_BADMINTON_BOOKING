@@ -23,6 +23,7 @@
     "@tanstack/react-query": "^5.90.21",
     "@tanstack/react-query-devtools": "^5.91.3",
     "@types/recharts": "^1.8.29",
+    "@vietmap/vietmap-gl-js": "^7.0.0-pre.1",
     "axios": "^1.13.5",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

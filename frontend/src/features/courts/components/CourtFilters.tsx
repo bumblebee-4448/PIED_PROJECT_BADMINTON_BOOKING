@@ -7,8 +7,6 @@ import { Input } from "@/shared/components/ui/input";
 interface CourtFiltersProps {
   searchQuery: string;
   setSearchQuery: (val: string) => void;
-  selectedDistrict: string;
-  setSelectedDistrict: (val: string) => void;
 }
 
 export function CourtFilters({
