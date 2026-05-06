@@ -29,4 +29,12 @@ public class BookingController: ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }
+    
+    [HttpGet("{bookingId}")]
+    public async Task<IActionResult> GetBookingById([FromRoute] Guid bookingId)
+    {
+        var result = await _bookingService.GetBookingById(bookingId);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success",
+            HttpContext.TraceIdentifier));
+    }
 }

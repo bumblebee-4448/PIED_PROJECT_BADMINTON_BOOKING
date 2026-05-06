@@ -186,4 +186,58 @@ public class Service: IService
             ExpiredAt = booking.ExpiresAt,
         };
     }
+
+    public async Task<Response.GetBookingResponse> GetBookingById(Guid bookingId)
+    {
+        var customerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        if (customerIdClaim == null)
+        {
+            throw new Exception("Không tìm thấy thông tin của customer");
+        }
+        var  customerId = Guid.Parse(customerIdClaim);
+        
+        var booking = await _dbContext.Bookings
+            .Include(x => x.BookingDetails)
+            .FirstOrDefaultAsync(x => x.Id == bookingId);
+        if (booking == null)
+        {
+            throw new Exception($"Booking {bookingId} không tồn tại");
+        }
+
+        if (booking.CustomerId != customerId)
+        {
+            throw new Exception("Bạn không có quyền xem booking này");
+        }
+
+        if (booking.Status == "Cancel")
+        {
+            throw new Exception("Booking này đã hết hạn hoặc bị hủy");
+        }
+        if (booking.Status == "Banked")
+        {
+            throw new Exception("Booking này đã được thanh toán");
+        }
+
+        string description = $"RALLYHUB-{booking.Id}";
+        string qrCodeUrl = $"https://qr.sepay.vn/img?" +
+                           $"acc=0963518963&" +
+                           $"bank=MBBank&" +
+                           $"amount={(int)booking.FinalPrice}&" +
+                           $"des={description}&" +
+                           $"template=qronly";
+        return new Response.GetBookingResponse
+        {
+            BookingId = booking.Id,
+            TotalPrice = booking.TotalPrice,
+            ExpiredAt = booking.ExpiresAt,
+            Status = booking.Status,
+            Slots = booking.BookingDetails.Select(x => new Response.BookingDetailItem
+            {
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                Price = x.Price
+            }).ToList(),
+            QrCodeUrl = qrCodeUrl
+        };
+    }
 }
