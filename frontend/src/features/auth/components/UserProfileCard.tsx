@@ -13,9 +13,11 @@ import { useAuthStore } from "../store";
 import { useLogout } from "../hooks";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
+import { EditProfileDialog } from "@/features/profile/components/EditProfileDialog";
 
 export function UserProfileCard() {
   const [isOpen, setIsOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { accessToken, user, role } = useAuthStore();
   const { mutate: logout, isLoading } = useLogout();
 
@@ -36,9 +38,9 @@ export function UserProfileCard() {
           {/* User Header */}
           <div className="flex items-center gap-3 mb-4">
             <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#004E43] to-[#00CE98] flex items-center justify-center text-white shadow-inner overflow-hidden">
-              {user.avartarUrl ? (
+              {user.avatarUrl ? (
                 <img
-                  src={user.avartarUrl}
+                  src={user.avatarUrl}
                   alt="avatar"
                   className="w-full h-full object-cover"
                 />
@@ -74,15 +76,17 @@ export function UserProfileCard() {
           </div>
 
           <div className="space-y-2">
-            <Link to="/profile" onClick={() => setIsOpen(false)}>
-              <Button
-                variant="ghost"
-                className="w-full justify-start gap-3 rounded-xl hover:bg-[#F3F4F6] text-[#374151] font-bold h-10 px-3"
-              >
-                <Settings size={18} className="text-[#6B7280]" />
-                <span>Cập nhật Profile</span>
-              </Button>
-            </Link>
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setIsOpen(false);
+                setIsEditDialogOpen(true);
+              }}
+              className="w-full justify-start gap-3 rounded-xl hover:bg-[#F3F4F6] text-[#374151] font-bold h-10 px-3"
+            >
+              <Settings size={18} className="text-[#6B7280]" />
+              <span>Cập nhật Profile</span>
+            </Button>
 
             <Button
               variant="ghost"
@@ -109,9 +113,9 @@ export function UserProfileCard() {
         )}
       >
         <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-[#004E43] to-[#00CE98] flex items-center justify-center text-white group-hover:scale-110 transition-transform overflow-hidden">
-          {user.avartarUrl ? (
+          {user.avatarUrl ? (
             <img
-              src={user.avartarUrl}
+              src={user.avatarUrl}
               alt="avatar"
               className="w-full h-full object-cover"
             />
@@ -129,6 +133,11 @@ export function UserProfileCard() {
         {/* Subtle Shine Effect */}
         <div className="absolute inset-0 bg-white/10 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 skew-x-12" />
       </Button>
+
+      <EditProfileDialog 
+        isOpen={isEditDialogOpen} 
+        onOpenChange={setIsEditDialogOpen} 
+      />
     </div>
   );
 }

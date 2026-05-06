@@ -9,7 +9,12 @@ export const profileService = {
   },
 
   updateProfile: async (data: ProfileSchema): Promise<string> => {
-    return apiClient.patch(API_ENDPOINTS.USER.PROFILE, data);
+    return apiClient.patch(API_ENDPOINTS.USER.PROFILE, {
+      FirstName: data.firstName,
+      LastName: data.lastName,
+      PhoneNumber: data.phoneNumber,
+      AvatarUrl: data.avatarUrl,
+    });
   },
 
   registerOwner: async (data: OwnerRegistrationSchema): Promise<void> => {

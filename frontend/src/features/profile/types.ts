@@ -6,7 +6,7 @@ export interface User {
   firstName: string;
   lastName: string;
   phoneNumber: string;
-  avartarUrl?: string | null;
+  avatarUrl?: string | null;
   role: UserRole;
   isOwner?: boolean;
 }
@@ -16,7 +16,7 @@ export interface ProfileUpdateInput {
   lastName: string;
   email: string;
   phoneNumber: string;
-  avartarUrl?: string | null;
+  avatarUrl?: string | null;
 }
 
 export interface PasswordChangeInput {
