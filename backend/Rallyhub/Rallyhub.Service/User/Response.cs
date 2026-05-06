@@ -44,4 +44,6 @@ public class Response
         public string IdentityCardFrontUrl { get; set; } // Ảnh mặt trước CCCD
         public string IdentityCardBackUrl { get; set; } // Ảnh mặt sau CCCD
     }
+    
+    
 }

@@ -6,8 +6,8 @@ using Rallyhub.Service.Models;
 
 namespace Rallyhub.Api.Controllers;
 
-[ApiController]
-[Authorize(Policy = JwtExtensions.CustomerPolicy)]
+//[ApiController]
+//[Authorize(Policy = JwtExtensions.CustomerPolicy)]
 [Route("[controller]")]
 public class CourtController: ControllerBase
 {
@@ -26,10 +26,25 @@ public class CourtController: ControllerBase
             , HttpContext.TraceIdentifier));
     }
     
-    [HttpGet("GetCourtDetailsById")]
-    public async Task<IActionResult> GetCourtsById([FromQuery] Guid courtId)
+    [HttpGet("GetCourtDetailsById{courtId}")]
+    public async Task<IActionResult> GetCourtsById([FromRoute] Guid courtId)
     {
         var result = await _courtService.GetCourtsDetailById(courtId);
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
+            , HttpContext.TraceIdentifier));
+    }
+    
+    [HttpGet("GetSubCourt{courtId}")]
+    public async Task<IActionResult> GetSubCourt([FromRoute] Guid courtId)
+    {
+        var result = await _courtService.GetSubCourtById(courtId);
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
+            , HttpContext.TraceIdentifier));
+    }
+    [HttpGet("GetAvailableSlots")]
+    public async Task<IActionResult> GetAvailableSlots([FromQuery] Request.GetAvailableSlotsRequest request)
+    {
+        var result = await _courtService.GetAvailableSlots(request);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }

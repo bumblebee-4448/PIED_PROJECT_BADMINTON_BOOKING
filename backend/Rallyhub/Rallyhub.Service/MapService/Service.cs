@@ -112,8 +112,9 @@ public class Service : IService
         if (!response.IsSuccessStatusCode)
             return Enumerable.Repeat(double.MaxValue, courts.Count).ToList();
         var json = await response.Content.ReadAsStringAsync();
+        //Console.WriteLine(json);
         using var doc = JsonDocument.Parse(json);
-        var distancesArray = doc.RootElement.GetProperty("distance")[0];
+        var distancesArray = doc.RootElement.GetProperty("distances")[0];
         var result = new List<double>();
         foreach (var item in distancesArray.EnumerateArray())
             result.Add(item.GetDouble());
