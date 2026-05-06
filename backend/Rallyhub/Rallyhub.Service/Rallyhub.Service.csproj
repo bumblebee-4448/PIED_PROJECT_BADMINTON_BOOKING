@@ -26,7 +26,6 @@
     <ItemGroup>
       <Folder Include="Booking\" />
       <Folder Include="SepayService\" />
-      <Folder Include="Wallet\" />
     </ItemGroup>
 
 </Project>

@@ -94,18 +94,18 @@ public class Usercontroller : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse(result, "GetMe Success", HttpContext.TraceIdentifier));
     }
 
-    [HttpPost("CreateWallet")]
-    [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]
-    public async Task<IActionResult> CreateWallet(Request.CreateAndUpdateWalletRequest request)
-    {
-        await _userService.CreateWallet(request);
-        return Ok(ApiResponseFactory.SuccessResponse("Create wallet success", HttpContext.TraceIdentifier));
-    }
-    [HttpPatch("UpdateWallet")]
-    [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]
-    public async Task<IActionResult> UpdateWallet(Request.CreateAndUpdateWalletRequest request)
-    {
-        await _userService.UpdateWallet(request);
-        return Ok(ApiResponseFactory.SuccessResponse("Update wallet success", HttpContext.TraceIdentifier));
-    }
+    // [HttpPost("CreateWallet")]
+    // [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]
+    // public async Task<IActionResult> CreateWallet(Request.CreateAndUpdateWalletRequest request)
+    // {
+    //     await _userService.CreateWallet(request);
+    //     return Ok(ApiResponseFactory.SuccessResponse("Create wallet success", HttpContext.TraceIdentifier));
+    // }
+    // [HttpPatch("UpdateWallet")]
+    // [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]
+    // public async Task<IActionResult> UpdateWallet(Request.CreateAndUpdateWalletRequest request)
+    // {
+    //     await _userService.UpdateWallet(request);
+    //     return Ok(ApiResponseFactory.SuccessResponse("Update wallet success", HttpContext.TraceIdentifier));
+    // }
 }
