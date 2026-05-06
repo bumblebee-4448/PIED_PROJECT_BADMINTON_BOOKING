@@ -33,9 +33,6 @@ export function CancelBookingDialog({ bookingId, isOpen, onClose }: CancelBookin
         toast.success("Hủy đặt sân thành công");
         onClose();
       },
-      onError: (error: any) => {
-        toast.error(error?.response?.data?.message || "Đã có lỗi xảy ra");
-      }
     });
   };
 
