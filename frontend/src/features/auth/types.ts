@@ -12,7 +12,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role?: string;
-  avartarUrl?: string | null;
+  avatarUrl?: string | null;
   phoneNumber?: string;
   isOwner?: boolean;
 }

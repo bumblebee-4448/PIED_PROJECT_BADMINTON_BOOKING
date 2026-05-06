@@ -11,7 +11,6 @@ import { RegisterPage } from "@/features/auth/pages/RegisterPage";
 import { VerifyOtpPage } from "@/features/auth/pages/VerifyOtpPage";
 import { ResetPasswordPage } from "@/features/auth/pages/ResetPasswordPage";
 import { ProtectedRoute } from "@/shared/components/common";
-import { ProfilePage } from "@/features/profile";
 import { FavoritesPage } from "@/features/favorites";
 import { AdminLayout } from "@/shared/layouts/AdminLayout";
 import { AdminDashboard, OwnerDashboard } from "@/features/dashboard";
@@ -69,14 +68,6 @@ export const router = createBrowserRouter([
       { path: "unauthorized", element: <UnauthorizedPage /> },
 
       // Protected: cần đăng nhập
-      {
-        path: "profile",
-        element: (
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        ),
-      },
       {
         path: "favorites",
         element: (

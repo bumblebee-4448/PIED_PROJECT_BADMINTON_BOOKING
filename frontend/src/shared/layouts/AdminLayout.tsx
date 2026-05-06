@@ -27,7 +27,7 @@ const ADMIN_NAV_ITEMS = [
 
 const OWNER_NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/owner" },
-  { icon: Building2, label: "Cơ sở của tôi", path: "/owner/courts" },
+  { icon: Building2, label: "Quản lí cơ sở", path: "/owner/courts" },
   { icon: DollarSign, label: "Doanh thu", path: "/owner/revenue" },
 ];
 

@@ -1,5 +1,4 @@
-import { useState, useEffect } from "react";
-import { Check } from "lucide-react";
+import { useState } from "react";
 import type { ProfileSchema } from "../schema";
 import { Button } from "@/shared/components/ui/button";
 
@@ -9,7 +8,7 @@ interface ProfileFormProps {
     lastName: string;
     email: string;
     phoneNumber: string;
-    avartarUrl?: string | null;
+    avatarUrl?: string | null;
   };
   onSave: (data: ProfileSchema) => void;
   isSaving: boolean;
@@ -20,15 +19,6 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
   const [lastName, setLastName] = useState(initialData.lastName);
   const [email, setEmail] = useState(initialData.email);
   const [phoneNumber, setPhoneNumber] = useState(initialData.phoneNumber);
-  const [saved, setSaved] = useState(false);
-
-  // Cập nhật state khi initialData thay đổi (ví dụ khi mock data được load)
-  useEffect(() => {
-    setFirstName(initialData.firstName);
-    setLastName(initialData.lastName);
-    setEmail(initialData.email);
-    setPhoneNumber(initialData.phoneNumber);
-  }, [initialData]);
 
   const handleSubmit = () => {
     onSave({
@@ -36,10 +26,8 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
       lastName,
       email,
       phoneNumber,
-      avartarUrl: initialData.avartarUrl,
+      avatarUrl: initialData.avatarUrl,
     });
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2500);
   };
 
   return (
@@ -164,14 +152,6 @@ export function ProfileForm({ initialData, onSave, isSaving }: ProfileFormProps)
           </select>
         </div> */}
       </div>
-      {saved && (
-        <div className="mt-3 flex items-center gap-2 px-3 py-2 rounded-xl" style={{ background: "#ECFDF5" }}>
-          <Check size={14} style={{ color: "#10B981" }} />
-          <span style={{ fontSize: "0.82rem", color: "#10B981", fontWeight: 600 }}>
-            Đã lưu thay đổi!
-          </span>
-        </div>
-      )}
       <Button
         onClick={handleSubmit}
         disabled={isSaving}
