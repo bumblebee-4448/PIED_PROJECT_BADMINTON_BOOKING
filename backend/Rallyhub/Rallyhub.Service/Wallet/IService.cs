@@ -5,5 +5,5 @@ public interface IService
     public Task<bool> CreateWallet(Guid userId);
     public Task<string> AddInforWallet(Request.AddInforWalletRequest request);
     public Task<string> RemoveBankWallet();
-    public Task<string> GetInforWallet();
+    public Task<Response.GetInfoWalletResponse> GetInforWallet();
 }
