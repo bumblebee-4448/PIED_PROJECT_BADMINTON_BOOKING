@@ -73,7 +73,20 @@ builder.Services.AddStackExchangeRedisCache(options =>
     options.InstanceName = "RallyHub";
 });
 
-builder.Services.AddQuartz();
+builder.Services.AddQuartz(options =>
+{
+    var bookingJobKey = new JobKey(nameof(BookingTimeoutJob));
+    options
+        .AddJob<BookingTimeoutJob>(bookingJobKey)
+        .AddTrigger(trigger =>
+            trigger
+                .ForJob(bookingJobKey)
+                .WithSimpleSchedule(schedule => schedule
+                    .WithIntervalInSeconds(10) // 2.5 phút = 150 giây
+                    .RepeatForever()
+                )
+        );
+});
 builder.Services.AddQuartzHostedService(options =>
 {
     options.WaitForJobsToComplete = true; 

@@ -209,7 +209,7 @@ public class Service: IService
             throw new Exception("Bạn không có quyền xem booking này");
         }
 
-        if (booking.Status == "Cancel")
+        if (booking.Status == "Cancelled")
         {
             throw new Exception("Booking này đã hết hạn hoặc bị hủy");
         }
