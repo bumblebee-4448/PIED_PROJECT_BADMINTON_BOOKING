@@ -727,22 +727,22 @@ public class Service : IService
         //*****//
         //Check applying Booking ...
         //Check bookingDetails -> set IsAvailable = false
-        // var bookings = await _dbContext.BookingDetails
-        //     .Where(x =>
-        //         x.SubCourtId == request.SubCourtId &&
-        //         x.Date == request.Date)
-        //     .ToListAsync();
-        //
-        result = result.OrderBy(x => x.StartTime).ToList();
-        // foreach (var slot in result)
-        // {
-        //     slot.IsAvailable = !bookings.Any(b =>
-        //         b.StartTime < slot.EndTime &&
-        //         b.EndTime > slot.StartTime);
-        // }
+        var bookedSlots = await _dbContext.BookingDetails
+            .Where(x =>
+                x.SubCourtId == request.SubCourtId &&
+                x.Date.Date == request.Date.ToDateTime(TimeOnly.MinValue).Date && 
+                (x.Status == "Pending" || x.Status == "Banked"))
+            .ToListAsync();
+        
+        foreach (var slot in result)
+        {
+            slot.IsAvailable = !bookedSlots.Any(b =>
+                b.StartTime < slot.EndTime &&
+                b.EndTime > slot.StartTime);
+        }
         //sort
         
-        return result;
+        return result.OrderBy(x => x.StartTime).ToList();
     }
 }
 

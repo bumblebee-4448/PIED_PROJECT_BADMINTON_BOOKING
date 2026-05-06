@@ -9,8 +9,10 @@ public class Booking : BaseEntity<Guid>, IAuditableEntity
     public required decimal FinalPrice { get; set; }
     public string Status { get; set; } = "Pending"; //Pending, Banked, Cancel, Refund, Complete
     public string? CancellationReason { get; set; }
-    
-    public Guid CampaignId { get; set; }
+    //Hùng thêm vào
+    public DateTimeOffset ExpiresAt { get; set; } 
+    //
+    public Guid? CampaignId { get; set; }
     public Campaign Campaign { get; set; }
     public Guid CustomerId { get; set; }
     public Customer Customer { get; set; }

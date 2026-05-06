@@ -7,8 +7,9 @@ using Rallyhub.Service.Models;
 
 namespace Rallyhub.Api.Controllers;
 
-[Authorize]
+
 [ApiController]
+[Authorize(Policy = JwtExtensions.CustomerPolicy)]
 [Route("api/[controller]")]
 public class CustomerController : ControllerBase
 {
@@ -20,7 +21,6 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPost("OwnerRequest")]
-    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> OwnerRequest(Request.OwnerRequestRequest request)
     {
 
@@ -29,7 +29,6 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("GetOwnerRequest")]
-    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> GetOwnerRequest([FromQuery] Request.GetOwnerRequest request)
     {
 
@@ -38,7 +37,6 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPost("CheckCancelBooking")]
-    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> CheckCancelBooking(Request.CancelBooking request)
     {
         var result = await _customerService.CheckCancelBooking(request);
@@ -46,7 +44,6 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPatch("CancelBooking")]
-    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> CheckCancel(Request.CancelBooking request)
     {
         await _customerService.CancelBooking(request);
@@ -54,7 +51,6 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("GetAllLikeList")]
-    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> GetAllLikeList([FromQuery] Request.LikeListDetailRequest request)
     {
         var result = await _customerService.GetAllLikeList(request);
@@ -62,7 +58,6 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPost("AddCourtLikeList")]
-    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> AddCourtLikeList(Request.AddCourtLikeListRequest request)
     {
         await _customerService.AddCourtLikeList(request);
@@ -70,7 +65,6 @@ public class CustomerController : ControllerBase
     }
 
     [HttpDelete("DeleteCourtLikeList")]
-    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> DeleteCourtLikeList(Request.DeteleCourtLikeListRequest request)
     {
         await _customerService.DeleteCourtLikeList(request);
@@ -78,10 +72,11 @@ public class CustomerController : ControllerBase
     }
 
     [HttpGet("GetAllBooking")]
-    [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> GetAllBooking([FromQuery] Request.GetAllBookingRequest request)
     {
         var result = await _customerService.GetAllBooking(request);
         return Ok(ApiResponseFactory.SuccessResponse(result, "List Booking", HttpContext.TraceIdentifier));
     }
+    
+    
 }

@@ -24,7 +24,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Booking\" />
       <Folder Include="SepayService\" />
     </ItemGroup>
 
