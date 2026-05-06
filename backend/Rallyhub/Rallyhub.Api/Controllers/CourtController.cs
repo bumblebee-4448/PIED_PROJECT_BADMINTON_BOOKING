@@ -48,4 +48,11 @@ public class CourtController: ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }
+    [HttpPost("BookingSlots")]
+    public async Task<IActionResult> BookingSlot([FromBody] Request.HoldBookingRequest request)
+    {
+        var result = await _courtService.HoodBooking(request);
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
+            , HttpContext.TraceIdentifier));
+    }
 }
