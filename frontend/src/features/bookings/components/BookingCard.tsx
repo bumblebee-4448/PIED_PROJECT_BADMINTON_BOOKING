@@ -112,9 +112,9 @@ export function BookingCard({ booking, onCancelClick }: BookingCardProps) {
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Danh sách Slot ({slotsResponses.length})</p>
           <div className="flex flex-wrap gap-2">
             {slotsResponses.length > 0 ? (
-              slotsResponses.map((slot: any) => (
+              slotsResponses.map((slot: any, index: number) => (
                 <div 
-                  key={slot.slotId || slot.SlotId}
+                  key={slot.slotId || slot.SlotId || `slot-${index}`}
                   className="px-4 py-2 bg-emerald-50/50 rounded-xl border border-emerald-100 flex items-center gap-3"
                 >
                   <Clock size={14} className="text-emerald-500" />

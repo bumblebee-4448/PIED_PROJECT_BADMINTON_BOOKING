@@ -80,9 +80,9 @@ export function BookingHistoryPage() {
         {/* Booking List */}
         <div className="space-y-6">
           {filteredItems.length > 0 ? (
-            filteredItems.map((booking) => (
+            filteredItems.map((booking, index) => (
               <BookingCard 
-                key={booking.bookingId} 
+                key={booking.bookingId || (booking as any).BookingId || (booking as any).Id || `booking-${index}`} 
                 booking={booking} 
                 onCancelClick={(id) => setCancellingId(id)}
               />
@@ -113,7 +113,7 @@ export function BookingHistoryPage() {
                 </PaginationItem>
                 
                 {Array.from({ length: totalPages }).map((_, i) => (
-                  <PaginationItem key={i}>
+                  <PaginationItem key={`page-${i}`}>
                     <PaginationLink 
                       isActive={pageIndex === i + 1}
                       onClick={() => setPageIndex(i + 1)}
