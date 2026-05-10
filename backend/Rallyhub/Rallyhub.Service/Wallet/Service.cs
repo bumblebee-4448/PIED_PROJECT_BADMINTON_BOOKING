@@ -296,7 +296,7 @@ public class Service : IService
         
         var transactionI = new Transaction.Request.CreateTransactionRequest()
         {
-            Type = Transaction.Request.TypeList.Withdrawal,
+            Type = Transaction.Request.TypeList.AdminUp,
             Amount = amount,
             BalanceBefore = wallet.Balance,
             BalanceAfter =  wallet.Balance + amount,

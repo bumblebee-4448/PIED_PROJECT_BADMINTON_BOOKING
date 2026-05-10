@@ -13,18 +13,20 @@ public class BookingDetailTimeJob : IJob
     private static readonly TimeSpan BookingDetailTime = TimeSpan.FromSeconds(150);
     private readonly AppDbContext _dbContext;
     private readonly ILogger _logger;
+    private readonly Wallet.IService _walletService;
+    private readonly Transaction.IService _transactionService;
 
-    public BookingDetailTimeJob(AppDbContext dbContext, ILogger<BookingDetailTimeJob> logger)
+    public BookingDetailTimeJob(AppDbContext dbContext, ILogger<BookingDetailTimeJob> logger, Wallet.IService  walletService, Transaction.IService transactionService)
     {
         _dbContext = dbContext;
         _logger = logger;
+        _walletService = walletService;
+        _transactionService = transactionService;
     }
     public async Task Execute(IJobExecutionContext context)
     {
         var bankedDetailSeconds = (int)BookingDetailTime.TotalSeconds;
-        //EF core ko convert DateTimeOffset.UtcNow -> SQL đc
         var now = DateTimeOffset.UtcNow;
-        // Console.WriteLine(now);// 05/09/2026 10:19:46 +00:00 # DB: 07:00:00.000 +0700
 
         var nowDate = now.Date;
         var nowTime = TimeOnly.FromTimeSpan(now.TimeOfDay);
