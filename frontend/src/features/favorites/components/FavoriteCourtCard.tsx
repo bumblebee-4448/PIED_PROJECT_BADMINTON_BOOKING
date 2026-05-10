@@ -1,4 +1,5 @@
 import { MapPin, Star, Trash2, Calendar, ArrowRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import type { CourtLike } from "../types";
@@ -11,6 +12,7 @@ interface FavoriteCourtCardProps {
 }
 
 export function FavoriteCourtCard({ court, onViewDetail }: FavoriteCourtCardProps) {
+  const navigate = useNavigate();
   const { mutate: removeFavorite, isPending } = useRemoveFavorite();
 
   const getTagColor = (tag?: string) => {
@@ -31,7 +33,7 @@ export function FavoriteCourtCard({ court, onViewDetail }: FavoriteCourtCardProp
       {/* Image Section */}
       <div className="relative w-full md:w-64 h-44 rounded-[24px] overflow-hidden flex-shrink-0">
         <img 
-          src={court.imageUrl || "https://images.unsplash.com/photo-1626225967045-9c76db7b62dc?w=800&auto=format&fit=crop"} 
+          src={court.pictureUrl || "https://images.unsplash.com/photo-1626225967045-9c76db7b62dc?w=800&auto=format&fit=crop"} 
           alt={court.courtName} 
           className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
         />
@@ -60,8 +62,10 @@ export function FavoriteCourtCard({ court, onViewDetail }: FavoriteCourtCardProp
               <span className="text-xs font-bold text-orange-600">{court.rating || 0}</span>
             </div>
           </div>
-
-          {/* Removed price and available slots section as per request */}
+{/* 
+            <div className="text-emerald-600 font-bold text-sm mt-3">
+              {court.price.toLocaleString("vi-VN")}đ / giờ
+            </div> */}
         </div>
 
         {/* Action Buttons */}
@@ -81,6 +85,7 @@ export function FavoriteCourtCard({ court, onViewDetail }: FavoriteCourtCardProp
           <Button 
             variant="ghost" 
             className="flex-1 gap-2 text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 font-bold text-xs h-10 rounded-xl"
+            onClick={() => navigate(`/courts/${court.courtId}/booking`)}
           >
             <Calendar size={16} />
             Đặt sân

@@ -60,6 +60,12 @@ export const API_ENDPOINTS = {
     RADIUS: "/Map/SearchByRadius",
     TEXT: "/Map/text",
   },
+  /**
+   * Wallet endpoints
+   */
+  WALLET: {
+    GET_INFO: "/Wallet/GetInforWallet",
+  },
 } as const;
 
 /**
@@ -73,6 +79,7 @@ export const QUERY_KEYS = {
   COURTS: (filters?: any) => ["courts", filters] as const, // Danh sách sân (với filters)
   COURT_DETAIL: (id: string) => ["court", id] as const, // Chi tiết 1 sân
   MAP_SEARCH: (filters: any) => ["map-search", filters] as const, // Tìm kiếm bản đồ
+  WALLET_INFO: ["wallet-info"] as const, // Thông tin ví
 } as const;
 
 /**

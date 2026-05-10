@@ -4,7 +4,7 @@ import {
 } from "lucide-react";
 import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, isSameDay } from "date-fns";
 import { vi } from "date-fns/locale";
 import { useAvailableSlots } from "../hooks";
 import type { AvailableSlot, SubCourt } from "../types";
@@ -30,6 +30,10 @@ export function BookingTimeline({
   onToggleSlot,
 }: BookingTimelineProps) {
   const subCourtQueries = useAvailableSlots(subCourts, selectedDate);
+  const isToday = isSameDay(selectedDate, new Date());
+  const now = new Date();
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
 
 
 
@@ -130,6 +134,7 @@ export function BookingTimeline({
                       <div className="absolute inset-0">
                         {slots.map((slot, slotIdx) => {
                           const [sH, sM] = slot.startTime.split(':').map(Number);
+                          const isPast = isToday && (sH < currentHour || (sH === currentHour && sM < currentMinute));
                           const [eH, eM] = slot.endTime.split(':').map(Number);
                           
                           // Clamp times to timeline range (05:00 - 23:00)
@@ -143,7 +148,7 @@ export function BookingTimeline({
                           
                           const durationMins = endMins - startMins;
                           const selected = isSlotSelected(slot, sub.subCourtId);
-                          const disabled = !slot.isAvailable;
+                          const disabled = !slot.isAvailable || isPast;
 
                           return (
                             <div 
@@ -197,9 +202,11 @@ export function BookingTimeline({
                                     <p className="font-bold text-gray-400 uppercase tracking-widest text-[8px]">Giá tiền</p>
                                     <p className="text-sm font-black text-emerald-400">{(slot.price ?? 0).toLocaleString()} VNĐ</p>
                                   </div>
-                                  {!slot.isAvailable && (
+                                  {!slot.isAvailable ? (
                                     <p className="mt-2 pt-2 border-t border-white/10 text-rose-400 font-bold italic text-[9px]">Hiện không khả dụng</p>
-                                  )}
+                                  ) : isPast ? (
+                                    <p className="mt-2 pt-2 border-t border-white/10 text-rose-400 font-bold italic text-[9px]">Đã quá giờ đặt</p>
+                                  ) : null}
                                 </div>
                               </div>
                             </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { useCancelBooking } from "../hooks/useBookingOperations";
+import { bookingsService } from "../services";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -80,6 +81,37 @@ export function PaymentQrDialog({
     }
   }, [isOpen, bookingResponse, isSuccess, handleCancel]);
 
+  // ─── Polling Logic for Payment Status ───────────────────
+  useEffect(() => {
+    let pollingInterval: ReturnType<typeof setInterval>;
+
+    if (isOpen && bookingResponse?.bookingId && !isSuccess) {
+      const checkStatus = async () => {
+        try {
+          const response = await bookingsService.getAll({ pageIndex: 1, pageSize: 10 });
+          const currentBooking = response.items.find(item => item.bookingId === bookingResponse.bookingId);
+          
+          if (currentBooking?.status === "Banked") {
+            toast.success("Thanh toán thành công!");
+            handleSuccess();
+          }
+        } catch (error) {
+          console.error("Error polling booking status:", error);
+        }
+      };
+
+      // Poll every 5 seconds
+      pollingInterval = setInterval(checkStatus, 5000);
+      
+      // Initial check
+      checkStatus();
+    }
+
+    return () => {
+      if (pollingInterval) clearInterval(pollingInterval);
+    };
+  }, [isOpen, bookingResponse?.bookingId, isSuccess]);
+
   const handleSuccess = () => {
     setIsSuccess(true);
     onSuccess();
@@ -123,28 +155,50 @@ export function PaymentQrDialog({
               </span>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-2 border-t border-b border-gray-100 py-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Tổng thanh toán</span>
-                <span className="text-[#0B2421] font-black">
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(bookingResponse.totalPrice)}
+                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Mã đơn hàng</span>
+                <span className="text-[#0B2421] font-black truncate max-w-[150px]" title={bookingResponse.bookingId}>
+                  #{bookingResponse.bookingId.split('-')[0].toUpperCase()}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
+                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Thời gian</span>
+                <div className="flex flex-col items-end">
+                  {bookingResponse.slots.map((slot, index) => (
+                    <span key={index} className="text-[#0B2421] font-black">
+                      {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-between text-sm">
                 <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Trạng thái</span>
-                <span className="text-emerald-600 font-black flex items-center gap-2">
-                  <Loader2 size={12} className="animate-spin" /> Đang kiểm tra...
+                <span className="text-amber-500 font-black flex items-center gap-2">
+                  <Loader2 size={12} className="animate-spin" /> 
+                  {bookingResponse.status === "Pending" ? "Chờ thanh toán" : bookingResponse.status}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Tổng thanh toán</span>
+                <span className="text-[#0B2421] font-black text-base">
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(bookingResponse.totalPrice)}
                 </span>
               </div>
             </div>
 
             <div className="pt-1 flex flex-col gap-2">
-              <Button 
+              <div className="flex items-center justify-center gap-2 py-2 px-4 bg-emerald-50 text-emerald-600 rounded-xl mb-2">
+                <Loader2 size={14} className="animate-spin" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Đang tự động kiểm tra thanh toán...</span>
+              </div>
+
+              {/* <Button 
                 onClick={handleSuccess}
                 className="w-full h-12 bg-[#0B2421] hover:bg-[#1a3a36] text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all"
               >
                 Tôi đã chuyển khoản
-              </Button>
+              </Button> */}
               <Button 
                 variant="ghost" 
                 onClick={handleCancel}

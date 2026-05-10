@@ -19,7 +19,7 @@ import { DEFAULT_PAGE_SIZE, type FilterStatus } from "../types";
 export function BookingHistoryPage() {
   const [pageIndex, setPageIndex] = React.useState(1);
   const [activeStatus, setActiveStatus] = React.useState<FilterStatus>("all");
-  const [cancellingId, setCancellingId] = React.useState<string | null>(null);
+  const [cancellingBooking, setCancellingBooking] = React.useState<{id: string, status: string} | null>(null);
 
   const { data, isLoading, isError } = useBookings(pageIndex, DEFAULT_PAGE_SIZE);
   const { filteredItems, counts } = useFilteredBookings(data, activeStatus);
@@ -84,7 +84,7 @@ export function BookingHistoryPage() {
               <BookingCard 
                 key={booking.bookingId} 
                 booking={booking} 
-                onCancelClick={(id) => setCancellingId(id)}
+                onCancelClick={(id) => setCancellingBooking({ id, status: booking.status })}
               />
             ))
           ) : (
@@ -138,9 +138,10 @@ export function BookingHistoryPage() {
 
       {/* Dialogs */}
       <CancelBookingDialog 
-        isOpen={!!cancellingId} 
-        bookingId={cancellingId} 
-        onClose={() => setCancellingId(null)} 
+        isOpen={!!cancellingBooking} 
+        bookingId={cancellingBooking?.id || null} 
+        status={cancellingBooking?.status || null}
+        onClose={() => setCancellingBooking(null)} 
       />
     </div>
   );

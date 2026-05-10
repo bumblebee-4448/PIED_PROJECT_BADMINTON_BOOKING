@@ -2,7 +2,6 @@ import { apiClient } from "@/lib/axios";
 import { API_ENDPOINTS } from "@/shared/constants";
 import type { 
   BookingHistoryResponse, 
-  CheckCancelResponse, 
   SubCourt, 
   AvailableSlot, 
   CreateBookingRequest, 
@@ -19,12 +18,6 @@ export const bookingsService = {
         PageSize: params.pageSize,
       },
     }) as Promise<BookingHistoryResponse>;
-  },
-
-  checkCancel: async (bookingDetailId: string): Promise<CheckCancelResponse> => {
-    return apiClient.post(API_ENDPOINTS.CUSTOMER.CHECK_CANCEL_BOOKING, {
-      bookingDetailId,
-    }) as Promise<CheckCancelResponse>;
   },
 
   cancel: async (bookingId: string): Promise<void> => {
@@ -52,7 +45,9 @@ export const bookingsService = {
     return apiClient.post(API_ENDPOINTS.BOOKING.CREATE_BY_WALLET, data) as Promise<CreateBookingResponse>;
   },
 
-  refund: async (data: any): Promise<void> => {
-    await apiClient.patch(API_ENDPOINTS.BOOKING.REFUND, data);
+  refund: async (bookingId: string): Promise<void> => {
+    await apiClient.patch(API_ENDPOINTS.BOOKING.REFUND, null, {
+      params: { bookingId }
+    });
   },
 };
