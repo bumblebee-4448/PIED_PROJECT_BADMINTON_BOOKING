@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Rallyhub.Repository.Entity;
 
 namespace Rallyhub.Service.Court;
@@ -14,7 +15,9 @@ public class Response
         public string PictureUrl { get; set; } = null!;
         public decimal? DefaultPrice { get; set; }
         public string PhoneNumber { get; set; } = null!;
+        [JsonIgnore]
         public int TotalBooked { get; set; }
+        [JsonIgnore]
         public int TotalFeedbacks { get; set; }
 
     }
@@ -23,9 +26,8 @@ public class Response
         public TimeOnly OpenTime  { get; set; }
         public TimeOnly CloseTime { get; set; }
         public  string? Description { get; set; } = null!;
-        public string PhoneNumber { get; set; } = null!;
         public string MapUrl { get; set; } = null!;
-        public List<FeedbackPreviewResponse> Feedbacks { get; set; }
+        public List<FeedbackPreviewResponse> Feedbacks { get; set; } = new();
 
     }
 
