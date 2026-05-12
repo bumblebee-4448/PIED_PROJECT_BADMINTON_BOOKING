@@ -24,8 +24,7 @@ using BookingService = Rallyhub.Service.Booking;
 using WithdrawalService = Rallyhub.Service.Withdrawal;
 using sepayService = Rallyhub.Service.SepayService;
 using NotificationService = Rallyhub.Service.NotificationService;
-
-
+using FeadbackService = Rallyhub.Service.Feadback;
 
 // using DiscordService = Rallyhub.Service.DiscordService;
 
@@ -72,6 +71,7 @@ builder.Services.AddScoped<BookingService.IService, BookingService.Service>();
 builder.Services.AddScoped<WithdrawalService.IService, WithdrawalService.Service>();
 builder.Services.AddScoped<sepayService.IService, sepayService.Service>();
 builder.Services.AddScoped<NotificationService.IService, NotificationService.Service>();
+builder.Services.AddScoped<FeadbackService.IService, FeadbackService.Service>();
 
 
 

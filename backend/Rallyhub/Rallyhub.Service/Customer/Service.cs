@@ -201,7 +201,7 @@ public class Service : IService
             CourtName = x.Court.Name,
             CourtAddress = x.Court.Address,
             PictureUrl = x.Court.PictureUrl,
-            Rating = _dbContext.Feedbacks.Where(y => y.CourtId == x.CourtId).Average(y => (double?)y.Rating)?? 5,
+            Rating = _dbContext.Feedbacks.Where(y => y.CourtId == x.CourtId).Average(y => (double?)y.Rating)?? 0,
             Price = _dbContext.SubCourts
                 .Where(y => y.CourtId == x.CourtId && y.IsDeleted == false)
                 .SelectMany(y => y.ConfigSlots.Where(s => s.IsDeleted == false))
