@@ -25,10 +25,18 @@ public class Response
         public  string? Description { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string MapUrl { get; set; } = null!;
-        public List<Feedback> Feedbacks = new();
+        public List<FeedbackPreviewResponse> Feedbacks { get; set; }
 
     }
 
+    public class FeedbackPreviewResponse
+    {
+        public string NameCustomer { get; set; } = null!;
+        public string Comment { get; set; } = null!;
+        public int Rating {get; set;}
+        public DateTimeOffset CreatedAt {get; set;}
+    }
+    
     public class SubCourtResponse
     {
         public Guid Id { get; set; }

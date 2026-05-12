@@ -30,7 +30,11 @@ public class Service : IService
                     _dbContext.Feedbacks
                         .Where(f => f.CourtId == x.Id)
                         .Select(f => (double?)f.Rating)  
-                        .Average() ?? 0, 1)
+                        .Average() ?? 0, 1),
+                TotalFeedbacks = _dbContext.Feedbacks
+                    .Count(f => f.CourtId == x.Id),
+                TotalBooked = _dbContext.BookingDetails
+                    .Count(b => b.SubCourt.CourtId == x.Id),
             })
             .ToListAsync();
         
@@ -69,6 +73,8 @@ public class Service : IService
                 Address = x.Court.Address,
                 Status = x.Court.Status,
                 AverageRating = x.AverageRating,
+                TotalFeedbacks = x.TotalFeedbacks,
+                TotalBooked = x.TotalBooked,
                 PictureUrl = x.Court.PictureUrl,
                 DefaultPrice = x.Court.SubCourts.FirstOrDefault()?.ConfigSlots.FirstOrDefault()?.Price ?? 0,
                 PhoneNumber = x.Court.Owner != null && x.Court.Owner.User != null ? x.Court.Owner.User.PhoneNumber : "",
@@ -84,7 +90,9 @@ public class Service : IService
     }
     public async Task<Response.SearchCourtByIdResponse> GetCourtsDetailById(Guid courtId)
     {
+        
         var courtResult = await _dbContext.Courts
+            .Include(x => x.Feedbacks)
             .Where(x => x.Id == courtId)
             .Select(court => new Response.SearchCourtByIdResponse
             {
@@ -100,6 +108,16 @@ public class Service : IService
                 MapUrl = court.MapUrl,
                 Description = court.Description,
                 DefaultPrice = court.SubCourts.First().ConfigSlots.First().Price,
+                Feedbacks = court.Feedbacks
+                    .OrderBy(x => x.CreatedAt) 
+                    .Take(5)
+                    .Select(x => new Response.FeedbackPreviewResponse()
+                {
+                    NameCustomer = x.Customer.User.FirstName,
+                    Rating = x.Rating,
+                    Comment =  x.Comment!,
+                    CreatedAt = x.CreatedAt
+                }).ToList()
             })
             .FirstOrDefaultAsync();
 

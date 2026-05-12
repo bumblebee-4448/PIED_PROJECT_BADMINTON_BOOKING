@@ -27,7 +27,7 @@ public class FeadbackController: ControllerBase
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("feadback success", HttpContext.TraceIdentifier));
     }
     [HttpGet("Feadback")]
-    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
+    // [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     public async Task<IActionResult> GetFeadback([FromQuery]Request.GetFeadbackRequest request)
     {
         var result = await _feadbackService.GetFeadback(request);
