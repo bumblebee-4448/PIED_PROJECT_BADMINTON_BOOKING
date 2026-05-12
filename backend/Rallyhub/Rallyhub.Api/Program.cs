@@ -22,8 +22,11 @@ using TransactionService = Rallyhub.Service.Transaction;
 using WalletService = Rallyhub.Service.Wallet;
 using BookingService = Rallyhub.Service.Booking;
 using WithdrawalService = Rallyhub.Service.Withdrawal;
-using sepayService = Rallyhub.Service.SepayService;
-using FeadbackService = Rallyhub.Service.Feadback;
+using SepayService = Rallyhub.Service.SepayService;
+using NotificationService = Rallyhub.Service.NotificationService;
+using FeedbackService = Rallyhub.Service.Feadback;
+using ValidationService = Rallyhub.Service.Validation;
+
 using CampaignService = Rallyhub.Service.Campaign;
 // using DiscordService = Rallyhub.Service.DiscordService;
 
@@ -68,8 +71,10 @@ builder.Services.AddScoped<TransactionService.IService, TransactionService.Servi
 builder.Services.AddScoped<WalletService.IService, WalletService.Service>();
 builder.Services.AddScoped<BookingService.IService, BookingService.Service>();
 builder.Services.AddScoped<WithdrawalService.IService, WithdrawalService.Service>();
-builder.Services.AddScoped<sepayService.IService, sepayService.Service>();
-builder.Services.AddScoped<FeadbackService.IService, FeadbackService.Service>();
+builder.Services.AddScoped<SepayService.IService, SepayService.Service>();
+builder.Services.AddScoped<NotificationService.IService, NotificationService.Service>();
+builder.Services.AddScoped<FeedbackService.IService, FeedbackService.Service>();
+builder.Services.AddScoped<ValidationService.IService, ValidationService.Service>();
 builder.Services.AddScoped<CampaignService.IService, CampaignService.Service>();
 
 

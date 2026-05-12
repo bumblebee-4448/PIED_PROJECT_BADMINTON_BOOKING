@@ -48,8 +48,26 @@ public class BookingDetailTimeJob : IJob
             var booking = await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == item.BookingId);
             if (booking!.Status == BankedStatus)
             {
+                var wallet = item.SubCourt.Court.Owner.User.Wallet;
                 booking.Status = CompletedStatus;
                 booking.UpdatedAt = now;
+                var transactionI = new Transaction.Request.CreateTransactionRequest()
+                {
+                    Type = Transaction.Request.TypeList.Receive,
+                    Amount = booking.FinalPrice,
+                    BalanceBefore = wallet.Balance,
+                    BalanceAfter =  wallet.Balance + booking.FinalPrice,
+                    Status = "Success",
+                    WalletId =  wallet.Id,
+                };
+                if (!await _walletService.AddBanlanceToWallet(wallet.UserId, booking.FinalPrice, "Payment"))
+                {
+                    throw new Exception("Wallet reject balance failed");
+                }
+                if (!await _transactionService.CreateTransaction(transactionI))
+                {
+                    throw new Exception("Error creating transaction");
+                }
             }
             _dbContext.Update(booking);
         }

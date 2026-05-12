@@ -15,7 +15,7 @@ public class Campaign : BaseEntity<Guid>, IAuditableEntity
     public DateTime EndDate { get; set; }
 
     public Guid? OwnerId  { get; set; }
-    public Owner Owner { get; set; }
+    public Owner? Owner { get; set; }
     
     public ICollection<Booking>  Bookings { get; set; } = new List<Booking>();
     public ICollection<CampaignCourt> Courts { get; set; } = new List<CampaignCourt>();

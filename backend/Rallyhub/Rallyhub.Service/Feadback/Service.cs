@@ -65,6 +65,7 @@ public class Service: IService
             NameCustomer = x.Customer.User.FirstName,
             Rating = x.Rating,
             Comment =  x.Comment,
+            CreatedAt = x.CreatedAt
         });
         var listResult = await selectQuery.ToListAsync();
         var result = new Base.Response.PageResult<Response.GetFeadbackResponse>()
