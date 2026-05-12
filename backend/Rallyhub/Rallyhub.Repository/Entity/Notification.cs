@@ -10,12 +10,12 @@ public class Notification : BaseEntity<Guid>, IAuditableEntity
     public Guid UserId { get; set; }
     public required string Title { get; set; }
     public required string Content { get; set; }
-    public required string Type { get; set; }
+    public required string Type { get; set; } //booking, feedback, report, ownerRequeset, courtHasBooking
     public required bool IsRead { get; set; } = false;
     public Court? Court { get; set; }
     public Guid? CourtId { get; set; }
-    public Transaction? Transaction { get; set; }
-    public Guid? TransactionId { get; set; }
+    // public Transaction? Transaction { get; set; }
+    // public Guid? TransactionId { get; set; }
     public Report? Report { get; set; }
     public Guid? ReportId { get; set; }
     public SystemReport? SystemReport { get; set; }

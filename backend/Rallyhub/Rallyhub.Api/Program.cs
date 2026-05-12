@@ -23,7 +23,7 @@ using WalletService = Rallyhub.Service.Wallet;
 using BookingService = Rallyhub.Service.Booking;
 using WithdrawalService = Rallyhub.Service.Withdrawal;
 using sepayService = Rallyhub.Service.SepayService;
-using NotificationService = Rallyhub.Service.NotificationService;
+using NotificationService = Rallyhub.Service.Notification;
 using FeadbackService = Rallyhub.Service.Feadback;
 
 // using DiscordService = Rallyhub.Service.DiscordService;
@@ -38,7 +38,11 @@ CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 builder.Services.AddHttpContextAccessor();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
