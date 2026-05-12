@@ -63,6 +63,7 @@ public class Service : IService
             Status = x.Court.Status,
             AverageRating = x.AverageRating,
             PictureUrl = x.Court.PictureUrl,
+            DefaultPrice = x.Court.SubCourts.First().ConfigSlots.First().Price
         });
         var listResult = await selectedQuery.ToListAsync();
         var result = new Base.Response.PageResult<Response.SearchCourtResponse>
@@ -90,7 +91,8 @@ public class Service : IService
                 PhoneNumber = court.Owner != null && court.Owner.User != null ? court.Owner.User.PhoneNumber : "",
                 PictureUrl = court.PictureUrl,
                 MapUrl = court.MapUrl,
-                Description = court.Description
+                Description = court.Description,
+                DefaultPrice = court.SubCourts.First().ConfigSlots.First().Price,
             })
             .FirstOrDefaultAsync();
 

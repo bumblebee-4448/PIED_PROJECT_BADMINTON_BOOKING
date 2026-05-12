@@ -8,11 +8,5 @@ public class Request
         public string? SortBy { get; set; }
         public bool IsDescending { get; set; }
     }
-
-    public class SlotRequest
-    {
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
-    }
 }
  
