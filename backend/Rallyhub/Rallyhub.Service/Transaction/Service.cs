@@ -29,7 +29,7 @@ public class Service : IService
         
         var query = _dbContext.Transactions.Where(x => x.Wallet.UserId == userId && x.Status == "Success");
         var total = await query.SumAsync(x => (
-                                                  x.Type == "Deposit" || x.Type == "Refund" || x.Type == "AdminUp" ? x.Amount : 0)
+                                                  x.Type == "Deposit" || x.Type == "Refund" || x.Type == "AdminUp" || x.Type == "Receive" ? x.Amount : 0)
                                               - (x.Type == "Payment" || x.Type == "Withdrawal" || x.Type == "AdminDeduct" ? x.Amount : 0));
         if (total < 0)
         {

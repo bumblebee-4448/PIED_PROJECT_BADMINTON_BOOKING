@@ -8,6 +8,9 @@ public class Exception : BaseEntity<Guid>, IAuditableEntity
     public SubCourt SubCourtDetail { get; set; }
     
     public DateOnly  Date { get; set; }
+    public bool IsRecurring { get; set; } //[default: false, note: 'True = repeat weekly on dayOfWeek; False = one specific date']
+    public DayOfWeek DayOfWeek { get; set; } //[null, note: '0=Sun … 6=Sat. Only used when isRecurring = true']
+
     public TimeOnly StartTime { get; set; }
     public TimeOnly EndTime { get; set; }
     public string Reason { get; set; }

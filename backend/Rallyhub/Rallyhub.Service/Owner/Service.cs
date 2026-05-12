@@ -163,6 +163,7 @@ public class Service : IService
                 StartTime = current,
                 EndTime = current.AddMinutes(30),
                 Price = request.DefaultPrice,
+                
             });
             current = current.AddMinutes(30);
         }

@@ -37,6 +37,7 @@ public class Request
         public const string Deposit = "Deposit";
         public const string Refund = "Refund";
         public const string AdminUp = "AdminUp";
+        public const string Receive = "Receive";
         public const string Payment = "Payment";
         public const string Withdrawal = "Withdrawal";
         public const string AdminDeduct = "AdminDeduct";
