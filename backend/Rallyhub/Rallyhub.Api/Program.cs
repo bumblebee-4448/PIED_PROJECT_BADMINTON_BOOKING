@@ -25,6 +25,7 @@ using WithdrawalService = Rallyhub.Service.Withdrawal;
 using SepayService = Rallyhub.Service.SepayService;
 using NotificationService = Rallyhub.Service.NotificationService;
 using FeedbackService = Rallyhub.Service.Feadback;
+using ValidationService = Rallyhub.Service.Validation;
 
 // using DiscordService = Rallyhub.Service.DiscordService;
 
@@ -72,7 +73,7 @@ builder.Services.AddScoped<WithdrawalService.IService, WithdrawalService.Service
 builder.Services.AddScoped<SepayService.IService, SepayService.Service>();
 builder.Services.AddScoped<NotificationService.IService, NotificationService.Service>();
 builder.Services.AddScoped<FeedbackService.IService, FeedbackService.Service>();
-
+builder.Services.AddScoped<ValidationService.IService, ValidationService.Service>();
 
 
 
