@@ -764,7 +764,7 @@ public class Service : IService
                         StartTime = ex.StartTime,
                         EndTime = ex.EndTime,
                         IsAvailable = false,
-                        Reason = ex.Reason,
+                        //Reason = ex.Reason,
                         Type = "Blocked"
                     });
                     exceptionAdd = true;
@@ -800,7 +800,7 @@ public class Service : IService
             if (isBooked)
             {
                 slot.IsAvailable = false;
-                slot.Reason = "Đã được khách đặt";
+               // slot.Reason = "Đã được khách đặt";
                 slot.Type = "Booked";   
             }
         }
