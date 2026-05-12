@@ -687,9 +687,9 @@ public class Service : IService
                 x.Court.Status == "Active");
         if (subCourt == null)
             throw new Exception("Sân con không tồn tại");
-        
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        
+        // // var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        // var vnZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        // var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnZone));    
         var configSlots = await _dbContext.ConfigSlots
             .Where(x => x.SubCourtDetailId == request.SubCourtId)
             .OrderBy(x => x.StartTime)
@@ -715,7 +715,8 @@ public class Service : IService
             StartTime =  x.StartTime,
             EndTime =  x.EndTime,
             Price = x.Price,
-            IsAvailable = true
+            IsAvailable = true,
+            Type = "Default"
         }).ToList();
         
         foreach (var ov in overrides)
@@ -729,7 +730,8 @@ public class Service : IService
                 StartTime = ov.StartTime,
                 EndTime = ov.EndTime,
                 Price = ov.Price,
-                IsAvailable = true
+                IsAvailable = true,
+                Type = "Override"
             });
         }
         
@@ -751,6 +753,7 @@ public class Service : IService
                         EndTime = ex.StartTime,
                         IsAvailable = true,
                         Price = slot.Price,
+                        Type = "Default"
                     });
                 }
 
@@ -762,6 +765,7 @@ public class Service : IService
                         EndTime = ex.EndTime,
                         IsAvailable = false,
                         Reason = ex.Reason,
+                        Type = "Blocked"
                     });
                     exceptionAdd = true;
                 }
@@ -774,6 +778,7 @@ public class Service : IService
                         EndTime = slot.EndTime,
                         IsAvailable = true,
                         Price = slot.Price,
+                        Type = "Default"
                     });
                 }
             }
@@ -796,6 +801,7 @@ public class Service : IService
             {
                 slot.IsAvailable = false;
                 slot.Reason = "Đã được khách đặt";
+                slot.Type = "Booked";   
             }
         }
         return result.OrderBy(x => x.StartTime).ToList();
