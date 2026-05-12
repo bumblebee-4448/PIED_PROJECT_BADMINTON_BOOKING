@@ -20,38 +20,36 @@ public class Service: IService
     
      public async Task<List<Response.SlotResponse>> GetAvailableSlots(Request.GetAvailableSlotsRequest request)
     {
-        var subCourt = await _dbContext.SubCourts
+         var subCourt = await _dbContext.SubCourts
             .Include(x => x.Court)
             .FirstOrDefaultAsync(x => 
                 x.Id == request.SubCourtId && 
                 x.Court.Status == "Active");
         if (subCourt == null)
-        {
-            throw new Exception($"Không tìm thấy sân con");
-        }
+            throw new Exception("Sân con không tồn tại");
+        
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-
-        if (request.Date < today)
-        {
-            throw new Exception("Không thể xem slot trong quá khứ");
-        }
+        
         var configSlots = await _dbContext.ConfigSlots
             .Where(x => x.SubCourtDetailId == request.SubCourtId)
             .OrderBy(x => x.StartTime)
             .ToListAsync();
+        
         var overrides = await _dbContext.OverideSlots
             .Where(x => 
                 x.SubCourtDetailId == request.SubCourtId &&
                 ( 
-                    (!x.IsRecurring && x.Date == request.Date) || 
-                    (x.IsRecurring && x.DayOfWeek == request.Date.DayOfWeek)
+                     (!x.IsRecurring && x.Date == request.Date) || 
+                     (x.IsRecurring && x.DayOfWeek == request.Date.DayOfWeek)
                             
                 )).ToListAsync();
+
         var exceptions = await  _dbContext.Exceptions
             .Where(x => 
                 x.SubCourtDetailId == request.SubCourtId &&
                 x.Date == request.Date)
-            .ToListAsync(); 
+            .ToListAsync();
+
         var result = configSlots.Select(x => new Response.SlotResponse
         {
             StartTime =  x.StartTime,
@@ -59,6 +57,7 @@ public class Service: IService
             Price = x.Price,
             IsAvailable = true
         }).ToList();
+        
         foreach (var ov in overrides)
         {
             result.RemoveAll(x => 
@@ -76,16 +75,48 @@ public class Service: IService
         
         foreach (var ex in exceptions)
         {
-            result.RemoveAll(x =>
-                x.StartTime < ex.EndTime &&
-                x.EndTime > ex.StartTime);
-            //
-            result.Add(new Response.SlotResponse
+            var exceptionAdd = false;
+            foreach (var slot in result.ToList())
             {
-                StartTime = ex.StartTime,
-                EndTime = ex.EndTime,
-                IsAvailable = false
-            });
+                var hasOverlap = slot.StartTime < ex.EndTime &&
+                                 slot.EndTime > ex.StartTime;
+                if (!hasOverlap) continue;
+                result.Remove(slot);
+
+                if (slot.StartTime < ex.StartTime)
+                {
+                    result.Add(new Response.SlotResponse
+                    {
+                        StartTime = slot.StartTime,
+                        EndTime = ex.StartTime,
+                        IsAvailable = true,
+                        Price = slot.Price,
+                    });
+                }
+
+                if (!exceptionAdd)
+                {
+                    result.Add(new Response.SlotResponse()
+                    {
+                        StartTime = ex.StartTime,
+                        EndTime = ex.EndTime,
+                        IsAvailable = false,
+                        Reason = ex.Reason,
+                    });
+                    exceptionAdd = true;
+                }
+
+                if (slot.EndTime > ex.EndTime)
+                {
+                    result.Add(new Response.SlotResponse()
+                    {
+                        StartTime = ex.EndTime,
+                        EndTime = slot.EndTime,
+                        IsAvailable = true,
+                        Price = slot.Price,
+                    });
+                }
+            }
         }
         
         var bookedSlots = await _dbContext.BookingDetails
@@ -98,9 +129,14 @@ public class Service: IService
         foreach (var slot in result)
         {
             if (!slot.IsAvailable) continue;
-            slot.IsAvailable = !bookedSlots.Any(b =>
+            var isBooked = bookedSlots.Any(b =>
                 b.StartTime < slot.EndTime &&
                 b.EndTime > slot.StartTime);
+            if (isBooked)
+            {
+                slot.IsAvailable = false;
+                slot.Reason = "Đã được khách đặt";
+            }
         }
         return result.OrderBy(x => x.StartTime).ToList();
     }
@@ -119,7 +155,8 @@ public class Service: IService
             SubCourtId = request.SubCourtId,
             Date = request.Date
         });
-
+        
+        var now = DateTime.Now;
         foreach (var slot in request.Slots)
         {
             var systemSlot = availableSlots.FirstOrDefault(x =>
@@ -130,6 +167,11 @@ public class Service: IService
             {
                 throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} không tồn tại");
             }
+            
+            if(request.Date.ToDateTime(slot.StartTime) <= now)
+            {
+                throw new Exception("Không được đặt sân trong quá khứ");
+            };
 
             if (!systemSlot.IsAvailable)
             {
