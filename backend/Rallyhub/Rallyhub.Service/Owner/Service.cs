@@ -681,11 +681,6 @@ public class Service : IService
             throw new Exception("Sân con không tồn tại");
         
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
-
-        if (request.Date < today)
-        {
-            throw new Exception("Không thể xem slot trong quá khứ");
-        }
         
         var configSlots = await _dbContext.ConfigSlots
             .Where(x => x.SubCourtDetailId == request.SubCourtId)
