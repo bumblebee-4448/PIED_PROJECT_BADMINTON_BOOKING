@@ -9,17 +9,19 @@ public class Service : IService
 {
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContext;
+    private readonly Validation.IService _validationService;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext,  Validation.IService validationService)
     {
         _dbContext = dbContext;
         _httpContext = httpContext;
+        _validationService = validationService;
     }
 
     public async Task<Base.Response.PageResult<Response.SearchCourtResponse>> SearchByFilter(
         Request.SearchByFilterRequest request)
     {
-        var query = _dbContext.Courts
+        var rawList = await _dbContext.Courts
             .Where(x => x.Status == "Active")
             .Select(x => new
             {
@@ -28,44 +30,47 @@ public class Service : IService
                     .Where(f => f.CourtId == x.Id)
                     .Select(f => (double?)f.Rating)  
                     .Average() ?? 0,
-            });
+            })
+            .ToListAsync();
+        
         if (request.Keyword != null)
         {
-            var keyword = request.Keyword.Trim().ToLower();
-            query = query.Where(x =>
-                x.Court.Name.ToLower().Contains(keyword) ||
-                x.Court.Address.ToLower().Contains(keyword));
+            var keyword = _validationService.RemoveDiacritics(request.Keyword.Trim().ToLower());
+            rawList = rawList
+                .Where(x =>
+                    _validationService.RemoveDiacritics(x.Court.Name.ToLower().Trim()).Contains(keyword) ||
+                    _validationService.RemoveDiacritics(x.Court.Address.ToLower().Trim()).Contains(keyword))
+                .ToList();
         }
 
-        query = request.SortBy?.ToLower() switch
+        rawList = request.SortBy?.ToLower() switch
         {
             "name" => request.IsDescending
-                ? query.OrderByDescending(x => x.Court.Name)
-                : query.OrderBy(x => x.Court.Name),
+                ? rawList.OrderByDescending(x => x.Court.Name).ToList()
+                : rawList.OrderBy(x => x.Court.Name).ToList(),
 
             "rate" => request.IsDescending
-                ? query.OrderByDescending(x => x.AverageRating)
-                    .ThenByDescending(x => x.Court.Name)
-                : query.OrderBy(x => x.AverageRating),
+                ? rawList.OrderByDescending(x => x.AverageRating)
+                    .ThenByDescending(x => x.Court.Name).ToList()
+                : rawList.OrderBy(x => x.AverageRating).ToList(),
 
-            _ => query.OrderByDescending(x => x.AverageRating)
+            _ => rawList.OrderByDescending(x => x.AverageRating).ToList()
         };
 
-        var totalItems = await query.CountAsync();
-        query = query
+        var totalItems =  rawList.Count();
+        var listResult = rawList
             .Skip((request.PageIndex - 1) * request.PageSize)
-            .Take(request.PageSize);
-        var selectedQuery = query.Select(x => new Response.SearchCourtResponse()
-        {
-            CourtId = x.Court.Id,
-            Name = x.Court.Name,
-            Address = x.Court.Address,
-            Status = x.Court.Status,
-            AverageRating = x.AverageRating,
-            PictureUrl = x.Court.PictureUrl,
-            DefaultPrice = x.Court.SubCourts.First().ConfigSlots.First().Price
-        });
-        var listResult = await selectedQuery.ToListAsync();
+            .Take(request.PageSize)
+            .Select(x => new Response.SearchCourtResponse()
+            {
+                CourtId = x.Court.Id,
+                Name = x.Court.Name,
+                Address = x.Court.Address,
+                Status = x.Court.Status,
+                AverageRating = x.AverageRating,
+                PictureUrl = x.Court.PictureUrl,
+                DefaultPrice = x.Court.SubCourts.FirstOrDefault()?.ConfigSlots.FirstOrDefault()?.Price ?? 0,
+            }).ToList();
         var result = new Base.Response.PageResult<Response.SearchCourtResponse>
         {
             Items = listResult,
