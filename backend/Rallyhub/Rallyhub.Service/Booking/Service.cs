@@ -155,7 +155,8 @@ public class Service: IService
             SubCourtId = request.SubCourtId,
             Date = request.Date
         });
-
+        
+        var now = DateTime.Now;
         foreach (var slot in request.Slots)
         {
             var systemSlot = availableSlots.FirstOrDefault(x =>
@@ -166,6 +167,11 @@ public class Service: IService
             {
                 throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} không tồn tại");
             }
+            
+            if(request.Date.ToDateTime(slot.StartTime) <= now)
+            {
+                throw new Exception("Không được đặt sân trong quá khứ");
+            };
 
             if (!systemSlot.IsAvailable)
             {
