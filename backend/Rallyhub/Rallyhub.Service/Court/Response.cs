@@ -1,3 +1,5 @@
+using Rallyhub.Repository.Entity;
+
 namespace Rallyhub.Service.Court;
 
 public class Response
@@ -12,6 +14,8 @@ public class Response
         public string PictureUrl { get; set; } = null!;
         public decimal? DefaultPrice { get; set; }
         public string PhoneNumber { get; set; } = null!;
+        public int TotalBooked { get; set; }
+        public int TotalFeedbacks { get; set; }
 
     }
     public class SearchCourtByIdResponse : SearchCourtResponse
@@ -21,7 +25,8 @@ public class Response
         public  string? Description { get; set; } = null!;
         public string PhoneNumber { get; set; } = null!;
         public string MapUrl { get; set; } = null!;
-    
+        public List<Feedback> Feedbacks = new();
+
     }
 
     public class SubCourtResponse
