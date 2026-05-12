@@ -11,7 +11,8 @@ public class Response
         public double AverageRating { get; set; }
         public string PictureUrl { get; set; } = null!;
         public decimal? DefaultPrice { get; set; }
-        
+        public string PhoneNumber { get; set; } = null!;
+
     }
     public class SearchCourtByIdResponse : SearchCourtResponse
     {

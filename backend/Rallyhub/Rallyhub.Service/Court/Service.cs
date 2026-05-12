@@ -26,10 +26,11 @@ public class Service : IService
             .Select(x => new
             {
                 Court = x,
-                AverageRating = _dbContext.Feedbacks
-                    .Where(f => f.CourtId == x.Id)
-                    .Select(f => (double?)f.Rating)  
-                    .Average() ?? 0,
+                AverageRating = Math.Round(
+                    _dbContext.Feedbacks
+                        .Where(f => f.CourtId == x.Id)
+                        .Select(f => (double?)f.Rating)  
+                        .Average() ?? 0, 1)
             })
             .ToListAsync();
         
@@ -70,6 +71,7 @@ public class Service : IService
                 AverageRating = x.AverageRating,
                 PictureUrl = x.Court.PictureUrl,
                 DefaultPrice = x.Court.SubCourts.FirstOrDefault()?.ConfigSlots.FirstOrDefault()?.Price ?? 0,
+                PhoneNumber = x.Court.Owner != null && x.Court.Owner.User != null ? x.Court.Owner.User.PhoneNumber : "",
             }).ToList();
         var result = new Base.Response.PageResult<Response.SearchCourtResponse>
         {
@@ -90,7 +92,7 @@ public class Service : IService
                 Name = court.Name,
                 Address = court.Address,
                 Status = court.Status,
-                AverageRating = court.Feedbacks.Any() ? court.Feedbacks.Average(f => (double)f.Rating) : 0,
+                AverageRating = court.Feedbacks.Any() ? Math.Round(court.Feedbacks.Average(f => (double)f.Rating), 1) : 0,
                 OpenTime = court.OpenTime,
                 CloseTime = court.CloseTime,
                 PhoneNumber = court.Owner != null && court.Owner.User != null ? court.Owner.User.PhoneNumber : "",
