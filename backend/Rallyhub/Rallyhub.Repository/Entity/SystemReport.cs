@@ -10,6 +10,7 @@ public class SystemReport : BaseEntity<Guid>, IAuditableEntity
     
     public Guid UserId { get; set; }
     public User User { get; set; }
+    public Notification? Notification { get; set; }
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }
