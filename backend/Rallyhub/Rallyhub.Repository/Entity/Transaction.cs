@@ -22,6 +22,7 @@ public class Transaction : BaseEntity<Guid>, IAuditableEntity
     public Booking? Booking { get; set; }
     public Guid WalletId { get; set; }
     public Wallet Wallet { get; set; }
+    public Notification? Notification { get; set; }
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

@@ -13,6 +13,7 @@ public class Report : BaseEntity<Guid>, IAuditableEntity
     public Court Court { get; set; }
     public Guid BookingId { get; set; }
     public Booking Booking { get; set; }
+    public Notification? Notification { get; set; }
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

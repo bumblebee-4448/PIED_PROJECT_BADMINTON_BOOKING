@@ -373,7 +373,10 @@ public class Service: IService
                 .ThenInclude(x => x.SubCourt)
                     .ThenInclude(x => x.Court)
             .FirstOrDefaultAsync(x => x.Id == bookingId && x.CustomerId == customerId);
-
+        if (booking.Status == "Pending" || booking.Status == "Refund")
+        {
+            throw new Exception("Booking already refund");
+        }
         if (booking == null)
         {
             throw new Exception("Booking not found or you do not have permission to refund this booking");
