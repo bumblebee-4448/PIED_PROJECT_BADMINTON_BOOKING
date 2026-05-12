@@ -151,17 +151,17 @@ public class Service : IService
         //create slot
         var slots = new List<ConfigSlot>();
         var current = court.OpenTime;
-        while (current.AddMinutes(10) <= court.CloseTime)
+        while (current.AddMinutes(30) <= court.CloseTime)
         {
             slots.Add(new ConfigSlot
             {
                 Id = Guid.NewGuid(),
                 SubCourtDetailId = newSubCourt.Id,
                 StartTime = current,
-                EndTime = current.AddMinutes(10),
+                EndTime = current.AddMinutes(30),
                 Price = request.DefaultPrice,
             });
-            current = current.AddMinutes(10);
+            current = current.AddMinutes(30);
         }
         _dbContext.ConfigSlots.AddRange(slots);
         await _dbContext.SaveChangesAsync();
