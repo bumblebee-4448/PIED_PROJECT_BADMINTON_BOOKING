@@ -739,8 +739,8 @@ public class Service : IService
                 {
                     result.Add(new Response.SlotResponse
                     {
-                        StartTime = ex.StartTime,
-                        EndTime = ex.EndTime,
+                        StartTime = slot.StartTime,
+                        EndTime = ex.StartTime,
                         IsAvailable = true,
                         Price = slot.Price,
                     });
@@ -762,8 +762,8 @@ public class Service : IService
                 {
                     result.Add(new Response.SlotResponse()
                     {
-                        StartTime = ex.StartTime,
-                        EndTime = ex.EndTime,
+                        StartTime = ex.EndTime,
+                        EndTime = slot.EndTime,
                         IsAvailable = true,
                         Price = slot.Price,
                     });
