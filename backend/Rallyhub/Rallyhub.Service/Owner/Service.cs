@@ -727,17 +727,48 @@ public class Service : IService
         
         foreach (var ex in exceptions)
         {
-            result.RemoveAll(x =>
-                x.StartTime < ex.EndTime &&
-                x.EndTime > ex.StartTime);
-            //
-            result.Add(new Response.SlotResponse
+            var exceptionAdd = false;
+            foreach (var slot in result.ToList())
             {
-                StartTime = ex.StartTime,
-                EndTime = ex.EndTime,
-                IsAvailable = false,
-                Reason = ex.Reason
-            });
+                var hasOverlap = slot.StartTime < ex.EndTime &&
+                                 slot.EndTime > ex.StartTime;
+                if (!hasOverlap) continue;
+                result.Remove(slot);
+
+                if (slot.StartTime < ex.StartTime)
+                {
+                    result.Add(new Response.SlotResponse
+                    {
+                        StartTime = ex.StartTime,
+                        EndTime = ex.EndTime,
+                        IsAvailable = true,
+                        Price = slot.Price,
+                    });
+                }
+
+                if (!exceptionAdd)
+                {
+                    result.Add(new Response.SlotResponse()
+                    {
+                        StartTime = ex.StartTime,
+                        EndTime = ex.EndTime,
+                        IsAvailable = false,
+                        Reason = ex.Reason,
+                    });
+                    exceptionAdd = true;
+                }
+
+                if (slot.EndTime > ex.EndTime)
+                {
+                    result.Add(new Response.SlotResponse()
+                    {
+                        StartTime = ex.StartTime,
+                        EndTime = ex.EndTime,
+                        IsAvailable = true,
+                        Price = slot.Price,
+                    });
+                }
+            }
         }
         
         var bookedSlots = await _dbContext.BookingDetails
