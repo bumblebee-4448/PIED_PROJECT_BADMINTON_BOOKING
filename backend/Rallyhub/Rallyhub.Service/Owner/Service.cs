@@ -675,8 +675,10 @@ public class Service : IService
     public async Task<List<Response.SlotResponse>> GetAvailableSlots(Request.GetAvailableSlotsRequest request)
     {
         var subCourt = await _dbContext.SubCourts
+            .Include(x => x.Court)
             .FirstOrDefaultAsync(x => 
-                x.Id == request.SubCourtId);
+                x.Id == request.SubCourtId && 
+                x.Court.Status == "Active");
         if (subCourt == null)
             throw new Exception("Sân con không tồn tại");
         

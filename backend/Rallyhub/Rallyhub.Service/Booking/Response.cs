@@ -9,6 +9,7 @@ public class Response
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }
         public bool IsAvailable { get; set; }
+        public string? Reason { get; set; }
     }
 
     public class BookingDetailItem
