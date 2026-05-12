@@ -24,7 +24,7 @@ using BookingService = Rallyhub.Service.Booking;
 using WithdrawalService = Rallyhub.Service.Withdrawal;
 using SepayService = Rallyhub.Service.SepayService;
 using FeedbackService = Rallyhub.Service.Feadback;
-using Validation = Rallyhub.Service.Validation;
+//using NotificationService = Rallyhub.Service.NotificationService;
 
 // using DiscordService = Rallyhub.Service.DiscordService;
 
@@ -71,7 +71,8 @@ builder.Services.AddScoped<BookingService.IService, BookingService.Service>();
 builder.Services.AddScoped<WithdrawalService.IService, WithdrawalService.Service>();
 builder.Services.AddScoped<SepayService.IService, SepayService.Service>();
 builder.Services.AddScoped<FeedbackService.IService, FeedbackService.Service>();
-builder.Services.AddScoped<Validation.IService, Validation.Service>();
+
+
 
 
 builder.Services.AddHttpClient("VietMap", client =>
