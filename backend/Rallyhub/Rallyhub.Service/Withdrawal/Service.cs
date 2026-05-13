@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 
@@ -25,8 +25,22 @@ public class Service : IService
         var userIdGuild = Guid.Parse(userId);
         var user = await _dbcontext.Users.FirstOrDefaultAsync(x => x.Id == userIdGuild);
         var wallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == userIdGuild);
-        
+        if (wallet == null)
+        {
+            throw new Exception("Wallet not found");
+        }
 
+        if (string.IsNullOrEmpty(wallet.BankName) || 
+            string.IsNullOrEmpty(wallet.BankAccount) || 
+            string.IsNullOrEmpty(wallet.BankAccountName))
+        {
+            throw new Exception("Vui lòng liên kết tài khoản ngân hàng trước khi rút tiền");
+        }
+
+        if (wallet.Balance < request.Amount)
+        {
+            throw new Exception("Số dư không đủ để thực hiện yêu cầu này");
+        }
         var newWithdrawal = new Repository.Entity.Withdrawal()
         {
             Amount = request.Amount,

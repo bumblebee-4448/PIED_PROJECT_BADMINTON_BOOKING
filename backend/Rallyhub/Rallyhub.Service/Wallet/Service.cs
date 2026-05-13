@@ -106,8 +106,8 @@ public class Service : IService
     public async Task<Response.AddBalanceToWalletFromPaymentResponse> AddBalanceToWalletFromPayment(
         decimal requestAmount)
     {
-        var customerIdClaim = _httpAccessor.HttpContext.User.Claims
-            .FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var userIdClaim = _httpAccessor.HttpContext.User.Claims
+            .FirstOrDefault(x => x.Type == "UserId")?.Value;
         var pendingTransaction = await _dbcontext.Transactions
             .FirstOrDefaultAsync(x => x.Status == "Pending");
         if (pendingTransaction != null)
@@ -118,13 +118,13 @@ public class Service : IService
                 _dbcontext.Transactions.Update(pendingTransaction);
                 await _dbcontext.SaveChangesAsync();
             }
-            if (customerIdClaim == null)
+            if (userIdClaim == null)
             {
                 throw new Exception("Không tìm thấy thông tin của User");
             }
-            var customerId = Guid.Parse(customerIdClaim);
+            var userId = Guid.Parse(userIdClaim);
         
-            var existWallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == customerId);
+            var existWallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId);
             if (existWallet == null)
             {
                 throw new Exception("Không tìm thấy ví");
@@ -150,13 +150,13 @@ public class Service : IService
         }
         else
         {
-            if (customerIdClaim == null)
+            if (userIdClaim == null)
             {
                 throw new Exception("Không tìm thấy thông tin của User");
             }
-            var customerId = Guid.Parse(customerIdClaim);
+            var userId = Guid.Parse(userIdClaim);
         
-            var existWallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == customerId);
+            var existWallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId);
             if (existWallet == null)
             {
                 throw new Exception("Không tìm thấy ví");
@@ -173,7 +173,7 @@ public class Service : IService
                                $"des={description}&" +
                                $"template=qronly";
     
-            var transactionI = new Transaction.Request.CreateTransactionRequest
+            var transactionI = new Repository.Entity.Transaction
             {
                 Type = Transaction.Request.TypeList.Deposit,
                 Amount = requestAmount,
@@ -181,8 +181,10 @@ public class Service : IService
                 BalanceAfter =  existWallet.Balance + requestAmount,
                 Status = "Pending",
                 WalletId =  existWallet.Id,
+                CreatedAt = DateTimeOffset.UtcNow,
+                UpdatedAt = DateTimeOffset.UtcNow
             };
-            _dbcontext.Add(transactionI);
+            _dbcontext.Transactions.Add(transactionI);
             await _dbcontext.SaveChangesAsync();
 
             return new Response.AddBalanceToWalletFromPaymentResponse
@@ -263,7 +265,7 @@ public class Service : IService
                 break;
             }
         }
-        if (amount - wallet.Balance < 0)
+        if (wallet.Balance < amount)
         {
             throw new Exception("Balance of your wallet not enough");
         }
