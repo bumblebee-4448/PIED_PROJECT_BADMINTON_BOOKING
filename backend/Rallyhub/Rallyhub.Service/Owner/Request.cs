@@ -35,14 +35,6 @@ public class Request
         public string? Name { get; set; }  
     }
     
-    // public class CreateConfigSlotRequest
-    // {
-    //     public Guid SubCourtId { get; set; }
-    //     public TimeOnly StartTime { get; set; }
-    //     public TimeOnly EndTime { get; set; }
-    //     public decimal Price { get; set; }
-    // }
-    
     public class CreateOverrideSlotRequest
     {
         public Guid SubCourtId { get; set; }
@@ -58,7 +50,9 @@ public class Request
     public class CreateExceptionSlotRequest
     {
         public Guid SubCourtId { get; set; } 
-        public DateOnly Date { get; set; }
+        public bool IsRecurring { get; set; }
+        public DayOfWeek? DayOfWeek { get; set; }
+        public DateOnly? Date { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public string Reason { get; set; } = null!;
