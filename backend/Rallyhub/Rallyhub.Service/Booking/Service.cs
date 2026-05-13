@@ -111,19 +111,52 @@ public class Service: IService
         decimal finalPrice =  totalPrice;
         if (request.CampaignId != null)
         {
-            var query = await _dbContext.Campaigns
-                .FirstOrDefaultAsync(c => 
+            var campaign = await _dbContext.Campaigns
+                .Include(c => c.Courts)
+                .FirstOrDefaultAsync(c =>
                     c.Id == request.CampaignId &&
                     c.Code == request.Code &&
                     c.StartDate <= request.Date.ToDateTime(TimeOnly.MinValue) &&
                     c.EndDate >= request.Date.ToDateTime(TimeOnly.MinValue));
-            if (query == null)
+            if (campaign == null)
             {
-                throw new Exception("Campaign không tồn tại trong hệ thống");
+                throw new Exception("Campaign không tồn tại hoặc đã hết hạn");
             }
 
-            finalPrice = totalPrice * (1 - query!.DiscountPercent / 100m);
-            if (finalPrice <= 0) finalPrice = 0;
+            if (campaign.UsedCount >= campaign.UsageLimit)
+            {
+                throw new Exception("Campaign đã hết lượt sử dụng");
+            }
+
+            if (totalPrice < campaign.MinBookingAmount)
+            {
+                throw new Exception($"Giá trị đơn hàng tối thiểu để dùng campaign là {campaign.MinBookingAmount}");
+            }
+
+            if (!campaign.IsGlobal)
+            {
+                var firstSubCourtId = request.Items.First().SubCourtId;
+                var courtId = await _dbContext.SubCourts
+                    .Where(x => x.Id == firstSubCourtId)
+                    .Select(x => x.CourtId)
+                    .FirstOrDefaultAsync();
+                var campaignCourtIds = campaign.Courts.Select(x => x.CourtId).ToList();
+                if (!campaignCourtIds.Contains(courtId))
+                {
+                    throw new Exception("Campaign này không áp dụng cho sân bạn đang đặt");
+                }
+            }
+
+            var discountAmount = totalPrice * (campaign.DiscountPercent / 100m);
+            if (discountAmount > campaign.MaxDiscountAmount)
+            {
+                discountAmount = campaign.MaxDiscountAmount;
+            }
+
+            finalPrice = totalPrice - discountAmount;
+            if (finalPrice < 0) finalPrice = 0;
+            campaign.UsedCount += 1;
+            _dbContext.Campaigns.Update(campaign);
         }
         
         var booking = new Repository.Entity.Booking
@@ -171,6 +204,10 @@ public class Service: IService
                            $"des={description}&" +
                            $"template=qronly";
         
+        var subCourtIds = bookingDetails.Select(x => x.SubCourtId).ToList();
+        var subCourtName = await _dbContext.SubCourts
+            .Where(x => subCourtIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.Name);
         return new Response.CreateBookingResponse
         {
             BookingId = booking.Id,
@@ -181,7 +218,7 @@ public class Service: IService
             Items = bookingDetails.Select(x => new Response.BookingDetailItem
             {
                 SubCourtId = x.SubCourtId,
-                SubCourtName = x.SubCourt.Name,
+                SubCourtName = subCourtName[x.SubCourtId],
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
                 Price = x.Price
@@ -192,7 +229,7 @@ public class Service: IService
 
     public async Task<Response.CreateBookingResponse> CreateBookingByWallet(Request.CreateBookingRequest request)
     {
-     var customerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var customerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         if (customerIdClaim == null)
         {
             throw new Exception("Không tìm thấy thông tin của customer");
@@ -276,19 +313,52 @@ public class Service: IService
         decimal finalPrice =  totalPrice;
         if (request.CampaignId != null)
         {
-            var query = await _dbContext.Campaigns
-                .FirstOrDefaultAsync(c => 
+            var campaign = await _dbContext.Campaigns
+                .Include(c => c.Courts)
+                .FirstOrDefaultAsync(c =>
                     c.Id == request.CampaignId &&
                     c.Code == request.Code &&
                     c.StartDate <= request.Date.ToDateTime(TimeOnly.MinValue) &&
                     c.EndDate >= request.Date.ToDateTime(TimeOnly.MinValue));
-            if (query == null)
+            if (campaign == null)
             {
-                throw new Exception("Campaign không tồn tại trong hệ thống");
+                throw new Exception("Campaign không tồn tại hoặc đã hết hạn");
             }
 
-            finalPrice = totalPrice * (1 - query!.DiscountPercent / 100m);
-            if (finalPrice <= 0) finalPrice = 0;
+            if (campaign.UsedCount >= campaign.UsageLimit)
+            {
+                throw new Exception("Campaign đã hết lượt sử dụng");
+            }
+
+            if (totalPrice < campaign.MinBookingAmount)
+            {
+                throw new Exception($"Giá trị đơn hàng tối thiểu để dùng campaign là {campaign.MinBookingAmount}");
+            }
+
+            if (!campaign.IsGlobal)
+            {
+                var firstSubCourtId = request.Items.First().SubCourtId;
+                var courtId = await _dbContext.SubCourts
+                    .Where(x => x.Id == firstSubCourtId)
+                    .Select(x => x.CourtId)
+                    .FirstOrDefaultAsync();
+                var campaignCourtIds = campaign.Courts.Select(x => x.CourtId).ToList();
+                if (!campaignCourtIds.Contains(courtId))
+                {
+                    throw new Exception("Campaign này không áp dụng cho sân bạn đang đặt");
+                }
+            }
+
+            var discountAmount = totalPrice * (campaign.DiscountPercent / 100m);
+            if (discountAmount > campaign.MaxDiscountAmount)
+            {
+                discountAmount = campaign.MaxDiscountAmount;
+            }
+
+            finalPrice = totalPrice - discountAmount;
+            if (finalPrice < 0) finalPrice = 0;
+            campaign.UsedCount += 1;
+            _dbContext.Campaigns.Update(campaign);
         }
         
         var booking = new Repository.Entity.Booking
@@ -329,7 +399,11 @@ public class Service: IService
         await _dbContext.Bookings.AddAsync(booking);
         await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
         await _dbContext.SaveChangesAsync();
-
+    
+        var subCourtIds = bookingDetails.Select(x => x.SubCourtId).ToList();
+        var subCourtName = await _dbContext.SubCourts
+            .Where(x => subCourtIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.Name);
         return new Response.CreateBookingResponse
         {
             BookingId = booking.Id,
@@ -340,7 +414,7 @@ public class Service: IService
             Items = bookingDetails.Select(x => new Response.BookingDetailItem
             {
                 SubCourtId = x.SubCourtId,
-                SubCourtName = x.SubCourt.Name,
+                SubCourtName = subCourtName[x.SubCourtId],
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
                 Price = x.Price
