@@ -22,10 +22,12 @@ using TransactionService = Rallyhub.Service.Transaction;
 using WalletService = Rallyhub.Service.Wallet;
 using BookingService = Rallyhub.Service.Booking;
 using WithdrawalService = Rallyhub.Service.Withdrawal;
+using NotificationService = Rallyhub.Service.Notification;
 using SepayService = Rallyhub.Service.SepayService;
-using NotificationService = Rallyhub.Service.NotificationService;
 using FeedbackService = Rallyhub.Service.Feadback;
 using ValidationService = Rallyhub.Service.Validation;
+using FeadbackService = Rallyhub.Service.Feadback;
+using CampaignService = Rallyhub.Service.Campaign;
 
 // using DiscordService = Rallyhub.Service.DiscordService;
 
@@ -39,7 +41,11 @@ CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 builder.Services.AddHttpContextAccessor();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -74,6 +80,8 @@ builder.Services.AddScoped<SepayService.IService, SepayService.Service>();
 builder.Services.AddScoped<NotificationService.IService, NotificationService.Service>();
 builder.Services.AddScoped<FeedbackService.IService, FeedbackService.Service>();
 builder.Services.AddScoped<ValidationService.IService, ValidationService.Service>();
+builder.Services.AddScoped<CampaignService.IService, CampaignService.Service>();
+builder.Services.AddScoped<FeadbackService.IService, FeadbackService.Service>();
 
 
 

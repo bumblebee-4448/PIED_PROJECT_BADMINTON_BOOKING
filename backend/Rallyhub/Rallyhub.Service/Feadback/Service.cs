@@ -15,7 +15,7 @@ public class Service: IService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task CreateFeadback(Request.CreateFeadbackRequest request)
+    public async Task CreateFeedback(Request.CreateFeedbackRequest request)
     {
         var booking = await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == request.BookingId);
         if (booking == null)
@@ -41,7 +41,7 @@ public class Service: IService
         {
             throw new Exception("Lỗi");
         }
-        var newFeadback = new Repository.Entity.Feedback()
+        var newFeedback = new Repository.Entity.Feedback()
         {
             CustomerId = customerId,
             Rating = request.Rating,
@@ -51,16 +51,16 @@ public class Service: IService
             CreatedAt = DateTimeOffset.UtcNow
         };
         
-        await _dbContext.AddAsync(newFeadback);
+        await _dbContext.AddAsync(newFeedback);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<Base.Response.PageResult<Response.GetFeadbackResponse>> GetFeadback(Request.GetFeadbackRequest request)
+    public async Task<Base.Response.PageResult<Response.GetFeedbackResponse>> GetFeedback(Request.GetFeedbackRequest request)
     {
-        var feadbackCourtList = _dbContext.Feedbacks.Where(x => x.CourtId == request.CourtId);
+        var feadbackCourtList = _dbContext.Feedbacks.Where(x => x.CourtId == request.CourtId && x.IsDeleted == false);
         var sort = feadbackCourtList.OrderByDescending(x => x.CreatedAt);
         var pageQuery = sort.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
-        var selectQuery = pageQuery.Select(x => new Response.GetFeadbackResponse()
+        var selectQuery = pageQuery.Select(x => new Response.GetFeedbackResponse()
         {
             NameCustomer = x.Customer.User.FirstName,
             Rating = x.Rating,
@@ -68,7 +68,7 @@ public class Service: IService
             CreatedAt = x.CreatedAt
         });
         var listResult = await selectQuery.ToListAsync();
-        var result = new Base.Response.PageResult<Response.GetFeadbackResponse>()
+        var result = new Base.Response.PageResult<Response.GetFeedbackResponse>()
         {
             Items = listResult,
             PageSize = request.PageSize,
@@ -76,5 +76,48 @@ public class Service: IService
             TotalItems = listResult.Count
         };
         return result;
+    }
+
+    public async Task DeteteFeedback(Request.DeteteFeedbackRequest request)
+    {
+        var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.Id == request.Id);
+        if (feedback == null)
+        {
+            throw new Exception("feedback not found");
+        }
+
+        if (feedback.IsDeleted)
+        {
+            throw new Exception("feedback not exist");
+        }
+        feedback.IsDeleted = true;
+        feedback.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.Update(feedback);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task UpdateFeeback(Request.UpdateFeedbackRequest request)
+    {
+        var getCustomerId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        if (getCustomerId == null)
+        {
+            throw new Exception("CustomerId not found");
+        }
+        var customerId = Guid.Parse(getCustomerId);
+        var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.CustomerId == customerId && x.BookingId == request.BookingId);
+        if (feedback == null)
+        {
+            throw new Exception("feedback not found");
+        }
+
+        if (request.Rating > 5 || request.Rating < 1)
+        {
+            throw new Exception("Chỉ có thể đánh giá từ 1 - 5 sao");
+        }
+        feedback.Rating = request.Rating;
+        feedback.Comment = request.Comment;
+        feedback.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.Update(feedback);
+        await _dbContext.SaveChangesAsync();
     }
 }
