@@ -492,6 +492,18 @@ public class Service : IService
         
        return overrideSlots;
     }
+    public async Task<string> RemoveOverrideSlot(Guid overrideSlotId)
+    {
+        var isExistOverrideSlot = _dbContext.OverideSlots
+            .FirstOrDefault(x => x.Id == overrideSlotId);
+        if (isExistOverrideSlot == null)
+        {
+            throw new Exception("Override slot not found");
+        }
+        isExistOverrideSlot.IsDeleted = false;
+        await _dbContext.SaveChangesAsync();
+        return "Slot gộp đã được xóa";
+    }
     public async Task<Response.CreateExceptionSlotResponse> CreateExceptionSlot(Request.CreateExceptionSlotRequest request)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
@@ -644,6 +656,18 @@ public class Service : IService
             }).ToListAsync();
         return exceptionSlot;
     }
+    public async Task<string> UnlockException(Guid exceptionSlotId)
+    {
+        var isExistException = _dbContext.Exceptions
+            .FirstOrDefault(x => x.Id == exceptionSlotId);
+        if (isExistException == null)
+        {
+            throw new Exception("Override slot not found");
+        }
+        isExistException.IsDeleted = false;
+        await _dbContext.SaveChangesAsync();
+        return "Slot bạn khóa đã được xóa";
+    }
     public async Task<Response.GetSetupSlotResponse> GetSetupSlots(Guid subCourtId, DateOnly date)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
@@ -676,7 +700,10 @@ public class Service : IService
                 Type = "Default",
             }).ToListAsync();
         var overrideSlots = await _dbContext.OverideSlots
-            .Where(x => x.SubCourtDetailId == subCourtId && x.Date == date)
+            .Where(x => 
+                x.SubCourtDetailId == subCourtId && 
+                x.Date == date &&
+                !x.IsDeleted)
             .OrderBy(x => x.StartTime)
             .Select(x => new Response.GetOverrideSlotResponse
             {
@@ -690,7 +717,10 @@ public class Service : IService
                 Type = "Override"
             }).ToListAsync();
         var exceptions = await _dbContext.Exceptions
-            .Where(x => x.SubCourtDetailId == subCourtId && x.Date == date)
+            .Where(x => 
+                x.SubCourtDetailId == subCourtId && 
+                x.Date == date &&
+                !x.IsDeleted)
             .OrderBy(x => x.StartTime)
             .Select(x => new Response.GetExceptionSlotResponse
             {
@@ -732,7 +762,7 @@ public class Service : IService
                      (!x.IsRecurring && x.Date == request.Date) || 
                      (x.IsRecurring && x.DayOfWeek == request.Date.DayOfWeek)
                             
-                ))
+                ) && !x.IsDeleted)
             .ToListAsync();
 
         var exceptions = await  _dbContext.Exceptions
@@ -742,7 +772,7 @@ public class Service : IService
                     (!x.IsRecurring && x.Date == request.Date) || 
                     (x.IsRecurring && x.DayOfWeek == request.Date.DayOfWeek)
                             
-                ))
+                ) && !x.IsDeleted)
             .ToListAsync();
 
         var result = configSlots.Select(x => new Response.SlotResponse
