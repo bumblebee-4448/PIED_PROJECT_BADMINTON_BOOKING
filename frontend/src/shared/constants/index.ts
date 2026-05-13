@@ -65,6 +65,26 @@ export const API_ENDPOINTS = {
    */
   WALLET: {
     GET_INFO: "/Wallet/GetInforWallet",
+    ADD_INFO: "/Wallet/AddInforWallet",
+    REMOVE_BANK: "/Wallet/RemoveBankWallet",
+    ADD_BALANCE: "/Wallet/AddBalanceToWalletFromPayment",
+  },
+  /**
+   * Withdrawal endpoints
+   */
+  WITHDRAWAL: {
+    CREATE: "/Withdrawal/WithdrawalRequest",
+    GET_MY: "/Withdrawal/GetWithdrawalRequest",
+    ADMIN_GET: "/Withdrawal/AdminGetWithdrawalRequest",
+    ADMIN_APPROVE: "/Withdrawal/AdminApprovedWithdrawalRequest",
+    ADMIN_REJECT: "/Withdrawal/AdminRejectWithdrawalRequest",
+  },
+  /**
+   * Transaction endpoints
+   */
+  TRANSACTION: {
+    GET_MY: "/Transaction/GetTransaction",
+    ADMIN_GET: "/Transaction/AdminGetTransaction",
   },
 } as const;
 
