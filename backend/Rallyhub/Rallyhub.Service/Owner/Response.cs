@@ -45,7 +45,7 @@ public class Response
     
     public class GetConfigSlotResponse: CreateConfigSlotResponse
     {
-       
+        public string Type { get; set; } = null!;
     }
 
     public class CreateOverrideSlotResponse
@@ -61,6 +61,7 @@ public class Response
     public class GetOverrideSlotResponse: CreateOverrideSlotResponse
     {   
         public bool IsRecurring { get; set; }
+        public string Type { get; set; } = null!;
     }
     
     public class CreateExceptionSlotResponse
@@ -76,6 +77,7 @@ public class Response
     public class GetExceptionSlotResponse: CreateExceptionSlotResponse
     {
         public bool IsRecurring { get; set; }
+        public string Type { get; set; } = null!;
     }
     
     public class GetSetupSlotResponse

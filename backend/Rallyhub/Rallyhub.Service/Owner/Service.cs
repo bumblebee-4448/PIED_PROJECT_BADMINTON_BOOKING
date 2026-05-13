@@ -673,6 +673,7 @@ public class Service : IService
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
                 Price = x.Price,
+                Type = "Default",
             }).ToListAsync();
         var overrideSlots = await _dbContext.OverideSlots
             .Where(x => x.SubCourtDetailId == subCourtId)
@@ -688,6 +689,7 @@ public class Service : IService
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
                 Price = x.Price,
+                Type = "Override"
             }).ToListAsync();
         var exceptions = await _dbContext.Exceptions
             .Where(x => x.SubCourtDetailId == subCourtId)
@@ -701,6 +703,7 @@ public class Service : IService
                 EndTime = x.EndTime,
                 Date =   x.Date,
                 Reason = x.Reason,
+                Type = "Blocked"
             }).ToListAsync();
         return new Response.GetSetupSlotResponse
         {
