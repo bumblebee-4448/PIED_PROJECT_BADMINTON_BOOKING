@@ -228,7 +228,6 @@ public class Service: IService
             QrCodeUrl = qrCodeUrl
         };
     }
-
     public async Task<Response.CreateBookingResponse> CreateBookingByWallet(Request.CreateBookingRequest request)
     {
         var customerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
@@ -398,6 +397,10 @@ public class Service: IService
         } 
 //transaction
         booking.Status = "Banked";
+        foreach (var item in bookingDetails)
+        {
+            item.Status = "Banked";
+        }
         await _dbContext.Bookings.AddAsync(booking);
         await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
         await _dbContext.SaveChangesAsync();
@@ -423,7 +426,45 @@ public class Service: IService
             }).ToList(),
         };
     }
-
+    //owner xem thoong tini chi tiet cua customer du vo bookingDetailsId
+    public async Task<Response.GetBookingDetailResponse> GetBookingDetail(Guid bookingDetailsId)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null)
+        {
+            throw new Exception("Không tìm thấy danh tính của Owner");
+        }
+        var ownerId = Guid.Parse(ownerIdClaim);
+        var user = await _dbContext.Users
+            .Include(x => x.Owner)
+            .FirstOrDefaultAsync(x => x.Owner!.Id == ownerId);
+        if (user == null)
+        {
+            throw new Exception("Không tìm thấy user trong hệ thống");
+        }
+        
+        var bookingDetails = await _dbContext.BookingDetails
+            .Where(x => 
+                x.Id == bookingDetailsId && 
+                x.Status == "Banked")
+            .Select(x => new Response.GetBookingDetailResponse()
+            {
+                Name = x.Booking.Customer.User.PhoneNumber,
+                PhoneNumber =  x.Booking.Customer.User.PhoneNumber,
+                Gmail =  x.Booking.Customer.User.Email,
+                SubCourtName = x.SubCourt.Name,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                
+            })
+            .FirstOrDefaultAsync();
+            
+        if (bookingDetails == null)
+        {
+            throw new Exception("Không tìm thấy đơn hàng cho slot này");
+        }
+        return bookingDetails;
+    }
     public async Task<Response.BookingRefundResponse> BookingRefund (Guid bookingId)
     {
         var customerIdClaim = _httpContext.HttpContext.User.Claims
@@ -555,7 +596,7 @@ public class Service: IService
         await _dbContext.SaveChangesAsync();
         return "Booking cancelled successfully";
     }
-
+    //customer xem tất cả các booking của nó
     public async Task<Base.Response.PageResult<Response.GetBookingResponse>> GetBooking(Base.Request.PagingDay2 pagingDay2)
     {
         var customerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;

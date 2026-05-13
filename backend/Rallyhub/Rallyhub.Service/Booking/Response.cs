@@ -41,7 +41,6 @@ public class Response
         public string Address { get; set; } = null!;
         public List<SlotsResponse> SlotsResponses { get; set; } = new();
         public string PhoneNumber { get; set; } = null!;
-        
         public string UrlMap { get; set; } = null!;
         
     }
@@ -53,5 +52,15 @@ public class Response
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }
         public DateTimeOffset Date { get; set; }
+    }
+
+    public class GetBookingDetailResponse
+    {
+        public string? Name { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string Gmail { get; set; } = null!;
+        public string SubCourtName { get; set; } = null!;
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
     }
 }
