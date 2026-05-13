@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 
@@ -10,13 +10,15 @@ public class Service : IService
     private readonly IHttpContextAccessor _httpAccessor;
     private readonly Wallet.IService _walletService;
     private readonly Transaction.IService _transactionService;
+    private readonly Notification.IService _notificationService;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpAccessor,  Wallet.IService walletService,  Transaction.IService transactionService)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpAccessor,  Wallet.IService walletService,  Transaction.IService transactionService, Notification.IService notificationService)
     {
         _dbcontext = dbContext;
         _httpAccessor = httpAccessor;
         _walletService = walletService;
         _transactionService = transactionService;
+        _notificationService = notificationService;
     }
     
     public async Task<string> CreateWithdrawalRequest(Request.CreateWithdrawalRequest request)
@@ -131,6 +133,19 @@ public class Service : IService
         withdrawalRrquest.Status = "Approved";
         withdrawalRrquest.UpdatedAt = DateTimeOffset.UtcNow;
         _dbcontext.Update(withdrawalRrquest);
+
+        var wallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.Id == withdrawalRrquest.WalletId);
+        if (wallet != null)
+        {
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = wallet.UserId,
+                Title = "Yêu cầu rút tiền được duyệt",
+                Content = $"Yêu cầu rút {withdrawalRrquest.Amount:N0}đ của bạn đã được duyệt và đang được xử lý chuyển khoản.",
+                Type = Notification.Request.TypeNotification.WithdrawalApproved
+            });
+        }
+
         var result = await _dbcontext.SaveChangesAsync();
         if (result > 0)
         {
@@ -180,6 +195,15 @@ public class Service : IService
         {
             throw new Exception("Error creating transaction");
         }
+
+        _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        {
+            UserId = wallet.UserId,
+            Title = "Yêu cầu rút tiền bị từ chối",
+            Content = $"Yêu cầu rút {withdrawalRequest.Amount:N0}đ của bạn đã bị từ chối. Lý do: {reason}",
+            Type = Notification.Request.TypeNotification.WithdrawalRejected
+        });
+
         var result = await _dbcontext.SaveChangesAsync();
         if (result > 0)
         {

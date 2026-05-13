@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 
@@ -8,11 +8,13 @@ public class Service: IService
 {
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly Notification.IService _notificationService;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpContextAccessor, Notification.IService notificationService)
     {
         _dbContext = dbContext;
         _httpContextAccessor = httpContextAccessor;
+        _notificationService = notificationService;
     }
 
     public async Task CreateFeedback(Request.CreateFeedbackRequest request)
@@ -36,7 +38,11 @@ public class Service: IService
         {
             throw new Exception("Chỉ có thể đánh giá từ 1 - 5 sao");
         }
-        var bookingDetail = await _dbContext.BookingDetails.Include(x => x.SubCourt).FirstOrDefaultAsync(x => x.BookingId == request.BookingId);
+        var bookingDetail = await _dbContext.BookingDetails
+            .Include(x => x.SubCourt)
+                .ThenInclude(sc => sc.Court)
+                    .ThenInclude(c => c.Owner)
+            .FirstOrDefaultAsync(x => x.BookingId == request.BookingId);
         if (bookingDetail == null)
         {
             throw new Exception("Lỗi");
@@ -52,6 +58,21 @@ public class Service: IService
         };
         
         await _dbContext.AddAsync(newFeedback);
+
+        var ownerUserId = bookingDetail.SubCourt.Court.Owner?.UserId;
+        if (ownerUserId != null)
+        {
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = ownerUserId.Value,
+                Title = "Nhận được đánh giá mới",
+                Content = $"Sân của bạn vừa nhận được đánh giá {request.Rating} sao từ khách hàng.",
+                Type = Notification.Request.TypeNotification.FeedbackCreated,
+                FeedbackId = newFeedback.Id,
+                CourtId = bookingDetail.SubCourt.CourtId
+            });
+        }
+
         await _dbContext.SaveChangesAsync();
     }
 

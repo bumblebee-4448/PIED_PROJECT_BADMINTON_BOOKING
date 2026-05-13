@@ -28,7 +28,6 @@ public class Service : IService
                 break;
             case Request.TypeNotification.BookingPaid:
             case Request.TypeNotification.BookingRefunded:
-            case Request.TypeNotification.BookingCancelled:
             case Request.TypeNotification.BookingCompleted:
                 if (request.BookingId == null) throw new Exception($"BookingId is required for type {request.Type}");
                 break;
@@ -36,15 +35,21 @@ public class Service : IService
                 if (request.FeedbackId == null) throw new Exception("FeedbackId is required");
                 break;
             case Request.TypeNotification.ReportCreated:
+            case Request.TypeNotification.ReportResponded:
                 if (request.ReportId == null) throw new Exception("ReportId is required");
                 break;
             case Request.TypeNotification.SystemReportCreated:
+            case Request.TypeNotification.SystemReportResponded:
                 if (request.SystemReportId == null) throw new Exception("SystemReportId is required");
                 break;
             case Request.TypeNotification.OwnerRequestSubmitted:
             case Request.TypeNotification.OwnerRequestApproved:
             case Request.TypeNotification.OwnerRequestRejected:
                 if (request.OwnerRequestId == null) throw new Exception("OwnerRequestId is required");
+                break;
+            case Request.TypeNotification.CourtApproved:
+            case Request.TypeNotification.CourtRejected:
+                if (request.CourtId == null) throw new Exception("CourtId is required");
                 break;
         }
 
@@ -82,9 +87,8 @@ public class Service : IService
         var role = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
         bool isAdminReadingSystemNote = role == "Admin" && 
             (notification.Type == Request.TypeNotification.SystemReportCreated || 
-             notification.Type == Request.TypeNotification.OwnerRequestSubmitted ||
-             notification.Type == Request.TypeNotification.OwnerRequestApproved ||
-             notification.Type == Request.TypeNotification.OwnerRequestRejected);
+             notification.Type == Request.TypeNotification.ReportCreated ||
+             notification.Type == Request.TypeNotification.OwnerRequestSubmitted);
 
         if (notification.UserId != userId && !isAdminReadingSystemNote)
         {
@@ -111,9 +115,8 @@ public class Service : IService
         {
             return await _dbContext.Notifications.CountAsync(x => !x.IsRead && (
                 x.Type == Request.TypeNotification.SystemReportCreated || 
-                x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
-                x.Type == Request.TypeNotification.OwnerRequestApproved ||
-                x.Type == Request.TypeNotification.OwnerRequestRejected));
+                x.Type == Request.TypeNotification.ReportCreated ||
+                x.Type == Request.TypeNotification.OwnerRequestSubmitted));
         }
 
         return await _dbContext.Notifications.CountAsync(x => x.UserId == userId && !x.IsRead);
@@ -132,9 +135,8 @@ public class Service : IService
         {
             query = query.Where(x => 
                 x.Type == Request.TypeNotification.SystemReportCreated || 
-                x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
-                x.Type == Request.TypeNotification.OwnerRequestApproved ||
-                x.Type == Request.TypeNotification.OwnerRequestRejected);
+                x.Type == Request.TypeNotification.ReportCreated ||
+                x.Type == Request.TypeNotification.OwnerRequestSubmitted);
         }
         else
         {
@@ -172,6 +174,9 @@ public class Service : IService
             .Include(n => n.Feedback)
             .Include(n => n.Report)
             .Include(n => n.SystemReport)
+            .Include(n => n.OwnerRequest)
+                .ThenInclude(or => or.Customer)
+                    .ThenInclude(c => c.User)
             .Where(x => x.UserId == userIdGuild)
             .OrderByDescending(x => x.CreatedAt);
 
@@ -207,11 +212,13 @@ public class Service : IService
             .Include(n => n.Feedback)
             .Include(n => n.Report)
             .Include(n => n.SystemReport)
+            .Include(n => n.OwnerRequest)
+                .ThenInclude(or => or.Customer)
+                    .ThenInclude(c => c.User)
             .Where(x => 
                 x.Type == Request.TypeNotification.SystemReportCreated || 
-                x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
-                x.Type == Request.TypeNotification.OwnerRequestApproved ||
-                x.Type == Request.TypeNotification.OwnerRequestRejected)
+                x.Type == Request.TypeNotification.ReportCreated ||
+                x.Type == Request.TypeNotification.OwnerRequestSubmitted)
             .OrderByDescending(x => x.CreatedAt);
 
         var total = await query.CountAsync();
@@ -242,7 +249,6 @@ public class Service : IService
             if (x.Type == Request.TypeNotification.CourtHasBooking || 
                 x.Type == Request.TypeNotification.BookingPaid || 
                 x.Type == Request.TypeNotification.BookingRefunded ||
-                x.Type == Request.TypeNotification.BookingCancelled ||
                 x.Type == Request.TypeNotification.BookingCompleted)
             {
                 data = new
@@ -292,7 +298,50 @@ public class Service : IService
             {
                 data = new
                 {
-                    OwnerRequestId = x.OwnerRequestId
+                    OwnerRequestId = x.OwnerRequestId,
+                    RequesterName = x.OwnerRequest != null ? $"{x.OwnerRequest.Customer.User.FirstName} {x.OwnerRequest.Customer.User.LastName}" : null,
+                    RequesterEmail = x.OwnerRequest?.Customer.User.Email,
+                    BusinessName = x.OwnerRequest?.BusinessName
+                };
+            }
+            else if (x.Type == Request.TypeNotification.CourtApproved || 
+                     x.Type == Request.TypeNotification.CourtRejected)
+            {
+                data = new
+                {
+                    CourtId = x.CourtId,
+                    CourtName = x.Court?.Name
+                };
+            }
+            else if (x.Type == Request.TypeNotification.ReportResponded)
+            {
+                data = new
+                {
+                    ReportId = x.ReportId,
+                    Reason = x.Report?.Reason
+                };
+            }
+            else if (x.Type == Request.TypeNotification.SystemReportResponded)
+            {
+                data = new
+                {
+                    SystemReportId = x.SystemReportId,
+                    Reason = x.SystemReport?.Reason
+                };
+            }
+            else if (x.Type == Request.TypeNotification.WithdrawalApproved || 
+                     x.Type == Request.TypeNotification.WithdrawalRejected)
+            {
+                data = new
+                {
+                    // For now text-only or we can add WithdrawalId if it was in the entity
+                };
+            }
+            else if (x.Type == Request.TypeNotification.WalletDepositSuccess)
+            {
+                data = new
+                {
+                    // Amount? We don't store it in Notification entity yet
                 };
             }
             
