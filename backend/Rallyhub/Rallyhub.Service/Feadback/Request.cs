@@ -2,14 +2,27 @@
 
 public class Request
 {
-    public class CreateFeadbackRequest
+    public class CreateFeedbackRequest
     {
-        public Guid BookingId  { get; set; }
+        public required Guid BookingId  { get; set; }
         public required int Rating { get; set; }
         public string? Comment   { get; set; }
     }
-    public class GetFeadbackRequest: Base.Request.PagingRequest
+    public class GetFeedbackRequest: Base.Request.PagingRequest
     {
-        public Guid CourtId  { get; set; }
+        public required Guid CourtId  { get; set; }
+    }
+
+    public class DeteteFeedbackRequest
+    {
+        public required Guid Id  { get; set; }
+    }
+
+    public class UpdateFeedbackRequest
+    {
+        public required Guid Id   { get; set; }
+        public required Guid BookingId  { get; set; }
+        public required int Rating { get; set; }
+        public string? Comment   { get; set; }
     }
 }
