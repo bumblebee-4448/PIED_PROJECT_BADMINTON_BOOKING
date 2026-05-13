@@ -644,7 +644,7 @@ public class Service : IService
             }).ToListAsync();
         return exceptionSlot;
     }
-    public async Task<Response.GetSetupSlotResponse> GetSetupSlots(Guid subCourtId)
+    public async Task<Response.GetSetupSlotResponse> GetSetupSlots(Guid subCourtId, DateOnly date)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (ownerIdClaim == null)  
@@ -676,10 +676,8 @@ public class Service : IService
                 Type = "Default",
             }).ToListAsync();
         var overrideSlots = await _dbContext.OverideSlots
-            .Where(x => x.SubCourtDetailId == subCourtId)
-            .OrderBy(x => x.Date)
-            .ThenBy(x => x.DayOfWeek)
-            .ThenBy(x => x.StartTime)
+            .Where(x => x.SubCourtDetailId == subCourtId && x.Date == date)
+            .OrderBy(x => x.StartTime)
             .Select(x => new Response.GetOverrideSlotResponse
             {
                 Id = x.Id,
@@ -692,10 +690,8 @@ public class Service : IService
                 Type = "Override"
             }).ToListAsync();
         var exceptions = await _dbContext.Exceptions
-            .Where(x => x.SubCourtDetailId == subCourtId)
-            .OrderBy(x => x.Date)
-            .ThenBy(x => x.DayOfWeek)
-            .ThenBy(x => x.StartTime)
+            .Where(x => x.SubCourtDetailId == subCourtId && x.Date == date)
+            .OrderBy(x => x.StartTime)
             .Select(x => new Response.GetExceptionSlotResponse
             {
                 Id = x.Id,

@@ -89,9 +89,9 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }
     [HttpGet("GetSetupSlotsBySubCourtId")]  
-    public async Task<IActionResult> GetSetupSlots(Guid subCourtId)  
+    public async Task<IActionResult> GetSetupSlots(Guid subCourtId, DateOnly date)  
     {  
-        var result = await _ownerService.GetSetupSlots(subCourtId); 
+        var result = await _ownerService.GetSetupSlots(subCourtId, date); 
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
