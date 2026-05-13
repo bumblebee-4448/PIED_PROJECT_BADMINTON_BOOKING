@@ -211,6 +211,8 @@ public class Service: IService
         return new Response.CreateBookingResponse
         {
             BookingId = booking.Id,
+            BankName = bankName,
+            BankAccount = bankAccount,
             TotalPrice = booking.FinalPrice,
             ExpiredAt = booking.ExpiresAt,
             Status = booking.Status,

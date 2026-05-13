@@ -16,6 +16,8 @@ public class Response
     public class CreateBookingResponse
     {
         public Guid BookingId {get; set;}
+        public string BankName { get; set; } = null!;
+        public string BankAccount { get; set; } = null!;
         public decimal TotalPrice {get; set;}
         public DateTimeOffset ExpiredAt {get; set;}
         public string Status { get; set; } = null!;
