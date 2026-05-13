@@ -2,7 +2,7 @@
 
 public class Response
 {
-    public class GetFeadbackResponse
+    public class GetFeedbackResponse
     {
         public string NameCustomer { get; set; }
         public string? Comment {get; set;}

@@ -16,23 +16,16 @@ public class BookingController: ControllerBase
     {
         _bookingService = bookingService;
     }
-    
-    [HttpGet("GetAvailableSlots")]
-    public async Task<IActionResult> GetAvailableSlots([FromQuery] Request.GetAvailableSlotsRequest request)
-    {
-        var result = await _bookingService.GetAvailableSlots(request);
-        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
-            , HttpContext.TraceIdentifier));
-    }
+
     [HttpPost("CreateBooking")]
-    public async Task<IActionResult> CreateBooking([FromBody] Request.ListAvailableSlots request)
+    public async Task<IActionResult> CreateBooking([FromBody] Request.CreateBookingRequest request)
     {
         var result = await _bookingService.CreateBooking(request);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }
     [HttpPost("CreateBookingByWallet")]
-    public async Task<IActionResult> CreateBookingByWallet([FromBody] Request.ListAvailableSlots request)
+    public async Task<IActionResult> CreateBookingByWallet([FromBody] Request.CreateBookingRequest request)
     {
         var result = await _bookingService.CreateBookingByWallet(request);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
