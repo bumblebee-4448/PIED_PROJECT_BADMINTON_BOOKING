@@ -103,4 +103,26 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
+    [HttpDelete("RemoveOverrideSlot/{overrideSlotId}")]
+    public async Task<IActionResult> RemoveOverrideSlot(Guid overrideSlotId)
+    {
+        await _ownerService.RemoveOverrideSlot(overrideSlotId);
+
+        return Ok(ApiResponseFactory.SuccessResponse(
+            true,
+            "Slot gộp đã được xóa",
+            HttpContext.TraceIdentifier
+        ));
+    }
+    [HttpDelete("UnlockException/{exceptionId}")]
+    public async Task<IActionResult> UnlockException(Guid exceptionId)
+    {
+        await _ownerService.UnlockException(exceptionId);
+
+        return Ok(ApiResponseFactory.SuccessResponse(
+            true,
+            "Mở khóa thành công",
+            HttpContext.TraceIdentifier
+        ));
+    }
 }
