@@ -700,7 +700,6 @@
                 builder.Property(x => x.TaxCode)
                     .IsRequired()
                     .HasMaxLength(100);
-                builder.HasIndex(x => x.TaxCode).IsUnique();
                 builder.Property(x => x.BusinessLicenseUrl)
                     .IsRequired()
                     .HasMaxLength(200);

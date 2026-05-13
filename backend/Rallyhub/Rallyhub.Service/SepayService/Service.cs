@@ -9,13 +9,15 @@ public class Service : IService
     private readonly AppDbContext _dbContext;
     private readonly Transaction.IService _transactionService;
     private readonly Wallet.IService _walletService;
+    private readonly Notification.IService _notificationService;
 
     public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, Transaction.IService transactionService,
-        Wallet.IService walletService)
+        Wallet.IService walletService, Notification.IService notificationService)
     {
         _dbContext = dbContext;
         _transactionService = transactionService;
         _walletService = walletService;
+        _notificationService = notificationService;
     }
 
     public async Task<bool> BookingSepayWebhookHandler(Request.SepayWebhookRequest request)
@@ -48,6 +50,9 @@ public class Service : IService
             {
                 targetBooking = await _dbContext.Bookings
                     .Include(x => x.BookingDetails)
+                        .ThenInclude(bd => bd.SubCourt)
+                            .ThenInclude(sc => sc.Court)
+                                .ThenInclude(c => c.Owner)
                     .Include(x => x.Customer)
                     .FirstOrDefaultAsync(x => x.Id == exactGuid);
             }
@@ -56,6 +61,9 @@ public class Service : IService
             {
                 targetBooking = await _dbContext.Bookings
                     .Include(x => x.BookingDetails)
+                        .ThenInclude(bd => bd.SubCourt)
+                            .ThenInclude(sc => sc.Court)
+                                .ThenInclude(c => c.Owner)
                     .Include(x => x.Customer)
                     .Where(x => EF.Functions.TrigramsSimilarity(x.Id.ToString(), formatted) > 0.68)
                     .OrderBy(x => EF.Functions.TrigramsSimilarityDistance(x.Id.ToString(), formatted))
@@ -116,6 +124,19 @@ public class Service : IService
             {
                 detail.Status = "Banked";
                 detail.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+
+            var ownerUserId = targetBooking.BookingDetails.FirstOrDefault()?.SubCourt?.Court?.Owner?.UserId;
+            if (ownerUserId != null)
+            {
+                _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+                {
+                    UserId = ownerUserId.Value,
+                    Title = "Thanh toán thành công",
+                    Content = $"Khách hàng vừa thanh toán {request.TransferAmount:N0}đ qua mã QR.",
+                    Type = Notification.Request.TypeNotification.BookingPaid,
+                    BookingId = targetBooking.Id
+                });
             }
 
             _dbContext.Update(targetBooking);
@@ -189,6 +210,15 @@ public class Service : IService
             // transaction.Signature = request.Description;
             transaction.UpdatedAt = DateTimeOffset.UtcNow;
             _dbContext.Update(transaction);
+
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = targetWallet.UserId,
+                Title = "Nạp tiền thành công",
+                Content = $"Bạn đã nạp thành công {request.TransferAmount:N0}đ vào ví qua chuyển khoản ngân hàng.",
+                Type = Notification.Request.TypeNotification.WalletDepositSuccess
+            });
+
             var result = await _dbContext.SaveChangesAsync();
             if (result > 0)
             {

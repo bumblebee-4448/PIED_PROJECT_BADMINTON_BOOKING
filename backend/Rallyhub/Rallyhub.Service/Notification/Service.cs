@@ -17,7 +17,7 @@ public class Service : IService
         _httpAccessor = httpAccessor;
     }
 
-    public async Task<bool> CreateNotification(Request.CreateNotificationRequest request)
+    public void CreateNotification(Request.CreateNotificationRequest request)
     {
         // Validation logic
         switch (request.Type)
@@ -28,6 +28,8 @@ public class Service : IService
                 break;
             case Request.TypeNotification.BookingPaid:
             case Request.TypeNotification.BookingRefunded:
+            case Request.TypeNotification.BookingCancelled:
+            case Request.TypeNotification.BookingCompleted:
                 if (request.BookingId == null) throw new Exception($"BookingId is required for type {request.Type}");
                 break;
             case Request.TypeNotification.FeedbackCreated:
@@ -63,8 +65,6 @@ public class Service : IService
             IsRead = false
         };
         _dbContext.Notifications.Add(newNote);
-        var result = await _dbContext.SaveChangesAsync();
-        return result > 0;
     }
 
     public async Task<bool> ReadNotification(Guid notificationId)
@@ -241,7 +241,9 @@ public class Service : IService
 
             if (x.Type == Request.TypeNotification.CourtHasBooking || 
                 x.Type == Request.TypeNotification.BookingPaid || 
-                x.Type == Request.TypeNotification.BookingRefunded)
+                x.Type == Request.TypeNotification.BookingRefunded ||
+                x.Type == Request.TypeNotification.BookingCancelled ||
+                x.Type == Request.TypeNotification.BookingCompleted)
             {
                 data = new
                 {

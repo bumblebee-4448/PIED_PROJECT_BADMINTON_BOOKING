@@ -24,12 +24,12 @@ public class SendOtpJob : IJob
         switch (actionType)
         {
             case "Register":
-                subject = "Người tình trong mộng Ralluhub";
+                subject = "Người tình trong mộng Rallyhub";
                 htmlBody = MailTemplate.GenerateOtpRegisterTemplate(email, otpCode);
                 break;
             
             case "ForgotPassword":
-                subject = "Người tình trong mộng Ralluhub";
+                subject = "Người tình trong mộng Rallyhub";
                 htmlBody = MailTemplate.GeneratePasswordResetTemplate(email, otpCode);
                 break;
             // case "Approval":
