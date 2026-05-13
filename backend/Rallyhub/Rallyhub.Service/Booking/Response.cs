@@ -3,18 +3,11 @@ namespace Rallyhub.Service.Booking;
 public class Response
 {
     
-    public class SlotResponse
-    {
-        public TimeOnly StartTime { get; set; }
-        public TimeOnly EndTime { get; set; }
-        public decimal Price { get; set; }
-        public bool IsAvailable { get; set; }
-       // public string? Reason { get; set; }
-        public string Type { get; set; } = null!;
-    }
 
     public class BookingDetailItem
     {
+        public Guid SubCourtId { get; set; }
+        public string SubCourtName { get; set; } = null!;
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }
@@ -26,8 +19,9 @@ public class Response
         public decimal TotalPrice {get; set;}
         public DateTimeOffset ExpiredAt {get; set;}
         public string Status { get; set; } = null!;
-        public List<BookingDetailItem> Slots { get; set; } = new();
+        public List<BookingDetailItem> Items { get; set; } = new();
         public string QrCodeUrl { get; set; } = null!;
+        public int TotalSlots { get; set; }
     }
     public class BookingRefundResponse
     {

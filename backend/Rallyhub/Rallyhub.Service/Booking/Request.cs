@@ -1,3 +1,5 @@
+using Rallyhub.Repository.Entity;
+
 namespace Rallyhub.Service.Booking;
 
 public class Request
@@ -12,12 +14,17 @@ public class Request
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
     }
-    public class ListAvailableSlots
+    public class CreateBookingRequest
     {
-        public Guid SubCourtId { get; set; }
         public DateOnly Date { get; set; }
         public string? Code {get; set;}
         public Guid? CampaignId { get; set; }
+        public List<CreateBookingItemRequest> Items { get; set; } = new();
+    }
+
+    public class CreateBookingItemRequest
+    {
+        public Guid SubCourtId { get; set; }
         public List<SlotRequest> Slots { get; set; } = new();
     }
     
