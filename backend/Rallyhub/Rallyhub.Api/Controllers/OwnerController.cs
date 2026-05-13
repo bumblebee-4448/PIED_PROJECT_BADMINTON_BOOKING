@@ -57,7 +57,14 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
-    
+    [HttpPut("UpdateConfigSlotPrice")]  
+    public async Task<IActionResult> UpdateConfigSlotPrice(Request.UpdateConfigSlotPriceRequest request)  
+    {  
+        var result = await _ownerService.UpdateConfigSlotPrice(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
+            , HttpContext.TraceIdentifier));  
+    }
+        
     [HttpPost("CreateOverrideSlot")]  
     public async Task<IActionResult> CreateOverrideSlot([FromBody]Request.CreateOverrideSlotRequest request)  
     {  
@@ -73,7 +80,17 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
-    
+    [HttpDelete("RemoveOverrideSlot/{overrideSlotId}")]
+    public async Task<IActionResult> RemoveOverrideSlot(Guid overrideSlotId)
+    {
+        await _ownerService.RemoveOverrideSlot(overrideSlotId);
+
+        return Ok(ApiResponseFactory.SuccessResponse(
+            true,
+            "Slot gộp đã được xóa",
+            HttpContext.TraceIdentifier
+        ));
+    }
     [HttpPost("CreateExceptionSlot")]  
     public async Task<IActionResult> CreateExceptionSlot([FromBody]Request.CreateExceptionSlotRequest request)  
     {  
@@ -87,6 +104,17 @@ public class OwnerController : ControllerBase
         var result = await _ownerService.GetExceptionSlotBySubCourtId(subCourtId); 
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
+    }
+    [HttpDelete("UnlockException/{exceptionId}")]
+    public async Task<IActionResult> UnlockException(Guid exceptionId)
+    {
+        await _ownerService.UnlockException(exceptionId);
+
+        return Ok(ApiResponseFactory.SuccessResponse(
+            true,
+            "Mở khóa thành công",
+            HttpContext.TraceIdentifier
+        ));
     }
     [HttpGet("GetSetupSlotsBySubCourtId")]  
     public async Task<IActionResult> GetSetupSlots(Guid subCourtId, DateOnly date)  
@@ -103,26 +131,6 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
-    [HttpDelete("RemoveOverrideSlot/{overrideSlotId}")]
-    public async Task<IActionResult> RemoveOverrideSlot(Guid overrideSlotId)
-    {
-        await _ownerService.RemoveOverrideSlot(overrideSlotId);
 
-        return Ok(ApiResponseFactory.SuccessResponse(
-            true,
-            "Slot gộp đã được xóa",
-            HttpContext.TraceIdentifier
-        ));
-    }
-    [HttpDelete("UnlockException/{exceptionId}")]
-    public async Task<IActionResult> UnlockException(Guid exceptionId)
-    {
-        await _ownerService.UnlockException(exceptionId);
 
-        return Ok(ApiResponseFactory.SuccessResponse(
-            true,
-            "Mở khóa thành công",
-            HttpContext.TraceIdentifier
-        ));
-    }
 }

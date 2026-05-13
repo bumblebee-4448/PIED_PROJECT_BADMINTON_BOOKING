@@ -349,6 +349,36 @@ public class Service : IService
             }).ToListAsync();
         return slots;
     }
+
+    public async Task<string> UpdateConfigSlotPrice(Request.UpdateConfigSlotPriceRequest request)
+    {
+        var  ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null)
+        {
+            throw new Exception("Không tìm thấy owner");
+        }
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        var existConfigSlot =  await _dbContext.ConfigSlots
+            .Include(x => x.SubCourtDetail)
+            .ThenInclude(x => x.Court)
+            .FirstOrDefaultAsync(x => x.Id == request.ConfigSlotId);
+        if (existConfigSlot == null)
+        {
+            throw new Exception("Slot không tồn tại trong hệ thống");
+        }
+        if (existConfigSlot.SubCourtDetail.Court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Bạn không có quyền");
+        }
+        if (request.NewPrice < 0)
+        {
+            throw new Exception("Giá phải lớn hơn không");
+        }
+        existConfigSlot.Price = request.NewPrice;
+        _dbContext.Update(existConfigSlot);
+        await _dbContext.SaveChangesAsync();
+        return "Update giá thành công";
+    }
     public async Task<Response.CreateOverrideSlotResponse> CreateOverrideSlot(Request.CreateOverrideSlotRequest request)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
@@ -500,7 +530,7 @@ public class Service : IService
         {
             throw new Exception("Override slot not found");
         }
-        isExistOverrideSlot.IsDeleted = false;
+        isExistOverrideSlot.IsDeleted = true;
         await _dbContext.SaveChangesAsync();
         return "Slot gộp đã được xóa";
     }
@@ -664,7 +694,7 @@ public class Service : IService
         {
             throw new Exception("Override slot not found");
         }
-        isExistException.IsDeleted = false;
+        isExistException.IsDeleted = true;
         await _dbContext.SaveChangesAsync();
         return "Slot bạn khóa đã được xóa";
     }

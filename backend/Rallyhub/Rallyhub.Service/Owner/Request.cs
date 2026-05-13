@@ -63,5 +63,10 @@ public class Request
         public Guid SubCourtId { get; set; }
         public DateOnly Date { get; set; }
     }
- 
+
+    public class UpdateConfigSlotPriceRequest
+    {
+        public Guid ConfigSlotId { get; set; }
+        public decimal NewPrice { get; set; }
+    }
 }
