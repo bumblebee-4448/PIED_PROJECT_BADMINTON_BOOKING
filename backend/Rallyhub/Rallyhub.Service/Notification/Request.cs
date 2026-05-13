@@ -7,12 +7,15 @@ public class Request
         public const string CourtHasBooking = "CourtHasBooking";
         public const string BookingPaid = "BookingPaid";
         public const string BookingRefunded = "BookingRefunded";
+        public const string BookingCancelled = "BookingCancelled";
+        public const string BookingCompleted = "BookingCompleted";
         public const string OwnerRequestSubmitted = "OwnerRequestSubmitted";
         public const string OwnerRequestApproved = "OwnerRequestApproved";
         public const string OwnerRequestRejected = "OwnerRequestRejected";
         public const string FeedbackCreated = "FeedbackCreated";
         public const string ReportCreated = "ReportCreated";
         public const string SystemReportCreated = "SystemReportCreated";
+        public const string WalletDepositSuccess = "WalletDepositSuccess";
     }
 
     public class CreateNotificationRequest

@@ -9,13 +9,15 @@ public class Service: IService
     private readonly IHttpContextAccessor _httpContext;
     private readonly Wallet.IService _walletService;
     private readonly Transaction.IService _transactionService;
+    private readonly Notification.IService _notificationService;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, Wallet.IService walletService, Transaction.IService transactionService)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, Wallet.IService walletService, Transaction.IService transactionService, Notification.IService notificationService)
     {
         _dbContext = dbContext;
         _httpContext = httpContext;
         _walletService = walletService;
         _transactionService = transactionService;
+        _notificationService = notificationService;
     }
     
      public async Task<List<Response.SlotResponse>> GetAvailableSlots(Request.GetAvailableSlotsRequest request)
@@ -376,6 +378,24 @@ public class Service: IService
         booking.Status = "Banked";
         await _dbContext.Bookings.AddAsync(booking);
         await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
+
+        var subCourt = await _dbContext.SubCourts
+            .Include(sc => sc.Court)
+                .ThenInclude(c => c.Owner)
+            .FirstOrDefaultAsync(x => x.Id == request.SubCourtId);
+
+        if (subCourt?.Court?.Owner != null)
+        {
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = subCourt.Court.Owner.UserId,
+                Title = "Thanh toán thành công",
+                Content = $"Khách hàng vừa thanh toán {finalPrice:N0}đ bằng số dư Ví RallyHub.",
+                Type = Notification.Request.TypeNotification.BookingPaid,
+                BookingId = booking.Id
+            });
+        }
+
         await _dbContext.SaveChangesAsync();
 
         return new Response.CreateBookingResponse
@@ -414,6 +434,7 @@ public class Service: IService
             .Include(x => x.BookingDetails)
                 .ThenInclude(x => x.SubCourt)
                     .ThenInclude(x => x.Court)
+                        .ThenInclude(c => c.Owner)
             .FirstOrDefaultAsync(x => x.Id == bookingId && x.CustomerId == customerId);
         if (booking.Status == "Pending" || booking.Status == "Refund")
         {
@@ -472,6 +493,19 @@ public class Service: IService
             details.UpdatedAt = DateTimeOffset.UtcNow;
         }
 
+        var ownerUserId = booking.BookingDetails.FirstOrDefault()?.SubCourt?.Court?.Owner?.UserId;
+        if (ownerUserId != null)
+        {
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = ownerUserId.Value,
+                Title = "Hoàn tiền cho khách hàng",
+                Content = $"Hệ thống đã hủy lịch và hoàn tiền {booking.FinalPrice:N0}đ cho khách hàng.",
+                Type = Notification.Request.TypeNotification.BookingRefunded,
+                BookingId = booking.Id
+            });
+        }
+
         await _dbContext.SaveChangesAsync();
         // await _mailService.SendMail(new MailContent()
         // {
@@ -499,6 +533,9 @@ public class Service: IService
        
         var pendingBooking = await _dbContext.Bookings
             .Include(x => x.BookingDetails)
+                .ThenInclude(bd => bd.SubCourt)
+                    .ThenInclude(sc => sc.Court)
+                        .ThenInclude(c => c.Owner)
             .FirstOrDefaultAsync(x => 
                 x.Id == bookingId && 
                 x.CustomerId == customerId
@@ -520,7 +557,6 @@ public class Service: IService
                 slots.UpdatedAt = DateTimeOffset.UtcNow;
             }
         }
-       
         await _dbContext.SaveChangesAsync();
         return "Booking cancelled successfully";
     }
