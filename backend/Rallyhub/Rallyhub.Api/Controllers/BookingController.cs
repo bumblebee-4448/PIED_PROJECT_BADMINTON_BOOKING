@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rallyhub.Api.Extention;
 using Rallyhub.Service.Booking;
@@ -6,8 +6,9 @@ using Rallyhub.Service.Models;
 
 namespace Rallyhub.Api.Controllers;
 //
-// [Authorize(Policy = JwtExtensions.CustomerPolicy)]
-// [Route("[controller]")]
+[ApiController]
+[Route("[controller]")]
+[Authorize]
 public class BookingController: ControllerBase
 {
     private readonly IService _bookingService;
