@@ -26,7 +26,7 @@ public class CampaignController: ControllerBase
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("Create success", HttpContext.TraceIdentifier));
     }
     [HttpPost("CampaignCourt")]
-    [Authorize(Policy = JwtExtensions.OwnerOrAdminPolicy)]
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     public async Task<IActionResult> CreateCampaignCourt(Request.CreateCampaignCourtRequest request)
     {
         await _campaignService.CreateCampaignCourt(request);
