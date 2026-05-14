@@ -82,42 +82,47 @@ public class Service : IService
         if(request.PageIndex < 1)
             throw new Exception("PageIndex must be greater than or equal to 1");
         var customerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-        var customerIdGuild = Guid.Parse(customerId!);
+        if (customerId == null)
+        {
+            throw new Exception("Không tìm thấy thông tin của customer");
+        }
+        var customerIdGuild = Guid.Parse(customerId);
+        
         var ownerRequestQuery = _dbContext.OwnerRequests
             .Where(x => x.CustomerId == customerIdGuild);
         
-        ownerRequestQuery = ownerRequestQuery.OrderBy(x => x.CreatedAt);
-        ownerRequestQuery = ownerRequestQuery
+        var totalCount = await ownerRequestQuery.CountAsync();
+        
+        var items = await ownerRequestQuery
+            .OrderBy(x => x.CreatedAt)
             .Skip((request.PageIndex - 1) * request.PageSize)
-            .Take(request.PageSize);
-        var selectOwnerRequest = ownerRequestQuery.Select(x => new Response.GetOwnerRequestResponse()
+            .Take(request.PageSize)
+            .Select(x => new Response.GetOwnerRequestResponse()
+            {
+                Id =  x.Id,
+                UserId = x.Customer.UserId,
+                CustomerId = x.CustomerId,
+                OwnerId = x.OwnerId,
+                BusinessName = x.BusinessName,
+                TaxCode = x.TaxCode,
+                BusinessAddress = x.BusinessAddress,
+                BusinessLicenseUrl = x.BusinessLicenseUrl,
+                IdentityNumber = x.IdentityNumber,
+                IdentityCardFrontUrl = x.IdentityCardFrontUrl,
+                IdentityCardBackUrl = x.IdentityCardBackUrl,
+                Status = x.Status,
+                RejectionReason = x.RejectionReason,
+                CreatedAt =  x.CreatedAt,
+            })
+            .ToListAsync();
+        
+        return new Base.Response.PageResult<Response.GetOwnerRequestResponse>()
         {
-            Id =  x.Id,
-            UserId = x.Customer.UserId,
-            CustomerId = x.CustomerId,
-            OwnerId = x.OwnerId,
-            BusinessName = x.BusinessName,
-            TaxCode = x.TaxCode,
-            BusinessAddress = x.BusinessAddress,
-            BusinessLicenseUrl = x.BusinessLicenseUrl,
-            IdentityNumber = x.IdentityNumber,
-            IdentityCardFrontUrl = x.IdentityCardFrontUrl,
-            IdentityCardBackUrl = x.IdentityCardBackUrl,
-            Status = x.Status,
-            RejectionReason = x.RejectionReason,
-            CreatedAt =  x.CreatedAt,
-        });
-
-        var listResult = await selectOwnerRequest.ToListAsync();
-        var totalCount = listResult.Count;
-        var result = new Base.Response.PageResult<Response.GetOwnerRequestResponse>()
-        {
-            Items = listResult,
+            Items = items,
             PageIndex = request.PageIndex,
             PageSize = request.PageSize,
             TotalItems = totalCount,
         };
-        return result;
     }
     //Admin refund: Hùng check
    /* public async Task<bool> CheckCancelBooking(Request.CancelBooking request)

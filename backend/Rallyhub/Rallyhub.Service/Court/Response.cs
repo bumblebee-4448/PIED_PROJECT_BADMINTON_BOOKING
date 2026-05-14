@@ -27,17 +27,8 @@ public class Response
         public TimeOnly CloseTime { get; set; }
         public  string? Description { get; set; } = null!;
         public string MapUrl { get; set; } = null!;
-        public List<FeedbackPreviewResponse> Feedbacks { get; set; } = new();
-
     }
 
-    public class FeedbackPreviewResponse
-    {
-        public string NameCustomer { get; set; } = null!;
-        public string Comment { get; set; } = null!;
-        public int Rating {get; set;}
-        public DateTimeOffset CreatedAt {get; set;}
-    }
     
     public class SubCourtResponse
     {

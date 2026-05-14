@@ -113,16 +113,6 @@ public class Service : IService
                 MapUrl = court.MapUrl,
                 Description = court.Description,
                 DefaultPrice = court.SubCourts.SelectMany(sc => sc.ConfigSlots).Select(cs => (decimal?)cs.Price).Min() ?? 0,
-                Feedbacks = court.Feedbacks
-                    .OrderBy(x => x.CreatedAt) 
-                    .Take(5)
-                    .Select(x => new Response.FeedbackPreviewResponse()
-                {
-                    NameCustomer = x.Customer.User.FirstName,
-                    Rating = x.Rating,
-                    Comment =  x.Comment!,
-                    CreatedAt = x.CreatedAt
-                }).ToList()
             })
             .FirstOrDefaultAsync();
 
