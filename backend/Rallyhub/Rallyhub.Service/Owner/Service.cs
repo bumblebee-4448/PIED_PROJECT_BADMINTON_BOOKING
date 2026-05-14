@@ -262,6 +262,10 @@ public class Service : IService
         {
             throw new Exception("Sân đó không phải của bạn");
         }
+        if (request.DefaultPrice < 0)
+        {
+            throw new Exception("Số tiền phải lớn hơn không");
+        }
         var isExistName = await _dbContext.SubCourts.AnyAsync(x => 
             x.CourtId == request.CourtId && 
             x.Name.Trim().ToLower() == request.Name.Trim().ToLower());
@@ -369,7 +373,6 @@ public class Service : IService
             PageSize = request.PageSize,
         };
     }
-
     public async Task<Response.UpdateSubCourtInfoResponse> UpdateSubCourtInfo(Request.UpdateSubCourtInfoRequest request)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
@@ -397,7 +400,6 @@ public class Service : IService
             Name = request.Name,
         };
     }
-
     //comment đừng xóa
     /*public async Task<Response.CreateConfigSlotResponse> CreateConfigSlot(Request.CreateConfigSlotRequest request)
     {
