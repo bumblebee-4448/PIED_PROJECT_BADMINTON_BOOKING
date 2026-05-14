@@ -14,6 +14,7 @@ public class Response
         public string? BankName { get; set; } = null;
         public string? BankAccountNumber { get; set; } = null;
         public string? BankAccountName { get; set; }      = null;
+        public string Status { get; set; }
         public Guid WalletId { get; set; }
         public Guid? TransactionId { get; set; } = null;
         public DateTimeOffset CreatedAt { get; set; }
@@ -21,7 +22,6 @@ public class Response
     
     public class UsergetWithdrawalResponse() : GetWithdrawalResponse
     {
-        public string Status { get; set; } 
         public string? RejectionReason { get; set; }
         public string? AdminNote { get; set; }
         public Guid? ProcessedByAdminId { get; set; } 
