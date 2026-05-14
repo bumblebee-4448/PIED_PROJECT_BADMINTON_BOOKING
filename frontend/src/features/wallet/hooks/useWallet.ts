@@ -8,10 +8,11 @@ export const useWallet = () => {
   const queryClient = useQueryClient();
 
   // Queries
-  const useWalletInfo = () => 
+  const useWalletInfo = (enabled: boolean = true) => 
     useQuery({
       queryKey: QUERY_KEYS.WALLET_INFO,
       queryFn: () => walletService.getWalletInfo(),
+      enabled,
     });
 
   const useMyTransactions = (params: PagingParams) =>

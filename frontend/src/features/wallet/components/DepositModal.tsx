@@ -99,10 +99,12 @@ export const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose, onD
   };
 
   const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    toast.success("Đã sao chép nội dung");
-    setTimeout(() => setCopied(false), 2000);
+    if (typeof window !== "undefined" && window.navigator.clipboard) {
+      window.navigator.clipboard.writeText(text);
+      setCopied(true);
+      toast.success("Đã sao chép nội dung");
+      setTimeout(() => setCopied(false), 2000);
+    }
   };
 
   return (
