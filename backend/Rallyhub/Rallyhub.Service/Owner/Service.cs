@@ -116,7 +116,6 @@ public class Service : IService
         };  
         return result;  
     }
-
     public async Task<Response.UpdateCourtInfoResponse> UpdateCourtInfoRequest(Request.UpdateCourtInfoRequest request)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;

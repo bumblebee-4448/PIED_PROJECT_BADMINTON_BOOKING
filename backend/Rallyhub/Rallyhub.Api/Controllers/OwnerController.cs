@@ -34,6 +34,14 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }   
     
+    [HttpPut("UpdateCourtInfoRequest")]  
+    public async Task<IActionResult> UpdateCourtInfoRequest(Request.UpdateCourtInfoRequest request)  
+    {  
+        var result = await _ownerService.UpdateCourtInfoRequest(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
+            , HttpContext.TraceIdentifier));  
+    }
+    
     [HttpPost("OwnerCreateSubCourt")]  
     public async Task<IActionResult> CreateSubCourt([FromBody]Request.CreateSubCourtRequest request)  
     {  
