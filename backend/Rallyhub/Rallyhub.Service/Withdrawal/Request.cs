@@ -1,4 +1,4 @@
-﻿namespace Rallyhub.Service.Withdrawal;
+namespace Rallyhub.Service.Withdrawal;
 
 public class Request
 {
@@ -10,7 +10,13 @@ public class Request
     public class GetWithdrawalRequest()
     {
         public Guid? UserId { get; set; } = null;
+    }
 
+    public class RejectWithdrawalRequest
+    {
+        public Guid WithdrawalRequestId { get; set; }
+        public required string Reason { get; set; }
+        public string? Note { get; set; }
     }
     
 }

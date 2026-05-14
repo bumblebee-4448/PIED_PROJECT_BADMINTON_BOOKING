@@ -135,6 +135,7 @@ public class Service : IService
             BankAccountName = x.BankAccountName,
             WalletId = x.WalletId,
             TransactionId = x.TransactionId,
+            Status = x.Status,
             CreatedAt = x.CreatedAt,
         });
 

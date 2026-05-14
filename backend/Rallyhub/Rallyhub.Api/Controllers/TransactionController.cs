@@ -26,7 +26,7 @@ public class TransactionController : ControllerBase
     
     [HttpGet("AdminGetTransaction")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> AdminGetTransaction([FromQuery] Guid? userId ,Service.Base.Request.PagingDay paginDay)
+    public async Task<IActionResult> AdminGetTransaction([FromQuery] Guid? userId, [FromQuery] Service.Base.Request.PagingDay paginDay)
     {
         var result = await _transactionService.AdminGetTransaction(userId, paginDay);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success", HttpContext.TraceIdentifier));
