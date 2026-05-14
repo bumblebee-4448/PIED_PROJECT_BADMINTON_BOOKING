@@ -65,6 +65,7 @@ public class Service : IService
             SystemReportId = request.SystemReportId,
             FeedbackId = request.FeedbackId,
             OwnerRequestId = request.OwnerRequestId,
+            WithdrawalId = request.WithdrawalId,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow,
             IsRead = false
@@ -88,7 +89,8 @@ public class Service : IService
         bool isAdminReadingSystemNote = role == "Admin" && 
             (notification.Type == Request.TypeNotification.SystemReportCreated || 
              notification.Type == Request.TypeNotification.ReportCreated ||
-             notification.Type == Request.TypeNotification.OwnerRequestSubmitted);
+             notification.Type == Request.TypeNotification.OwnerRequestSubmitted ||
+             notification.Type == Request.TypeNotification.WithdrawalRequested);
 
         if (notification.UserId != userId && !isAdminReadingSystemNote)
         {
@@ -116,7 +118,8 @@ public class Service : IService
             return await _dbContext.Notifications.CountAsync(x => !x.IsRead && (
                 x.Type == Request.TypeNotification.SystemReportCreated || 
                 x.Type == Request.TypeNotification.ReportCreated ||
-                x.Type == Request.TypeNotification.OwnerRequestSubmitted));
+                x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
+                x.Type == Request.TypeNotification.WithdrawalRequested));
         }
 
         return await _dbContext.Notifications.CountAsync(x => x.UserId == userId && !x.IsRead);
@@ -136,7 +139,8 @@ public class Service : IService
             query = query.Where(x => 
                 x.Type == Request.TypeNotification.SystemReportCreated || 
                 x.Type == Request.TypeNotification.ReportCreated ||
-                x.Type == Request.TypeNotification.OwnerRequestSubmitted);
+                x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
+                x.Type == Request.TypeNotification.WithdrawalRequested);
         }
         else
         {
@@ -177,6 +181,7 @@ public class Service : IService
             .Include(n => n.OwnerRequest)
                 .ThenInclude(or => or.Customer)
                     .ThenInclude(c => c.User)
+            .Include(n => n.Withdrawal)
             .Where(x => x.UserId == userIdGuild)
             .OrderByDescending(x => x.CreatedAt);
 
@@ -215,10 +220,12 @@ public class Service : IService
             .Include(n => n.OwnerRequest)
                 .ThenInclude(or => or.Customer)
                     .ThenInclude(c => c.User)
+            .Include(n => n.Withdrawal)
             .Where(x => 
                 x.Type == Request.TypeNotification.SystemReportCreated || 
                 x.Type == Request.TypeNotification.ReportCreated ||
-                x.Type == Request.TypeNotification.OwnerRequestSubmitted)
+                x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
+                x.Type == Request.TypeNotification.WithdrawalRequested)
             .OrderByDescending(x => x.CreatedAt);
 
         var total = await query.CountAsync();
@@ -330,11 +337,12 @@ public class Service : IService
                 };
             }
             else if (x.Type == Request.TypeNotification.WithdrawalApproved || 
-                     x.Type == Request.TypeNotification.WithdrawalRejected)
+                     x.Type == Request.TypeNotification.WithdrawalRejected ||
+                     x.Type == Request.TypeNotification.WithdrawalRequested)
             {
                 data = new
                 {
-                    // For now text-only or we can add WithdrawalId if it was in the entity
+                    WithdrawalId = x.WithdrawalId
                 };
             }
             else if (x.Type == Request.TypeNotification.WalletDepositSuccess)

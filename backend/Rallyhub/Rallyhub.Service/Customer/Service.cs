@@ -48,7 +48,7 @@ public class Service : IService
         {
             throw new Exception("Identity number already exists");
         }
-        var ownerRequest = new OwnerRequest()
+        var ownerRequest = new Repository.Entity.OwnerRequest()
         {
             BusinessName = model.BusinessName,
             TaxCode = model.TaxCode,

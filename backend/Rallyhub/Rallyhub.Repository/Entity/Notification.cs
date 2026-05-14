@@ -1,4 +1,4 @@
-﻿using Rallyhub.Repository.Abtraction;
+using Rallyhub.Repository.Abtraction;
 
 namespace Rallyhub.Repository.Entity;
 
@@ -10,7 +10,7 @@ public class Notification : BaseEntity<Guid>, IAuditableEntity
     public Guid UserId { get; set; }
     public required string Title { get; set; }
     public required string Content { get; set; }
-    public required string Type { get; set; } //booking, feedback, report, ownerRequeset, courtHasBooking
+    public required string Type { get; set; } //booking, feedback, report, ownerRequeset, courtHasBooking, withdrawal
     public required bool IsRead { get; set; } = false;
     public Court? Court { get; set; }
     public Guid? CourtId { get; set; }
@@ -24,6 +24,8 @@ public class Notification : BaseEntity<Guid>, IAuditableEntity
     public Guid? OwnerRequestId { get; set; }
     public Feedback? Feedback { get; set; }
     public Guid? FeedbackId { get; set; }
+    public Withdrawal? Withdrawal { get; set; }
+    public Guid? WithdrawalId { get; set; }
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

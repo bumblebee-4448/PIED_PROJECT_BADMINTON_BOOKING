@@ -21,6 +21,7 @@ public class Request
         public const string CourtRejected = "CourtRejected";
         public const string WithdrawalApproved = "WithdrawalApproved";
         public const string WithdrawalRejected = "WithdrawalRejected";
+        public const string WithdrawalRequested = "WithdrawalRequested";
     }
 
     public class CreateNotificationRequest
@@ -28,7 +29,7 @@ public class Request
         public Guid UserId { get; set; }
         public string Title { get; set; }
         public string Content { get; set; }
-        public string Type { get; set; } //feedback, report, systemReport, courtHasBooking
+        public string Type { get; set; } //feedback, report, systemReport, courtHasBooking, withdrawalRequested
         
         public Guid? BookingId { get; set; }
         public Guid? CourtId { get; set; }
@@ -36,5 +37,6 @@ public class Request
         public Guid? SystemReportId { get; set; }
         public Guid? OwnerRequestId { get; set; }
         public Guid? FeedbackId { get; set; }
+        public Guid? WithdrawalId { get; set; }
     }
 }

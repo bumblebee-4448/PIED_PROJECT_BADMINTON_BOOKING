@@ -163,13 +163,13 @@ public class Service: IService
         
         var booking = new Repository.Entity.Booking
         {
-            Id = Guid.NewGuid(),
             CustomerId = customerId,
             TotalPrice = totalPrice,
             FinalPrice = finalPrice,
             Status = "Pending",
             ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(100),
             CampaignId = request.CampaignId,
+            CreatedAt = DateTimeOffset.UtcNow
         };
 
         var bookingDetails = new List<BookingDetail>();
@@ -178,7 +178,6 @@ public class Service: IService
             var availableSlots = availableSlotsSubCourt[item.SubCourtId];
             bookingDetails.AddRange(item.Slots.Select(slot => new BookingDetail()
             {
-                Id = Guid.NewGuid(),
                 SubCourtId = item.SubCourtId,
                 BookingId = booking.Id,
                 Date = dateTime,
@@ -201,18 +200,19 @@ public class Service: IService
                 .ThenInclude(c => c.Owner)
             .FirstOrDefaultAsync(x => x.Id == bookedSubCourtId);
 
-        if (subCourt?.Court?.Owner != null)
-        {
-            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
-            {
-                UserId = subCourt.Court.Owner.UserId,
-                Title = "Yêu cầu đặt sân mới",
-                Content = $"Sân của bạn đang có một yêu cầu đặt chỗ mới đang chờ thanh toán.",
-                Type = Notification.Request.TypeNotification.CourtHasBooking,
-                BookingId = booking.Id
-            });
-            await _dbContext.SaveChangesAsync();
-        }
+        // if (subCourt?.Court?.Owner != null)
+        // {
+        //     _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        //     {
+        //         UserId = subCourt.Court.Owner.UserId,
+        //         Title = "Yêu cầu đặt sân mới",
+        //         Content = $"Sân của bạn đang có một yêu cầu đặt chỗ mới đang chờ thanh toán.",
+        //         Type = Notification.Request.TypeNotification.CourtHasBooking,
+        //         BookingId = booking.Id,
+        //         CourtId =  subCourt.CourtId
+        //     });
+        //     await _dbContext.SaveChangesAsync();
+        // }
 
         string bankName = "MBBank";
         string bankAccount = "VQRQAIUZK3222";
@@ -385,7 +385,6 @@ public class Service: IService
         
         var booking = new Repository.Entity.Booking
         {
-            Id = Guid.NewGuid(),
             CustomerId = customerId,
             TotalPrice = totalPrice,
             FinalPrice = finalPrice,
