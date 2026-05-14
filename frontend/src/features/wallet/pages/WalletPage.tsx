@@ -1,16 +1,14 @@
 import React, { useState } from "react";
 import { useWallet } from "../hooks/useWallet";
-import { BankInfoCard } from "../components/BankInfoCard";
 import { TransactionHistory } from "../components/TransactionHistory";
 import { WithdrawalHistory } from "../components/WithdrawalHistory";
 import { AddBankModal } from "../components/AddBankModal";
 import { DepositModal } from "../components/DepositModal";
 import { WithdrawalModal } from "../components/WithdrawalModal";
-import { Card, CardContent, CardHeader, CardTitle } from "@/shared/components/ui/card";
+import { Card, CardContent } from "@/shared/components/ui/card";
 import { Button } from "@/shared/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/components/ui/tabs";
 import { Wallet, ArrowUpCircle, ArrowDownCircle, RefreshCw, History, CreditCard } from "lucide-react";
-import { toast } from "sonner";
 
 const WalletPage: React.FC = () => {
   const { 
@@ -25,7 +23,7 @@ const WalletPage: React.FC = () => {
 
   const { data: wallet, isLoading: isWalletLoading, refetch: refetchWallet } = useWalletInfo();
   
-  const [pageParams, setPageParams] = useState({ pageIndex: 1, pageSize: 10 });
+  const [pageParams] = useState({ pageIndex: 1, pageSize: 10 });
   const { data: transactions, isLoading: isTxLoading } = useMyTransactions(pageParams);
   const { data: withdrawals, isLoading: isWdLoading } = useMyWithdrawals(pageParams);
 

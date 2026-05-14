@@ -30,7 +30,7 @@ export const WithdrawalHistory: React.FC<WithdrawalHistoryProps> = ({
   isLoading: propLoading 
 }) => {
   const { useMyWithdrawals } = useWallet();
-  const { data: fetchedData, isLoading: fetchLoading } = useMyWithdrawals({ pageNumber: 1, pageSize: 20 });
+  const { data: fetchedData, isLoading: fetchLoading } = useMyWithdrawals({ pageIndex: 1, pageSize: 20 });
 
   const withdrawals = propWithdrawals ?? fetchedData?.items ?? [];
   const isLoading = propLoading ?? fetchLoading;

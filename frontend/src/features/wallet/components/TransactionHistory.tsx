@@ -10,7 +10,7 @@ import {
 import { Badge } from "@/shared/components/ui/badge";
 import type { TransactionInfo } from "../types";
 import { format } from "date-fns";
-import { ArrowUpRight, ArrowDownLeft, RefreshCcw, Wallet } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, RefreshCcw } from "lucide-react";
 
 import { useWallet } from "../hooks/useWallet";
 
@@ -24,7 +24,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   isLoading: propLoading 
 }) => {
   const { useMyTransactions } = useWallet();
-  const { data: fetchedData, isLoading: fetchLoading } = useMyTransactions({ pageNumber: 1, pageSize: 20 });
+  const { data: fetchedData, isLoading: fetchLoading } = useMyTransactions({ pageIndex: 1, pageSize: 20 });
 
   const transactions = propTransactions ?? fetchedData?.items ?? [];
   const isLoading = propLoading ?? fetchLoading;
