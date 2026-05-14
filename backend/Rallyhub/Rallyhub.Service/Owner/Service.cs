@@ -116,7 +116,7 @@ public class Service : IService
         };  
         return result;  
     }
-    public async Task<Response.UpdateCourtInfoResponse> UpdateCourtInfoRequest(Request.UpdateCourtInfoRequest request)
+    public async Task<Response.UpdateCourtInfoResponse> UpdateCourtInfo(Request.UpdateCourtInfoRequest request)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
         if (ownerIdClaim == null)
@@ -369,6 +369,35 @@ public class Service : IService
             PageSize = request.PageSize,
         };
     }
+
+    public async Task<Response.UpdateSubCourtInfoResponse> UpdateSubCourtInfo(Request.UpdateSubCourtInfoRequest request)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null)
+        {
+            throw new Exception("Không xác minh được danh tính");
+        }
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        var existSubCourt = _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefault(x => 
+                x.Id == request.SubCourtId && 
+                x.Court.OwnerId == ownerIdGuid &&
+                x.Court.Status == "Active");
+        if (existSubCourt == null)
+        {
+            throw new Exception("Không tìm thấy sân!");
+        }
+        existSubCourt.Name = request.Name;
+        _dbContext.Update(existSubCourt);
+        await _dbContext.SaveChangesAsync();
+        return new Response.UpdateSubCourtInfoResponse()
+        {
+            SubCourtId = request.SubCourtId,
+            Name = request.Name,
+        };
+    }
+
     //comment đừng xóa
     /*public async Task<Response.CreateConfigSlotResponse> CreateConfigSlot(Request.CreateConfigSlotRequest request)
     {

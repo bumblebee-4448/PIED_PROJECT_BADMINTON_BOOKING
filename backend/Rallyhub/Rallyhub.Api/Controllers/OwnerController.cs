@@ -34,10 +34,10 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }   
     
-    [HttpPut("UpdateCourtInfoRequest")]  
+    [HttpPut("UpdateCourtInfo")]  
     public async Task<IActionResult> UpdateCourtInfoRequest(Request.UpdateCourtInfoRequest request)  
     {  
-        var result = await _ownerService.UpdateCourtInfoRequest(request); 
+        var result = await _ownerService.UpdateCourtInfo(request); 
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
@@ -57,7 +57,13 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     } 
-    
+    [HttpPut("UpdateSubCourtInfo")]  
+    public async Task<IActionResult> UpdateSubCourtInfo(Request.UpdateSubCourtInfoRequest request)  
+    {  
+        var result = await _ownerService.UpdateSubCourtInfo(request); 
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
+            , HttpContext.TraceIdentifier));  
+    }
     [HttpGet("OwnerGetConfigSlot")]  
     public async Task<IActionResult> GetConfigSlotBySubCourtId(Guid subCourtId)  
     {  

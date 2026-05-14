@@ -111,4 +111,9 @@ public class Response
         public TimeOnly? EndTime { get; set; }
         public int? TimeRefundBefore { get; set; } 
     }
+    public class UpdateSubCourtInfoResponse
+    {
+        public Guid SubCourtId { get; set; }
+        public string Name { get; set; } = null!;
+    }
 }

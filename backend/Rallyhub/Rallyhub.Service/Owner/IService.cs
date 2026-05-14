@@ -4,9 +4,10 @@ public interface IService
 {
     public Task<Response.CreateCourtResponse> CreateCourt(Request.CreateCourtRequest request);  
     public Task<Base.Response.PageResult<Response.GetMyCourtsResponse>> GetAllMyCourts(Request.GetAllMyCourtsRequest request);
-    public Task<Response.UpdateCourtInfoResponse> UpdateCourtInfoRequest(Request.UpdateCourtInfoRequest request);
+    public Task<Response.UpdateCourtInfoResponse> UpdateCourtInfo(Request.UpdateCourtInfoRequest request);
     public Task<Response.CreateSubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request);
     public Task<Base.Response.PageResult<Response.GetMySubCourtsResponse>> GetMySubCourts(Request.GetMySubCourtsRequest request);
+    public Task<Response.UpdateSubCourtInfoResponse> UpdateSubCourtInfo(Request.UpdateSubCourtInfoRequest request);
     //public Task<Response.CreateConfigSlotResponse> CreateConfigSlot(Request.CreateConfigSlotRequest request);
     public Task<List<Response.GetConfigSlotResponse>> GetConfigSlotBySubCourtId(Guid subCourtId);
     public Task<string> UpdateConfigSlotPrice(Request.UpdateConfigSlotPriceRequest request);

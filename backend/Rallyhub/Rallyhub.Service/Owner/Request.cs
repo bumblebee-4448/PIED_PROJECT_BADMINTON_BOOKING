@@ -82,4 +82,9 @@ public class Request
         public TimeOnly? CloseTime { get; set; }
         public int? TimeRefundBefore { get; set; }
     }
+    public class UpdateSubCourtInfoRequest
+    {
+        public Guid SubCourtId { get; set; }
+        public string Name { get; set; } = null!;
+    }
 }
