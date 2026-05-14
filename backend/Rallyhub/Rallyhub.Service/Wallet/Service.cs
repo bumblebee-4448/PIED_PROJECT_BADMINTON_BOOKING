@@ -144,6 +144,7 @@ public class Service : IService
             return new Response.AddBalanceToWalletFromPaymentResponse
             {
                 Id = existWallet.Id,
+                TransactionId = pendingTransaction.Id,
                 Amount = requestAmount,
                 QrCodeUrl = qrCodeUrl,
             };
@@ -190,10 +191,41 @@ public class Service : IService
             return new Response.AddBalanceToWalletFromPaymentResponse
             {
                 Id = existWallet.Id,
+                TransactionId = transactionI.Id,
                 Amount = requestAmount,
                 QrCodeUrl = qrCodeUrl,
             };
         }
+    }
+
+    public async Task<string> CheckDepositStatus(Guid transactionId)
+    {
+        var transaction = await _dbcontext.Transactions.FirstOrDefaultAsync(x => x.Id == transactionId);
+        if (transaction == null)
+        {
+            throw new Exception("Transaction not found");
+        }
+
+        if (transaction.Status == "Success")
+        {
+            return "Success";
+        }
+
+        if (transaction.Status == "Pending")
+        {
+            var now = DateTimeOffset.UtcNow;
+            if (now.Subtract(transaction.CreatedAt).TotalSeconds > 60)
+            {
+                transaction.Status = "Failed";
+                transaction.UpdatedAt = now;
+                _dbcontext.Transactions.Update(transaction);
+                await _dbcontext.SaveChangesAsync();
+                return "Expired";
+            }
+            return "Pending";
+        }
+
+        return transaction.Status;
     }
     public async Task<bool> AddBanlanceToWallet(Guid userId, decimal amount, string type)
     {
