@@ -108,8 +108,21 @@ public class Service : IService
     {
         var userIdClaim = _httpAccessor.HttpContext.User.Claims
             .FirstOrDefault(x => x.Type == "UserId")?.Value;
+        if (userIdClaim == null)
+        {
+            throw new Exception("Không tìm thấy thông tin của User");
+        }
+        var userId = Guid.Parse(userIdClaim);
+        
+        var existWallet = await _dbcontext.Wallets
+            .FirstOrDefaultAsync(x => x.UserId == userId);
+        if (existWallet == null)
+        {
+            throw new Exception("Không tìm thấy ");
+        }
         var pendingTransaction = await _dbcontext.Transactions
-            .FirstOrDefaultAsync(x => x.Status == "Pending");
+            .FirstOrDefaultAsync(x => x.Status == "Pending" &&
+                                      x.WalletId == existWallet.Id);
         if (pendingTransaction != null)
         {
             if (pendingTransaction.Amount != requestAmount)
@@ -117,17 +130,6 @@ public class Service : IService
                 pendingTransaction.Amount = requestAmount;
                 _dbcontext.Transactions.Update(pendingTransaction);
                 await _dbcontext.SaveChangesAsync();
-            }
-            if (userIdClaim == null)
-            {
-                throw new Exception("Không tìm thấy thông tin của User");
-            }
-            var userId = Guid.Parse(userIdClaim);
-        
-            var existWallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId);
-            if (existWallet == null)
-            {
-                throw new Exception("Không tìm thấy ví");
             }
         
             string bankName = "MBBank";
@@ -151,18 +153,6 @@ public class Service : IService
         }
         else
         {
-            if (userIdClaim == null)
-            {
-                throw new Exception("Không tìm thấy thông tin của User");
-            }
-            var userId = Guid.Parse(userIdClaim);
-        
-            var existWallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId);
-            if (existWallet == null)
-            {
-                throw new Exception("Không tìm thấy ví");
-            }
-        
             string bankName = "MBBank";
             string bankAccount = "VQRQAIUZK3222";
             string description = $"WA-{existWallet.Id:N}";

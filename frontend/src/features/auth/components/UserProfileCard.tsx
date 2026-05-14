@@ -9,6 +9,7 @@ import {
   UserCircle,
   Wallet,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store";
 import { useLogout } from "../hooks";
 import { useWallet } from "@/features/wallet";
@@ -17,12 +18,13 @@ import { Button } from "@/shared/components/ui/button";
 import { EditProfileDialog } from "@/features/profile/components/EditProfileDialog";
 
 export function UserProfileCard() {
+  const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { accessToken, user, role } = useAuthStore();
   const { mutate: logout, isLoading } = useLogout();
   const { useWalletInfo } = useWallet();
-  const { data: wallet } = useWalletInfo();
+  const { data: wallet } = useWalletInfo(role !== "Admin");
 
   if (!accessToken || !user) return null;
 
@@ -31,7 +33,7 @@ export function UserProfileCard() {
       {/* ─── Profile Details Card (Collapsible) ───────────────── */}
       <div
         className={cn(
-          "absolute top-full right-0 mt-3 w-64 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 origin-top-right z-50",
+          "absolute top-full right-0 mt-3 w-64 bg-white/95 backdrop-blur-xl border border-gray-100 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.1)] transition-all duration-500 origin-top-right z-[110]",
           isOpen
             ? "scale-100 opacity-100 translate-y-0"
             : "scale-75 opacity-0 -translate-y-4 pointer-events-none",
@@ -80,9 +82,16 @@ export function UserProfileCard() {
           
           {/* Wallet Balance */}
           {wallet && (
-            <div className="mb-4 p-3 rounded-xl bg-gradient-to-br from-[#004E43]/5 to-[#00CE98]/5 border border-[#004E43]/10 flex items-center justify-between">
+            <div 
+              onClick={() => {
+                const path = role === "Admin" ? "/admin/withdrawals" : role === "Owner" ? "/owner/wallet" : "/wallet";
+                navigate(path);
+                setIsOpen(false);
+              }}
+              className="mb-4 p-3 rounded-xl bg-gradient-to-br from-[#004E43]/5 to-[#00CE98]/5 border border-[#004E43]/10 flex items-center justify-between cursor-pointer hover:bg-emerald-50 transition-all group/wallet"
+            >
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-[#004E43]">
+                <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-[#004E43] group-hover/wallet:scale-110 transition-transform">
                   <Wallet size={16} />
                 </div>
                 <div className="flex flex-col">
@@ -95,6 +104,7 @@ export function UserProfileCard() {
                   </span>
                 </div>
               </div>
+              <ChevronDown size={12} className="text-slate-300 -rotate-90 group-hover/wallet:translate-x-1 transition-all" />
             </div>
           )}
 

@@ -86,7 +86,7 @@ export const WithdrawalHistory: React.FC<WithdrawalHistoryProps> = ({
             {withdrawals.map((w) => (
               <TableRow key={w.id} className="hover:bg-slate-50/50">
                 <TableCell className="text-sm text-slate-500">
-                  {format(new Date(w.createdAt), "dd/MM/yyyy HH:mm")}
+                  {w.createdAt ? format(new Date(w.createdAt), "dd/MM/yyyy HH:mm") : "N/A"}
                 </TableCell>
                 <TableCell className="font-bold text-slate-700">
                   {w.amount.toLocaleString()}đ

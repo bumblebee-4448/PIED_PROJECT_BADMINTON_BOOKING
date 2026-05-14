@@ -4,7 +4,8 @@ import { BookingCard } from "../components/BookingCard";
 import { CancelBookingDialog } from "../components/CancelBookingDialog";
 import { useBookings } from "../hooks/useBookings";
 import { useFilteredBookings } from "../hooks/useFilteredBookings";
-import { Loader2, ClipboardList } from "lucide-react";
+import { useRefundBooking } from "../hooks/useRefundBooking";
+import { Loader2, ClipboardList, AlertCircle } from "lucide-react";
 import { 
   Pagination, 
   PaginationContent, 
@@ -13,20 +14,47 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from "@/shared/components/ui/pagination";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { DEFAULT_PAGE_SIZE, type FilterStatus } from "../types";
+import { toast } from "sonner";
 
 export function BookingHistoryPage() {
   const [pageIndex, setPageIndex] = React.useState(1);
   const [activeStatus, setActiveStatus] = React.useState<FilterStatus>("all");
   const [cancellingBooking, setCancellingBooking] = React.useState<{id: string, status: string} | null>(null);
+  const [refundingId, setRefundingId] = React.useState<string | null>(null);
 
   const { data, isLoading, isError } = useBookings(pageIndex, DEFAULT_PAGE_SIZE);
   const { filteredItems, counts } = useFilteredBookings(data, activeStatus);
+  const refundMutation = useRefundBooking();
 
   const handleStatusChange = (status: FilterStatus) => {
     setActiveStatus(status);
     setPageIndex(1); // Reset to first page on filter change
+  };
+
+  const handleRefund = () => {
+    if (!refundingId) return;
+    
+    refundMutation.mutate(refundingId, {
+      onSuccess: () => {
+        toast.success("Đã gửi yêu cầu hoàn tiền thành công!");
+        setRefundingId(null);
+      },
+      onError: () => {
+        toast.error("Không thể hoàn tiền. Vui lòng thử lại sau.");
+      }
+    });
   };
 
   const totalPages = data ? Math.ceil(data.totalItems / DEFAULT_PAGE_SIZE) : 0;
@@ -85,6 +113,7 @@ export function BookingHistoryPage() {
                 key={booking.bookingId} 
                 booking={booking} 
                 onCancelClick={(id) => setCancellingBooking({ id, status: booking.status })}
+                onRefundClick={(id) => setRefundingId(id)}
               />
             ))
           ) : (
@@ -143,6 +172,31 @@ export function BookingHistoryPage() {
         status={cancellingBooking?.status || null}
         onClose={() => setCancellingBooking(null)} 
       />
+
+      {/* Refund Confirmation */}
+      <AlertDialog open={!!refundingId} onOpenChange={(open) => !open && setRefundingId(null)}>
+        <AlertDialogContent className="rounded-3xl p-6">
+          <AlertDialogHeader>
+            <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 mb-4">
+              <AlertCircle size={24} />
+            </div>
+            <AlertDialogTitle className="text-xl font-black text-gray-900">Xác nhận hoàn tiền</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-500 font-medium">
+              Bạn có chắc chắn muốn hoàn tiền cho đơn đặt sân này? 
+              Tiền sẽ được cộng lại vào ví của bạn sau khi hệ thống xử lý.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-3 mt-6">
+            <AlertDialogCancel className="rounded-xl h-11 border-gray-100 font-bold text-gray-500">Hủy</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleRefund}
+              className="rounded-xl h-11 bg-orange-500 hover:bg-orange-600 font-bold text-white shadow-lg shadow-orange-200"
+            >
+              {refundMutation.isPending ? "Đang xử lý..." : "Xác nhận hoàn tiền"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

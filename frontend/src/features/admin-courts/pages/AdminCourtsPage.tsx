@@ -15,11 +15,10 @@ import {
   Search, 
   Loader2, 
   CheckCircle2, 
-  XCircle, 
   Eye, 
   MapPin, 
   Clock, 
-  Building2 
+  Building2
 } from "lucide-react";
 import {
   Dialog,
@@ -27,14 +26,27 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogDescription,
 } from "@/shared/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
 import type { PendingCourt } from "../types";
+import { cn } from "@/lib/utils";
 
 export default function AdminCourtsPage() {
-  const [pageIndex] = useState(1);
+  const [pageIndex, setPageIndex] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [viewingCourt, setViewingCourt] = useState<PendingCourt | null>(null);
   const [rejectingCourt, setRejectingCourt] = useState<PendingCourt | null>(null);
+  const [approveCourtId, setApproveCourtId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
 
   const { data, isLoading } = usePendingCourts({
@@ -46,20 +58,18 @@ export default function AdminCourtsPage() {
   const approveMutation = useApproveCourt();
   const rejectMutation = useRejectCourt();
 
-  const handleApprove = (courtId: string) => {
-    // Instead of window.confirm, the UI can have its own confirmation if needed, 
-    // but for now I'll just make sure it closes the modal.
-    approveMutation.mutate(courtId, {
+  const handleApprove = () => {
+    if (!approveCourtId) return;
+    approveMutation.mutate(approveCourtId, {
       onSuccess: () => {
         setViewingCourt(null);
+        setApproveCourtId(null);
       }
     });
   };
 
   const handleReject = () => {
-    if (!rejectReason.trim()) {
-      return;
-    }
+    if (!rejectReason.trim()) return;
     if (rejectingCourt) {
       rejectMutation.mutate({
         courtId: rejectingCourt.courtId,
@@ -67,7 +77,7 @@ export default function AdminCourtsPage() {
       }, {
         onSuccess: () => {
           setRejectingCourt(null);
-          setViewingCourt(null); // Close detail too if it was open
+          setViewingCourt(null);
           setRejectReason("");
         }
       });
@@ -75,111 +85,109 @@ export default function AdminCourtsPage() {
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-8">
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-black text-gray-900 tracking-tight">
-            Phê duyệt sân cầu lông 🏸
-          </h1>
-          <p className="text-gray-500 font-medium mt-1">
-            Xem xét và phê duyệt các yêu cầu đăng ký sân mới từ các chủ sân
-          </p>
+          <h1 className="text-2xl font-bold text-gray-900">Phê duyệt sân</h1>
+          <p className="text-sm text-gray-500">Xem xét và quản lý các yêu cầu đăng ký sân mới</p>
         </div>
-        <div className="bg-amber-50 border border-amber-100 px-4 py-2 rounded-2xl flex items-center gap-3">
-          <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-          <span className="text-amber-700 text-sm font-bold">
-            {data?.totalItems || 0} yêu cầu đang chờ
-          </span>
+        {data && data.totalItems > 0 && (
+          <Badge className="bg-amber-100 text-amber-700 border-none font-bold py-1 px-3 shadow-none">
+            {data.totalItems} yêu cầu đang chờ
+          </Badge>
+        )}
+      </div>
+
+      {/* Filters */}
+      <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
+          <Input 
+            placeholder="Tìm theo tên sân..." 
+            className="pl-10 h-11 border-gray-200 focus:ring-emerald-500/20"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
 
-      <div className="relative max-w-md">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
-        <Input 
-          placeholder="Tìm kiếm theo tên sân..." 
-          className="pl-12 h-12 rounded-2xl border-gray-100 shadow-sm focus:ring-emerald-500 focus:border-emerald-500 transition-all"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
-      <div className="bg-white rounded-[2rem] shadow-xl shadow-gray-200/50 border border-gray-100 overflow-hidden">
+      {/* Table Section */}
+      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-32">
-            <Loader2 className="animate-spin text-emerald-600 mb-4" size={48} />
-            <p className="text-gray-500 font-bold uppercase tracking-widest text-xs">Đang tải danh sách...</p>
+          <div className="py-20 flex flex-col items-center justify-center gap-4">
+            <Loader2 className="animate-spin text-emerald-600" size={40} />
+            <p className="text-sm text-gray-400 font-medium">Đang tải danh sách...</p>
           </div>
-        ) : data && data.items && data.items.length > 0 ? (
+        ) : data?.items && data.items.length > 0 ? (
           <Table>
-            <TableHeader className="bg-gray-50/50 border-b border-gray-100">
+            <TableHeader className="bg-gray-50/50">
               <TableRow>
-                <TableHead className="py-5 px-6 font-black text-gray-400 uppercase text-[10px] tracking-wider">Hình ảnh</TableHead>
-                <TableHead className="py-5 px-6 font-black text-gray-400 uppercase text-[10px] tracking-wider">Thông tin sân</TableHead>
-                <TableHead className="py-5 px-6 font-black text-gray-400 uppercase text-[10px] tracking-wider">Chủ sân</TableHead>
-                <TableHead className="py-5 px-6 font-black text-gray-400 uppercase text-[10px] tracking-wider">Giờ hoạt động</TableHead>
-                <TableHead className="py-5 px-6 font-black text-gray-400 uppercase text-[10px] tracking-wider text-right">Thao tác</TableHead>
+                <TableHead className="w-[100px]">Hình ảnh</TableHead>
+                <TableHead>Thông tin sân</TableHead>
+                <TableHead>Chủ sân</TableHead>
+                <TableHead>Giờ hoạt động</TableHead>
+                <TableHead className="text-right">Thao tác</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {data.items.map((court: PendingCourt) => (
-                <TableRow key={court.courtId} className="group hover:bg-emerald-50/30 transition-all border-b border-gray-50 last:border-0">
-                  <TableCell className="py-4 px-6">
-                    <div className="w-20 h-14 rounded-xl overflow-hidden shadow-sm border border-white">
+                <TableRow key={court.courtId} className="hover:bg-gray-50/50 transition-colors">
+                  <TableCell>
+                    <div className="w-16 h-12 rounded-lg overflow-hidden border border-gray-100">
                       <img 
                         src={court.pictureUrl} 
                         alt={court.name} 
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = "https://placehold.co/400x300?text=Court+Image";
+                          (e.target as HTMLImageElement).src = "https://placehold.co/400x300?text=Court";
                         }}
                       />
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 px-6">
+                  <TableCell>
                     <div className="flex flex-col">
-                      <span className="font-black text-gray-900 group-hover:text-emerald-700 transition-colors">{court.name}</span>
-                      <span className="text-xs text-gray-400 mt-0.5 flex items-center gap-1">
-                        <MapPin size={12} /> {court.address}
+                      <span className="font-semibold text-gray-900">{court.name}</span>
+                      <span className="text-xs text-gray-500 flex items-center gap-1 mt-0.5">
+                        <MapPin size={12} className="text-gray-400" /> {court.address}
                       </span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 px-6">
+                  <TableCell>
                     <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 bg-emerald-100 rounded-lg flex items-center justify-center text-emerald-700 font-bold text-xs uppercase">
+                      <div className="w-7 h-7 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center text-[10px] font-bold">
                         {court.ownerName?.charAt(0) || "O"}
                       </div>
-                      <span className="text-sm font-bold text-gray-600">{court.ownerName}</span>
+                      <span className="text-sm text-gray-600 font-medium">{court.ownerName}</span>
                     </div>
                   </TableCell>
-                  <TableCell className="py-4 px-6">
-                    <Badge variant="outline" className="bg-white border-gray-100 text-gray-500 font-bold text-[10px] py-1 px-3 rounded-full">
-                      <Clock size={12} className="mr-1.5" />
+                  <TableCell>
+                    <Badge variant="outline" className="bg-gray-50 text-gray-600 border-gray-200 font-medium text-[10px]">
                       {court.openTime} - {court.closeTime}
                     </Badge>
                   </TableCell>
-                  <TableCell className="py-4 px-6 text-right">
-                    <div className="flex items-center justify-end gap-2 transition-all">
+                  <TableCell className="text-right">
+                    <div className="flex items-center justify-end gap-2">
                       <Button 
-                        size="sm" 
+                        size="icon" 
                         variant="ghost" 
-                        className="rounded-xl h-10 w-10 p-0 hover:bg-white hover:shadow-md transition-all text-gray-400 hover:text-emerald-600"
+                        className="h-8 w-8 text-gray-400 hover:text-emerald-600"
                         onClick={() => setViewingCourt(court)}
                       >
-                        <Eye size={20} />
+                        <Eye size={18} />
                       </Button>
                       <Button 
-                        size="sm" 
-                        className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-10 px-4 font-bold shadow-lg shadow-emerald-600/20"
-                        onClick={() => handleApprove(court.courtId)}
+                        size="sm"
+                        onClick={() => setApproveCourtId(court.courtId)}
                         disabled={approveMutation.isPending}
+                        className="bg-emerald-600 hover:bg-emerald-700 h-8 font-bold text-xs"
                       >
-                        {approveMutation.isPending ? <Loader2 className="animate-spin h-4 w-4" /> : "Duyệt"}
+                        Duyệt
                       </Button>
                       <Button 
-                        size="sm" 
-                        variant="outline" 
-                        className="border-red-100 text-red-500 hover:bg-red-50 rounded-xl h-10 px-4 font-bold"
+                        variant="ghost"
+                        size="sm"
                         onClick={() => setRejectingCourt(court)}
+                        className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8 font-bold text-xs"
                       >
                         Từ chối
                       </Button>
@@ -190,142 +198,161 @@ export default function AdminCourtsPage() {
             </TableBody>
           </Table>
         ) : (
-          <div className="text-center py-40">
-            <div className="w-24 h-24 bg-gray-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-6 shadow-inner">
-              <CheckCircle2 className="text-emerald-200" size={48} />
+          <div className="py-20 text-center space-y-3">
+            <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-200 mx-auto">
+              <CheckCircle2 size={32} />
             </div>
-            <h3 className="text-gray-900 font-black text-2xl">Đã sạch bóng yêu cầu!</h3>
-            <p className="text-gray-400 font-medium max-w-xs mx-auto mt-2">
-              Tất cả các yêu cầu đăng ký sân đã được xử lý xong. Hãy nghỉ tay một lát nhé.
-            </p>
+            <p className="text-gray-500 font-medium">Hiện không có yêu cầu nào</p>
+          </div>
+        )}
+
+        {/* Pagination placeholder */}
+        {data && data.totalPages > 1 && (
+          <div className="p-4 border-t border-gray-50 flex items-center justify-center gap-2">
+            <Button 
+              variant="outline" 
+              size="sm" 
+              disabled={pageIndex === 1}
+              onClick={() => setPageIndex(p => p - 1)}
+            >
+              Trước
+            </Button>
+            <span className="text-xs font-bold text-gray-500 px-4">
+              Trang {pageIndex} / {data.totalPages}
+            </span>
+            <Button 
+              variant="outline" 
+              size="sm"
+              disabled={pageIndex === data.totalPages}
+              onClick={() => setPageIndex(p => p + 1)}
+            >
+              Sau
+            </Button>
           </div>
         )}
       </div>
 
       {/* Details Dialog */}
       <Dialog open={!!viewingCourt} onOpenChange={(open) => !open && setViewingCourt(null)}>
-        <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden rounded-[2rem] border-none shadow-2xl">
+        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden rounded-2xl border-none shadow-2xl">
           {viewingCourt && (
-            <>
-              <div className="h-80 w-full relative group">
+            <div className="flex flex-col">
+              <div className="h-48 w-full relative">
                 <img 
                   src={viewingCourt.pictureUrl} 
                   alt={viewingCourt.name} 
                   className="w-full h-full object-cover"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "https://placehold.co/800x400?text=Court+Image";
-                  }}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-6 left-6 right-6">
-                  <Badge className="mb-3 bg-emerald-500 hover:bg-emerald-500 text-white border-none px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest">
-                    Yêu cầu chờ duyệt
-                  </Badge>
-                  <h2 className="text-3xl font-black text-white">{viewingCourt.name}</h2>
+                <div className="absolute bottom-4 left-6">
+                  <h2 className="text-xl font-bold text-white">{viewingCourt.name}</h2>
+                  <p className="text-white/80 text-xs flex items-center gap-1 mt-1">
+                    <MapPin size={12} /> {viewingCourt.address}
+                  </p>
                 </div>
               </div>
 
-              <div className="p-8 space-y-8 bg-white">
+              <div className="p-6 space-y-6">
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100/50">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-emerald-600">
-                        <MapPin size={20} />
-                      </div>
-                      <span className="font-black text-gray-900 text-xs uppercase tracking-wider">Vị trí</span>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Thời gian hoạt động</Label>
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <Clock size={14} className="text-emerald-500" />
+                      {viewingCourt.openTime} - {viewingCourt.closeTime}
                     </div>
-                    <p className="text-sm text-gray-500 font-medium leading-relaxed">
-                      {viewingCourt.address}
-                    </p>
                   </div>
-                  <div className="p-5 bg-gray-50 rounded-2xl border border-gray-100/50">
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="w-10 h-10 bg-white rounded-xl shadow-sm flex items-center justify-center text-emerald-600">
-                        <Clock size={20} />
-                      </div>
-                      <span className="font-black text-gray-900 text-xs uppercase tracking-wider">Hoạt động</span>
+                  <div className="space-y-1">
+                    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Chủ sở hữu</Label>
+                    <div className="flex items-center gap-2 text-sm font-medium text-gray-700">
+                      <Building2 size={14} className="text-emerald-500" />
+                      {viewingCourt.ownerName}
                     </div>
-                    <p className="text-sm text-gray-500 font-medium">
-                      Mở cửa: <span className="text-gray-900 font-bold">{viewingCourt.openTime}</span>
-                      <br />
-                      Đóng cửa: <span className="text-gray-900 font-bold">{viewingCourt.closeTime}</span>
-                    </p>
                   </div>
                 </div>
 
-                <div className="p-6 bg-emerald-50/50 rounded-[2rem] border border-emerald-100/50 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 bg-white rounded-2xl shadow-sm flex items-center justify-center text-emerald-600">
-                      <Building2 size={28} />
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em] mb-0.5">Chủ sở hữu</p>
-                      <p className="text-lg font-black text-gray-900">{viewingCourt.ownerName || "Không rõ chủ sở hữu"}</p>
-                    </div>
-                  </div>
-                  <Button variant="ghost" className="text-emerald-600 font-bold hover:bg-white rounded-xl px-6">
-                    Xem hồ sơ
-                  </Button>
-                </div>
-
-                <div className="flex gap-4 pt-4">
+                <div className="pt-4 flex gap-3">
                   <Button 
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl h-14 text-base font-black shadow-xl shadow-emerald-600/20"
-                    onClick={() => handleApprove(viewingCourt.courtId)}
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 h-11 font-bold rounded-xl"
+                    onClick={() => setApproveCourtId(viewingCourt.courtId)}
                     disabled={approveMutation.isPending}
                   >
-                    {approveMutation.isPending ? <Loader2 className="animate-spin mr-2" /> : "Duyệt sân này"}
+                    Phê duyệt sân
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="flex-1 border-red-100 text-red-500 hover:bg-red-50 rounded-2xl h-14 text-base font-black"
+                    className="flex-1 border-gray-200 text-red-600 hover:bg-red-50 h-11 font-bold rounded-xl"
                     onClick={() => setRejectingCourt(viewingCourt)}
                   >
-                    Từ chối yêu cầu
+                    Từ chối
                   </Button>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </DialogContent>
       </Dialog>
 
       {/* Reject Reason Dialog */}
       <Dialog open={!!rejectingCourt} onOpenChange={(open) => !open && setRejectingCourt(null)}>
-        <DialogContent className="sm:max-w-[450px] rounded-3xl p-8 border-none shadow-2xl">
+        <DialogContent className="sm:max-w-[400px] rounded-2xl p-6">
           <DialogHeader>
-            <div className="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center text-red-500 mb-4 mx-auto">
-              <XCircle size={32} />
-            </div>
-            <DialogTitle className="text-center text-2xl font-black text-gray-900">Từ chối yêu cầu</DialogTitle>
+            <DialogTitle className="text-lg font-bold">Từ chối yêu cầu</DialogTitle>
+            <DialogDescription>
+              Vui lòng nhập lý do từ chối để thông báo cho chủ sân.
+            </DialogDescription>
           </DialogHeader>
-          <div className="py-6">
-            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2 block">Lý do từ chối</label>
+          <div className="py-4">
             <textarea
-              className="w-full h-32 p-4 bg-gray-50 border-none rounded-2xl focus:ring-2 focus:ring-red-500/20 text-gray-700 font-medium resize-none placeholder:text-gray-300 transition-all"
-              placeholder="Nhập lý do chi tiết để thông báo cho chủ sân..."
+              className="w-full h-32 p-3 bg-gray-50 border border-gray-100 rounded-xl focus:ring-2 focus:ring-red-500/20 text-sm outline-none resize-none"
+              placeholder="VD: Hình ảnh không rõ nét, địa chỉ không chính xác..."
               value={rejectReason}
               onChange={(e) => setRejectReason(e.target.value)}
             />
           </div>
-          <DialogFooter className="sm:justify-center gap-3">
-            <Button 
-              className="flex-1 bg-red-500 hover:bg-red-600 text-white rounded-xl h-12 font-bold"
-              onClick={handleReject}
-              disabled={rejectMutation.isPending}
-            >
-              {rejectMutation.isPending ? <Loader2 className="animate-spin mr-2" /> : "Xác nhận từ chối"}
-            </Button>
+          <DialogFooter className="gap-2">
             <Button 
               variant="ghost" 
-              className="flex-1 rounded-xl h-12 font-bold text-gray-500"
+              className="font-bold rounded-xl h-10"
               onClick={() => setRejectingCourt(null)}
             >
-              Hủy bỏ
+              Hủy
+            </Button>
+            <Button 
+              className="bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl h-10 px-6"
+              onClick={handleReject}
+              disabled={rejectMutation.isPending || !rejectReason.trim()}
+            >
+              Xác nhận từ chối
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Approve Confirmation Dialog */}
+      <AlertDialog open={!!approveCourtId} onOpenChange={(open) => !open && setApproveCourtId(null)}>
+        <AlertDialogContent className="rounded-3xl p-6">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-xl font-bold text-gray-900">Xác nhận phê duyệt</AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-500">
+              Bạn có chắc chắn muốn phê duyệt sân này? 
+              Sân sẽ được hiển thị công khai trên hệ thống sau khi phê duyệt.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 pt-4">
+            <AlertDialogCancel className="rounded-xl h-11 font-bold border-gray-200">Hủy</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleApprove}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl h-11 px-6 shadow-none"
+            >
+              {approveMutation.isPending ? "Đang xử lý..." : "Xác nhận phê duyệt"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
+
+const Label = ({ children, className }: { children: React.ReactNode, className?: string }) => (
+  <label className={cn("block", className)}>{children}</label>
+);

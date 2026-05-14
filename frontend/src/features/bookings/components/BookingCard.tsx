@@ -16,14 +16,15 @@ import type { GetBookingResponse } from "../types";
 interface BookingCardProps {
   booking: GetBookingResponse;
   onCancelClick?: (id: string) => void;
+  onRefundClick?: (id: string) => void;
 }
 
-export function BookingCard({ booking, onCancelClick }: BookingCardProps) {
+export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCardProps) {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "Banked":
         return {
-          label: "Đã chuyển khoản",
+          label: "Đã thanh toán",
           icon: <CheckCircle2 size={14} />,
           className: "bg-emerald-50 text-emerald-600 border-emerald-100",
         };
@@ -150,13 +151,23 @@ export function BookingCard({ booking, onCancelClick }: BookingCardProps) {
           </div>
 
           <div className="flex items-center gap-4 w-full md:w-auto">
-            {["Banked", "Pending"].includes(status) && (
+            {status === "Pending" && (
               <Button
                 variant="ghost"
                 onClick={() => onCancelClick?.(id)}
                 className="flex-1 md:flex-none text-red-500 font-bold text-sm hover:text-red-600 hover:bg-red-50 transition-colors px-4 rounded-2xl"
               >
                 Hủy đơn
+              </Button>
+            )}
+
+            {status === "Banked" && (
+              <Button
+                variant="ghost"
+                onClick={() => onRefundClick?.(id)}
+                className="flex-1 md:flex-none text-orange-500 font-bold text-sm hover:text-orange-600 hover:bg-orange-50 transition-colors px-4 rounded-2xl"
+              >
+                Yêu cầu hoàn tiền
               </Button>
             )}
             

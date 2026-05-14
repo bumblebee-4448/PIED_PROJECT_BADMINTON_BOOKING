@@ -11,7 +11,7 @@ export function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const { accessToken } = useAuthStore();
-
+  
   const NAV_ITEMS = [
     { label: "Trang chủ", path: "/" },
     { label: "Tìm sân", path: "/courts" },
@@ -20,7 +20,6 @@ export function Navbar() {
     { label: "Lịch sử", path: "/history" },
     { label: "Ví của tôi", path: "/wallet" },
   ];
-
 
   const handleLoginClick = () => {
     navigate("/login");
@@ -95,7 +94,6 @@ export function Navbar() {
 
         {/* CTA */}
         <div className="hidden md:flex items-center gap-3">
-
           <OwnerRegistrationButton variant="header" />
           {!accessToken && (
             <button

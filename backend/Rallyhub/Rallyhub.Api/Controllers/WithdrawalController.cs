@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rallyhub.Api.Extention;
 using Rallyhub.Service.Models;
@@ -44,9 +44,9 @@ public class WithdrawalController : ControllerBase
     
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpPost("AdminRejectWithdrawalRequest")]
-    public async Task<IActionResult> AdminRejectWithdrawalRequest([FromBody]Guid withdrawalRequestId, string reason, string? note)
+    public async Task<IActionResult> AdminRejectWithdrawalRequest([FromBody]Request.RejectWithdrawalRequest request)
     {
-        var result = await _withdrawalService.AdminRejectWithdrawalRequest(withdrawalRequestId, reason,  note);
+        var result = await _withdrawalService.AdminRejectWithdrawalRequest(request.WithdrawalRequestId, request.Reason, request.Note);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success reject withdrawal", HttpContext.TraceIdentifier));
     }
     

@@ -135,6 +135,7 @@ public class Service : IService
             BankAccountName = x.BankAccountName,
             WalletId = x.WalletId,
             TransactionId = x.TransactionId,
+            Status = x.Status,
             CreatedAt = x.CreatedAt,
         });
 
@@ -188,6 +189,7 @@ public class Service : IService
     public async Task<string> AdminRejectWithdrawalRequest(Guid withdrawalRequestId, string reason, string? note)
     {
         var withdrawalRequest = await _dbcontext.Withdrawals
+            .Include(x => x.Wallet)
             .FirstOrDefaultAsync(x => 
                 x.Id == withdrawalRequestId);
         if (withdrawalRequest == null)
