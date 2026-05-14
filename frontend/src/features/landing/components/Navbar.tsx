@@ -18,6 +18,7 @@ export function Navbar() {
     { label: "Yêu thích", path: "/favorites" },
     { label: "Matching", path: "/matching" },
     { label: "Lịch sử", path: "/history" },
+    { label: "Ví của tôi", path: "/wallet" },
   ];
 
 

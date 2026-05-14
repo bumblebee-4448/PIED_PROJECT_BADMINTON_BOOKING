@@ -24,6 +24,7 @@ import OwnerSubCourtCalendarPage from "@/features/owner-courts/pages/OwnerSubCou
 import OwnerSubCourtSchedulePage from "@/features/owner-courts/pages/OwnerSubCourtSchedulePage";
 import AdminCourtsPage from "@/features/admin-courts/pages/AdminCourtsPage";
 import AdminUsersPage from "@/features/admin-users/pages/AdminUsersPage";
+import { WalletPage, OwnerWalletPage } from "@/features/wallet";
 
 /**
  * React Router v6 config – createBrowserRouter (Data API).
@@ -88,6 +89,14 @@ export const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
+      {
+        path: "wallet",
+        element: (
+          <ProtectedRoute>
+            <WalletPage />
+          </ProtectedRoute>
+        ),
+      },
 
       // 404 fallback cho user layout
       { path: "*", element: <NotFoundPage /> },
@@ -125,6 +134,7 @@ export const router = createBrowserRouter([
       { path: "sub-courts/:id/calendar", element: <OwnerSubCourtCalendarPage /> },
       { path: "sub-courts/:id/schedule", element: <OwnerSubCourtSchedulePage /> },
       { path: "schedules", element: <OwnerSubCourtsPage /> },
+      { path: "wallet", element: <OwnerWalletPage /> },
     ],
   },
 ]);

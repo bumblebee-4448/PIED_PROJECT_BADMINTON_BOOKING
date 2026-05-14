@@ -27,15 +27,26 @@ public class Service : IService
         var userIdGuild = Guid.Parse(userId);
         var user = await _dbcontext.Users.FirstOrDefaultAsync(x => x.Id == userIdGuild);
         var wallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == userIdGuild);
+        if (wallet == null)
+        {
+            throw new Exception("Wallet not found");
+        }
+
+        if (string.IsNullOrEmpty(wallet.BankName) || 
+            string.IsNullOrEmpty(wallet.BankAccount) || 
+            string.IsNullOrEmpty(wallet.BankAccountName))
+        {
+            throw new Exception("Vui lòng liên kết tài khoản ngân hàng trước khi rút tiền");
+        }
 
         if (request.Amount < 0)
         {
-            throw new Exception("Amount cannot be negative");
+            throw new Exception("Số dư không thể là số âm");
         }
 
-        if (request.Amount > wallet.Balance)
+        if (wallet.Balance < request.Amount)
         {
-            throw new Exception("Amount cannot be greater than balance");
+            throw new Exception("Số dư không đủ để thực hiện yêu cầu này");
         }
         var newWithdrawal = new Repository.Entity.Withdrawal()
         {

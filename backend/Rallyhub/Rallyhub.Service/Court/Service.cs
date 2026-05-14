@@ -1,4 +1,5 @@
 
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
@@ -35,6 +36,10 @@ public class Service : IService
                     .Count(f => f.CourtId == x.Id),
                 TotalBooked = _dbContext.BookingDetails
                     .Count(b => b.SubCourt.CourtId == x.Id),
+                MinPrice = x.SubCourts
+                    .SelectMany(sc => sc.ConfigSlots)
+                    .Select(cs => (decimal?)cs.Price)
+                    .Min() ?? 0,
             })
             .ToListAsync();
         
@@ -76,7 +81,7 @@ public class Service : IService
                 TotalFeedbacks = x.TotalFeedbacks,
                 TotalBooked = x.TotalBooked,
                 PictureUrl = x.Court.PictureUrl,
-                DefaultPrice = x.Court.SubCourts.FirstOrDefault()?.ConfigSlots.FirstOrDefault()?.Price ?? 0,
+                DefaultPrice = x.MinPrice,
                 PhoneNumber = x.Court.Owner != null && x.Court.Owner.User != null ? x.Court.Owner.User.PhoneNumber : "",
             }).ToList();
         var result = new Base.Response.PageResult<Response.SearchCourtResponse>
@@ -107,7 +112,7 @@ public class Service : IService
                 PictureUrl = court.PictureUrl,
                 MapUrl = court.MapUrl,
                 Description = court.Description,
-                DefaultPrice = court.SubCourts.First().ConfigSlots.First().Price,
+                DefaultPrice = court.SubCourts.SelectMany(sc => sc.ConfigSlots).Select(cs => (decimal?)cs.Price).Min() ?? 0,
                 Feedbacks = court.Feedbacks
                     .OrderBy(x => x.CreatedAt) 
                     .Take(5)

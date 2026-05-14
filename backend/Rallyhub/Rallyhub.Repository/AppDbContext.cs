@@ -942,5 +942,7 @@
                     .HasForeignKey(x => x.TransactionId)
                     .OnDelete(DeleteBehavior.SetNull);
             });
+            modelBuilder.Entity<Court>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<SubCourt>().HasQueryFilter(x => !x.IsDeleted);
         }
     }

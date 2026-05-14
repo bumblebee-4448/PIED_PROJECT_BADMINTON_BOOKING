@@ -1,30 +1,94 @@
-import { useQuery } from "@tanstack/react-query";
-import { QUERY_KEYS } from "@/shared/constants";
-import { useAuthStore } from "@/features/auth";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { walletService } from "../services";
-import type { WalletInfo } from "../types";
+import { QUERY_KEYS } from "@/shared/constants";
+import { toast } from "sonner";
+import type { AddBankInfoRequest, WithdrawalRequest, PagingParams } from "../types";
 
-export function useWallet() {
-  const { role, accessToken } = useAuthStore();
+export const useWallet = () => {
+  const queryClient = useQueryClient();
 
-  return useQuery({
-    queryKey: QUERY_KEYS.WALLET_INFO,
-    queryFn: async () => {
-      const response = await walletService.getWalletInfo();
-      
-      // Normalize response from BE (handle PascalCase if necessary)
-      // Based on the provided example, it's camelCase, but we handle potential PascalCase just in case
-      return {
-        id: response.id || (response as any).Id,
-        firstName: response.firstName || (response as any).FirstName,
-        lastName: response.lastName || (response as any).LastName,
-        bankName: response.bankName ?? (response as any).BankName,
-        bankAccount: response.bankAccount ?? (response as any).BankAccount,
-        bankAccountName: response.bankAccountName ?? (response as any).BankAccountName,
-        balance: response.balance ?? (response as any).Balance ?? 0,
-      } as WalletInfo;
+  // Queries
+  const useWalletInfo = () => 
+    useQuery({
+      queryKey: QUERY_KEYS.WALLET_INFO,
+      queryFn: () => walletService.getWalletInfo(),
+    });
+
+  const useMyTransactions = (params: PagingParams) =>
+    useQuery({
+      queryKey: ["my-transactions", params],
+      queryFn: () => walletService.getMyTransactions(params),
+    });
+
+  const useMyWithdrawals = (params: PagingParams) =>
+    useQuery({
+      queryKey: ["my-withdrawals", params],
+      queryFn: () => walletService.getMyWithdrawals(params),
+    });
+
+  // Mutations
+  const addBankMutation = useMutation({
+    mutationFn: (data: AddBankInfoRequest) => walletService.addBankInfo(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_INFO });
+      toast.success("Liên kết ngân hàng thành công");
     },
-    enabled: !!accessToken && role !== "Admin",
-    staleTime: 2 * 60 * 1000, // 2 minutes
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Lỗi khi liên kết ngân hàng");
+    }
   });
-}
+
+  const removeBankMutation = useMutation({
+    mutationFn: () => walletService.removeBankInfo(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_INFO });
+      toast.success("Đã xóa liên kết ngân hàng");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Lỗi khi xóa liên kết");
+    }
+  });
+
+  const depositMutation = useMutation({
+    mutationFn: (amount: number) => walletService.deposit(amount),
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Lỗi khi tạo yêu cầu nạp tiền");
+    }
+  });
+
+  const withdrawalMutation = useMutation({
+    mutationFn: (data: WithdrawalRequest) => walletService.createWithdrawal(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_INFO });
+      queryClient.invalidateQueries({ queryKey: ["my-withdrawals"] });
+      toast.success("Đã gửi yêu cầu rút tiền thành công");
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Lỗi khi tạo yêu cầu rút tiền");
+    }
+  });
+
+  const checkDepositStatusMutation = useMutation({
+    mutationFn: (transactionId: string) => walletService.checkDepositStatus(transactionId),
+    onSuccess: (status) => {
+      if (status === "Success") {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_INFO });
+        queryClient.invalidateQueries({ queryKey: ["my-transactions"] });
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Lỗi khi kiểm tra trạng thái");
+    }
+  });
+
+  return {
+    useWalletInfo,
+    useMyTransactions,
+    useMyWithdrawals,
+    addBankMutation,
+    removeBankMutation,
+    depositMutation,
+    withdrawalMutation,
+    checkDepositStatusMutation,
+  };
+};
