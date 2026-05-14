@@ -36,18 +36,18 @@ jobs:
           tags: |
             type=raw,value=latest
             type=sha,format=short
-            
+
       - name: Build and push image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Rallyhub.Api/Dockerfile
+          file: Dockerfile
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-        
+
 #     - name: Trigger Render Deploy
 #       if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
 #       run: |
