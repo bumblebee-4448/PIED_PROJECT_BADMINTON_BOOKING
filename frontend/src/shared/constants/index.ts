@@ -32,7 +32,7 @@ export const API_ENDPOINTS = {
     GET_ALL_LIKE_LIST: "/Customer/GetAllLikeList",
     ADD_COURT_LIKE: "/Customer/AddCourtLikeList",
     DELETE_COURT_LIKE: "/Customer/DeleteCourtLikeList",
-    GET_ALL_BOOKING: "/Customer/GetAllBooking",
+    // GET_ALL_BOOKING: "/Customer/GetAllBooking",
     CHECK_CANCEL_BOOKING: "/Customer/CheckCancelBooking",
     CANCEL_BOOKING: "/Customer/CancelBooking",
   },
@@ -60,6 +60,12 @@ export const API_ENDPOINTS = {
     RADIUS: "/Map/SearchByRadius",
     TEXT: "/Map/text",
   },
+  /**
+   * Wallet endpoints
+   */
+  WALLET: {
+    GET_INFO: "/Wallet/GetInforWallet",
+  },
 } as const;
 
 /**
@@ -73,6 +79,7 @@ export const QUERY_KEYS = {
   COURTS: (filters?: any) => ["courts", filters] as const, // Danh sách sân (với filters)
   COURT_DETAIL: (id: string) => ["court", id] as const, // Chi tiết 1 sân
   MAP_SEARCH: (filters: any) => ["map-search", filters] as const, // Tìm kiếm bản đồ
+  WALLET_INFO: ["wallet-info"] as const, // Thông tin ví
 } as const;
 
 /**

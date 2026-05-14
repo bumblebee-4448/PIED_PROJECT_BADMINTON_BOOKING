@@ -33,7 +33,7 @@ public class Response
         public decimal TotalPrice { get; set; }
         public decimal? DiscountAmount { get; set; } = 0;
         public decimal FinalPrice { get; set; }
-        public string Status { get; set; } = "Pending"; //Pending, Banked, Cancel, Refund, Complete
+        public string Status { get; set; } = "Pending"; //Pending, Banked, Cancelled, Refund, Complete
         public string? CancellationReason { get; set; }
     }
 

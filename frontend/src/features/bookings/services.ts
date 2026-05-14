@@ -2,7 +2,6 @@ import { apiClient } from "@/lib/axios";
 import { API_ENDPOINTS } from "@/shared/constants";
 import type { 
   BookingHistoryResponse, 
-  CheckCancelResponse, 
   SubCourt, 
   AvailableSlot, 
   CreateBookingRequest, 
@@ -13,18 +12,12 @@ import type {
 export const bookingsService = {
   // Booking Management
   getAll: async (params: GetBookingHistoryRequest = { pageIndex: 1, pageSize: 10 }): Promise<BookingHistoryResponse> => {
-    return apiClient.get(API_ENDPOINTS.CUSTOMER.GET_ALL_BOOKING, {
+    return apiClient.get(API_ENDPOINTS.BOOKING.GET_ALL, {
       params: { 
         PageIndex: params.pageIndex, 
         PageSize: params.pageSize,
       },
     }) as Promise<BookingHistoryResponse>;
-  },
-
-  checkCancel: async (bookingDetailId: string): Promise<CheckCancelResponse> => {
-    return apiClient.post(API_ENDPOINTS.CUSTOMER.CHECK_CANCEL_BOOKING, {
-      bookingDetailId,
-    }) as Promise<CheckCancelResponse>;
   },
 
   cancel: async (bookingId: string): Promise<void> => {
@@ -52,7 +45,9 @@ export const bookingsService = {
     return apiClient.post(API_ENDPOINTS.BOOKING.CREATE_BY_WALLET, data) as Promise<CreateBookingResponse>;
   },
 
-  refund: async (data: any): Promise<void> => {
-    await apiClient.patch(API_ENDPOINTS.BOOKING.REFUND, data);
+  refund: async (bookingId: string): Promise<void> => {
+    await apiClient.patch(API_ENDPOINTS.BOOKING.REFUND, null, {
+      params: { bookingId }
+    });
   },
 };

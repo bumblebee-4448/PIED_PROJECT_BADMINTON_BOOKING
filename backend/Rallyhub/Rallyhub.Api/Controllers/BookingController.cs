@@ -5,9 +5,9 @@ using Rallyhub.Service.Booking;
 using Rallyhub.Service.Models;
 
 namespace Rallyhub.Api.Controllers;
-
-[Authorize(Policy = JwtExtensions.CustomerPolicy)]
-[Route("[controller]")]
+//
+// [Authorize(Policy = JwtExtensions.CustomerPolicy)]
+// [Route("[controller]")]
 public class BookingController: ControllerBase
 {
     private readonly IService _bookingService;
@@ -16,32 +16,34 @@ public class BookingController: ControllerBase
     {
         _bookingService = bookingService;
     }
-    
-    [HttpGet("GetAvailableSlots")]
-    public async Task<IActionResult> GetAvailableSlots([FromQuery] Request.GetAvailableSlotsRequest request)
-    {
-        var result = await _bookingService.GetAvailableSlots(request);
-        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
-            , HttpContext.TraceIdentifier));
-    }
+
     [HttpPost("CreateBooking")]
-    public async Task<IActionResult> CreateBooking([FromBody] Request.ListAvailableSlots request)
+    public async Task<IActionResult> CreateBooking([FromBody] Request.CreateBookingRequest request)
     {
         var result = await _bookingService.CreateBooking(request);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }
+    [HttpPost("GetBookingDetail")]
+    public async Task<IActionResult> GetBookingDetail(Guid bookingDetailsId)
+    {
+        var result = await _bookingService.GetBookingDetail(bookingDetailsId);
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
+            , HttpContext.TraceIdentifier));
+    }
+    
     [HttpPost("CreateBookingByWallet")]
-    public async Task<IActionResult> CreateBookingByWallet([FromBody] Request.ListAvailableSlots request)
+    public async Task<IActionResult> CreateBookingByWallet([FromBody] Request.CreateBookingRequest request)
     {
         var result = await _bookingService.CreateBookingByWallet(request);
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }
+    
     [HttpPatch("BookingRefund")]
-    public async Task<IActionResult> BookingRefund(Request.AdminRefundRequest request)
+    public async Task<IActionResult> BookingRefund(Guid bookingId)
     {
-        var result = await _bookingService.BookingRefund(request);
+        var result = await _bookingService.BookingRefund(bookingId);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success you!", HttpContext.TraceIdentifier));
     }
     

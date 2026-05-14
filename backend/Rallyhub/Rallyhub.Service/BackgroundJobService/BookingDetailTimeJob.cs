@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Quartz;
 using Rallyhub.Repository;
@@ -13,50 +13,101 @@ public class BookingDetailTimeJob : IJob
     private static readonly TimeSpan BookingDetailTime = TimeSpan.FromSeconds(150);
     private readonly AppDbContext _dbContext;
     private readonly ILogger _logger;
+    private readonly Wallet.IService _walletService;
+    private readonly Transaction.IService _transactionService;
+    private readonly Notification.IService _notificationService;
 
-    public BookingDetailTimeJob(AppDbContext dbContext, ILogger<BookingDetailTimeJob> logger)
+    public BookingDetailTimeJob(AppDbContext dbContext, ILogger<BookingDetailTimeJob> logger, Wallet.IService walletService, Transaction.IService transactionService, Notification.IService notificationService)
     {
         _dbContext = dbContext;
         _logger = logger;
+        _walletService = walletService;
+        _transactionService = transactionService;
+        _notificationService = notificationService;
     }
     public async Task Execute(IJobExecutionContext context)
     {
-        var bankedDetailSeconds = (int)BookingDetailTime.TotalSeconds;
-        //EF core ko convert DateTimeOffset.UtcNow -> SQL đc
         var now = DateTimeOffset.UtcNow;
-        // Console.WriteLine(now);// 05/09/2026 10:19:46 +00:00 # DB: 07:00:00.000 +0700
+        var localNow = DateTime.Now;
 
-        var nowDate = now.Date;
-        var nowTime = TimeOnly.FromTimeSpan(now.TimeOfDay);
-        
-        var pendingBankedBookingDetails = await _dbContext.BookingDetails
-             .Where(x => 
-                 x.Status == PendingStatus && 
-                            (x.Date.Date < nowDate || (x.Date.Date == nowDate && x.EndTime < nowTime)))
-             .ToListAsync(context.CancellationToken);
-        if (pendingBankedBookingDetails.Count == 0)
+        var bankedBookings = await _dbContext.Bookings
+            .Include(x => x.BookingDetails)
+                .ThenInclude(bd => bd.SubCourt)
+                    .ThenInclude(sc => sc.Court)
+                        .ThenInclude(c => c.Owner)
+                            .ThenInclude(o => o.User)
+                                .ThenInclude(u => u.Wallet)
+            .Where(x => x.Status == BankedStatus)
+            .ToListAsync(context.CancellationToken);
+
+        int processedCount = 0;
+
+        foreach (var booking in bankedBookings)
         {
-            _logger.LogInformation("BookingTimeoutJob: no expired bookings found.");
-            return;
-        }
-        foreach (var item in pendingBankedBookingDetails)
-        {
-            item.Status = CompletedStatus;
-            item.UpdatedAt = now;
-            var booking = await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == item.BookingId);
-            if (booking!.Status == BankedStatus)
+            if (booking.BookingDetails == null || !booking.BookingDetails.Any()) continue;
+
+            var earliestDetail = booking.BookingDetails.OrderBy(x => x.Date).ThenBy(x => x.StartTime).First();
+            var startDateTime = earliestDetail.Date.Date.Add(earliestDetail.StartTime.ToTimeSpan());
+
+            if (localNow >= startDateTime)
             {
                 booking.Status = CompletedStatus;
                 booking.UpdatedAt = now;
+
+                foreach (var detail in booking.BookingDetails)
+                {
+                    detail.Status = CompletedStatus;
+                    detail.UpdatedAt = now;
+                }
+
+                var owner = earliestDetail.SubCourt?.Court?.Owner;
+                var wallet = owner?.User?.Wallet;
+
+                if (wallet != null)
+                {
+                    var transactionI = new Transaction.Request.CreateTransactionRequest()
+                    {
+                        Type = Transaction.Request.TypeList.Payment,
+                        Amount = booking.FinalPrice - (booking.FinalPrice * 0.05m),
+                        BalanceBefore = wallet.Balance,
+                        BalanceAfter = wallet.Balance + (booking.FinalPrice - (booking.FinalPrice * 0.05m)),
+                        Status = "Success",
+                        WalletId = wallet.Id,
+                        BookingId = booking.Id,
+                    };
+                    
+                    if (!await _walletService.AddBanlanceToWallet(wallet.UserId, booking.FinalPrice - (booking.FinalPrice * 0.05m), "Payment"))
+                    {
+                        throw new Exception("Wallet add balance failed");
+                    }
+                    if (!await _transactionService.CreateTransaction(transactionI))
+                    {
+                        throw new Exception("Error creating transaction");
+                    }
+
+                    _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+                    {
+                        UserId = owner.UserId,
+                        Title = "Cộng tiền hoàn thành Booking",
+                        Content = $"Lịch đặt sân đã bắt đầu. Hệ thống cộng {booking.FinalPrice:N0}đ vào ví của bạn.",
+                        Type = Notification.Request.TypeNotification.BookingCompleted,
+                        BookingId = booking.Id
+                    });
+                }
+                
+                _dbContext.Update(booking);
+                processedCount++;
             }
-            _dbContext.Update(booking);
         }
-        
-        _dbContext.UpdateRange(pendingBankedBookingDetails);
-        await _dbContext.SaveChangesAsync(context.CancellationToken);
-        _logger.LogInformation(
-            "BookingDetailTimeJob completed: cancelled {CancelledCount} pending orders older than {PendingTimeoutMinutes} minutes.",
-            pendingBankedBookingDetails.Count,
-            bankedDetailSeconds);
+
+        if (processedCount > 0)
+        {
+            await _dbContext.SaveChangesAsync(context.CancellationToken);
+            _logger.LogInformation("BookingDetailTimeJob completed: {Count} banked bookings moved to Complete.", processedCount);
+        }
+        else
+        {
+            _logger.LogInformation("BookingDetailTimeJob: no banked bookings ready to complete.");
+        }
     }
 }

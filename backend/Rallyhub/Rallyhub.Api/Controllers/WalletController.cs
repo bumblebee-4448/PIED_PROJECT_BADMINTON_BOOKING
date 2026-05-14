@@ -51,9 +51,9 @@ public class WalletController : ControllerBase
     
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpPatch("AdminUpBalanceForUser")]
-    public async Task<IActionResult> AdminUpBalanceForUser([FromBody]Guid userId,  decimal amount)
+    public async Task<IActionResult> AdminUpBalanceForUser([FromBody]Guid userId,  decimal amount, string? description)
     {
-        var result = await _walletService.AdminUpBalanceForUser(userId, amount);
+        var result = await _walletService.AdminUpBalanceForUser(userId, amount, description);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success AdminDeduct  wallet", HttpContext.TraceIdentifier));
     }
     

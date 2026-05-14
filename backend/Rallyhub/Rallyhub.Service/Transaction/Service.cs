@@ -29,7 +29,7 @@ public class Service : IService
         
         var query = _dbContext.Transactions.Where(x => x.Wallet.UserId == userId && x.Status == "Success");
         var total = await query.SumAsync(x => (
-                                                  x.Type == "Deposit" || x.Type == "Refund" || x.Type == "AdminUp" ? x.Amount : 0)
+                                                  x.Type == "Deposit" || x.Type == "Refund" || x.Type == "AdminUp" || x.Type == "Receive" ? x.Amount : 0)
                                               - (x.Type == "Payment" || x.Type == "Withdrawal" || x.Type == "AdminDeduct" ? x.Amount : 0));
         if (total < 0)
         {
@@ -72,6 +72,7 @@ public class Service : IService
             BookingId = request.BookingId,
             WalletId = request.WalletId,
             CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow,
         };
         _dbContext.Transactions.Add(newTransaction);
         
@@ -108,13 +109,8 @@ public class Service : IService
                 break;   
             }
         }
-        _dbContext.Update(newTransaction);
-        var  result = await _dbContext.SaveChangesAsync();
-        if (result > 0)
-        {
-            return true;
-        }
-        return false;
+        // var result = await _dbContext.SaveChangesAsync();
+        return true;
     }
 
     public async Task<Base.Response.PageResult<Response.GetTransactionResponse>> GetTransaction(Base.Request.PagingDay paginDay)

@@ -24,6 +24,7 @@ export interface SlotsResponse {
   startTime: string;
   endTime: string;
   price: number;
+  date: string;
 }
 
 export interface GetBookingResponse {
@@ -35,7 +36,7 @@ export interface GetBookingResponse {
   slotsResponses: SlotsResponse[];
   phoneNumber: string;
   urlMap: string;
-  date: string; // Added if missing from docs but likely present
+  date?: string; 
 }
 
 export interface BookingHistoryResponse {

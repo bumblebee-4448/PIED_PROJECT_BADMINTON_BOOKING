@@ -1,6 +1,9 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
+using Rallyhub.Repository.Entity;
+using Exception = System.Exception;
+
 namespace Rallyhub.Service.Booking;
 
 public class Service: IService
@@ -9,102 +12,21 @@ public class Service: IService
     private readonly IHttpContextAccessor _httpContext;
     private readonly Wallet.IService _walletService;
     private readonly Transaction.IService _transactionService;
+    private readonly Owner.IService _ownerService;
+    private readonly Notification.IService _notificationService;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, Wallet.IService walletService, Transaction.IService transactionService)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, 
+        Wallet.IService walletService, Transaction.IService transactionService, Owner.IService ownerService, Notification.IService notificationService)
     {
         _dbContext = dbContext;
         _httpContext = httpContext;
         _walletService = walletService;
         _transactionService = transactionService;
+        _ownerService = ownerService;
+        _notificationService = notificationService;
     }
     
-     public async Task<List<Response.SlotResponse>> GetAvailableSlots(Request.GetAvailableSlotsRequest request)
-    {
-        var subCourt = await _dbContext.SubCourts
-            .Include(x => x.Court)
-            .FirstOrDefaultAsync(x => 
-                x.Id == request.SubCourtId && 
-                x.Court.Status == "Active");
-        if (subCourt == null)
-        {
-            throw new Exception($"Không tìm thấy sân con");
-        }
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-
-        if (request.Date < today)
-        {
-            throw new Exception("Không thể xem slot trong quá khứ");
-        }
-        var configSlots = await _dbContext.ConfigSlots
-            .Where(x => x.SubCourtDetailId == request.SubCourtId)
-            .OrderBy(x => x.StartTime)
-            .ToListAsync();
-        var overrides = await _dbContext.OverideSlots
-            .Where(x => 
-                x.SubCourtDetailId == request.SubCourtId &&
-                ( 
-                    (!x.IsRecurring && x.Date == request.Date) || 
-                    (x.IsRecurring && x.DayOfWeek == request.Date.DayOfWeek)
-                            
-                )).ToListAsync();
-        var exceptions = await  _dbContext.Exceptions
-            .Where(x => 
-                x.SubCourtDetailId == request.SubCourtId &&
-                x.Date == request.Date)
-            .ToListAsync(); 
-        var result = configSlots.Select(x => new Response.SlotResponse
-        {
-            StartTime =  x.StartTime,
-            EndTime =  x.EndTime,
-            Price = x.Price,
-            IsAvailable = true
-        }).ToList();
-        foreach (var ov in overrides)
-        {
-            result.RemoveAll(x => 
-                x.StartTime >= ov.StartTime && 
-                x.EndTime <= ov.EndTime);
-
-            result.Add(new Response.SlotResponse
-            {
-                StartTime = ov.StartTime,
-                EndTime = ov.EndTime,
-                Price = ov.Price,
-                IsAvailable = true
-            });
-        }
-        
-        foreach (var ex in exceptions)
-        {
-            result.RemoveAll(x =>
-                x.StartTime < ex.EndTime &&
-                x.EndTime > ex.StartTime);
-            //
-            result.Add(new Response.SlotResponse
-            {
-                StartTime = ex.StartTime,
-                EndTime = ex.EndTime,
-                IsAvailable = false
-            });
-        }
-        
-        var bookedSlots = await _dbContext.BookingDetails
-            .Where(x =>
-                x.SubCourtId == request.SubCourtId &&
-                x.Date.Date == request.Date.ToDateTime(TimeOnly.MinValue) && 
-                (x.Status == "Pending" || x.Status == "Banked"))
-            .ToListAsync();
-        
-        foreach (var slot in result)
-        {
-            if (!slot.IsAvailable) continue;
-            slot.IsAvailable = !bookedSlots.Any(b =>
-                b.StartTime < slot.EndTime &&
-                b.EndTime > slot.StartTime);
-        }
-        return result.OrderBy(x => x.StartTime).ToList();
-    }
-    public async Task<Response.CreateBookingResponse> CreateBooking(Request.ListAvailableSlots request)
+    public async Task<Response.CreateBookingResponse> CreateBooking(Request.CreateBookingRequest request)
     {
         //thêm campaign
         var customerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
@@ -114,97 +36,183 @@ public class Service: IService
         }
         var customerId = Guid.Parse(customerIdClaim);
 
-        var availableSlots = await GetAvailableSlots(new Request.GetAvailableSlotsRequest
+        var availableSlotsSubCourt = new Dictionary<Guid, List<Owner.Response.SlotResponse>>();
+        foreach (var item in request.Items)
         {
-            SubCourtId = request.SubCourtId,
-            Date = request.Date
-        });
+            var availableSlots = await _ownerService.GetAvailableSlots(new Owner.Request.GetAvailableSlotsRequest()
+            {
+                SubCourtId = item.SubCourtId,
+                Date = request.Date
+            });
+            
+            availableSlotsSubCourt[item.SubCourtId] = availableSlots; 
+        }
+        
+        // var now = DateTime.Now;
+        var vnZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnZone);
 
-        foreach (var slot in request.Slots)
+        foreach (var item in request.Items)
         {
-            var systemSlot = availableSlots.FirstOrDefault(x =>
-                x.StartTime == slot.StartTime
-                && x.EndTime == slot.EndTime);
-
-            if (systemSlot == null)
+            var availableSlots = availableSlotsSubCourt[item.SubCourtId];
+            foreach (var slot in item.Slots)
             {
-                throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} không tồn tại");
-            }
+                var systemSlot = availableSlots.FirstOrDefault(x =>
+                    x.StartTime == slot.StartTime
+                    && x.EndTime == slot.EndTime);
 
-            if (!systemSlot.IsAvailable)
-            {
-                throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} đã bị đặt hoặc đã khóa");
+                if (systemSlot == null)
+                {
+                    throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} không tồn tại");
+                }
+            
+                if(request.Date.ToDateTime(slot.StartTime) <= now)
+                {
+                    throw new Exception("Không được đặt sân trong quá khứ");
+                };
+
+                if (!systemSlot.IsAvailable)
+                {
+                    throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} đã bị đặt hoặc đã khóa");
+                }
             }
         }
         
         var dateTime = new DateTimeOffset(request.Date.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
-        var bookedSlots = await _dbContext.BookingDetails
-            .Where(x =>
-                x.SubCourtId == request.SubCourtId &&
-                x.Date.Date == dateTime.Date &&
-                (x.Status == "Pending" || x.Status == "Banked")).ToListAsync();
-        foreach (var slot in request.Slots)
+        foreach (var item in request.Items)
         {
-            var conflict = bookedSlots.Any(b =>
-                b.StartTime < slot.EndTime &&
-                b.EndTime > slot.StartTime);
-            if (conflict)
+            var bookedSlots = await _dbContext.BookingDetails
+                .Where(x =>
+                    x.SubCourtId == item.SubCourtId &&
+                    x.Date.Date == dateTime.Date &&
+                    (x.Status == "Pending" || x.Status == "Banked"))
+                .ToListAsync();
+            foreach (var slot in item.Slots)
             {
-                throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} đã bị người khác đặt");
+                var conflict = bookedSlots.Any(b =>
+                    b.StartTime < slot.EndTime &&
+                    b.EndTime > slot.StartTime);
+                if (conflict)
+                {
+                    throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} đã bị người khác đặt");
+                }
             }
         }
         
-        var totalPrice = request.Slots.Sum(slot =>
-            availableSlots.First(x => 
-                x.StartTime == slot.StartTime &&
-                x.EndTime == slot.EndTime).Price);
-        //campain
+        decimal totalPrice = 0;
+        foreach (var item in request.Items)
+        {
+            var availableSlots = availableSlotsSubCourt[item.SubCourtId];
+            
+            totalPrice += item.Slots.Sum(slot =>
+                availableSlots.First(x => 
+                    x.StartTime == slot.StartTime &&
+                    x.EndTime == slot.EndTime).Price);
+        }
+        //campain| hàm này hình như có vấn đề
         decimal finalPrice =  totalPrice;
         if (request.CampaignId != null)
         {
-            var query = await _dbContext.Campaigns
-                .FirstOrDefaultAsync(c => 
+            var campaign = await _dbContext.Campaigns
+                .Include(c => c.Courts)
+                .FirstOrDefaultAsync(c =>
                     c.Id == request.CampaignId &&
                     c.Code == request.Code &&
                     c.StartDate <= request.Date.ToDateTime(TimeOnly.MinValue) &&
                     c.EndDate >= request.Date.ToDateTime(TimeOnly.MinValue));
-            if (query != null)
+            if (campaign == null)
             {
-                throw new Exception("Campaign không tồn tại trong hệ thống");
+                throw new Exception("Campaign không tồn tại hoặc đã hết hạn");
             }
 
-            finalPrice = totalPrice * (1 - query!.DiscountPercent / 100);
-            if (finalPrice <= 0) finalPrice = 0;
+            if (campaign.UsedCount >= campaign.UsageLimit)
+            {
+                throw new Exception("Campaign đã hết lượt sử dụng");
+            }
+
+            if (totalPrice < campaign.MinBookingAmount)
+            {
+                throw new Exception($"Giá trị đơn hàng tối thiểu để dùng campaign là {campaign.MinBookingAmount}");
+            }
+
+            if (!campaign.IsGlobal)
+            {
+                var firstSubCourtId = request.Items.First().SubCourtId;
+                var courtId = await _dbContext.SubCourts
+                    .Where(x => x.Id == firstSubCourtId)
+                    .Select(x => x.CourtId)
+                    .FirstOrDefaultAsync();
+                var campaignCourtIds = campaign.Courts.Select(x => x.CourtId).ToList();
+                if (!campaignCourtIds.Contains(courtId))
+                {
+                    throw new Exception("Campaign này không áp dụng cho sân bạn đang đặt");
+                }
+            }
+
+            var discountAmount = totalPrice * (campaign.DiscountPercent / 100m);
+            if (discountAmount > campaign.MaxDiscountAmount)
+            {
+                discountAmount = campaign.MaxDiscountAmount;
+            }
+
+            finalPrice = totalPrice - discountAmount;
+            if (finalPrice < 0) finalPrice = 0;
+            campaign.UsedCount += 1;
+            _dbContext.Campaigns.Update(campaign);
         }
         
         var booking = new Repository.Entity.Booking
         {
-            Id = Guid.NewGuid(),
             CustomerId = customerId,
             TotalPrice = totalPrice,
             FinalPrice = finalPrice,
             Status = "Pending",
-            ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(30),
+            ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(100),
             CampaignId = request.CampaignId,
+            CreatedAt = DateTimeOffset.UtcNow
         };
-        
-        var bookingDetails = request.Slots.Select(slot => new Repository.Entity.BookingDetail
+
+        var bookingDetails = new List<BookingDetail>();
+        foreach (var item in request.Items)
         {
-            Id = Guid.NewGuid(),
-            SubCourtId = request.SubCourtId,
-            BookingId = booking.Id,
-            Date = dateTime,
-            StartTime = slot.StartTime,
-            EndTime = slot.EndTime,
-            Price = availableSlots.First(x =>
-                x.StartTime == slot.StartTime &&
-                x.EndTime == slot.EndTime).Price,
-            Status = "Pending",
-        }).ToList();
+            var availableSlots = availableSlotsSubCourt[item.SubCourtId];
+            bookingDetails.AddRange(item.Slots.Select(slot => new BookingDetail()
+            {
+                SubCourtId = item.SubCourtId,
+                BookingId = booking.Id,
+                Date = dateTime,
+                StartTime = slot.StartTime,
+                EndTime = slot.EndTime,
+                Price = availableSlots.First(x =>
+                    x.StartTime == slot.StartTime &&
+                    x.EndTime == slot.EndTime).Price,
+                Status = "Pending",
+            }));
+        }
         
         await _dbContext.Bookings.AddAsync(booking);
         await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
         await _dbContext.SaveChangesAsync();
+
+        var bookedSubCourtId = bookingDetails.FirstOrDefault()?.SubCourtId;
+        var subCourt = await _dbContext.SubCourts
+            .Include(sc => sc.Court)
+                .ThenInclude(c => c.Owner)
+            .FirstOrDefaultAsync(x => x.Id == bookedSubCourtId);
+
+        // if (subCourt?.Court?.Owner != null)
+        // {
+        //     _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        //     {
+        //         UserId = subCourt.Court.Owner.UserId,
+        //         Title = "Yêu cầu đặt sân mới",
+        //         Content = $"Sân của bạn đang có một yêu cầu đặt chỗ mới đang chờ thanh toán.",
+        //         Type = Notification.Request.TypeNotification.CourtHasBooking,
+        //         BookingId = booking.Id,
+        //         CourtId =  subCourt.CourtId
+        //     });
+        //     await _dbContext.SaveChangesAsync();
+        // }
 
         string bankName = "MBBank";
         string bankAccount = "VQRQAIUZK3222";
@@ -217,14 +225,23 @@ public class Service: IService
                            $"des={description}&" +
                            $"template=qronly";
         
+        var subCourtIds = bookingDetails.Select(x => x.SubCourtId).ToList();
+        var subCourtName = await _dbContext.SubCourts
+            .Where(x => subCourtIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.Name);
         return new Response.CreateBookingResponse
         {
             BookingId = booking.Id,
+            BankName = bankName,
+            BankAccount = bankAccount,
             TotalPrice = booking.FinalPrice,
             ExpiredAt = booking.ExpiresAt,
             Status = booking.Status,
-            Slots = booking.BookingDetails.Select(x => new Response.BookingDetailItem
+            TotalSlots = bookingDetails.Count(),
+            Items = bookingDetails.Select(x => new Response.BookingDetailItem
             {
+                SubCourtId = x.SubCourtId,
+                SubCourtName = subCourtName[x.SubCourtId],
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
                 Price = x.Price
@@ -232,131 +249,268 @@ public class Service: IService
             QrCodeUrl = qrCodeUrl
         };
     }
-
-    public async Task<Response.CreateBookingResponse> CreateBookingByWallet(Request.ListAvailableSlots request)
+    public async Task<Response.CreateBookingResponse> CreateBookingByWallet(Request.CreateBookingRequest request)
     {
-        var customerIdClaim = _httpContext.HttpContext.User.Claims
-            .FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var customerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         if (customerIdClaim == null)
         {
-            throw new Exception("Không tim thấy thông tin của Customer");
+            throw new Exception("Không tìm thấy thông tin của customer");
         }
-
         var customerId = Guid.Parse(customerIdClaim);
-        var availableSlots = await GetAvailableSlots(new Request.GetAvailableSlotsRequest
-        {
-            SubCourtId = request.SubCourtId,
-            Date = request.Date,
-        });
-        foreach (var slot in request.Slots)
-        {
-            var systemSlot = availableSlots.FirstOrDefault(x =>
-                x.StartTime == slot.StartTime &&
-                x.EndTime == slot.EndTime);
-            if (systemSlot == null)
-            {
-                throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} không tồn tại");
-            }
 
-            if (!systemSlot.IsAvailable)
+        var availableSlotsSubCourt = new Dictionary<Guid, List<Owner.Response.SlotResponse>>();
+        foreach (var item in request.Items)
+        {
+            var availableSlots = await _ownerService.GetAvailableSlots(new Owner.Request.GetAvailableSlotsRequest()
             {
-                throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} đã bị đặt hoặc đã khóa");
+                SubCourtId = item.SubCourtId,
+                Date = request.Date
+            });
+            
+            availableSlotsSubCourt[item.SubCourtId] = availableSlots; 
+        }
+        
+        // var now = DateTime.Now;
+        var vnZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnZone);
+
+        foreach (var item in request.Items)
+        {
+            var availableSlots = availableSlotsSubCourt[item.SubCourtId];
+            foreach (var slot in item.Slots)
+            {
+                var systemSlot = availableSlots.FirstOrDefault(x =>
+                    x.StartTime == slot.StartTime
+                    && x.EndTime == slot.EndTime);
+
+                if (systemSlot == null)
+                {
+                    throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} không tồn tại");
+                }
+            
+                if(request.Date.ToDateTime(slot.StartTime) <= now)
+                {
+                    throw new Exception("Không được đặt sân trong quá khứ");
+                };
+
+                if (!systemSlot.IsAvailable)
+                {
+                    throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} đã bị đặt hoặc đã khóa");
+                }
             }
         }
-
+        
         var dateTime = new DateTimeOffset(request.Date.ToDateTime(TimeOnly.MinValue), TimeSpan.Zero);
-        var bookedSlots = await _dbContext.BookingDetails
-            .Where(x =>
-                x.SubCourtId == request.SubCourtId &&
-                x.Date.Date == dateTime.Date &&
-                (x.Status == "Pending" || x.Status == "Banked")).ToListAsync();
-        foreach (var slot in request.Slots)
+        foreach (var item in request.Items)
         {
-            var conflict = bookedSlots.Any(b =>
-                b.StartTime < slot.EndTime &&
-                b.EndTime > slot.StartTime);
-            if (conflict)
+            var bookedSlots = await _dbContext.BookingDetails
+                .Where(x =>
+                    x.SubCourtId == item.SubCourtId &&
+                    x.Date.Date == dateTime.Date &&
+                    (x.Status == "Pending" || x.Status == "Banked"))
+                .ToListAsync();
+            foreach (var slot in item.Slots)
             {
-                throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} đã bị người khác đặt");
+                var conflict = bookedSlots.Any(b =>
+                    b.StartTime < slot.EndTime &&
+                    b.EndTime > slot.StartTime);
+                if (conflict)
+                {
+                    throw new Exception($"Slot {slot.StartTime}-{slot.EndTime} đã bị người khác đặt");
+                }
             }
         }
-
-        var totalPrice = request.Slots.Sum(slot =>
-            availableSlots.First(x =>
-                x.StartTime == slot.StartTime &&
-                x.EndTime == slot.EndTime).Price);
-        decimal finalPrice = totalPrice;
+        
+        decimal totalPrice = 0;
+        foreach (var item in request.Items)
+        {
+            var availableSlots = availableSlotsSubCourt[item.SubCourtId];
+            
+            totalPrice += item.Slots.Sum(slot =>
+                availableSlots.First(x => 
+                    x.StartTime == slot.StartTime &&
+                    x.EndTime == slot.EndTime).Price);
+        }
+        //campain| hàm này hình như có vấn đề
+        decimal finalPrice =  totalPrice;
         if (request.CampaignId != null)
         {
-            var query = await _dbContext.Campaigns
+            var campaign = await _dbContext.Campaigns
+                .Include(c => c.Courts)
                 .FirstOrDefaultAsync(c =>
                     c.Id == request.CampaignId &&
                     c.Code == request.Code &&
                     c.StartDate <= request.Date.ToDateTime(TimeOnly.MinValue) &&
                     c.EndDate >= request.Date.ToDateTime(TimeOnly.MinValue));
-            if (query != null)
+            if (campaign == null)
             {
-                throw new Exception("Campaign không tồn tại trong hệ thống");
+                throw new Exception("Campaign không tồn tại hoặc đã hết hạn");
             }
 
-            finalPrice = totalPrice * (1 - query!.DiscountPercent / 100);
-            if (finalPrice <= 0) finalPrice = 0;
-        }
+            if (campaign.UsedCount >= campaign.UsageLimit)
+            {
+                throw new Exception("Campaign đã hết lượt sử dụng");
+            }
 
+            if (totalPrice < campaign.MinBookingAmount)
+            {
+                throw new Exception($"Giá trị đơn hàng tối thiểu để dùng campaign là {campaign.MinBookingAmount}");
+            }
+
+            if (!campaign.IsGlobal)
+            {
+                var firstSubCourtId = request.Items.First().SubCourtId;
+                var courtId = await _dbContext.SubCourts
+                    .Where(x => x.Id == firstSubCourtId)
+                    .Select(x => x.CourtId)
+                    .FirstOrDefaultAsync();
+                var campaignCourtIds = campaign.Courts.Select(x => x.CourtId).ToList();
+                if (!campaignCourtIds.Contains(courtId))
+                {
+                    throw new Exception("Campaign này không áp dụng cho sân bạn đang đặt");
+                }
+            }
+
+            var discountAmount = totalPrice * (campaign.DiscountPercent / 100m);
+            if (discountAmount > campaign.MaxDiscountAmount)
+            {
+                discountAmount = campaign.MaxDiscountAmount;
+            }
+
+            finalPrice = totalPrice - discountAmount;
+            if (finalPrice < 0) finalPrice = 0;
+            campaign.UsedCount += 1;
+            _dbContext.Campaigns.Update(campaign);
+        }
+        
         var booking = new Repository.Entity.Booking
         {
-            Id = Guid.NewGuid(),
             CustomerId = customerId,
             TotalPrice = totalPrice,
             FinalPrice = finalPrice,
             Status = "Pending",
+            ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(100),
             CampaignId = request.CampaignId,
         };
 
-        var bookingDetails = request.Slots.Select(slot => new Repository.Entity.BookingDetail
+        var bookingDetails = new List<BookingDetail>();
+        foreach (var item in request.Items)
         {
-            Id = Guid.NewGuid(),
-            SubCourtId = request.SubCourtId,
-            BookingId = booking.Id,
-            Date = dateTime,
-            StartTime = slot.StartTime,
-            EndTime = slot.EndTime,
-            Price = availableSlots.First(x =>
-                x.StartTime == slot.StartTime &&
-                x.EndTime == slot.EndTime).Price,
-            Status = "Pending",
-        }).ToList();
-        if (!await _walletService.ApartBanlanceFromWallet(customerId, finalPrice, "Wallet"))
+            var availableSlots = availableSlotsSubCourt[item.SubCourtId];
+            bookingDetails.AddRange(item.Slots.Select(slot => new BookingDetail()
+            {
+                Id = Guid.NewGuid(),
+                SubCourtId = item.SubCourtId,
+                BookingId = booking.Id,
+                Date = dateTime,
+                StartTime = slot.StartTime,
+                EndTime = slot.EndTime,
+                Price = availableSlots.First(x =>
+                    x.StartTime == slot.StartTime &&
+                    x.EndTime == slot.EndTime).Price,
+                Status = "Pending",
+            }));
+        }
+        if (!await _walletService.ApartBanlanceFromWallet(customerId, finalPrice, "Payment"))
         {
             throw new Exception("Wallet apart balance failed");
         } 
 //transaction
         booking.Status = "Banked";
+        foreach (var item in bookingDetails)
+        {
+            item.Status = "Banked";
+        }
         await _dbContext.Bookings.AddAsync(booking);
         await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
-        await _dbContext.SaveChangesAsync();
 
+        var bookedSubCourtId = bookingDetails.FirstOrDefault()?.SubCourtId;
+        var subCourt = await _dbContext.SubCourts
+            .Include(sc => sc.Court)
+                .ThenInclude(c => c.Owner)
+            .FirstOrDefaultAsync(x => x.Id == bookedSubCourtId);
+
+        if (subCourt?.Court?.Owner != null)
+        {
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = subCourt.Court.Owner.UserId,
+                Title = "Thanh toán thành công",
+                Content = $"Khách hàng vừa thanh toán {finalPrice:N0}đ bằng số dư Ví RallyHub.",
+                Type = Notification.Request.TypeNotification.BookingPaid,
+                BookingId = booking.Id
+            });
+        }
+
+        await _dbContext.SaveChangesAsync();
+    
+        var subCourtIds = bookingDetails.Select(x => x.SubCourtId).ToList();
+        var subCourtName = await _dbContext.SubCourts
+            .Where(x => subCourtIds.Contains(x.Id))
+            .ToDictionaryAsync(x => x.Id, x => x.Name);
         return new Response.CreateBookingResponse
         {
             BookingId = booking.Id,
             TotalPrice = booking.FinalPrice,
             ExpiredAt = booking.ExpiresAt,
             Status = booking.Status,
-            Slots = booking.BookingDetails.Select(x => new Response.BookingDetailItem
+            TotalSlots = bookingDetails.Count(),
+            Items = bookingDetails.Select(x => new Response.BookingDetailItem
             {
+                SubCourtId = x.SubCourtId,
+                SubCourtName = subCourtName[x.SubCourtId],
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
                 Price = x.Price
             }).ToList(),
         };
     }
-    public async Task<Response.AdminRefundResponse> BookingRefund (Request.AdminRefundRequest request)
+    //owner xem thoong tini chi tiet cua customer du vo bookingDetailsId
+    public async Task<Response.GetBookingDetailResponse> GetBookingDetail(Guid bookingDetailsId)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null)
+        {
+            throw new Exception("Không tìm thấy danh tính của Owner");
+        }
+        var ownerId = Guid.Parse(ownerIdClaim);
+        var user = await _dbContext.Users
+            .Include(x => x.Owner)
+            .FirstOrDefaultAsync(x => x.Owner!.Id == ownerId);
+        if (user == null)
+        {
+            throw new Exception("Không tìm thấy user trong hệ thống");
+        }
+        
+        var bookingDetails = await _dbContext.BookingDetails
+            .Where(x => 
+                x.Id == bookingDetailsId && 
+                x.Status == "Banked")
+            .Select(x => new Response.GetBookingDetailResponse()
+            {
+                Name = x.Booking.Customer.User.PhoneNumber,
+                PhoneNumber =  x.Booking.Customer.User.PhoneNumber,
+                Gmail =  x.Booking.Customer.User.Email,
+                SubCourtName = x.SubCourt.Name,
+                StartTime = x.StartTime,
+                EndTime = x.EndTime,
+                
+            })
+            .FirstOrDefaultAsync();
+            
+        if (bookingDetails == null)
+        {
+            throw new Exception("Không tìm thấy đơn hàng cho slot này");
+        }
+        return bookingDetails;
+    }
+    public async Task<Response.BookingRefundResponse> BookingRefund (Guid bookingId)
     {
         var customerIdClaim = _httpContext.HttpContext.User.Claims
             .FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         if (customerIdClaim == null)
         {
-            throw new Exception("Không tìm thấy Customer");
+            throw new Exception("Customer not found");
         }
         var customerId = Guid.Parse(customerIdClaim);
         var user = await _dbContext.Users
@@ -364,42 +518,55 @@ public class Service: IService
             .FirstOrDefaultAsync(x => x.Customer!.Id == customerId);
         if (user == null)
         {
-            throw new Exception("Không tìm thấy user");
+            throw new Exception("User not found");
         }
        
         var booking = await _dbContext.Bookings
             .Include(x => x.BookingDetails)
                 .ThenInclude(x => x.SubCourt)
                     .ThenInclude(x => x.Court)
-            .Include(x => x.Customer)
-            .FirstOrDefaultAsync(x => x.Id == request.BookingId);
+                        .ThenInclude(c => c.Owner)
+            .FirstOrDefaultAsync(x => x.Id == bookingId && x.CustomerId == customerId);
         if (booking == null)
         {
-            throw new Exception("Không tìm thấy đơn đã sân");
+            throw new Exception("Booking not found or you do not have permission to refund this booking");
+        }
+        if (booking.Status == "Pending" || booking.Status == "Refund")
+        {
+            throw new Exception("Booking already refund");
         }
         if (booking.Status != "Banked")
         {
-            throw new Exception($"Không thể hoàn tiền đối với đơn hàng đang ở trạng thái {booking.Status}");
-        }
-        var earlierSlot = booking.BookingDetails.OrderBy(x => x.StartTime).First();
-        var refundDeadline = earlierSlot.Date.AddHours((double)-earlierSlot.SubCourt.Court.TimeRefundBefor!);
-        var timeNow = DateTimeOffset.UtcNow;
-        if (timeNow > refundDeadline)
-        {
-            throw new Exception("Không thể refund");
+            throw new Exception($"Cannot refund booking with status {booking.Status}");
         }
 
-        if (!await _walletService.AddBanlanceToWallet(user.Id, booking.FinalPrice, "payment"))
+        if (booking.BookingDetails == null || !booking.BookingDetails.Any())
         {
-            throw new Exception("Wallet reject balance failed");
+            throw new Exception("Booking details not found");
+        }
+
+        var earlierSlot = booking.BookingDetails.OrderBy(x => x.StartTime).First();
+        var slotStartDateTime = earlierSlot.Date.Date.Add(earlierSlot.StartTime.ToTimeSpan());
+        var refundDeadline = slotStartDateTime.AddMinutes(-(double)earlierSlot.SubCourt.Court.TimeRefundBefor!);
+        
+        if (DateTime.Now > refundDeadline)
+        {
+            throw new Exception("The refund deadline has passed according to the court's policy");
+        }
+
+        decimal balanceBefore = user.Wallet!.Balance;
+
+        if (!await _walletService.AddBanlanceToWallet(user.Id, booking.FinalPrice, "Payment"))
+        {
+            throw new Exception("Error adding balance to wallet");
         }
         
         var transactionI = new Transaction.Request.CreateTransactionRequest()
         {
             Type = Transaction.Request.TypeList.Refund,
             Amount = booking.FinalPrice,
-            BalanceBefore = user.Wallet!.Balance,
-            BalanceAfter =  user.Wallet!.Balance + booking.FinalPrice,
+            BalanceBefore = balanceBefore,
+            BalanceAfter = balanceBefore + booking.FinalPrice,
             Status = "Success",
             WalletId =  user.Wallet!.Id,
         };
@@ -407,14 +574,29 @@ public class Service: IService
         {
             throw new Exception("Error creating transaction");
         }
+
         booking.Status = "Refund";
         booking.UpdatedAt = DateTimeOffset.UtcNow;
-        _dbContext.Bookings.Update(booking);
 
         foreach (var details in booking.BookingDetails)
         {
             details.Status = "Cancelled";
+            details.UpdatedAt = DateTimeOffset.UtcNow;
         }
+
+        var ownerUserId = booking.BookingDetails.FirstOrDefault()?.SubCourt?.Court?.Owner?.UserId;
+        if (ownerUserId != null)
+        {
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = ownerUserId.Value,
+                Title = "Hoàn tiền cho khách hàng",
+                Content = $"Hệ thống đã hủy lịch và hoàn tiền {booking.FinalPrice:N0}đ cho khách hàng.",
+                Type = Notification.Request.TypeNotification.BookingRefunded,
+                BookingId = booking.Id
+            });
+        }
+
         await _dbContext.SaveChangesAsync();
         // await _mailService.SendMail(new MailContent()
         // {
@@ -423,13 +605,12 @@ public class Service: IService
         //     Body = $"Đã hoàn tiền thành công" + "\n"
         //         + $"{request.ImageUrl}"
         // });
-        return new Response.AdminRefundResponse()
+        return new Response.BookingRefundResponse()
         {
             BookingId = booking.Id,
             Status = "Refund",
             RefundAmount = booking.FinalPrice,
             Message = "Hoàn tiền thành công"
-            
         };
     }
     public async Task<string> CanCelBooking(Guid bookingId)
@@ -437,38 +618,38 @@ public class Service: IService
         var customerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         if (customerIdClaim == null)
         {
-            throw new Exception("Customer không tồn tại");
+            throw new Exception("Customer not found");
         }
         var customerId = Guid.Parse(customerIdClaim);
-        var customer = await _dbContext.Customers
-            .Include(x => x.User)
-            .FirstOrDefaultAsync(x => x.Id == customerId);
-        if (customer == null)
-        {
-            throw new Exception("Không tìm thấy Customer trong hệ thống");
-        }
        
         var pendingBooking = await _dbContext.Bookings
             .Include(x => x.BookingDetails)
             .FirstOrDefaultAsync(x => 
                 x.Id == bookingId && 
-                x.CustomerId == customer.Id
+                x.CustomerId == customerId
                 && x.Status == "Pending");
+
         if (pendingBooking == null)
         {
-            throw new Exception("Không thể hủy sân đã đặt");
+            throw new Exception("Pending booking not found or you do not have permission to cancel this booking");
         }
+
         pendingBooking.Status = "Cancelled";
-        _dbContext.Bookings.Update(pendingBooking);
-        foreach(var slots in pendingBooking.BookingDetails)
+        pendingBooking.UpdatedAt = DateTimeOffset.UtcNow;
+
+        if (pendingBooking.BookingDetails != null)
         {
-            slots.Status = "Cancelled";           
+            foreach(var slots in pendingBooking.BookingDetails)
+            {
+                slots.Status = "Cancelled";           
+                slots.UpdatedAt = DateTimeOffset.UtcNow;
+            }
         }
        
-        await  _dbContext.SaveChangesAsync();
-        return "Hủy đặt sân thành công";
+        await _dbContext.SaveChangesAsync();
+        return "Booking cancelled successfully";
     }
-
+    //customer xem tất cả các booking của nó
     public async Task<Base.Response.PageResult<Response.GetBookingResponse>> GetBooking(Base.Request.PagingDay2 pagingDay2)
     {
         var customerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
@@ -477,7 +658,7 @@ public class Service: IService
             throw new Exception("Không tìm thấy danh tính của Customer");
         }
         var customerId = Guid.Parse(customerIdClaim);
-        var user = _dbContext.Users
+        var user = await _dbContext.Users
             .Include(x => x.Customer)
             .FirstOrDefaultAsync(x => x.Customer!.Id == customerId);
         if (user == null)
@@ -498,7 +679,7 @@ public class Service: IService
                 x.Status == "Banked" ? 2 :    
                 x.Status == "Refund" ? 3 :
                 x.Status == "Complete" ? 4 :
-                x.Status == "Cancel" ? 5 : 6) 
+                x.Status == "Cancelled" ? 5 : 6) 
             .ThenBy(x => x.CreatedAt);
         var total = await booking.CountAsync();
         booking = booking
@@ -518,8 +699,10 @@ public class Service: IService
                 SlotId = x.Id,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
-                Price = x.Price
-            }),
+                Price = x.Price,
+                Date = x.Date,
+            }).ToList(),
+            
         });
         var list = await  select.ToListAsync();
         var result = new Base.Response.PageResult<Response.GetBookingResponse>()

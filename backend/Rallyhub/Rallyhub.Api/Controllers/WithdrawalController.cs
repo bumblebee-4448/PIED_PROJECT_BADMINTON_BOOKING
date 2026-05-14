@@ -27,7 +27,7 @@ public class WithdrawalController : ControllerBase
     
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpGet("AdminGetWithdrawalRequest")]
-    public async Task<IActionResult> AdminGetWithdrawalRequest([FromQuery] Guid? userId, 
+    public async Task<IActionResult> AdminGetWithdrawalRequest([FromQuery] Guid? userId, [FromQuery]
         Service.Base.Request.PagingDay pagination)
     {
         var result = await _withdrawalService.AdminGetWithdrawalRequest(userId, pagination);

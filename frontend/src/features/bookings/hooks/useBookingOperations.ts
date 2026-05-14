@@ -21,3 +21,9 @@ export const useCreateBookingByWallet = () => {
     mutationFn: (data: CreateBookingRequest) => bookingsService.createByWallet(data),
   });
 };
+
+export const useCancelBooking = () => {
+  return useMutation({
+    mutationFn: (bookingId: string) => bookingsService.cancel(bookingId),
+  });
+};

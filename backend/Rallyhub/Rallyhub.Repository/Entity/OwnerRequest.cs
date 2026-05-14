@@ -20,6 +20,7 @@ public class OwnerRequest : BaseEntity<Guid>, IAuditableEntity
     public Owner? Owner { get; set; }
     public Guid CustomerId { get; set; }
     public Customer Customer { get; set; }
+    public Notification? Notification { get; set; }
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

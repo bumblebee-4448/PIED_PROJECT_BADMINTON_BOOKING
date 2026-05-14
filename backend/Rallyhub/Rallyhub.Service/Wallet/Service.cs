@@ -8,11 +8,13 @@ public class Service : IService
 {
     private readonly AppDbContext _dbcontext;
     private readonly IHttpContextAccessor _httpAccessor;
+    private readonly Transaction.IService _transactionService;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpAccessor)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpAccessor, Transaction.IService transactionService)
     {
         _dbcontext = dbContext;
         _httpAccessor = httpAccessor;
+        _transactionService = transactionService;
     }
     
     public async Task<bool> CreateWallet(Guid userId)
@@ -229,12 +231,8 @@ public class Service : IService
         wallet.Version += 1;
         wallet.UpdatedAt = DateTimeOffset.UtcNow;
         _dbcontext.Wallets.Update(wallet);
-        var result = await _dbcontext.SaveChangesAsync();
-        if (result > 0)
-        {
-            return true;
-        }
-        return false;
+        // var result = await _dbcontext.SaveChangesAsync();
+        return true;
     }
     
     public async Task<bool> ApartBanlanceFromWallet(Guid userId, decimal amount, string type)
@@ -265,7 +263,7 @@ public class Service : IService
                 break;
             }
         }
-        if (amount - wallet.Balance < 0)
+        if (wallet.Balance < amount)
         {
             throw new Exception("Balance of your wallet not enough");
         }
@@ -277,18 +275,48 @@ public class Service : IService
         wallet.Version += 1;
         wallet.UpdatedAt = DateTimeOffset.UtcNow;
         _dbcontext.Wallets.Update(wallet);
+        // var result = await _dbcontext.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<string> AdminUpBalanceForUser(Guid userId, decimal amount, string? description)
+    {
+        // await AddBanlanceToWallet(userId, amount, "Wallet");
+        //transsaction
+        var user = await _dbcontext.Users.FirstOrDefaultAsync(x => x.Id == userId);
+        if (user == null)
+        {
+            throw new Exception("User not found");
+        }
+        var wallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == user.Id);
+        if (wallet == null)
+        {
+            throw new  Exception("Wallet not found");
+        }
+        
+        var transactionI = new Transaction.Request.CreateTransactionRequest()
+        {
+            Type = Transaction.Request.TypeList.AdminUp,
+            Amount = amount,
+            BalanceBefore = wallet.Balance,
+            BalanceAfter =  wallet.Balance + amount,
+            TransferContent = description,
+            Status = "Success",
+            WalletId =  wallet.Id,
+        };
+        if (!await AddBanlanceToWallet(userId, amount, "Payment"))
+        {
+            throw new Exception("Wallet reject balance failed");
+        }
+        if (!await _transactionService.CreateTransaction(transactionI))
+        {
+            throw new Exception("Error creating transaction");
+        }
         var result = await _dbcontext.SaveChangesAsync();
         if (result > 0)
         {
-            return true;
+            return "Success AdminDeduct";
         }
-        return false;
-    }
-
-    public async Task<string> AdminUpBalanceForUser(Guid userId, decimal amount)
-    {
-        await AddBanlanceToWallet(userId, amount, "Wallet");
-        //transsaction
-        return "Success AdminDeduct";
+        return "failed";
     }
 }

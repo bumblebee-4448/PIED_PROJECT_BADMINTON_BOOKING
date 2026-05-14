@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
+import { useCancelBooking } from "../hooks/useBookingOperations";
+import { bookingsService } from "../services";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -23,19 +26,8 @@ export function PaymentQrDialog({
   onSuccess
 }: PaymentQrDialogProps) {
   const [timeLeft, setTimeLeft] = useState<number>(0);
-
-  useEffect(() => {
-    if (isOpen && bookingResponse?.expiredAt) {
-      const expiry = new Date(bookingResponse.expiredAt).getTime();
-      const interval = setInterval(() => {
-        const now = new Date().getTime();
-        const diff = Math.max(0, Math.floor((expiry - now) / 1000));
-        setTimeLeft(diff);
-        if (diff === 0) clearInterval(interval);
-      }, 1000);
-      return () => clearInterval(interval);
-    }
-  }, [isOpen, bookingResponse]);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const cancelBooking = useCancelBooking();
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -43,8 +35,90 @@ export function PaymentQrDialog({
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handleCancel = useCallback(() => {
+    if (bookingResponse?.bookingId && !isSuccess) {
+      cancelBooking.mutate(bookingResponse.bookingId);
+    }
+    onClose();
+  }, [bookingResponse?.bookingId, isSuccess, cancelBooking, onClose]);
+
+  // Reset success state when dialog opens
+  useEffect(() => {
+    if (isOpen) {
+      setIsSuccess(false);
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (isOpen && bookingResponse?.expiredAt) {
+      const expiry = new Date(bookingResponse.expiredAt).getTime();
+      
+      const checkExpiry = () => {
+        const now = new Date().getTime();
+        const diff = Math.max(0, Math.floor((expiry - now) / 1000));
+        setTimeLeft(diff);
+        
+        if (diff <= 0) {
+          if (!isSuccess) {
+            toast.error("Mã thanh toán đã hết hạn!");
+            handleCancel();
+          }
+          return true;
+        }
+        return false;
+      };
+
+      // Check immediately
+      if (checkExpiry()) return;
+
+      const interval = setInterval(() => {
+        if (checkExpiry()) {
+          clearInterval(interval);
+        }
+      }, 1000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [isOpen, bookingResponse, isSuccess, handleCancel]);
+
+  // ─── Polling Logic for Payment Status ───────────────────
+  useEffect(() => {
+    let pollingInterval: ReturnType<typeof setInterval>;
+
+    if (isOpen && bookingResponse?.bookingId && !isSuccess) {
+      const checkStatus = async () => {
+        try {
+          const response = await bookingsService.getAll({ pageIndex: 1, pageSize: 10 });
+          const currentBooking = response.items.find(item => item.bookingId === bookingResponse.bookingId);
+          
+          if (currentBooking?.status === "Banked") {
+            toast.success("Thanh toán thành công!");
+            handleSuccess();
+          }
+        } catch (error) {
+          console.error("Error polling booking status:", error);
+        }
+      };
+
+      // Poll every 5 seconds
+      pollingInterval = setInterval(checkStatus, 5000);
+      
+      // Initial check
+      checkStatus();
+    }
+
+    return () => {
+      if (pollingInterval) clearInterval(pollingInterval);
+    };
+  }, [isOpen, bookingResponse?.bookingId, isSuccess]);
+
+  const handleSuccess = () => {
+    setIsSuccess(true);
+    onSuccess();
+  };
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
       <DialogContent className="max-w-[60%] sm:max-w-[400px] h-[600px] overflow-y-auto p-6 bg-white rounded-3xl border-none shadow-2xl">
         <DialogHeader className="text-center mb-4">
           <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
@@ -81,31 +155,53 @@ export function PaymentQrDialog({
               </span>
             </div>
 
-            <div className="space-y-1">
+            <div className="space-y-2 border-t border-b border-gray-100 py-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Tổng thanh toán</span>
-                <span className="text-[#0B2421] font-black">
-                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(bookingResponse.totalPrice)}
+                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Mã đơn hàng</span>
+                <span className="text-[#0B2421] font-black truncate max-w-[150px]" title={bookingResponse.bookingId}>
+                  #{bookingResponse.bookingId.split('-')[0].toUpperCase()}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
+                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Thời gian</span>
+                <div className="flex flex-col items-end">
+                  {bookingResponse.slots.map((slot, index) => (
+                    <span key={index} className="text-[#0B2421] font-black">
+                      {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-between text-sm">
                 <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Trạng thái</span>
-                <span className="text-emerald-600 font-black flex items-center gap-2">
-                  <Loader2 size={12} className="animate-spin" /> Đang kiểm tra...
+                <span className="text-amber-500 font-black flex items-center gap-2">
+                  <Loader2 size={12} className="animate-spin" /> 
+                  {bookingResponse.status === "Pending" ? "Chờ thanh toán" : bookingResponse.status}
+                </span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Tổng thanh toán</span>
+                <span className="text-[#0B2421] font-black text-base">
+                  {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(bookingResponse.totalPrice)}
                 </span>
               </div>
             </div>
 
             <div className="pt-1 flex flex-col gap-2">
-              <Button 
-                onClick={onSuccess}
+              <div className="flex items-center justify-center gap-2 py-2 px-4 bg-emerald-50 text-emerald-600 rounded-xl mb-2">
+                <Loader2 size={14} className="animate-spin" />
+                <span className="text-[10px] font-bold uppercase tracking-wider">Đang tự động kiểm tra thanh toán...</span>
+              </div>
+
+              {/* <Button 
+                onClick={handleSuccess}
                 className="w-full h-12 bg-[#0B2421] hover:bg-[#1a3a36] text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all"
               >
                 Tôi đã chuyển khoản
-              </Button>
+              </Button> */}
               <Button 
                 variant="ghost" 
-                onClick={onClose}
+                onClick={handleCancel}
                 className="w-full h-12 text-gray-400 hover:text-gray-600 font-black text-[10px] uppercase tracking-widest"
               >
                 Hủy đơn

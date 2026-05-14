@@ -7,9 +7,11 @@ import {
   ChevronDown,
   ShieldCheck,
   UserCircle,
+  Wallet,
 } from "lucide-react";
 import { useAuthStore } from "../store";
 import { useLogout } from "../hooks";
+import { useWallet } from "@/features/wallet";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { EditProfileDialog } from "@/features/profile/components/EditProfileDialog";
@@ -19,6 +21,7 @@ export function UserProfileCard() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { accessToken, user, role } = useAuthStore();
   const { mutate: logout, isLoading } = useLogout();
+  const { data: wallet } = useWallet();
 
   if (!accessToken || !user) return null;
 
@@ -73,6 +76,26 @@ export function UserProfileCard() {
               </span>
             </div>
           </div>
+          
+          {/* Wallet Balance */}
+          {wallet && (
+            <div className="mb-4 p-3 rounded-xl bg-gradient-to-br from-[#004E43]/5 to-[#00CE98]/5 border border-[#004E43]/10 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-white shadow-sm flex items-center justify-center text-[#004E43]">
+                  <Wallet size={16} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] font-bold uppercase tracking-tight text-[#9CA3AF]">Số dư ví</span>
+                  <span className="text-sm font-black text-[#091E1B]">
+                    {new Intl.NumberFormat("vi-VN", {
+                      style: "currency",
+                      currency: "VND",
+                    }).format(wallet.balance)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="space-y-2">
             <Button 

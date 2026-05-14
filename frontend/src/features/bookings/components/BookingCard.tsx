@@ -8,6 +8,7 @@ import {
   Phone,
   Hash
 } from "lucide-react";
+import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import type { GetBookingResponse } from "../types";
@@ -54,17 +55,18 @@ export function BookingCard({ booking, onCancelClick }: BookingCardProps) {
     }
   };
 
-  const status = booking.status || (booking as any).Status || "Pending";
+  const status = booking.status || "Pending";
   const statusConfig = getStatusConfig(status);
   
-  const id = booking.bookingId || (booking as any).Id || "";
-  const finalPrice = booking.finalPrice || (booking as any).FinalPrice || 0;
-  const courtName = booking.courtName || (booking as any).CourtName || "Đơn hàng";
-  const address = booking.address || (booking as any).Address || "Thông tin địa chỉ đang cập nhật";
-  const date = booking.date || (booking as any).Date || "N/A";
-  const phoneNumber = booking.phoneNumber || (booking as any).PhoneNumber || "N/A";
-  const slotsResponses = booking.slotsResponses || (booking as any).SlotsResponses || [];
-  const urlMap = booking.urlMap || (booking as any).UrlMap;
+  const id = booking.bookingId || "";
+  const finalPrice = booking.finalPrice || 0;
+  const courtName = booking.courtName || "Đơn hàng";
+  const address = booking.address || "Thông tin địa chỉ đang cập nhật";
+  const slotsResponses = booking.slotsResponses || [];
+  const rawDate = booking.date || (slotsResponses.length > 0 ? slotsResponses[0].date : null);
+  const date = rawDate ? format(parseISO(rawDate), "dd/MM/yyyy") : "N/A";
+  const phoneNumber = booking.phoneNumber || "N/A";
+  const urlMap = booking.urlMap;
 
   return (
     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden group mb-6">
@@ -112,17 +114,17 @@ export function BookingCard({ booking, onCancelClick }: BookingCardProps) {
           <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Danh sách Slot ({slotsResponses.length})</p>
           <div className="flex flex-wrap gap-2">
             {slotsResponses.length > 0 ? (
-              slotsResponses.map((slot: any, index: number) => (
+              slotsResponses.map((slot) => (
                 <div 
-                  key={slot.slotId || slot.SlotId || `slot-${index}`}
+                  key={slot.slotId}
                   className="px-4 py-2 bg-emerald-50/50 rounded-xl border border-emerald-100 flex items-center gap-3"
                 >
                   <Clock size={14} className="text-emerald-500" />
                   <span className="text-xs font-black text-[#0B2421]">
-                    {(slot.startTime || slot.StartTime || "").slice(0, 5)} - {(slot.endTime || slot.EndTime || "").slice(0, 5)}
+                    {(slot.startTime || "").slice(0, 5)} - {(slot.endTime || "").slice(0, 5)}
                   </span>
                   <span className="text-[10px] font-bold text-emerald-600">
-                    {(slot.price || slot.Price || 0).toLocaleString()}đ
+                    {(slot.price || 0).toLocaleString()}đ
                   </span>
                 </div>
               ))

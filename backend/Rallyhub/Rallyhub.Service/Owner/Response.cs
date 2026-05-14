@@ -66,7 +66,8 @@ public class Response
     public class CreateExceptionSlotResponse
     {
         public Guid Id { get; set; }
-        public DateOnly Date { get; set; }
+        public DateOnly? Date { get; set; }
+        public DayOfWeek? DayOfWeek { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public string Reason { get; set; } = null!;
@@ -74,7 +75,7 @@ public class Response
     
     public class GetExceptionSlotResponse: CreateExceptionSlotResponse
     {
-        
+        public bool IsRecurring { get; set; }
     }
     
     public class GetSetupSlotResponse
@@ -90,6 +91,7 @@ public class Response
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }
         public bool IsAvailable { get; set; }
-        public string? Reason { get; set; }
+       // public string? Reason { get; set; }
+        public string Type { get; set; } = null!;
     }
 }

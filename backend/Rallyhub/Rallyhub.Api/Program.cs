@@ -22,8 +22,12 @@ using TransactionService = Rallyhub.Service.Transaction;
 using WalletService = Rallyhub.Service.Wallet;
 using BookingService = Rallyhub.Service.Booking;
 using WithdrawalService = Rallyhub.Service.Withdrawal;
-using sepayService = Rallyhub.Service.SepayService;
-
+using NotificationService = Rallyhub.Service.Notification;
+using SepayService = Rallyhub.Service.SepayService;
+using FeedbackService = Rallyhub.Service.Feadback;
+using ValidationService = Rallyhub.Service.Validation;
+using FeadbackService = Rallyhub.Service.Feadback;
+using CampaignService = Rallyhub.Service.Campaign;
 
 // using DiscordService = Rallyhub.Service.DiscordService;
 
@@ -37,7 +41,11 @@ CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
 
 
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull;
+    });
 builder.Services.AddHttpContextAccessor();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -68,8 +76,12 @@ builder.Services.AddScoped<TransactionService.IService, TransactionService.Servi
 builder.Services.AddScoped<WalletService.IService, WalletService.Service>();
 builder.Services.AddScoped<BookingService.IService, BookingService.Service>();
 builder.Services.AddScoped<WithdrawalService.IService, WithdrawalService.Service>();
-builder.Services.AddScoped<sepayService.IService, sepayService.Service>();
-
+builder.Services.AddScoped<SepayService.IService, SepayService.Service>();
+builder.Services.AddScoped<NotificationService.IService, NotificationService.Service>();
+builder.Services.AddScoped<FeedbackService.IService, FeedbackService.Service>();
+builder.Services.AddScoped<ValidationService.IService, ValidationService.Service>();
+builder.Services.AddScoped<CampaignService.IService, CampaignService.Service>();
+builder.Services.AddScoped<FeadbackService.IService, FeadbackService.Service>();
 
 
 
@@ -126,11 +138,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// using (var scope = app.Services.CreateScope())
-// {
-//     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-//     db.Database.Migrate();
-// }
+
 
 app.UseMiddleware<GlobalExceptionHandlerMiddleware>();
 
