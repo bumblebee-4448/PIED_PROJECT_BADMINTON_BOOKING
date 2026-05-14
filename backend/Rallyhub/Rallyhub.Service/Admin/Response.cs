@@ -6,12 +6,12 @@ public class Response
     {
         public Guid  Id { get; set; }
         public string Email { get; set; }
-        public string Role { get; set; } = "Customer";
+        public string Role { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string? PhoneNumber { get; set; }
         public string? AvatarUrl { get; set; }
-        public string Status { get; set; } = "Active";
+        public string Status { get; set; } 
     }
     public class OwnerDto: UserDto
     {
@@ -19,6 +19,10 @@ public class Response
         public string BusinessName  { get; set; }
         public string TaxCode { get; set; }
         public string BusinessAddress { get; set; }
+        public string? BusinessLicenseUrl { get; set; } 
+        public string? IdentityNumber { get; set; } 
+        public string? IdentityCardFrontUrl { get; set; } 
+        public string? IdentityCardBackUrl { get; set; } 
         public List<CourtDto> Courts { get; set; }
     }
     public class CustomerDto: UserDto
@@ -31,9 +35,9 @@ public class Response
     {
         public Guid  Id { get; set; }
         public decimal TotalPrice { get; set; }
-        public decimal? DiscountAmount { get; set; } = 0;
+        public decimal? DiscountAmount { get; set; }
         public decimal FinalPrice { get; set; }
-        public string Status { get; set; } = "Pending"; //Pending, Banked, Cancelled, Refund, Complete
+        public string Status { get; set; }  
         public string? CancellationReason { get; set; }
     }
 
@@ -44,7 +48,7 @@ public class Response
         public string Address { get; set; }
         public TimeOnly OpenTime  { get; set; }
         public TimeOnly CloseTime { get; set; }
-        public string Status { get; set; } = "Active";
+        public string Status { get; set; }
 
         public decimal Latitude { get; set; } //vĩ độ (10, 8)
         public decimal Longitude { get; set; } //kinh độ (11, 8)
@@ -91,9 +95,10 @@ public class Response
 
     public class GetWalletResponse
     {
-        public required string BankName  { get; set; }
-        public required string BankAccount { get; set; }
-        public decimal Balance { get; set; }
+        public string? BankName  { get; set; }
+        public string? BankAccount { get; set; }
+        public required decimal Balance { get; set; }
+        public string? BankAccountName { get; set; }
     }
 
     public class GetBookingDetailStatusRefundPendingResponse

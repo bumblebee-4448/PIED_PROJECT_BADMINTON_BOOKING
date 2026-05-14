@@ -28,7 +28,7 @@ using FeedbackService = Rallyhub.Service.Feadback;
 using ValidationService = Rallyhub.Service.Validation;
 using FeadbackService = Rallyhub.Service.Feadback;
 using CampaignService = Rallyhub.Service.Campaign;
-
+using DashboardService = Rallyhub.Service.Dashboard;
 // using DiscordService = Rallyhub.Service.DiscordService;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -82,6 +82,7 @@ builder.Services.AddScoped<FeedbackService.IService, FeedbackService.Service>();
 builder.Services.AddScoped<ValidationService.IService, ValidationService.Service>();
 builder.Services.AddScoped<CampaignService.IService, CampaignService.Service>();
 builder.Services.AddScoped<FeadbackService.IService, FeadbackService.Service>();
+builder.Services.AddScoped<DashboardService.IService, DashboardService.Service>();
 
 
 
