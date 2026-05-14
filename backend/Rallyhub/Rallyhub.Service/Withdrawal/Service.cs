@@ -10,13 +10,15 @@ public class Service : IService
     private readonly IHttpContextAccessor _httpAccessor;
     private readonly Wallet.IService _walletService;
     private readonly Transaction.IService _transactionService;
+    private readonly Notification.IService _notificationService;
 
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpAccessor,  Wallet.IService walletService,  Transaction.IService transactionService)
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpAccessor,  Wallet.IService walletService,  Transaction.IService transactionService, Notification.IService notificationService)
     {
         _dbcontext = dbContext;
         _httpAccessor = httpAccessor;
         _walletService = walletService;
         _transactionService = transactionService;
+        _notificationService = notificationService;
     }
     
     public async Task<string> CreateWithdrawalRequest(Request.CreateWithdrawalRequest request)
@@ -35,6 +37,11 @@ public class Service : IService
             string.IsNullOrEmpty(wallet.BankAccountName))
         {
             throw new Exception("Vui lòng liên kết tài khoản ngân hàng trước khi rút tiền");
+        }
+
+        if (request.Amount < 0)
+        {
+            throw new Exception("Số dư không thể là số âm");
         }
 
         if (wallet.Balance < request.Amount)
@@ -70,6 +77,15 @@ public class Service : IService
             throw new Exception("Error creating transaction");
         }
 
+        _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        {
+            UserId = userIdGuild,
+            Title = "Yêu cầu rút tiền mới",
+            Content = $"Người dùng {user.FirstName} {user.LastName} vừa tạo yêu cầu rút {request.Amount:N0}đ.",
+            Type = Notification.Request.TypeNotification.WithdrawalRequested,
+            WithdrawalId = newWithdrawal.Id
+        });
+
         var result = await _dbcontext.SaveChangesAsync();
         if (result > 0)
         {
@@ -80,7 +96,7 @@ public class Service : IService
 
     public async Task<Base.Response.PageResult<Response.GetWithdrawalResponse>> AdminGetWithdrawalRequest(Guid? userId, Base.Request.PagingDay pagination)
     {
-        var withdrawals = _dbcontext.Withdrawals.Where(x => x.Status == "Pending");
+        var withdrawals = _dbcontext.Withdrawals.AsQueryable();
         if (pagination.Id != null)
         {
             withdrawals = withdrawals.Where(x => x.Id ==  pagination.Id);
@@ -98,7 +114,9 @@ public class Service : IService
             withdrawals = withdrawals.Where(x => DateOnly.FromDateTime(x.CreatedAt.Date) == pagination.Date);
         }
         var total = await withdrawals.CountAsync();
-        withdrawals = withdrawals.OrderBy(x => x.CreatedAt);
+        withdrawals = withdrawals
+            .OrderBy(x => x.Status != "Pending")
+            .ThenByDescending(x => x.CreatedAt);
         withdrawals = withdrawals
             .Skip((pagination.PageIndex - 1) * pagination.PageSize)
             .Take(pagination.PageSize);
@@ -145,6 +163,20 @@ public class Service : IService
         withdrawalRrquest.Status = "Approved";
         withdrawalRrquest.UpdatedAt = DateTimeOffset.UtcNow;
         _dbcontext.Update(withdrawalRrquest);
+
+        var wallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.Id == withdrawalRrquest.WalletId);
+        if (wallet != null)
+        {
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = wallet.UserId,
+                Title = "Yêu cầu rút tiền được duyệt",
+                Content = $"Yêu cầu rút {withdrawalRrquest.Amount:N0}đ của bạn đã được duyệt và đang được xử lý chuyển khoản.",
+                Type = Notification.Request.TypeNotification.WithdrawalApproved,
+                WithdrawalId = withdrawalRrquest.Id
+            });
+        }
+
         var result = await _dbcontext.SaveChangesAsync();
         if (result > 0)
         {
@@ -169,7 +201,7 @@ public class Service : IService
         }
         if (withdrawalRequest.Status != "Pending")
         {
-            throw new Exception("Withdrawal was rejected");
+            throw new Exception("Withdrawal was approved");
         }
         withdrawalRequest.Status = "Rejected";
         withdrawalRequest.RejectionReason = reason;
@@ -194,6 +226,16 @@ public class Service : IService
         {
             throw new Exception("Error creating transaction");
         }
+
+        _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        {
+            UserId = wallet.UserId,
+            Title = "Yêu cầu rút tiền bị từ chối",
+            Content = $"Yêu cầu rút {withdrawalRequest.Amount:N0}đ của bạn đã bị từ chối. Lý do: {reason}",
+            Type = Notification.Request.TypeNotification.WithdrawalRejected,
+            WithdrawalId = withdrawalRequest.Id
+        });
+
         var result = await _dbcontext.SaveChangesAsync();
         if (result > 0)
         {
@@ -225,24 +267,29 @@ public class Service : IService
         {
             withdrawalRequest = withdrawalRequest.Where(x => DateOnly.FromDateTime(x.CreatedAt.Date) == pagination.Date);
         }
-        withdrawalRequest = withdrawalRequest.OrderByDescending(x => x.Status).ThenBy(x => x.CreatedAt);
-        var total = withdrawalRequest.Count();
-        withdrawalRequest = withdrawalRequest.OrderBy(x => x.CreatedAt);
+        withdrawalRequest = withdrawalRequest
+            .OrderBy(x => x.Status != "Pending")
+            .ThenByDescending(x => x.CreatedAt);
+            
+        var total = await withdrawalRequest.CountAsync();
+        
         withdrawalRequest = withdrawalRequest
             .Skip((pagination.PageIndex - 1) * pagination.PageSize)
             .Take(pagination.PageSize);
         var selectWithdrawalRequest = withdrawalRequest.Select(x => new Response.UsergetWithdrawalResponse()
         {
-            // Id = x.Id,
-            // UserId = x.Wallet.UserId,
+            Id = x.Id,
+            UserId = x.Wallet.UserId,
+            Amount = x.Amount,
+            Status =  x.Status,
+            RejectionReason = x.RejectionReason,
+            AdminNote = x.AdminNote,
+            TransactionId =  x.TransactionId,
             Email = x.Wallet.User.Email,
             Avatar = x.Wallet.User.AvatarUrl,
             FirstName = x.Wallet.User.FirstName,
             LastName = x.Wallet.User.LastName,
-            Amount = x.Amount,
-            // WalletId = x.WalletId,
-            RejectionReason = x.RejectionReason,
-            AdminNote = x.AdminNote,
+            WalletId = x.WalletId,
             CreatedAt = x.CreatedAt,
             UpdatedAt = x.UpdatedAt,
         });

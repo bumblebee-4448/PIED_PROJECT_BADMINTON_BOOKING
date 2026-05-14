@@ -25,6 +25,14 @@ public class BookingController: ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }
+    [HttpPost("GetBookingDetail")]
+    public async Task<IActionResult> GetBookingDetail(Guid bookingDetailsId)
+    {
+        var result = await _bookingService.GetBookingDetail(bookingDetailsId);
+        return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
+            , HttpContext.TraceIdentifier));
+    }
+    
     [HttpPost("CreateBookingByWallet")]
     public async Task<IActionResult> CreateBookingByWallet([FromBody] Request.CreateBookingRequest request)
     {
@@ -32,6 +40,7 @@ public class BookingController: ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success" 
             , HttpContext.TraceIdentifier));
     }
+    
     [HttpPatch("BookingRefund")]
     public async Task<IActionResult> BookingRefund(Guid bookingId)
     {
