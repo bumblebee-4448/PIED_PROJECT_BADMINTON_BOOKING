@@ -1,4 +1,4 @@
-﻿namespace Rallyhub.Service.Wallet;
+namespace Rallyhub.Service.Wallet;
 
 public class Response
 {
@@ -16,6 +16,7 @@ public class Response
     public class AddBalanceToWalletFromPaymentResponse
     {
         public Guid Id { get; set; }
+        public Guid TransactionId { get; set; }
         public decimal Amount { get; set; }
         public string QrCodeUrl { get; set; } = null!;
     }

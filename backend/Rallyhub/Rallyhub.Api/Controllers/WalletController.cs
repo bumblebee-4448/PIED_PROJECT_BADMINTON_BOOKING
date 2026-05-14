@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rallyhub.Api.Extention;
 using Rallyhub.Service.Models;
@@ -51,10 +51,17 @@ public class WalletController : ControllerBase
     
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     [HttpPatch("AdminUpBalanceForUser")]
-    public async Task<IActionResult> AdminUpBalanceForUser([FromBody]Guid userId,  decimal amount, string? description)
+    public async Task<IActionResult> AdminUpBalanceForUser([FromBody] Guid userId, decimal amount, string? description)
     {
         var result = await _walletService.AdminUpBalanceForUser(userId, amount, description);
-        return Ok(ApiResponseFactory.SuccessResponse(result, "Success AdminDeduct  wallet", HttpContext.TraceIdentifier));
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success AdminDeduct wallet", HttpContext.TraceIdentifier));
     }
-    
+
+    [Authorize(Policy = JwtExtensions.CustomerOrOwnerPolicy)]
+    [HttpGet("CheckDepositStatus/{transactionId}")]
+    public async Task<IActionResult> CheckDepositStatus(Guid transactionId)
+    {
+        var result = await _walletService.CheckDepositStatus(transactionId);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success check status", HttpContext.TraceIdentifier));
+    }
 }
