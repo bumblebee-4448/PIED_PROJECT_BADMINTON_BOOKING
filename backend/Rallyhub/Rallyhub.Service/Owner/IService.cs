@@ -2,10 +2,12 @@
 
 public interface IService
 {
-    public Task<Response.CreateCourtResponse> CreateCourt(Request.CreateCourtRequest request);  
+    public Task<Response.CreateCourtResponse> CreateCourt(Request.CreateCourtRequest request); 
+    public Task<string> RemoveCourt(Guid courtId);
     public Task<Base.Response.PageResult<Response.GetMyCourtsResponse>> GetAllMyCourts(Request.GetAllMyCourtsRequest request);
     public Task<Response.UpdateCourtInfoResponse> UpdateCourtInfo(Request.UpdateCourtInfoRequest request);
     public Task<Response.CreateSubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request);
+    public Task<string> RemoveSubCourt(Guid subCourtId);
     public Task<Base.Response.PageResult<Response.GetMySubCourtsResponse>> GetMySubCourts(Request.GetMySubCourtsRequest request);
     public Task<Response.UpdateSubCourtInfoResponse> UpdateSubCourtInfo(Request.UpdateSubCourtInfoRequest request);
     //public Task<Response.CreateConfigSlotResponse> CreateConfigSlot(Request.CreateConfigSlotRequest request);

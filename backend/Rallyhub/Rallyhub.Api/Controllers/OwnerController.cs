@@ -25,7 +25,18 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Waiting for Admin accept"   
             , HttpContext.TraceIdentifier));  
     }  
-  
+    
+    [HttpDelete("RemoveCourt{courtId}")]
+    public async Task<IActionResult> RemoveCourt(Guid courtId)
+    {
+        await _ownerService.RemoveCourt(courtId);
+
+        return Ok(ApiResponseFactory.SuccessResponse(
+            true,
+            "Xóa sân thành công",
+            HttpContext.TraceIdentifier
+        ));
+    }
     [HttpGet("OwnerGetAllCourts")]  
     public async Task<IActionResult> GetAllCourts([FromQuery]Request.GetAllMyCourtsRequest request)  
     {  
@@ -49,6 +60,18 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     } 
+    [HttpDelete("RemoveSubCourt{subCourtId}")]
+    public async Task<IActionResult> RemoveSubCourt(Guid subCourtId)
+    {
+        await _ownerService.RemoveSubCourt(subCourtId);
+
+        return Ok(ApiResponseFactory.SuccessResponse(
+            true,
+            "Xóa sân thành công",
+            HttpContext.TraceIdentifier
+        ));
+    }
+    
     
     [HttpGet("OwnerGetMySubCourts")] 
     public async Task<IActionResult> GetMySubCourts([FromQuery] Request.GetMySubCourtsRequest request)  
@@ -94,7 +117,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
-    [HttpDelete("RemoveOverrideSlot/{overrideSlotId}")]
+    [HttpDelete("RemoveOverrideSlot{overrideSlotId}")]
     public async Task<IActionResult> RemoveOverrideSlot(Guid overrideSlotId)
     {
         await _ownerService.RemoveOverrideSlot(overrideSlotId);
@@ -119,7 +142,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
-    [HttpDelete("UnlockException/{exceptionId}")]
+    [HttpDelete("UnlockException{exceptionId}")]
     public async Task<IActionResult> UnlockException(Guid exceptionId)
     {
         await _ownerService.UnlockException(exceptionId);
