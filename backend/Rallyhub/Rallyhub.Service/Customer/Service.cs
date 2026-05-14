@@ -24,7 +24,6 @@ public class Service : IService
         _mailService = mailService;
         _notificationService = notificationService;
     }
-
     public async Task<string> OwnerRequest(Request.OwnerRequestRequest model)
     {
         var userId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;

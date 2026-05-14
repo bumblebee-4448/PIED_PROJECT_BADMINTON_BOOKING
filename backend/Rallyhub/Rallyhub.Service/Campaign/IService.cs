@@ -9,5 +9,7 @@ public interface IService
     public Task UpdateCampaign(Request.UpdateCampaignRequest request);
     public Task<Response.CampaignDetailResponse> CampaignDetail(Request.CampaignDetailRequest request);
     public Task DeleteCampaign(Request.DeleteCampaignRequest request);
-    public Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaign(Request.GetAllCampaignRequest request);
+    public Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaign(Base.Request.PagingRequest request);
+    public Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaignCourt(Base.Request.PagingRequest request);
+    public Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> CampaignByCourt(Request.GetCampaignByCourtRequest request);
 }

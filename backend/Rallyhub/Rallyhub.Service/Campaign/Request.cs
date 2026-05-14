@@ -34,9 +34,9 @@ public class Request
     {
         public required string Code { get; set; }
     }
-    public class GetAllCampaignRequest: Base.Request.PagingRequest
+    public class GetCampaignByCourtRequest: Base.Request.PagingRequest
     {
-        
+        public required Guid CourtId { get; set; }
     }
     public class DeleteCampaignRequest
     {

@@ -31,22 +31,22 @@ public class Service: IService
     public async Task<Base.Response.PageResult<Response.UserDto>> FilterUser(Request.FilterUserRequest request)
     {
         var getAllUser = _dbContext.Users.Where(x => x.Role != "Admin");
-
-        if (request.Search != null)
+        if (!string.IsNullOrWhiteSpace(request.Search))
         {
             getAllUser = getAllUser.Where(x => 
                 x.Email.Contains(request.Search) ||
                 (x.PhoneNumber != null && x.PhoneNumber.Contains(request.Search)));
         }
+
         if (request.Id != null)
         {
             getAllUser = getAllUser.Where(x => x.Id == request.Id);
         }
-        if (request.Role != null)
+        if (!string.IsNullOrWhiteSpace(request.Role))
         {
             getAllUser = getAllUser.Where(x => x.Role == request.Role);
         }
-        if (request.Status != null)
+        if (!string.IsNullOrWhiteSpace(request.Status))
         {
             getAllUser = getAllUser.Where(x => x.Status == request.Status);
         }
@@ -150,6 +150,10 @@ public class Service: IService
                 BusinessAddress = user.Owner.BusinessAddress,
                 BusinessName = user.Owner.BusinessName,
                 TaxCode = user.Owner.TaxCode,
+                BusinessLicenseUrl = user.Owner.BusinessLicenseUrl,
+                IdentityNumber = user.Owner.IdentityNumber,
+                IdentityCardFrontUrl = user.Owner.IdentityCardFrontUrl,
+                IdentityCardBackUrl = user.Owner.IdentityCardBackUrl,
                 Courts = resultCourtDto
             };
             return result;
@@ -192,12 +196,14 @@ public class Service: IService
             {
                 customer.IsDeleted = true;
                 customer.UpdatedAt = DateTimeOffset.UtcNow;
+                user.IsDeleted = true;
                 _dbContext.Customers.Update(customer);
             }
             if (customer != null && request.Status == "Active")
             {
                 customer.IsDeleted = false;
                 customer.UpdatedAt = DateTimeOffset.UtcNow;
+                user.IsDeleted = false;
                 _dbContext.Customers.Update(customer);
             }
             user.Status = request.Status;
@@ -744,6 +750,7 @@ public class Service: IService
             BankName = wallet.BankName,
             BankAccount = wallet.BankAccount,
             Balance = wallet.Balance,
+            BankAccountName = wallet.BankAccountName
         };
     }
     public async Task<string> AddBalanceToUser(Request.AddBalanceRequest request)
