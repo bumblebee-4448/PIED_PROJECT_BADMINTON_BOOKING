@@ -20,6 +20,7 @@ public class Withdrawal : BaseEntity<Guid>, IAuditableEntity
     
     public Guid? TransactionId { get; set; }
     public Transaction? Transaction { get; set; }
+    public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
     
     public DateTimeOffset CreatedAt { get; set; }
     public DateTimeOffset UpdatedAt { get; set; }

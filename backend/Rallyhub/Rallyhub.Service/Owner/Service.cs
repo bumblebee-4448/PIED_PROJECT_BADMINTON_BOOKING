@@ -59,7 +59,45 @@ public class Service : IService
             CourtId = court.Id,  
             Status = court.Status,  
         };  
-    }  
+    }
+    public async Task<string> RemoveCourt(Guid courtId)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
+        if (ownerIdClaim == null)  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerId = Guid.Parse(ownerIdClaim);
+        var hasCourt = await _dbContext.Courts
+            .FirstOrDefaultAsync(x => 
+                x.Id ==  courtId &&
+                x.Status == "Active" &&
+                x.OwnerId == ownerId);
+        if (hasCourt == null)
+        {
+            throw new Exception("Không tìm thấy sân ");
+        }
+        var hasBooking = await _dbContext.BookingDetails
+            .Include(x => x.SubCourt)
+            .FirstOrDefaultAsync(x => 
+                x.SubCourt.Court.Id == hasCourt.Id &&
+                (x.Status == "Pending" ||  x.Status == "Banked"));
+        if (hasBooking != null)
+        {
+            throw new Exception("Đang có đơn đặt, không thể xóa sân");
+        }
+        hasCourt.IsDeleted = true;
+        
+        var subCourts = await _dbContext.SubCourts
+            .Where(x => x.CourtId == hasCourt.Id)
+            .ToListAsync();
+        foreach (var subCourt in subCourts)
+        {
+            subCourt.IsDeleted = true;
+        }
+        await _dbContext.SaveChangesAsync();
+        return "Xóa sân thành công";
+    }
     public async Task<Base.Response.PageResult<Response.GetMyCourtsResponse>> GetAllMyCourts(Request.GetAllMyCourtsRequest request)  
     {        
         if (request.PageIndex <= 0)  
@@ -116,6 +154,132 @@ public class Service : IService
         };  
         return result;  
     }
+    public async Task<Response.UpdateCourtInfoResponse> UpdateCourtInfo(Request.UpdateCourtInfoRequest request)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null)
+        {
+            throw new Exception("Không xác minh được danh tính");
+        }
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        var existCourt = _dbContext.Courts
+            .FirstOrDefault(x => 
+                x.Id == request.CourtId && 
+                x.OwnerId == ownerIdGuid &&
+                x.Status == "Active");
+        if (existCourt == null)
+        {
+            throw new Exception("Không tìm thấy sân!");
+        }
+        
+        if (request.Name != null)
+            existCourt.Name = request.Name;
+
+        if (request.Address != null)
+            existCourt.Address = request.Address;
+
+        if (request.MapUrl != null)
+            existCourt.MapUrl = request.MapUrl;
+
+        if (request.Description != null)
+            existCourt.Description = request.Description;
+
+        if (request.PictureUrl != null)
+        {
+            existCourt.PictureUrl = await _mediaService.UploadImageAsync(request.PictureUrl);
+        }
+
+        if (request.TimeRefundBefore != null)
+        {
+            if (request.TimeRefundBefore < 0)
+            {
+                throw new Exception("Thời gian hoàn tiền phải lớn hơn hoặc bằng 0");
+            }
+            var hasBooking = await _dbContext.BookingDetails
+                .Include(x => x.SubCourt)
+                .AnyAsync(x =>
+                    x.SubCourt.CourtId == existCourt.Id &&
+                    (x.Status == "Banked" || x.Status =="Pending"));
+            if (hasBooking)
+            {
+                throw new Exception("Đang có đơn đặt sân, không thể thay đổi chính sách hoàn tiền");
+            }
+            existCourt.TimeRefundBefor = request.TimeRefundBefore;
+        }
+
+        var oldOpenTime = existCourt.OpenTime;
+        var oldCloseTime = existCourt.CloseTime;
+        var newOpenTime = request.OpenTime ?? oldOpenTime;
+        var newCloseTime = request.CloseTime ?? oldCloseTime;
+        
+        if (newOpenTime > oldOpenTime || newCloseTime < oldCloseTime)
+        {
+            throw new Exception("Không được thu hẹp thời gian");
+        }
+        existCourt.OpenTime = newOpenTime;
+        existCourt.CloseTime = newCloseTime;
+        
+        var subCourts = await _dbContext.SubCourts
+            .Where(x => x.CourtId == existCourt.Id)
+            .ToListAsync();
+        var slotsNeedAdd = new List<ConfigSlot>();
+        foreach (var subCourt in subCourts)
+        {
+            var configSlots = await _dbContext.ConfigSlots
+                .Where(x => x.SubCourtDetailId == subCourt.Id)
+                .OrderBy(x => x.StartTime)
+                .ToListAsync();
+            
+            if (newOpenTime < oldOpenTime)
+            {
+                var current = newOpenTime;
+                while (current.AddMinutes(30) <= oldOpenTime)
+                {
+                    slotsNeedAdd.Add(new ConfigSlot()
+                    {
+                        Id = Guid.NewGuid(),
+                        SubCourtDetailId = subCourt.Id,
+                        StartTime = current,
+                        EndTime = current.AddMinutes(30),
+                        Price = configSlots.First().Price,
+                    });
+                    current = current.AddMinutes(30);
+                }
+            }
+
+            if (newCloseTime > oldCloseTime)
+            {
+                var current = oldCloseTime;
+                while (current.AddMinutes(30) <= newCloseTime)
+                {
+                    slotsNeedAdd.Add(new ConfigSlot()
+                    {
+                        Id = Guid.NewGuid(),
+                        SubCourtDetailId = subCourt.Id,
+                        StartTime = current,
+                        EndTime = current.AddMinutes(30),
+                        Price = configSlots.First().Price,
+                    });
+                    current = current.AddMinutes(30);
+                }
+            }
+            
+        }
+        await _dbContext.ConfigSlots.AddRangeAsync(slotsNeedAdd);
+        await _dbContext.SaveChangesAsync();
+        return new Response.UpdateCourtInfoResponse()
+        {
+            CourtId = existCourt.Id,
+            Name = existCourt.Name,
+            Address = existCourt.Address,
+            MapUrl = existCourt.MapUrl,
+            Description = existCourt.Description,
+            StartTime = existCourt.OpenTime,
+            EndTime = existCourt.CloseTime,
+            PictureUrl = existCourt.PictureUrl,
+            TimeRefundBefore = existCourt.TimeRefundBefor,
+        };
+    }
     public async Task<Response.CreateSubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
@@ -135,6 +299,10 @@ public class Service : IService
         if (court.OwnerId != ownerIdGuid)
         {
             throw new Exception("Sân đó không phải của bạn");
+        }
+        if (request.DefaultPrice < 0)
+        {
+            throw new Exception("Số tiền phải lớn hơn không");
         }
         var isExistName = await _dbContext.SubCourts.AnyAsync(x => 
             x.CourtId == request.CourtId && 
@@ -174,6 +342,38 @@ public class Service : IService
             SubCourtId  = newSubCourt.Id,
             Name = newSubCourt.Name,
         };
+    }
+
+    public async Task<string> RemoveSubCourt(Guid subCourtId)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
+        if (ownerIdClaim == null)  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerId = Guid.Parse(ownerIdClaim);
+        var hasSubCourt = await _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefaultAsync(x => 
+                x.Id == subCourtId &&
+                x.Court.OwnerId == ownerId &&
+                x.Court.Status == "Active");
+        if (hasSubCourt == null)
+        {
+            throw new Exception("Không tìm thấy sân con");
+        }
+        var hasBooking = _dbContext.BookingDetails
+            .Include(x => x.SubCourt)
+            .FirstOrDefault(x => 
+                x.SubCourtId == subCourtId &&
+                (x.Status == "Pending" ||  x.Status == "Banked"));
+        if (hasBooking != null)
+        {
+            throw new Exception("Đang có đơn đặt, không thể xóa sân con");
+        }
+        hasSubCourt.IsDeleted = true;
+        await _dbContext.SaveChangesAsync();
+        return "Xóa sân con thành công";
     }
     public async Task<Base.Response.PageResult<Response.GetMySubCourtsResponse>> GetMySubCourts(Request.GetMySubCourtsRequest request)
     {   
@@ -241,6 +441,33 @@ public class Service : IService
             TotalItems = totalItems,
             PageIndex = request.PageIndex,
             PageSize = request.PageSize,
+        };
+    }
+    public async Task<Response.UpdateSubCourtInfoResponse> UpdateSubCourtInfo(Request.UpdateSubCourtInfoRequest request)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null)
+        {
+            throw new Exception("Không xác minh được danh tính");
+        }
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        var existSubCourt = _dbContext.SubCourts
+            .Include(x => x.Court)
+            .FirstOrDefault(x => 
+                x.Id == request.SubCourtId && 
+                x.Court.OwnerId == ownerIdGuid &&
+                x.Court.Status == "Active");
+        if (existSubCourt == null)
+        {
+            throw new Exception("Không tìm thấy sân!");
+        }
+        existSubCourt.Name = request.Name;
+        _dbContext.Update(existSubCourt);
+        await _dbContext.SaveChangesAsync();
+        return new Response.UpdateSubCourtInfoResponse()
+        {
+            SubCourtId = request.SubCourtId,
+            Name = request.Name,
         };
     }
     //comment đừng xóa
@@ -348,6 +575,35 @@ public class Service : IService
                 Price = x.Price,
             }).ToListAsync();
         return slots;
+    }
+    public async Task<string> UpdateConfigSlotPrice(Request.UpdateConfigSlotPriceRequest request)
+    {
+        var  ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null)
+        {
+            throw new Exception("Không tìm thấy owner");
+        }
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        var existConfigSlot =  await _dbContext.ConfigSlots
+            .Include(x => x.SubCourtDetail)
+            .ThenInclude(x => x.Court)
+            .FirstOrDefaultAsync(x => x.Id == request.ConfigSlotId);
+        if (existConfigSlot == null)
+        {
+            throw new Exception("Slot không tồn tại trong hệ thống");
+        }
+        if (existConfigSlot.SubCourtDetail.Court.OwnerId != ownerIdGuid)
+        {
+            throw new Exception("Bạn không có quyền");
+        }
+        if (request.NewPrice < 0)
+        {
+            throw new Exception("Giá phải lớn hơn không");
+        }
+        existConfigSlot.Price = request.NewPrice;
+        _dbContext.Update(existConfigSlot);
+        await _dbContext.SaveChangesAsync();
+        return "Update giá thành công";
     }
     public async Task<Response.CreateOverrideSlotResponse> CreateOverrideSlot(Request.CreateOverrideSlotRequest request)
     {
@@ -491,6 +747,27 @@ public class Service : IService
             }).ToListAsync();
         
        return overrideSlots;
+    }
+    public async Task<string> RemoveOverrideSlot(Guid overrideSlotId)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
+        if (ownerIdClaim == null)  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerId = Guid.Parse(ownerIdClaim);
+        var isExistOverrideSlot = _dbContext.OverideSlots
+            .Include(x => x.SubCourtDetail)
+            .ThenInclude(x => x.Court)
+            .FirstOrDefault(x => x.Id == overrideSlotId &&
+                                 x.SubCourtDetail.Court.OwnerId == ownerId);
+        if (isExistOverrideSlot == null)
+        {
+            throw new Exception("Override slot not found");
+        }
+        isExistOverrideSlot.IsDeleted = true;
+        await _dbContext.SaveChangesAsync();
+        return "Slot gộp đã được xóa";
     }
     public async Task<Response.CreateExceptionSlotResponse> CreateExceptionSlot(Request.CreateExceptionSlotRequest request)
     {
@@ -644,7 +921,28 @@ public class Service : IService
             }).ToListAsync();
         return exceptionSlot;
     }
-    public async Task<Response.GetSetupSlotResponse> GetSetupSlots(Guid subCourtId)
+    public async Task<string> UnlockException(Guid exceptionSlotId)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
+        if (ownerIdClaim == null)  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerId = Guid.Parse(ownerIdClaim);
+        var isExistException = _dbContext.Exceptions
+            .Include(x => x.SubCourtDetail)
+            .ThenInclude(x => x.Court)
+            .FirstOrDefault(x => x.Id == exceptionSlotId &&
+                                 x.SubCourtDetail.Court.OwnerId == ownerId );
+        if (isExistException == null)
+        {
+            throw new Exception("Exception slot not found");
+        }
+        isExistException.IsDeleted = true;
+        await _dbContext.SaveChangesAsync();
+        return "Slot bạn khóa đã được xóa";
+    }
+    public async Task<Response.GetSetupSlotResponse> GetSetupSlots(Guid subCourtId, DateOnly date)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (ownerIdClaim == null)  
@@ -673,12 +971,14 @@ public class Service : IService
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
                 Price = x.Price,
+                Type = "Default",
             }).ToListAsync();
         var overrideSlots = await _dbContext.OverideSlots
-            .Where(x => x.SubCourtDetailId == subCourtId)
-            .OrderBy(x => x.Date)
-            .ThenBy(x => x.DayOfWeek)
-            .ThenBy(x => x.StartTime)
+            .Where(x => 
+                x.SubCourtDetailId == subCourtId && 
+                x.Date == date &&
+                !x.IsDeleted)
+            .OrderBy(x => x.StartTime)
             .Select(x => new Response.GetOverrideSlotResponse
             {
                 Id = x.Id,
@@ -688,12 +988,14 @@ public class Service : IService
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
                 Price = x.Price,
+                Type = "Override"
             }).ToListAsync();
         var exceptions = await _dbContext.Exceptions
-            .Where(x => x.SubCourtDetailId == subCourtId)
-            .OrderBy(x => x.Date)
-            .ThenBy(x => x.DayOfWeek)
-            .ThenBy(x => x.StartTime)
+            .Where(x => 
+                x.SubCourtDetailId == subCourtId && 
+                x.Date == date &&
+                !x.IsDeleted)
+            .OrderBy(x => x.StartTime)
             .Select(x => new Response.GetExceptionSlotResponse
             {
                 Id = x.Id,
@@ -701,6 +1003,7 @@ public class Service : IService
                 EndTime = x.EndTime,
                 Date =   x.Date,
                 Reason = x.Reason,
+                Type = "Blocked"
             }).ToListAsync();
         return new Response.GetSetupSlotResponse
         {
@@ -733,7 +1036,7 @@ public class Service : IService
                      (!x.IsRecurring && x.Date == request.Date) || 
                      (x.IsRecurring && x.DayOfWeek == request.Date.DayOfWeek)
                             
-                ))
+                ) && !x.IsDeleted)
             .ToListAsync();
 
         var exceptions = await  _dbContext.Exceptions
@@ -743,7 +1046,7 @@ public class Service : IService
                     (!x.IsRecurring && x.Date == request.Date) || 
                     (x.IsRecurring && x.DayOfWeek == request.Date.DayOfWeek)
                             
-                ))
+                ) && !x.IsDeleted)
             .ToListAsync();
 
         var result = configSlots.Select(x => new Response.SlotResponse

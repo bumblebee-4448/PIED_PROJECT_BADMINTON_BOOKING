@@ -12,8 +12,8 @@ using Rallyhub.Repository;
 namespace Rallyhub.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260512115250_update_exception")]
-    partial class update_exception
+    [Migration("20260514065823_update_notification_02")]
+    partial class update_notification_02
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -486,6 +486,9 @@ namespace Rallyhub.Repository.Migrations
                     b.Property<Guid?>("FeedbackId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("FeedbackId1")
+                        .HasColumnType("uuid");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
@@ -497,19 +500,25 @@ namespace Rallyhub.Repository.Migrations
                     b.Property<Guid?>("OwnerRequestId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("OwnerRequestId1")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("ReportId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("ReportId1")
+                        .HasColumnType("uuid");
+
                     b.Property<Guid?>("SystemReportId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SystemReportId1")
                         .HasColumnType("uuid");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)");
-
-                    b.Property<Guid?>("TransactionId")
-                        .HasColumnType("uuid");
 
                     b.Property<string>("Type")
                         .IsRequired()
@@ -522,28 +531,43 @@ namespace Rallyhub.Repository.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid?>("WithdrawalId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("WithdrawalId1")
+                        .HasColumnType("uuid");
+
                     b.HasKey("Id");
 
                     b.HasIndex("BookingId");
 
                     b.HasIndex("CourtId");
 
-                    b.HasIndex("FeedbackId")
+                    b.HasIndex("FeedbackId");
+
+                    b.HasIndex("FeedbackId1")
                         .IsUnique();
 
-                    b.HasIndex("OwnerRequestId")
+                    b.HasIndex("OwnerRequestId");
+
+                    b.HasIndex("OwnerRequestId1")
                         .IsUnique();
 
-                    b.HasIndex("ReportId")
+                    b.HasIndex("ReportId");
+
+                    b.HasIndex("ReportId1")
                         .IsUnique();
 
-                    b.HasIndex("SystemReportId")
-                        .IsUnique();
+                    b.HasIndex("SystemReportId");
 
-                    b.HasIndex("TransactionId")
+                    b.HasIndex("SystemReportId1")
                         .IsUnique();
 
                     b.HasIndex("UserId");
+
+                    b.HasIndex("WithdrawalId");
+
+                    b.HasIndex("WithdrawalId1");
 
                     b.ToTable("Notifications");
                 });
@@ -721,9 +745,6 @@ namespace Rallyhub.Repository.Migrations
                     b.HasIndex("CustomerId");
 
                     b.HasIndex("OwnerId")
-                        .IsUnique();
-
-                    b.HasIndex("TaxCode")
                         .IsUnique();
 
                     b.ToTable("OwnerRequests");
@@ -1274,30 +1295,55 @@ namespace Rallyhub.Repository.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("Rallyhub.Repository.Entity.Feedback", "Feedback")
+                        .WithMany()
+                        .HasForeignKey("FeedbackId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Rallyhub.Repository.Entity.Feedback", null)
                         .WithOne("Notification")
-                        .HasForeignKey("Rallyhub.Repository.Entity.Notification", "FeedbackId");
+                        .HasForeignKey("Rallyhub.Repository.Entity.Notification", "FeedbackId1");
 
                     b.HasOne("Rallyhub.Repository.Entity.OwnerRequest", "OwnerRequest")
+                        .WithMany()
+                        .HasForeignKey("OwnerRequestId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Rallyhub.Repository.Entity.OwnerRequest", null)
                         .WithOne("Notification")
-                        .HasForeignKey("Rallyhub.Repository.Entity.Notification", "OwnerRequestId");
+                        .HasForeignKey("Rallyhub.Repository.Entity.Notification", "OwnerRequestId1");
 
                     b.HasOne("Rallyhub.Repository.Entity.Report", "Report")
+                        .WithMany()
+                        .HasForeignKey("ReportId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Rallyhub.Repository.Entity.Report", null)
                         .WithOne("Notification")
-                        .HasForeignKey("Rallyhub.Repository.Entity.Notification", "ReportId");
+                        .HasForeignKey("Rallyhub.Repository.Entity.Notification", "ReportId1");
 
                     b.HasOne("Rallyhub.Repository.Entity.SystemReport", "SystemReport")
-                        .WithOne("Notification")
-                        .HasForeignKey("Rallyhub.Repository.Entity.Notification", "SystemReportId");
+                        .WithMany()
+                        .HasForeignKey("SystemReportId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
-                    b.HasOne("Rallyhub.Repository.Entity.Transaction", "Transaction")
+                    b.HasOne("Rallyhub.Repository.Entity.SystemReport", null)
                         .WithOne("Notification")
-                        .HasForeignKey("Rallyhub.Repository.Entity.Notification", "TransactionId");
+                        .HasForeignKey("Rallyhub.Repository.Entity.Notification", "SystemReportId1");
 
                     b.HasOne("Rallyhub.Repository.Entity.User", "User")
                         .WithMany("Notifications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Rallyhub.Repository.Entity.Withdrawal", "Withdrawal")
+                        .WithMany()
+                        .HasForeignKey("WithdrawalId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Rallyhub.Repository.Entity.Withdrawal", null)
+                        .WithMany("Notifications")
+                        .HasForeignKey("WithdrawalId1");
 
                     b.Navigation("Booking");
 
@@ -1311,9 +1357,9 @@ namespace Rallyhub.Repository.Migrations
 
                     b.Navigation("SystemReport");
 
-                    b.Navigation("Transaction");
-
                     b.Navigation("User");
+
+                    b.Navigation("Withdrawal");
                 });
 
             modelBuilder.Entity("Rallyhub.Repository.Entity.OverideSlot", b =>
@@ -1547,11 +1593,6 @@ namespace Rallyhub.Repository.Migrations
                     b.Navigation("Notification");
                 });
 
-            modelBuilder.Entity("Rallyhub.Repository.Entity.Transaction", b =>
-                {
-                    b.Navigation("Notification");
-                });
-
             modelBuilder.Entity("Rallyhub.Repository.Entity.User", b =>
                 {
                     b.Navigation("Customer");
@@ -1570,6 +1611,11 @@ namespace Rallyhub.Repository.Migrations
                     b.Navigation("Transactions");
 
                     b.Navigation("Withdrawals");
+                });
+
+            modelBuilder.Entity("Rallyhub.Repository.Entity.Withdrawal", b =>
+                {
+                    b.Navigation("Notifications");
                 });
 #pragma warning restore 612, 618
         }

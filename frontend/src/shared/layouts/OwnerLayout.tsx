@@ -5,7 +5,8 @@ import {
   Settings, 
   Menu,
   Bell,
-  LayoutGrid
+  LayoutGrid,
+  Wallet
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
@@ -18,6 +19,7 @@ const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/owner" },
   { label: "Quản lý cơ sở", icon: Building2, path: "/owner/courts" },
   { label: "Quản lý sân", icon: LayoutGrid, path: "/owner/sub-courts" },
+  { label: "Ví của tôi", icon: Wallet, path: "/owner/wallet" },
   { label: "Cài đặt", icon: Settings, path: "/owner/settings" },
 ];
 

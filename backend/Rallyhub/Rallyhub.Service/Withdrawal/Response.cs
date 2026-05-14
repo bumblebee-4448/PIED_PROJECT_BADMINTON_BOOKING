@@ -1,4 +1,4 @@
-﻿namespace Rallyhub.Service.Withdrawal;
+namespace Rallyhub.Service.Withdrawal;
 
 public class Response
 {

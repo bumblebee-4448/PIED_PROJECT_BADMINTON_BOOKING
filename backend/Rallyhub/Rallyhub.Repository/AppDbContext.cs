@@ -568,6 +568,26 @@
                     .WithMany(x => x.Notifications)
                     .HasForeignKey(x => x.CourtId)
                     .OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(x => x.Report)
+                    .WithMany()
+                    .HasForeignKey(x => x.ReportId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(x => x.SystemReport)
+                    .WithMany()
+                    .HasForeignKey(x => x.SystemReportId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(x => x.OwnerRequest)
+                    .WithMany()
+                    .HasForeignKey(x => x.OwnerRequestId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(x => x.Feedback)
+                    .WithMany()
+                    .HasForeignKey(x => x.FeedbackId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                builder.HasOne(x => x.Withdrawal)
+                    .WithMany()
+                    .HasForeignKey(x => x.WithdrawalId)
+                    .OnDelete(DeleteBehavior.Cascade);
                 
                 // var notifications = new List<Notification>
                 // {
@@ -700,7 +720,6 @@
                 builder.Property(x => x.TaxCode)
                     .IsRequired()
                     .HasMaxLength(100);
-                builder.HasIndex(x => x.TaxCode).IsUnique();
                 builder.Property(x => x.BusinessLicenseUrl)
                     .IsRequired()
                     .HasMaxLength(200);
@@ -923,5 +942,7 @@
                     .HasForeignKey(x => x.TransactionId)
                     .OnDelete(DeleteBehavior.SetNull);
             });
+            modelBuilder.Entity<Court>().HasQueryFilter(x => !x.IsDeleted);
+            modelBuilder.Entity<SubCourt>().HasQueryFilter(x => !x.IsDeleted);
         }
     }

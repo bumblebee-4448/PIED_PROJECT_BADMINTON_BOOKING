@@ -21,7 +21,8 @@ export function UserProfileCard() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const { accessToken, user, role } = useAuthStore();
   const { mutate: logout, isLoading } = useLogout();
-  const { data: wallet } = useWallet();
+  const { useWalletInfo } = useWallet();
+  const { data: wallet } = useWalletInfo();
 
   if (!accessToken || !user) return null;
 

@@ -14,13 +14,15 @@ public class Service : IService
     private readonly MediaService.IService _mediaService;
     private readonly IHttpContextAccessor _httpContext;
     private readonly Rallyhub.Service.MailService.IService _mailService;
+    private readonly Rallyhub.Service.Notification.IService _notificationService;
 
-    public Service(AppDbContext dbContext, MediaService.IService mediaService, IHttpContextAccessor httpContext, MailService.IService mailService)
+    public Service(AppDbContext dbContext, MediaService.IService mediaService, IHttpContextAccessor httpContext, MailService.IService mailService, Rallyhub.Service.Notification.IService notificationService)
     {
         _dbContext = dbContext;
         _mediaService = mediaService;
         _httpContext = httpContext;
         _mailService = mailService;
+        _notificationService = notificationService;
     }
     public async Task<string> OwnerRequest(Request.OwnerRequestRequest model)
     {
@@ -37,12 +39,15 @@ public class Service : IService
         {
             throw new Exception($"Tên {model.FirstName} {model.LastName} không khớp với tên của tài khoản này");
         }
+
+        var identityNumber =
+            await _dbContext.OwnerRequests.FirstOrDefaultAsync(x => x.IdentityNumber == model.IdentityNumber);
         var isExistIdentityNumber = await _dbContext.OwnerRequests.AnyAsync(x => x.IdentityNumber == model.IdentityNumber);
-        if (isExistIdentityNumber)
+        if (isExistIdentityNumber && userIdGuid != identityNumber?.Customer.UserId)
         {
             throw new Exception("Identity number already exists");
         }
-        var ownerRequest = new OwnerRequest()
+        var ownerRequest = new Repository.Entity.OwnerRequest()
         {
             BusinessName = model.BusinessName,
             TaxCode = model.TaxCode,
@@ -56,6 +61,15 @@ public class Service : IService
             Status = "Pending",
         };
         _dbContext.OwnerRequests.Add(ownerRequest);
+        _notificationService.CreateNotification(new Rallyhub.Service.Notification.Request.CreateNotificationRequest
+        {
+            UserId = userIdGuid,
+            Title = "Có đơn đăng ký làm chủ sân mới",
+            Content = $"Khách hàng {model.FirstName} {model.LastName} vừa nộp đơn xin trở thành chủ sân.",
+            Type = Notification.Request.TypeNotification.OwnerRequestSubmitted,
+            OwnerRequestId = ownerRequest.Id
+        });
+
         var result = await _dbContext.SaveChangesAsync();
         if (result >= 1)
         {

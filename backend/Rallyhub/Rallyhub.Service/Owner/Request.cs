@@ -63,5 +63,28 @@ public class Request
         public Guid SubCourtId { get; set; }
         public DateOnly Date { get; set; }
     }
- 
+
+    public class UpdateConfigSlotPriceRequest
+    {
+        public Guid ConfigSlotId { get; set; }
+        public decimal NewPrice { get; set; }
+    }
+
+    public class UpdateCourtInfoRequest
+    {
+        public Guid CourtId { get; set; }
+        public string? Name { get; set; }
+        public string? Address { get; set; }
+        public string? MapUrl { get; set; }
+        public IFormFile? PictureUrl { get; set; }
+        public string? Description { get; set; }
+        public TimeOnly? OpenTime { get; set; }
+        public TimeOnly? CloseTime { get; set; }
+        public int? TimeRefundBefore { get; set; }
+    }
+    public class UpdateSubCourtInfoRequest
+    {
+        public Guid SubCourtId { get; set; }
+        public string Name { get; set; } = null!;
+    }
 }

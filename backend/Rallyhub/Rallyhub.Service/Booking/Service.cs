@@ -13,15 +13,17 @@ public class Service: IService
     private readonly Wallet.IService _walletService;
     private readonly Transaction.IService _transactionService;
     private readonly Owner.IService _ownerService;
+    private readonly Notification.IService _notificationService;
 
     public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, 
-        Wallet.IService walletService, Transaction.IService transactionService, Owner.IService ownerService)
+        Wallet.IService walletService, Transaction.IService transactionService, Owner.IService ownerService, Notification.IService notificationService)
     {
         _dbContext = dbContext;
         _httpContext = httpContext;
         _walletService = walletService;
         _transactionService = transactionService;
         _ownerService = ownerService;
+        _notificationService = notificationService;
     }
     
     public async Task<Response.CreateBookingResponse> CreateBooking(Request.CreateBookingRequest request)
@@ -161,13 +163,13 @@ public class Service: IService
         
         var booking = new Repository.Entity.Booking
         {
-            Id = Guid.NewGuid(),
             CustomerId = customerId,
             TotalPrice = totalPrice,
             FinalPrice = finalPrice,
             Status = "Pending",
             ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(100),
             CampaignId = request.CampaignId,
+            CreatedAt = DateTimeOffset.UtcNow
         };
 
         var bookingDetails = new List<BookingDetail>();
@@ -176,7 +178,6 @@ public class Service: IService
             var availableSlots = availableSlotsSubCourt[item.SubCourtId];
             bookingDetails.AddRange(item.Slots.Select(slot => new BookingDetail()
             {
-                Id = Guid.NewGuid(),
                 SubCourtId = item.SubCourtId,
                 BookingId = booking.Id,
                 Date = dateTime,
@@ -192,6 +193,26 @@ public class Service: IService
         await _dbContext.Bookings.AddAsync(booking);
         await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
         await _dbContext.SaveChangesAsync();
+
+        var bookedSubCourtId = bookingDetails.FirstOrDefault()?.SubCourtId;
+        var subCourt = await _dbContext.SubCourts
+            .Include(sc => sc.Court)
+                .ThenInclude(c => c.Owner)
+            .FirstOrDefaultAsync(x => x.Id == bookedSubCourtId);
+
+        // if (subCourt?.Court?.Owner != null)
+        // {
+        //     _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        //     {
+        //         UserId = subCourt.Court.Owner.UserId,
+        //         Title = "Yêu cầu đặt sân mới",
+        //         Content = $"Sân của bạn đang có một yêu cầu đặt chỗ mới đang chờ thanh toán.",
+        //         Type = Notification.Request.TypeNotification.CourtHasBooking,
+        //         BookingId = booking.Id,
+        //         CourtId =  subCourt.CourtId
+        //     });
+        //     await _dbContext.SaveChangesAsync();
+        // }
 
         string bankName = "MBBank";
         string bankAccount = "VQRQAIUZK3222";
@@ -364,7 +385,6 @@ public class Service: IService
         
         var booking = new Repository.Entity.Booking
         {
-            Id = Guid.NewGuid(),
             CustomerId = customerId,
             TotalPrice = totalPrice,
             FinalPrice = finalPrice,
@@ -403,6 +423,25 @@ public class Service: IService
         }
         await _dbContext.Bookings.AddAsync(booking);
         await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
+
+        var bookedSubCourtId = bookingDetails.FirstOrDefault()?.SubCourtId;
+        var subCourt = await _dbContext.SubCourts
+            .Include(sc => sc.Court)
+                .ThenInclude(c => c.Owner)
+            .FirstOrDefaultAsync(x => x.Id == bookedSubCourtId);
+
+        if (subCourt?.Court?.Owner != null)
+        {
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = subCourt.Court.Owner.UserId,
+                Title = "Thanh toán thành công",
+                Content = $"Khách hàng vừa thanh toán {finalPrice:N0}đ bằng số dư Ví RallyHub.",
+                Type = Notification.Request.TypeNotification.BookingPaid,
+                BookingId = booking.Id
+            });
+        }
+
         await _dbContext.SaveChangesAsync();
     
         var subCourtIds = bookingDetails.Select(x => x.SubCourtId).ToList();
@@ -486,14 +525,15 @@ public class Service: IService
             .Include(x => x.BookingDetails)
                 .ThenInclude(x => x.SubCourt)
                     .ThenInclude(x => x.Court)
+                        .ThenInclude(c => c.Owner)
             .FirstOrDefaultAsync(x => x.Id == bookingId && x.CustomerId == customerId);
-        if (booking.Status == "Pending" || booking.Status == "Refund")
-        {
-            throw new Exception("Booking already refund");
-        }
         if (booking == null)
         {
             throw new Exception("Booking not found or you do not have permission to refund this booking");
+        }
+        if (booking.Status == "Pending" || booking.Status == "Refund")
+        {
+            throw new Exception("Booking already refund");
         }
         if (booking.Status != "Banked")
         {
@@ -542,6 +582,19 @@ public class Service: IService
         {
             details.Status = "Cancelled";
             details.UpdatedAt = DateTimeOffset.UtcNow;
+        }
+
+        var ownerUserId = booking.BookingDetails.FirstOrDefault()?.SubCourt?.Court?.Owner?.UserId;
+        if (ownerUserId != null)
+        {
+            _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+            {
+                UserId = ownerUserId.Value,
+                Title = "Hoàn tiền cho khách hàng",
+                Content = $"Hệ thống đã hủy lịch và hoàn tiền {booking.FinalPrice:N0}đ cho khách hàng.",
+                Type = Notification.Request.TypeNotification.BookingRefunded,
+                BookingId = booking.Id
+            });
         }
 
         await _dbContext.SaveChangesAsync();
