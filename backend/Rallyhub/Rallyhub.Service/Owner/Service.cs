@@ -116,6 +116,58 @@ public class Service : IService
         };  
         return result;  
     }
+
+    public async Task<Response.UpdateCourtInfoResponse> UpdateCourtInfoRequest(Request.UpdateCourtInfoRequest request)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null)
+        {
+            throw new Exception("Không xác minh được danh tính");
+        }
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+        var existCourt = _dbContext.Courts
+            .FirstOrDefault(x => 
+                x.Id == request.CourtId && 
+                x.OwnerId == ownerIdGuid &&
+                x.Status == "Active");
+        if (existCourt == null)
+        {
+            throw new Exception("Không tìm thấy sân!");
+        }
+        
+        // var newOpenTime = request.OpenTime ?? existCourt.OpenTime;
+        // var newCloseTime = request.CloseTime ?? existCourt.CloseTime;
+        //
+        // if (newOpenTime> existCourt.OpenTime || newCloseTime < existCourt.CloseTime)
+        // {
+        //     throw new Exception("Không được thu hẹp thời gian hoạt động của sân");
+        // }
+        //
+        // existCourt.OpenTime = (TimeOnly)request.OpenTime!;
+        // existCourt.CloseTime = (TimeOnly)request.CloseTime!;     
+        
+        if (request.Name != null)
+            existCourt.Name = request.Name;
+
+        if (request.Address != null)
+            existCourt.Address = request.Address;
+
+        if (request.MapUrl != null)
+            existCourt.MapUrl = request.MapUrl;
+
+        if (request.Description != null)
+            existCourt.Description = request.Description;
+
+        if (request.PictureUrl != null)
+        {
+            await _mediaService.UploadImageAsync(request.PictureUrl);
+        }
+        await _dbContext.SaveChangesAsync();
+        return new Response.UpdateCourtInfoResponse()
+        {
+            
+        };
+    }
     public async Task<Response.CreateSubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request)
     {
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
@@ -349,7 +401,6 @@ public class Service : IService
             }).ToListAsync();
         return slots;
     }
-
     public async Task<string> UpdateConfigSlotPrice(Request.UpdateConfigSlotPriceRequest request)
     {
         var  ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;

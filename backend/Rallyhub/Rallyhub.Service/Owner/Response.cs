@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Http;
+
 namespace Rallyhub.Service.Owner;
 
 public class Response
@@ -95,5 +97,18 @@ public class Response
         public bool IsAvailable { get; set; }
        // public string? Reason { get; set; }
         public string Type { get; set; } = null!;
+    }
+    
+    public class UpdateCourtInfoResponse
+    {
+        public Guid CourtId { get; set; }
+        public string? Name { get; set; }
+        public string? Address { get; set; }
+        public string? MapUrl { get; set; }
+        public IFormFile? PictureUrl { get; set; }
+        public string? Description { get; set; }
+        public TimeOnly? StartTime { get; set; }
+        public TimeOnly? EndTime { get; set; }
+        public int? TimeRefundBefore { get; set; } 
     }
 }
