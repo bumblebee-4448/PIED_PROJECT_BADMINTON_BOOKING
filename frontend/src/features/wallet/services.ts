@@ -35,7 +35,7 @@ export const walletService = {
   deposit: async (amount: number): Promise<DepositResponse> => {
     return apiClient.patch<DepositResponse>(
       API_ENDPOINTS.WALLET.ADD_BALANCE,
-      amount,
+      JSON.stringify(amount),
       { headers: { 'Content-Type': 'application/json' } }
     ) as unknown as Promise<DepositResponse>;
   },
@@ -71,7 +71,7 @@ export const walletService = {
   adminApproveWithdrawal: async (withdrawalRequestId: string): Promise<string> => {
     return apiClient.post<string>(
       API_ENDPOINTS.WITHDRAWAL.ADMIN_APPROVE,
-      withdrawalRequestId,
+      JSON.stringify(withdrawalRequestId),
       { headers: { 'Content-Type': 'application/json' } }
     ) as unknown as Promise<string>;
   },
