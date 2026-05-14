@@ -72,6 +72,7 @@ public class Service : IService
             BookingId = request.BookingId,
             WalletId = request.WalletId,
             CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow,
         };
         _dbContext.Transactions.Add(newTransaction);
         

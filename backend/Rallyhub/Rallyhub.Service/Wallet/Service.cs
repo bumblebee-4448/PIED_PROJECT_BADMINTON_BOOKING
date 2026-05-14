@@ -263,7 +263,7 @@ public class Service : IService
                 break;
             }
         }
-        if (amount - wallet.Balance < 0)
+        if (wallet.Balance < amount)
         {
             throw new Exception("Balance of your wallet not enough");
         }

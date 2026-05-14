@@ -8,13 +8,14 @@ public class Request
         public decimal Amount { get; set; }//decimal TransferAmount
         public decimal BalanceBefore { get; set; }
         public decimal BalanceAfter  { get; set; }
+        public string Status { get; set; }
         public string? SePayId { get; set; }//long Id
         public string? BankRefCode { get; set; }//ReferenceCode
         public string? BankAccountNumber { get; set; }//AccountNumber
         public string? TransferContent { get; set; }//Content
         public string? ActionCode { get; set; }//Code
         public string? Signature { get; set; }//Description
-        public string Status { get; set; }
+        
         public Guid? BookingId { get; set; }
         public Guid WalletId { get; set; }
         

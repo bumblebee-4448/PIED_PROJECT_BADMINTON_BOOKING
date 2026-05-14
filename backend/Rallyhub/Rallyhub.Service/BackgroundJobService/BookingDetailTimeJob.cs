@@ -68,15 +68,15 @@ public class BookingDetailTimeJob : IJob
                     var transactionI = new Transaction.Request.CreateTransactionRequest()
                     {
                         Type = Transaction.Request.TypeList.Payment,
-                        Amount = booking.FinalPrice,
+                        Amount = booking.FinalPrice - (booking.FinalPrice * 0.05m),
                         BalanceBefore = wallet.Balance,
-                        BalanceAfter = wallet.Balance + booking.FinalPrice,
+                        BalanceAfter = wallet.Balance + (booking.FinalPrice - (booking.FinalPrice * 0.05m)),
                         Status = "Success",
                         WalletId = wallet.Id,
                         BookingId = booking.Id,
                     };
                     
-                    if (!await _walletService.AddBanlanceToWallet(wallet.UserId, booking.FinalPrice, "Payment"))
+                    if (!await _walletService.AddBanlanceToWallet(wallet.UserId, booking.FinalPrice - (booking.FinalPrice * 0.05m), "Payment"))
                     {
                         throw new Exception("Wallet add balance failed");
                     }

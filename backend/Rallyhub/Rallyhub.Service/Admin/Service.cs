@@ -14,9 +14,10 @@ public class Service: IService
     private readonly IHttpContextAccessor _httpContext;  
     private readonly Wallet.IService _walletService;
     private readonly Transaction.IService _transaction;
+    private readonly Notification.IService _notificationService;
 
     public Service(AppDbContext dbContext, MailService.IService mailService, Transaction.IService transactionService, IHttpContextAccessor httpContext,
-        Wallet.IService walletService, Transaction.IService transaction)
+        Wallet.IService walletService, Transaction.IService transaction, Notification.IService notificationService)
     {
         _dbContext = dbContext;
         _mailService = mailService;
@@ -24,6 +25,7 @@ public class Service: IService
         _httpContext = httpContext;
         _walletService = walletService;
         _transaction = transaction;
+        _notificationService = notificationService;
     }
 //user
     public async Task<Base.Response.PageResult<Response.UserDto>> FilterUser(Request.FilterUserRequest request)
@@ -527,6 +529,16 @@ public class Service: IService
             Subject = subject,
             Body = MailTemplate.GenerateApprovalTemplate(newOwner.User.Email, bodyMail),
         });
+
+        _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        {
+            UserId = newOwner.UserId,
+            Title = "Yêu cầu đối tác được duyệt",
+            Content = "Hồ sơ đăng ký làm chủ sân cầu lông của bạn đã được ban quản trị xét duyệt thành công.",
+            Type = Notification.Request.TypeNotification.OwnerRequestApproved,
+            OwnerRequestId = query.Id
+        });
+        await _dbContext.SaveChangesAsync();
         
         if (result > 0)
         {
@@ -561,6 +573,16 @@ public class Service: IService
             Subject = subject,
             Body = MailTemplate.GenerateRejectionTemplate(query.Customer.User.Email, bodyMail, rejectReason),
         });
+
+        _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        {
+            UserId = query.Customer.UserId,
+            Title = "Yêu cầu đối tác bị từ chối",
+            Content = $"Hồ sơ đăng ký của bạn không được duyệt. Lý do: {rejectReason}",
+            Type = Notification.Request.TypeNotification.OwnerRequestRejected,
+            OwnerRequestId = query.Id
+        });
+        await _dbContext.SaveChangesAsync();
         if (result > 0)
         {
             return "Success";
@@ -643,6 +665,16 @@ public class Service: IService
             Subject = "Approved court",
             Body = htmlBody,
         });
+
+        _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        {
+            UserId = court.Owner.UserId,
+            Title = "Sân đã được duyệt",
+            Content = $"Sân {court.Name} của bạn đã được ban quản trị xét duyệt và hiện đang hoạt động.",
+            Type = Notification.Request.TypeNotification.CourtApproved,
+            CourtId = court.Id
+        });
+        await _dbContext.SaveChangesAsync();
         if (result > 0)
         {
             return "Success";
@@ -673,6 +705,16 @@ public class Service: IService
             Subject = "Rejected court", 
             Body = htmlBody,
         });  
+
+        _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+        {
+            UserId = court.Owner.UserId,
+            Title = "Sân bị từ chối duyệt",
+            Content = $"Sân {court.Name} của bạn không được duyệt. Lý do: {rejectReason}",
+            Type = Notification.Request.TypeNotification.CourtRejected,
+            CourtId = court.Id
+        });
+        await _dbContext.SaveChangesAsync();
         if (result > 0)
         {
             return "Success";
@@ -734,6 +776,14 @@ public class Service: IService
             var result = await _dbContext.SaveChangesAsync();
             if (result > 0)
             {
+                _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
+                {
+                    UserId = request.UserId,
+                    Title = "Ví đã được cộng tiền",
+                    Content = $"Quản trị viên đã cộng {request.Amount:N0}đ vào ví của bạn.",
+                    Type = Notification.Request.TypeNotification.WalletDepositSuccess
+                });
+                await _dbContext.SaveChangesAsync();
                 return "Success";
             }
             return "Fail";
