@@ -105,7 +105,7 @@ public class Response
         public string? Name { get; set; }
         public string? Address { get; set; }
         public string? MapUrl { get; set; }
-        public IFormFile? PictureUrl { get; set; }
+        public string? PictureUrl { get; set; }
         public string? Description { get; set; }
         public TimeOnly? StartTime { get; set; }
         public TimeOnly? EndTime { get; set; }

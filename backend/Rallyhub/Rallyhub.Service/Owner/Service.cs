@@ -135,17 +135,6 @@ public class Service : IService
             throw new Exception("Không tìm thấy sân!");
         }
         
-        // var newOpenTime = request.OpenTime ?? existCourt.OpenTime;
-        // var newCloseTime = request.CloseTime ?? existCourt.CloseTime;
-        //
-        // if (newOpenTime> existCourt.OpenTime || newCloseTime < existCourt.CloseTime)
-        // {
-        //     throw new Exception("Không được thu hẹp thời gian hoạt động của sân");
-        // }
-        //
-        // existCourt.OpenTime = (TimeOnly)request.OpenTime!;
-        // existCourt.CloseTime = (TimeOnly)request.CloseTime!;     
-        
         if (request.Name != null)
             existCourt.Name = request.Name;
 
@@ -160,12 +149,98 @@ public class Service : IService
 
         if (request.PictureUrl != null)
         {
-            await _mediaService.UploadImageAsync(request.PictureUrl);
+            existCourt.PictureUrl = await _mediaService.UploadImageAsync(request.PictureUrl);
         }
+
+        if (request.TimeRefundBefore != null)
+        {
+            if (request.TimeRefundBefore < 0)
+            {
+                throw new Exception("Thời gian hoàn tiền phải lớn hơn hoặc bằng 0");
+            }
+            var hasBooking = await _dbContext.BookingDetails
+                .Include(x => x.SubCourt)
+                .AnyAsync(x =>
+                    x.SubCourt.CourtId == existCourt.Id &&
+                    (x.Status == "Banked" || x.Status =="Pending"));
+            if (hasBooking)
+            {
+                throw new Exception("Đang có đơn đặt sân, không thể thay đổi chính sách hoàn tiền");
+            }
+            existCourt.TimeRefundBefor = request.TimeRefundBefore;
+        }
+
+        var oldOpenTime = existCourt.OpenTime;
+        var oldCloseTime = existCourt.CloseTime;
+        var newOpenTime = request.OpenTime ?? oldOpenTime;
+        var newCloseTime = request.CloseTime ?? oldCloseTime;
+        
+        if (newOpenTime > oldOpenTime || newCloseTime < oldCloseTime)
+        {
+            throw new Exception("Không được thu hẹp thời gian");
+        }
+        existCourt.OpenTime = newOpenTime;
+        existCourt.CloseTime = newCloseTime;
+        
+        var subCourts = await _dbContext.SubCourts
+            .Where(x => x.CourtId == existCourt.Id)
+            .ToListAsync();
+        var slotsNeedAdd = new List<ConfigSlot>();
+        foreach (var subCourt in subCourts)
+        {
+            var configSlots = await _dbContext.ConfigSlots
+                .Where(x => x.SubCourtDetailId == subCourt.Id)
+                .OrderBy(x => x.StartTime)
+                .ToListAsync();
+            
+            if (newOpenTime < oldOpenTime)
+            {
+                var current = newOpenTime;
+                while (current.AddMinutes(30) <= oldOpenTime)
+                {
+                    slotsNeedAdd.Add(new ConfigSlot()
+                    {
+                        Id = Guid.NewGuid(),
+                        SubCourtDetailId = subCourt.Id,
+                        StartTime = current,
+                        EndTime = current.AddMinutes(30),
+                        Price = configSlots.First().Price,
+                    });
+                    current = current.AddMinutes(30);
+                }
+            }
+
+            if (newCloseTime > oldCloseTime)
+            {
+                var current = oldCloseTime;
+                while (current.AddMinutes(30) <= newCloseTime)
+                {
+                    slotsNeedAdd.Add(new ConfigSlot()
+                    {
+                        Id = Guid.NewGuid(),
+                        SubCourtDetailId = subCourt.Id,
+                        StartTime = current,
+                        EndTime = current.AddMinutes(30),
+                        Price = configSlots.First().Price,
+                    });
+                    current = current.AddMinutes(30);
+                }
+            }
+            
+        }
+        await _dbContext.ConfigSlots.AddRangeAsync(slotsNeedAdd);
         await _dbContext.SaveChangesAsync();
         return new Response.UpdateCourtInfoResponse()
         {
-            
+            CourtId = existCourt.Id,
+            Name = existCourt.Name,
+            Address = existCourt.Address,
+            MapUrl = existCourt.MapUrl,
+            Description = existCourt.Description,
+            StartTime = existCourt.OpenTime,
+            EndTime = existCourt.CloseTime,
+            PictureUrl = existCourt.PictureUrl,
+            TimeRefundBefore = existCourt.TimeRefundBefor,
         };
     }
     public async Task<Response.CreateSubCourtResponse> CreateSubCourt(Request.CreateSubCourtRequest request)
