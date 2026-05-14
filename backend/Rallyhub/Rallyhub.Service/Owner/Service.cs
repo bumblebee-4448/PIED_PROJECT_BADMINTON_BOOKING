@@ -755,8 +755,12 @@ public class Service : IService
         {            
             throw new Exception("Owner không tồn tại");  
         }        
+        var ownerId = Guid.Parse(ownerIdClaim);
         var isExistOverrideSlot = _dbContext.OverideSlots
-            .FirstOrDefault(x => x.Id == overrideSlotId);
+            .Include(x => x.SubCourtDetail)
+            .ThenInclude(x => x.Court)
+            .FirstOrDefault(x => x.Id == overrideSlotId &&
+                                 x.SubCourtDetail.Court.OwnerId == ownerId);
         if (isExistOverrideSlot == null)
         {
             throw new Exception("Override slot not found");
@@ -919,11 +923,20 @@ public class Service : IService
     }
     public async Task<string> UnlockException(Guid exceptionSlotId)
     {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
+        if (ownerIdClaim == null)  
+        {            
+            throw new Exception("Owner không tồn tại");  
+        }        
+        var ownerId = Guid.Parse(ownerIdClaim);
         var isExistException = _dbContext.Exceptions
-            .FirstOrDefault(x => x.Id == exceptionSlotId);
+            .Include(x => x.SubCourtDetail)
+            .ThenInclude(x => x.Court)
+            .FirstOrDefault(x => x.Id == exceptionSlotId &&
+                                 x.SubCourtDetail.Court.OwnerId == ownerId );
         if (isExistException == null)
         {
-            throw new Exception("Override slot not found");
+            throw new Exception("Exception slot not found");
         }
         isExistException.IsDeleted = true;
         await _dbContext.SaveChangesAsync();
