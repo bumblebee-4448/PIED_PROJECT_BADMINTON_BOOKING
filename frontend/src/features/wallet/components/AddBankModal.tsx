@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { 
   Dialog, 
   DialogContent, 
-  DialogHeader, 
   DialogTitle, 
   DialogFooter,
   DialogDescription
@@ -10,15 +9,8 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
-import { 
-  Select, 
-  SelectContent, 
-  SelectItem, 
-  SelectTrigger, 
-  SelectValue 
-} from "@/shared/components/ui/select";
 import { Search } from "lucide-react";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import type { AddBankInfoRequest } from "../types";
@@ -51,7 +43,7 @@ export const AddBankModal: React.FC<AddBankModalProps> = ({ isOpen, onClose, onS
   const [searchTerm, setSearchTerm] = useState("");
   const [showDropdown, setShowDropdown] = useState(false);
 
-  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm<AddBankInfoRequest>({
+  const { register, handleSubmit, formState: { errors }, reset, setValue } = useForm<AddBankInfoRequest>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       bankName: "",
@@ -60,7 +52,6 @@ export const AddBankModal: React.FC<AddBankModalProps> = ({ isOpen, onClose, onS
     }
   });
 
-  const selectedBank = watch("bankName");
 
   useEffect(() => {
     if (isOpen) {

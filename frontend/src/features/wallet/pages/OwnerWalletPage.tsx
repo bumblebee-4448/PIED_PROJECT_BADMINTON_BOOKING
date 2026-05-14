@@ -22,7 +22,6 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/shared/components/ui/tabs";
-import { toast } from "sonner";
 
 export const OwnerWalletPage: React.FC = () => {
   const {
@@ -31,6 +30,8 @@ export const OwnerWalletPage: React.FC = () => {
     withdrawalMutation,
     addBankMutation,
     removeBankMutation,
+    useMyTransactions,
+    useMyWithdrawals,
   } = useWallet();
 
   const {
@@ -38,6 +39,10 @@ export const OwnerWalletPage: React.FC = () => {
     isLoading: isWalletLoading,
     refetch: refetchWallet,
   } = useWalletInfo();
+
+  const [pageParams] = useState({ pageIndex: 1, pageSize: 10 });
+  const { data: transactions, isLoading: isTxLoading } = useMyTransactions(pageParams);
+  const { data: withdrawals, isLoading: isWdLoading } = useMyWithdrawals(pageParams);
 
   const [isDepositOpen, setIsDepositOpen] = useState(false);
   const [isWithdrawalOpen, setIsWithdrawalOpen] = useState(false);
@@ -233,14 +238,20 @@ export const OwnerWalletPage: React.FC = () => {
                 value="transactions"
                 className="m-0 focus-visible:outline-none focus-visible:ring-0"
               >
-                <TransactionHistory />
+                <TransactionHistory 
+                  transactions={transactions?.items || []} 
+                  isLoading={isTxLoading} 
+                />
               </TabsContent>
 
               <TabsContent
                 value="withdrawals"
                 className="m-0 focus-visible:outline-none focus-visible:ring-0"
               >
-                <WithdrawalHistory />
+                <WithdrawalHistory 
+                  withdrawals={withdrawals?.items || []} 
+                  isLoading={isWdLoading} 
+                />
               </TabsContent>
             </Tabs>
           </CardContent>
@@ -260,16 +271,7 @@ export const OwnerWalletPage: React.FC = () => {
         onClose={() => setIsWithdrawalOpen(false)}
         onSubmit={handleWithdrawal}
         isLoading={withdrawalMutation.isPending}
-        balance={wallet.balance}
-        bankInfo={
-          wallet.bankAccount
-            ? {
-                bankName: wallet.bankName || "",
-                bankAccount: wallet.bankAccount || "",
-                bankAccountName: wallet.bankAccountName || "",
-              }
-            : undefined
-        }
+        wallet={wallet}
       />
 
       <AddBankModal

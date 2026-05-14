@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { 
   Dialog, 
   DialogContent, 
@@ -31,7 +31,7 @@ export const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose, onD
 
   // Timer logic
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: any;
     if (step === "qr" && timeLeft > 0) {
       timer = setInterval(() => {
         setTimeLeft((prev) => prev - 1);

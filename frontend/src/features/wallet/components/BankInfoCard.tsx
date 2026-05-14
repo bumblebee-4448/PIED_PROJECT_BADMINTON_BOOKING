@@ -45,7 +45,7 @@ export const BankInfoCard: React.FC<BankInfoCardProps> = ({ wallet, onAdd, onRem
             <Button 
               variant="ghost" 
               size="sm" 
-              onClick={handleRemoveBank}
+              onClick={onRemove}
               disabled={isRemoving}
               className="w-full text-red-400 hover:text-red-300 hover:bg-red-500/10 border border-transparent hover:border-red-500/20"
             >
