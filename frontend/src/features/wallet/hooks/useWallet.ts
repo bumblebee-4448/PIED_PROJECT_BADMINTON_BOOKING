@@ -68,6 +68,19 @@ export const useWallet = () => {
     }
   });
 
+  const checkDepositStatusMutation = useMutation({
+    mutationFn: (transactionId: string) => walletService.checkDepositStatus(transactionId),
+    onSuccess: (status) => {
+      if (status === "Success") {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.WALLET_INFO });
+        queryClient.invalidateQueries({ queryKey: ["my-transactions"] });
+      }
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Lỗi khi kiểm tra trạng thái");
+    }
+  });
+
   return {
     useWalletInfo,
     useMyTransactions,
@@ -76,5 +89,6 @@ export const useWallet = () => {
     removeBankMutation,
     depositMutation,
     withdrawalMutation,
+    checkDepositStatusMutation,
   };
 };

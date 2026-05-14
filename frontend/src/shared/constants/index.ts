@@ -68,6 +68,7 @@ export const API_ENDPOINTS = {
     ADD_INFO: "/Wallet/AddInforWallet",
     REMOVE_BANK: "/Wallet/RemoveBankWallet",
     ADD_BALANCE: "/Wallet/AddBalanceToWalletFromPayment",
+    CHECK_STATUS: "/Wallet/CheckDepositStatus/{transactionId}",
   },
   /**
    * Withdrawal endpoints

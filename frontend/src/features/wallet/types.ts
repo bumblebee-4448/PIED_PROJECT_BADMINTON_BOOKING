@@ -20,6 +20,7 @@ export interface DepositRequest {
 
 export interface DepositResponse {
   id: string;
+  transactionId: string;
   amount: number;
   qrCodeUrl: string;
 }
