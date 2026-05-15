@@ -19,8 +19,6 @@ import {
 } from "recharts";
 import {
   OWNER_COURTS,
-  REVENUE_MONTHLY,
-  REVENUE_WEEKLY,
   PEAK_HOURS,
   OWNER_REVIEWS,
 } from "../data/mockData";
@@ -75,7 +73,7 @@ export function OwnerDashboard() {
     return format(new Date(now.getFullYear(), now.getMonth(), 1), "yyyy-MM-dd");
   }, [period]);
   
-  const { data: revenueData, isLoading } = useOwnerRevenue({
+  const { data: revenueData } = useOwnerRevenue({
     startDate,
     endDate: format(new Date(), "yyyy-MM-dd")
   });

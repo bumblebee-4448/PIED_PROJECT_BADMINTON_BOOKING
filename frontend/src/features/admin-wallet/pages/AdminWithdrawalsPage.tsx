@@ -16,9 +16,9 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle, 
-  DialogFooter,
   DialogDescription 
 } from "@/shared/components/ui/dialog";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,

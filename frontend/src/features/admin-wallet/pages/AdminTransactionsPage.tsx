@@ -31,8 +31,7 @@ import { cn } from "@/lib/utils";
 import { 
   Tabs, 
   TabsList, 
-  TabsTrigger, 
-  TabsContent 
+  TabsTrigger
 } from "@/shared/components/ui/tabs";
 
 export const AdminTransactionsPage: React.FC = () => {
