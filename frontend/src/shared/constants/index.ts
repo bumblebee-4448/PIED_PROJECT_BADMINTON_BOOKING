@@ -25,6 +25,10 @@ export const API_ENDPOINTS = {
     PROFILE: "/User/UpdateProfile",
     CHANGE_PASSWORD: "/User/ChangePassword",
   },
+  OWNER: {
+    GET_AVAILABLE_SLOTS: "/Owner/GetAvailableSlots",
+    GET_ALL_BOOKING: "/Owner/GetAvailableSlots",
+  },
   /**
    * Customer endpoints - Quản lý sân yêu thích.
    */
@@ -32,7 +36,6 @@ export const API_ENDPOINTS = {
     GET_ALL_LIKE_LIST: "/Customer/GetAllLikeList",
     ADD_COURT_LIKE: "/Customer/AddCourtLikeList",
     DELETE_COURT_LIKE: "/Customer/DeleteCourtLikeList",
-    // GET_ALL_BOOKING: "/Customer/GetAllBooking",
     CHECK_CANCEL_BOOKING: "/Customer/CheckCancelBooking",
     CANCEL_BOOKING: "/Customer/CancelBooking",
   },
@@ -51,7 +54,6 @@ export const API_ENDPOINTS = {
    * Booking endpoints
    */
   BOOKING: {
-    GET_AVAILABLE_SLOTS: "/Booking/GetAvailableSlots",
     CREATE: "/Booking/CreateBooking",
     CREATE_BY_WALLET: "/Booking/CreateBookingByWallet",
     CANCEL: "/Booking/CancelBooking",
@@ -61,7 +63,7 @@ export const API_ENDPOINTS = {
   MAP: {
     BOXING_BOX: "/Map/boxing_ox",
     RADIUS: "/Map/SearchByRadius",
-    TEXT: "/Map/text",
+    TEXT: "/Map/SeachByText",
   },
   /**
    * Wallet endpoints
@@ -112,9 +114,9 @@ export const QUERY_KEYS = {
  * Difficulty levels cho rituals - Dùng trong filters và forms.
  * RitualCatalog, ManageRitualList, RitualForm
  */
-export const DIFFICULTY_LEVELS = [
-  { value: "dễ", label: "Dễ" },
-  { value: "trung bình", label: "Trung bình" },
-  { value: "khó", label: "Khó" },
-  { value: "rất khó", label: "Rất khó" },
-] as const;
+// export const DIFFICULTY_LEVELS = [
+//   { value: "dễ", label: "Dễ" },
+//   { value: "trung bình", label: "Trung bình" },
+//   { value: "khó", label: "Khó" },
+//   { value: "rất khó", label: "Rất khó" },
+// ] as const;

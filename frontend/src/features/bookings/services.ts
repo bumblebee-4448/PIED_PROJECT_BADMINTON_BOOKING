@@ -32,7 +32,7 @@ export const bookingsService = {
   },
 
   getAvailableSlots: async (subCourtId: string, date: string): Promise<AvailableSlot[]> => {
-    return apiClient.get(API_ENDPOINTS.BOOKING.GET_AVAILABLE_SLOTS, {
+    return apiClient.get(API_ENDPOINTS.OWNER.GET_AVAILABLE_SLOTS, {
       params: { SubCourtId: subCourtId, Date: date }
     }) as Promise<AvailableSlot[]>;
   },

@@ -13,6 +13,7 @@ import { useCourts } from "../hooks/useCourts";
 import { CourtCard } from "../components/CourtCard";
 import { CourtFilters } from "../components/CourtFilters";
 import { CourtMap } from "../components/CourtMap";
+import { CourtDetailDialog } from "../components/CourtDetailDialog";
 import { cn } from "@/lib/utils";
 import { useCourtSearch } from "../hooks/useCourtSearch";
 import type { ApiResponse, CourtListResponse } from "../types";
@@ -34,6 +35,8 @@ export function CourtSearchPage() {
   const { searchQuery, setSearchQuery, debouncedSearch } = useCourtSearch();
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [pageIndex, setPageIndex] = useState(1);
+  const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
+  const [isDetailDialogOpen, setIsDetailDialogOpen] = useState(false);
 
   useEffect(() => {
     setPageIndex(1);
@@ -66,6 +69,11 @@ export function CourtSearchPage() {
   const handleCardClick = useCallback((id: string) => {
     navigate(`/courts/${id}`);
   }, [navigate]);
+
+  const handleMarkerClick = useCallback((id: string) => {
+    setSelectedCourtId(id);
+    setIsDetailDialogOpen(true);
+  }, []);
 
   const handlePreviousPage = useCallback(() => {
     setPageIndex((page) => Math.max(1, page - 1));
@@ -212,10 +220,16 @@ export function CourtSearchPage() {
           </div>
         ) : (
           <div className="h-[70vh] w-full">
-            <CourtMap onMarkerClick={handleCardClick} searchQuery={debouncedSearch} />
+            <CourtMap onMarkerClick={handleMarkerClick} />
           </div>
         )}
       </div>
+
+      <CourtDetailDialog 
+        courtId={selectedCourtId}
+        isOpen={isDetailDialogOpen}
+        onClose={() => setIsDetailDialogOpen(false)}
+      />
     </div>
   );
 }

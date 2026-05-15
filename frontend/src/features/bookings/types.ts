@@ -68,6 +68,8 @@ export interface AvailableSlot {
   endTime: string;   // HH:mm:ss
   price: number;
   isAvailable: boolean;
+  type?: "Default" | "Booked" | "Blocked" | "Override" | string;
+  reason?: string;
 }
 
 export interface SlotRequest {
