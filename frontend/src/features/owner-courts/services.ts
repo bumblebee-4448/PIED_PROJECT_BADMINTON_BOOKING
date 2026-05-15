@@ -8,7 +8,8 @@ import type {
   CreateOverrideSlotRequest,
   OverrideSlotResponse,
   CreateExceptionSlotRequest,
-  ExceptionSlotResponse
+  ExceptionSlotResponse,
+  GetBookingDetailResponse
 } from "./types";
 import type { PaginatedResponse } from "@/shared/types";
 
@@ -103,6 +104,8 @@ export const ownerCourtService = {
   createExceptionSlot: async (data: CreateExceptionSlotRequest) => {
     return apiClient.post("/Owner/CreateExceptionSlot", {
       SubCourtId: data.subCourtId,
+      IsRecurring: data.isRecurring,
+      DayOfWeek: data.dayOfWeek,
       Date: data.date,
       StartTime: data.startTime,
       EndTime: data.endTime,
@@ -114,5 +117,11 @@ export const ownerCourtService = {
     return apiClient.get<ExceptionSlotResponse[]>("/Owner/GetExceptionSlotBySubCourtId", {
       params: { subCourtId },
     }) as unknown as Promise<ExceptionSlotResponse[]>;
+  },
+
+  getBookingDetail: async (bookingDetailsId: string) => {
+    return apiClient.post("/Booking/GetBookingDetail", null, {
+      params: { bookingDetailsId }
+    }) as unknown as Promise<GetBookingDetailResponse>;
   },
 };

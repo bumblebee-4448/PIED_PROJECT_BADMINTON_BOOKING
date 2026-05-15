@@ -6,7 +6,8 @@ import type {
   AvailableSlot, 
   CreateBookingRequest, 
   CreateBookingResponse,
-  GetBookingHistoryRequest
+  GetBookingHistoryRequest,
+  TransactionResponse
 } from "./types";
 
 export const bookingsService = {
@@ -32,7 +33,7 @@ export const bookingsService = {
   },
 
   getAvailableSlots: async (subCourtId: string, date: string): Promise<AvailableSlot[]> => {
-    return apiClient.get(API_ENDPOINTS.BOOKING.GET_AVAILABLE_SLOTS, {
+    return apiClient.get(API_ENDPOINTS.OWNER.GET_AVAILABLE_SLOTS, {
       params: { SubCourtId: subCourtId, Date: date }
     }) as Promise<AvailableSlot[]>;
   },
@@ -49,5 +50,11 @@ export const bookingsService = {
     await apiClient.patch(API_ENDPOINTS.BOOKING.REFUND, null, {
       params: { bookingId }
     });
+  },
+
+  getTransactions: async (pageIndex = 1, pageSize = 100): Promise<TransactionResponse> => {
+    return apiClient.get(API_ENDPOINTS.TRANSACTION.GET_MY, {
+      params: { PageIndex: pageIndex, PageSize: pageSize }
+    }) as Promise<TransactionResponse>;
   },
 };

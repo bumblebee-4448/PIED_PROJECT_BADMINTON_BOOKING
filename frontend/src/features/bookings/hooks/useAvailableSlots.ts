@@ -20,6 +20,8 @@ export function useAvailableSlots(subCourts: SubCourt[], selectedDate: Date) {
           endTime: s.endTime || s.EndTime,
           price: s.price ?? s.Price ?? 0,
           isAvailable: s.isAvailable !== undefined ? s.isAvailable : s.IsAvailable,
+          type: s.type || s.Type,
+          reason: s.reason || s.Reason,
           subCourtId: sub.subCourtId
         }));
       },

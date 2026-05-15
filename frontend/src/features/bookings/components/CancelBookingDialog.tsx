@@ -52,9 +52,9 @@ export function CancelBookingDialog({ bookingId, status, isOpen, onClose }: Canc
   const getDialogContent = () => {
     if (isBanked) {
       return {
-        title: "Xác nhận hoàn tiền",
-        description: "Bạn đã thanh toán cho đơn này. Hệ thống sẽ thực hiện hoàn tiền theo chính sách của sân.",
-        confirmText: "Yêu cầu hoàn tiền",
+        title: "Xác nhận hủy & hoàn tiền",
+        description: "Đơn này đã được thanh toán. Bạn có chắc muốn hủy không? Hệ thống sẽ thực hiện hoàn tiền theo chính sách của sân.",
+        confirmText: "Xác nhận hủy & hoàn tiền",
         icon: <Info size={32} className="text-blue-500" />,
         iconBg: "bg-blue-50",
       };

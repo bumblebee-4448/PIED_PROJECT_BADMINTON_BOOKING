@@ -6,22 +6,30 @@ import {
   XCircle,
   Clock3,
   Phone,
-  Hash
+  Hash,
+  CreditCard
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
-import type { GetBookingResponse } from "../types";
+import type { GetBookingResponse, TransactionItem } from "../types";
 
 interface BookingCardProps {
   booking: GetBookingResponse;
+  transaction?: TransactionItem;
   onCancelClick?: (id: string) => void;
-  onRefundClick?: (id: string) => void;
+  onViewPaymentClick?: (transaction: TransactionItem) => void;
 }
 
-export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCardProps) {
+export function BookingCard({ booking, transaction, onCancelClick, onViewPaymentClick }: BookingCardProps) {
   const getStatusConfig = (status: string) => {
     switch (status) {
+      case "Pending":
+        return {
+          label: "Chờ thanh toán",
+          icon: <Clock3 size={14} />,
+          className: "bg-amber-50 text-amber-600 border-amber-100",
+        };
       case "Banked":
         return {
           label: "Đã thanh toán",
@@ -29,6 +37,7 @@ export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCa
           className: "bg-emerald-50 text-emerald-600 border-emerald-100",
         };
       case "Complete":
+      case "Completed":
         return {
           label: "Hoàn thành",
           icon: <CheckCircle2 size={14} />,
@@ -40,6 +49,12 @@ export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCa
           label: "Đã hủy",
           icon: <XCircle size={14} />,
           className: "bg-red-50 text-red-600 border-red-100",
+        };
+      case "Refund":
+        return {
+          label: "Đã hoàn tiền",
+          icon: <XCircle size={14} />,
+          className: "bg-gray-100 text-gray-600 border-gray-200",
         };
       case "RefundPending":
         return {
@@ -108,6 +123,15 @@ export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCa
               <span>{phoneNumber}</span>
             </div>
           </div>
+          {transaction && (
+            <div className="bg-emerald-50/30 rounded-2xl p-4 border border-emerald-100/50 flex flex-col items-center justify-center text-center md:col-span-2">
+              <span className="text-[10px] uppercase tracking-widest font-black text-emerald-600 mb-2">Ngày chuyển khoản</span>
+              <div className="flex items-center gap-2 font-bold text-emerald-700">
+                <Calendar size={16} className="text-emerald-500" />
+                <span>{format(parseISO(transaction.createdAt), "HH:mm - dd/MM/yyyy")}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Slots List */}
@@ -151,23 +175,29 @@ export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCa
           </div>
 
           <div className="flex items-center gap-4 w-full md:w-auto">
-            {status === "Pending" && (
+            {(status === "Pending" || status === "Banked") && (
               <Button
                 variant="ghost"
                 onClick={() => onCancelClick?.(id)}
-                className="flex-1 md:flex-none text-red-500 font-bold text-sm hover:text-red-600 hover:bg-red-50 transition-colors px-4 rounded-2xl"
+                className={cn(
+                  "flex-1 md:flex-none font-bold text-sm transition-colors px-4 rounded-2xl",
+                  status === "Pending" 
+                    ? "text-red-500 hover:text-red-600 hover:bg-red-50" 
+                    : "text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                )}
               >
-                Hủy đơn
+                {status === "Pending" ? "Hủy đơn" : "Hủy & Hoàn tiền"}
               </Button>
             )}
 
-            {status === "Banked" && (
+            {transaction && (
               <Button
-                variant="ghost"
-                onClick={() => onRefundClick?.(id)}
-                className="flex-1 md:flex-none text-orange-500 font-bold text-sm hover:text-orange-600 hover:bg-orange-50 transition-colors px-4 rounded-2xl"
+                variant="outline"
+                onClick={() => onViewPaymentClick?.(transaction)}
+                className="flex-1 md:flex-none border-emerald-100 text-[#00897B] font-bold text-sm hover:bg-emerald-50 transition-colors px-4 rounded-2xl h-12"
               >
-                Yêu cầu hoàn tiền
+                <CreditCard size={16} className="mr-2" />
+                Chi tiết thanh toán
               </Button>
             )}
             

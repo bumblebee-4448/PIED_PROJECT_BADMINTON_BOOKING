@@ -14,7 +14,7 @@ import { ProtectedRoute } from "@/shared/components/common";
 import { FavoritesPage } from "@/features/favorites";
 import { AdminLayout } from "@/shared/layouts/AdminLayout";
 import { AdminDashboard, OwnerDashboard } from "@/features/dashboard";
-import { CourtSearchPage } from "@/features/courts";
+import { CourtDetailPage, CourtSearchPage } from "@/features/courts";
 import { BookingHistoryPage, BookingPage } from "@/features/bookings";
 import { OwnerRequestsPage } from "@/features/admin-owner-requests";
 import OwnerLayout from "@/shared/layouts/OwnerLayout";
@@ -38,6 +38,7 @@ export const router = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: "courts", element: <CourtSearchPage /> },
+      { path: "courts/:id", element: <CourtDetailPage /> },
       { path: "courts/:id/booking", element: <BookingPage /> },
       { path: "matching", element: <ComingSoonPage /> },
       {

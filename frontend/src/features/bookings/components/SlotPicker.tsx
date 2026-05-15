@@ -26,10 +26,14 @@ export function SlotPicker({ slots, selectedSlots, onToggleSlot }: SlotPickerPro
             className={cn(
               "relative p-4 rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-2 group",
               selected
-                ? "bg-emerald-50 border-emerald-500 text-emerald-700 shadow-md scale-[0.98]"
-                : disabled
-                  ? "bg-gray-50 border-gray-100 text-gray-300 cursor-not-allowed opacity-60"
-                  : "bg-white border-gray-100 text-gray-600 hover:border-emerald-200 hover:bg-emerald-50/30"
+                ? "bg-amber-400 border-amber-500 text-white shadow-md scale-[0.98]"
+                : slot.type === "Booked"
+                  ? "bg-rose-500 border-rose-600 text-white cursor-not-allowed shadow-md"
+                  : slot.type === "Blocked"
+                    ? "bg-gray-400 border-gray-500 text-white cursor-not-allowed"
+                    : slot.type === "Override"
+                      ? "bg-violet-500 border-violet-600 text-white shadow-md"
+                      : "bg-white border-gray-100 text-gray-600 hover:border-amber-400 hover:bg-amber-50/30 shadow-sm"
             )}
           >
             {selected && (
@@ -46,7 +50,9 @@ export function SlotPicker({ slots, selectedSlots, onToggleSlot }: SlotPickerPro
 
             <Clock size={16} className={cn(
               "transition-colors",
-              selected ? "text-emerald-500" : disabled ? "text-gray-300" : "text-gray-400 group-hover:text-emerald-400"
+              selected ? "text-white" : 
+              slot.type === "Booked" || slot.type === "Blocked" || slot.type === "Override" ? "text-white" : 
+              "text-gray-400 group-hover:text-amber-400"
             )} />
             
             <div className="text-center">
@@ -55,7 +61,9 @@ export function SlotPicker({ slots, selectedSlots, onToggleSlot }: SlotPickerPro
               </p>
               <p className={cn(
                 "text-[10px] font-bold mt-0.5",
-                selected ? "text-emerald-600" : disabled ? "text-gray-300" : "text-gray-400"
+                selected ? "text-white/80" : 
+                slot.type === "Booked" || slot.type === "Blocked" || slot.type === "Override" ? "text-white/80" : 
+                "text-gray-400"
               )}>
                 {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(slot.price)}
               </p>
