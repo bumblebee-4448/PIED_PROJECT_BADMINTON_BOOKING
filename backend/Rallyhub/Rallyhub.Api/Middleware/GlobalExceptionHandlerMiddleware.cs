@@ -1,22 +1,25 @@
 using Rallyhub.Service.Models;
 using System.Diagnostics;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
+using Rallyhub.Service.DiscordService;
 
 namespace Rallyhub.Api.Middleware;
 
 public class GlobalExceptionHandlerMiddleware : IMiddleware
 {
     private readonly IHostEnvironment _environment;
-    //cho biết đc phiên bản dev hay production
     private readonly ILogger<GlobalExceptionHandlerMiddleware> _logger;
-    //giúp in, er, infor,..
+    private readonly IService _service;
 
     public GlobalExceptionHandlerMiddleware(
         IHostEnvironment environment,
-        ILogger<GlobalExceptionHandlerMiddleware> logger)
+        ILogger<GlobalExceptionHandlerMiddleware> logger,
+        IService service)
     {
         _environment = environment;
         _logger = logger;
+        _service = service;
     }
 
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -27,85 +30,66 @@ public class GlobalExceptionHandlerMiddleware : IMiddleware
         }
         catch (Exception ex)
         {
-            var (statusCode, errorType, englishMessage) = MapException(ex);
-
-            if (statusCode >= StatusCodes.Status500InternalServerError)
-            {
-                _logger.LogError(ex, "Backend Error occurred while processing request {Path}", context.Request.Path);
-            }
-            else
-            {
-                _logger.LogWarning(ex, "{ErrorType} occurred while processing request {Path}: {Message}", errorType, context.Request.Path, ex.Message);
-            }
+            _logger.LogError(ex, "Unhandled exception occurred while processing request {Path}", context.Request.Path);
 
             if (context.Response.HasStarted)
             {
+                // Lỗi nâng cao sẽ nói sau
                 _logger.LogWarning("The response has already started, the global exception middleware will not write an error response");
                 throw;
             }
+
+            var statusCode = MapStatusCode(ex);
+
+            await _service.SendExceptionAlertAsync(
+                context,
+                ex,
+                statusCode,
+                context.RequestAborted);
 
             context.Response.StatusCode = statusCode;
             context.Response.ContentType = "application/json";
 
             var response = ApiResponseFactory.ErrorResponse(
-                message: englishMessage,
-                errors: new 
-                { 
-                    errorType = errorType, 
-                    originalMessage = GetDeepestMessage(ex), 
-                    detail = _environment.IsDevelopment() ? $"Error: {GetDeepestMessage(ex)} | Location: {GetErrorLocation(ex)}" : null 
-                },
+                message: ResolveClientMessage(ex, statusCode),
+                errors: BuildErrorDetails(ex, _environment.IsDevelopment()),
                 traceId: context.TraceIdentifier);
 
             await context.Response.WriteAsJsonAsync(response);
         }
     }
 
-    private static (int StatusCode, string ErrorType, string EnglishMessage) MapException(Exception ex)
+    private static int MapStatusCode(Exception ex)
     {
-        if (ErrorMappingConfig.BusinessErrors.TryGetValue(ex.Message, out var mapped))
-        {
-            return (mapped.StatusCode, "User Error / Business Logic", mapped.EnglishMessage);
-        }
-
         return ex switch
         {
-            ArgumentException => (StatusCodes.Status400BadRequest, "Frontend Error / Invalid Input", "Invalid arguments provided. Please check your input data."),
-            InvalidOperationException => (StatusCodes.Status400BadRequest, "User Error / Invalid Operation", "The requested operation is invalid in the current state."),
-            UnauthorizedAccessException => (StatusCodes.Status401Unauthorized, "User Error / Unauthorized", "You do not have permission to access this resource."),
-            KeyNotFoundException => (StatusCodes.Status404NotFound, "User Error / Not Found", "The requested resource was not found."),
-            
-            DbUpdateConcurrencyException => (StatusCodes.Status409Conflict, "Backend Error / Database Conflict", "Data has been modified by another process. Please try again."),
-            DbUpdateException => (StatusCodes.Status400BadRequest, "Backend Error / Database Error", "Database operation failed, possibly due to a constraint violation."),
-            NotImplementedException => (StatusCodes.Status501NotImplemented, "Backend Error / Not Implemented", "This feature is not yet implemented by the backend."),
-            
-            _ => (StatusCodes.Status500InternalServerError, "Backend Error / Internal Server Error", "An unexpected internal server error occurred.")
+            ArgumentException => StatusCodes.Status400BadRequest,
+            RetryLimitExceededException => StatusCodes.Status503ServiceUnavailable,
+            TimeoutException => StatusCodes.Status503ServiceUnavailable,
+            UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+            KeyNotFoundException => StatusCodes.Status404NotFound,
+            _ => StatusCodes.Status500InternalServerError
         };
     }
 
-    private static string GetDeepestMessage(Exception ex)
+    private static string ResolveClientMessage(Exception ex, int statusCode)
     {
-        var current = ex;
-        while (current.InnerException != null)
-        {
-            current = current.InnerException;
-        }
-        return current.Message;
+        return statusCode >= 500 ? "An unexpected error occurred" : ex.Message;
     }
 
-    private static string GetErrorLocation(Exception ex)
+    private static object? BuildErrorDetails(Exception ex, bool isDevelopment)
     {
-        if (string.IsNullOrEmpty(ex.StackTrace)) return "Unknown location";
-
-        var lines = ex.StackTrace.Split(new[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-        var relevantLine = lines.FirstOrDefault(l => l.Contains("Rallyhub"))?.Trim();
-
-        if (relevantLine != null)
+        if (!isDevelopment)
         {
-            var match = System.Text.RegularExpressions.Regex.Match(relevantLine, @"in .*\\([^\\]+\.cs:line \d+)");
-            return match.Success ? match.Groups[1].Value : relevantLine;
+            return null;
         }
 
-        return "Unknown location";
+        return new
+        {
+            detail = ex.Message,
+            exceptionType = ex.GetType().FullName,
+            innerDetail = ex.InnerException?.Message,
+            rootCauseDetail = ex.GetBaseException().Message
+        };
     }
 }

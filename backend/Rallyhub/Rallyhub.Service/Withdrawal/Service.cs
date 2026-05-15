@@ -29,24 +29,29 @@ public class Service : IService
         var wallet = await _dbcontext.Wallets.FirstOrDefaultAsync(x => x.UserId == userIdGuild);
         if (wallet == null)
         {
-            throw new Exception("Wallet not found");
+            throw new UnauthorizedAccessException("Wallet not found");
         }
 
         if (string.IsNullOrEmpty(wallet.BankName) || 
             string.IsNullOrEmpty(wallet.BankAccount) || 
             string.IsNullOrEmpty(wallet.BankAccountName))
         {
-            throw new Exception("Vui lòng liên kết tài khoản ngân hàng trước khi rút tiền");
+            throw new ArgumentException("Vui lòng liên kết tài khoản ngân hàng trước khi rút tiền");
         }
 
         if (request.Amount < 0)
         {
-            throw new Exception("Số dư không thể là số âm");
+            throw new ArgumentException("Số dư không thể là số âm");
         }
 
         if (wallet.Balance < request.Amount)
         {
-            throw new Exception("Số dư không đủ để thực hiện yêu cầu này");
+            throw new ArgumentException("Số dư không đủ để thực hiện yêu cầu này");
+        }
+
+        if (request.Amount < 50000)
+        {
+            throw new ArgumentException("phair rut toi thieu 50k");
         }
         var newWithdrawal = new Repository.Entity.Withdrawal()
         {
