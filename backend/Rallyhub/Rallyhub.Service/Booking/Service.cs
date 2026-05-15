@@ -219,7 +219,7 @@ public class Service: IService
         string bankName = "MBBank";
         string bankAccount = "VQRQAIUZK3222";
         string description = $"RA-{booking.Id:N}";
-        
+        string nguoinhan = "PHAM QUOC HOANG";
         string qrCodeUrl = $"https://qr.sepay.vn/img?" +
                            $"acc={bankAccount}&" +
                            $"bank={bankName}&" +
@@ -235,7 +235,7 @@ public class Service: IService
         {
             BookingId = booking.Id,
             BankName = bankName,
-            BankAccount = bankAccount,
+            BankAccount = nguoinhan,
             TotalPrice = booking.FinalPrice,
             ExpiredAt = booking.ExpiresAt,
             Status = booking.Status,
