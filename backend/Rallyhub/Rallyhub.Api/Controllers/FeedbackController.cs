@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Api.Extention;
 using Rallyhub.Repository;
-using Rallyhub.Service.Feadback;
+using Rallyhub.Service.Feedback;
 
 namespace Rallyhub.Api.Controllers;
 [ApiController]
@@ -11,7 +11,7 @@ namespace Rallyhub.Api.Controllers;
 public class FeedbackController: ControllerBase
 {
     private readonly AppDbContext _dbContext;
-    private readonly Service.Feadback.IService _feadbackService;
+    private readonly Service.Feedback.IService _feadbackService;
 
     public FeedbackController(AppDbContext dbContext, IService feadbackService)
     {
