@@ -7,12 +7,7 @@ public class Response
         public required int TotalUsers { get; set; }
         public required int TotalCourtActive { get; set; }
         public required decimal TotalAmount { get; set; }
+        public required decimal TotalCompletedBookingsAmount { get; set; }
+        
     }
-    // public class DashboardOwnerResponse
-    // {
-    //     public required decimal TotalAmount { get; set; }
-    //     public required int TotalBookings  { get; set; }
-    //     public required int TotalBookingsToday  { get; set; }
-    //     public required decimal AvgRating  { get; set; }
-    // }
 }

@@ -148,7 +148,6 @@ public class Service: IService
                     throw new Exception("Campaign này không áp dụng cho sân bạn đang đặt");
                 }
             }
-
             var discountAmount = totalPrice * (campaign.DiscountPercent / 100m);
             if (discountAmount > campaign.MaxDiscountAmount)
             {

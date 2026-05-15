@@ -14,13 +14,14 @@ public class Service: IService
         _dbContext = dbContext;
         _httpContextAccessor = httpContextAccessor;
     }
-
     public async Task<Response.DashboardAdminResponse> DashboardAdmin()
     {
         return new Response.DashboardAdminResponse()
         {
-            TotalAmount = (await  _dbContext.Bookings.Where(x => x.Status == "Completed")
+            TotalAmount = (await  _dbContext.Bookings.Where(x => x.Status == "Completed" && x.CreatedAt.Month == DateTimeOffset.UtcNow.Month)
                                                         .SumAsync(y => (decimal?)y.FinalPrice) ?? 0) * 0.05m,
+            TotalCompletedBookingsAmount = (await  _dbContext.Bookings.Where(x => x.Status == "Completed" && x.CreatedAt.Month == DateTimeOffset.UtcNow.Month)
+                .SumAsync(y => (decimal?)y.FinalPrice) ?? 0),
             TotalUsers = await _dbContext.Users.CountAsync(x => x.IsDeleted == false),
             TotalCourtActive = await _dbContext.Courts.CountAsync(x => x.Status == "Active"),
         };

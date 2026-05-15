@@ -17,7 +17,7 @@ public class CampaignController: ControllerBase
         _dbContext = dbContext;
         _campaignService = campaignService;
     }
-    [HttpPost("")]
+    [HttpPost("Campaigns")]
     [Authorize(Policy = JwtExtensions.OwnerOrAdminPolicy)]
     public async Task<IActionResult> CreateCampaign(Request.CreateCampaignRequest request)
     {
@@ -38,21 +38,21 @@ public class CampaignController: ControllerBase
         await _campaignService.UpdateCampaign(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("Update success", HttpContext.TraceIdentifier));
     }
-    [HttpGet("Admin/Campaign")]
-    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    [HttpGet("")]
+    [Authorize]
     public async Task<IActionResult> GetCampaign([FromQuery] Service.Base.Request.PagingRequest request)
     {
         var result = await _campaignService.GetAllCampaign(request);
         return  Ok(Service.Models.ApiResponseFactory.SuccessResponse(result,"List Campagin", HttpContext.TraceIdentifier));
     }
-    [HttpGet("Owner/CampaignCourt")]
+    [HttpGet("CampaignCourt")]
     [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     public async Task<IActionResult> GetAllCampaignCourt([FromQuery] Service.Base.Request.PagingRequest request)
     {
         var result = await _campaignService.GetAllCampaignCourt(request);
         return  Ok(Service.Models.ApiResponseFactory.SuccessResponse(result,"List Campagin", HttpContext.TraceIdentifier));
     }
-    [HttpGet("Customer/Campaign")]
+    [HttpGet("Campaigns")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> CampaignByCourt([FromQuery] Request.GetCampaignByCourtRequest request)
     {
