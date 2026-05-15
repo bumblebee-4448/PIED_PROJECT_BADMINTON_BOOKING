@@ -1014,6 +1014,7 @@ public class Service : IService
     }
     public async Task<List<Response.SlotResponse>> GetAvailableSlots(Request.GetAvailableSlotsRequest request)
     {
+        
         var subCourt = await _dbContext.SubCourts
             .Include(x => x.Court)
             .FirstOrDefaultAsync(x => 
@@ -1021,6 +1022,22 @@ public class Service : IService
                 x.Court.Status == "Active");
         if (subCourt == null)
             throw new Exception("Sân con không tồn tại");
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        var ownerIdGuid = Guid.Parse(ownerIdClaim!);
+        if (ownerIdGuid != null)
+        {
+            var existSubCourt = await _dbContext.SubCourts
+                .Include(x => x.Court)
+                .FirstOrDefaultAsync(x => 
+                    x.Id == request.SubCourtId && 
+                    x.Court.Status == "Active" &&
+                    x.Court.OwnerId == ownerIdGuid);
+            if (existSubCourt == null)
+            {
+                throw new Exception("Sân con không tồn tại");
+            }
+        }
+        
         // // var today = DateOnly.FromDateTime(DateTime.UtcNow);
         // var vnZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
         // var today = DateOnly.FromDateTime(TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnZone));    
