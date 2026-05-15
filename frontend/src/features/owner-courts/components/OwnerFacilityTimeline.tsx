@@ -10,9 +10,12 @@ import {
   Plus,
   Loader2,
   Lock,
-  CalendarCheck
+  CalendarCheck,
+  Edit2,
+  Trash2
 } from "lucide-react";
-import { useBookingDetail } from "../hooks/useOwnerSlots";
+import { useBookingDetail, useUnlockException, useRemoveOverrideSlot, useUpdateConfigSlotPrice } from "../hooks/useOwnerSlots";
+import { useUpdateSubCourtInfo, useRemoveSubCourt } from "../hooks/useOwnerSubCourts";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { 
@@ -44,6 +47,99 @@ const DAYS_OF_WEEK = [
   { value: 6, label: "Thứ Bảy" },
   { value: 0, label: "Chủ Nhật" },
 ];
+
+function SlotActionModal({
+  slot,
+  isOpen,
+  onOpenChange
+}: {
+  slot: any;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const unlockMutation = useUnlockException();
+  const removeOverrideMutation = useRemoveOverrideSlot();
+  const updatePriceMutation = useUpdateConfigSlotPrice();
+  const [newPrice, setNewPrice] = useState(slot?.price?.toString() || "");
+
+  if (!slot) return null;
+
+  const handleAction = async () => {
+    try {
+      if (slot.type === "Blocked" && slot.exceptionId) {
+        await unlockMutation.mutateAsync(slot.exceptionId);
+      } else if (slot.type === "Override" && slot.overrideSlotId) {
+        await removeOverrideMutation.mutateAsync(slot.overrideSlotId);
+      } else if (slot.configSlotId) {
+        await updatePriceMutation.mutateAsync({
+          configSlotId: slot.configSlotId,
+          newPrice: Number(newPrice)
+        });
+      }
+      onOpenChange(false);
+    } catch (error) {}
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[400px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
+        <div className={cn(
+          "p-6 text-white relative",
+          slot.type === "Blocked" ? "bg-red-600" : 
+          slot.type === "Override" ? "bg-violet-600" : "bg-emerald-600"
+        )}>
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black">
+              {slot.type === "Blocked" ? "Mở khóa slot" : 
+               slot.type === "Override" ? "Gỡ gộp slot" : "Cập nhật giá slot"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="mt-2 text-xs font-medium opacity-80">
+            {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
+          </div>
+        </div>
+
+        <div className="p-6 space-y-6">
+          {(slot.type === "Blocked" || slot.type === "Override") ? (
+            <p className="text-sm font-medium text-gray-600">
+              Bạn có chắc chắn muốn {slot.type === "Blocked" ? "mở khóa" : "gỡ gộp"} khung giờ này không? 
+              Khung giờ sẽ trở về trạng thái mặc định.
+            </p>
+          ) : (
+            <div className="space-y-2">
+              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Giá tiền mới (VNĐ)</Label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">₫</span>
+                <Input 
+                  type="number" 
+                  value={newPrice}
+                  onChange={(e) => setNewPrice(e.target.value)}
+                  className="pl-8 h-12 rounded-xl bg-gray-50 border-gray-100 focus:bg-white transition-all font-bold"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="p-6 bg-gray-50 border-t border-gray-100">
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
+          <Button 
+            onClick={handleAction}
+            disabled={unlockMutation.isPending || removeOverrideMutation.isPending || updatePriceMutation.isPending}
+            className={cn(
+              "rounded-xl px-8 font-black text-white",
+              slot.type === "Blocked" ? "bg-red-600 hover:bg-red-700" : 
+              slot.type === "Override" ? "bg-violet-600 hover:bg-violet-700" : "bg-emerald-600 hover:bg-emerald-700"
+            )}
+          >
+            {unlockMutation.isPending || removeOverrideMutation.isPending || updatePriceMutation.isPending ? 
+              <Loader2 className="animate-spin" size={20} /> : "XÁC NHẬN"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function BookingDetailModal({ 
   bookingDetailId, 
@@ -127,6 +223,58 @@ function BookingDetailModal({
   );
 }
 
+function UpdateSubCourtModal({
+  subCourt,
+  isOpen,
+  onOpenChange
+}: {
+  subCourt: SubCourtListItem | null;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+}) {
+  const updateMutation = useUpdateSubCourtInfo();
+  const [name, setName] = useState(subCourt?.name || "");
+
+  if (!subCourt) return null;
+
+  const handleUpdate = async () => {
+    if (!name) return;
+    try {
+      await updateMutation.mutateAsync({
+        subCourtId: subCourt.subCourtId,
+        name: name
+      });
+      onOpenChange(false);
+    } catch (error) {}
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[400px] rounded-3xl p-6">
+        <DialogHeader>
+          <DialogTitle className="text-xl font-black">Cập nhật sân con</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-4 py-4">
+          <div className="space-y-2">
+            <Label className="text-xs font-bold text-gray-500">Tên sân con</Label>
+            <Input 
+              value={name} 
+              onChange={(e) => setName(e.target.value)}
+              className="rounded-xl h-12 font-bold"
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold">Hủy</Button>
+          <Button onClick={handleUpdate} disabled={updateMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-black">
+            {updateMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "CẬP NHẬT"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 interface OwnerFacilityTimelineProps {
   subCourts: SubCourtListItem[];
   courtName: string;
@@ -162,6 +310,13 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
 
   const createOverrideMutation = useCreateOverrideSlot();
   const createExceptionMutation = useCreateExceptionSlot();
+  const removeSubCourtMutation = useRemoveSubCourt();
+
+  const [selectedSlotForAction, setSelectedSlotForAction] = useState<any>(null);
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+
+  const [subCourtToEdit, setSubCourtToEdit] = useState<SubCourtListItem | null>(null);
+  const [isUpdateSubCourtOpen, setIsUpdateSubCourtOpen] = useState(false);
 
   // Fetch all slots for all sub-courts in parallel
   const subCourtQueries = useQueries({
@@ -560,8 +715,37 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
                 <div key={sub.subCourtId} className="flex group hover:bg-gray-50/30 transition-colors relative hover:z-40">
                   {/* Sub-court info */}
                   <div className="w-40 shrink-0 border-r border-gray-100 p-4 bg-white sticky left-0 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
-                    <p className="font-bold text-sm text-gray-900 truncate">{sub.name}</p>
-                    <p className="text-[9px] text-gray-400 truncate">ID: {sub.subCourtId.split('-')[0]}</p>
+                    <div className="flex items-center justify-between group/info">
+                      <div className="truncate flex-1">
+                        <p className="font-bold text-sm text-gray-900 truncate">{sub.name}</p>
+                        <p className="text-[9px] text-gray-400 truncate">ID: {sub.subCourtId.split('-')[0]}</p>
+                      </div>
+                      <div className="flex flex-col gap-1 opacity-0 group-hover/info:opacity-100 transition-opacity">
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 text-blue-500 hover:bg-blue-50"
+                          onClick={() => {
+                            setSubCourtToEdit(sub);
+                            setIsUpdateSubCourtOpen(true);
+                          }}
+                        >
+                          <Edit2 size={12} />
+                        </Button>
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          className="h-6 w-6 text-red-500 hover:bg-red-50"
+                          onClick={() => {
+                            if (window.confirm(`Bạn có chắc muốn xóa sân ${sub.name}?`)) {
+                              removeSubCourtMutation.mutate(sub.subCourtId);
+                            }
+                          }}
+                        >
+                          <Trash2 size={12} />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Slots row container */}
@@ -607,6 +791,9 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
                                   if (slot.type === "Booked" && slot.bookingDetailId) {
                                     setSelectedBookingDetailId(slot.bookingDetailId);
                                     setIsDetailModalOpen(true);
+                                  } else if (slot.type !== "Booked") {
+                                    setSelectedSlotForAction(slot);
+                                    setIsActionModalOpen(true);
                                   }
                                 }}
                                 className={cn(
@@ -672,6 +859,18 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
         bookingDetailId={selectedBookingDetailId}
         isOpen={isDetailModalOpen}
         onOpenChange={setIsDetailModalOpen}
+      />
+
+      <SlotActionModal 
+        slot={selectedSlotForAction}
+        isOpen={isActionModalOpen}
+        onOpenChange={setIsActionModalOpen}
+      />
+
+      <UpdateSubCourtModal 
+        subCourt={subCourtToEdit}
+        isOpen={isUpdateSubCourtOpen}
+        onOpenChange={setIsUpdateSubCourtOpen}
       />
     </>
   );
