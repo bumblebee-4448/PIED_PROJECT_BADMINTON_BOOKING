@@ -104,7 +104,7 @@ public class Service : IService
                 Type = Transaction.Request.TypeList.Payment,
                 Amount = request.TransferAmount,
                 BalanceBefore = wallet.Balance,
-                BalanceAfter = wallet.Balance,
+                BalanceAfter = wallet.Balance + request.TransferAmount,
                 Status = "Success",
                 SePayId = request.Id.ToString(), //
                 BankRefCode = request.ReferenceCode, //
@@ -210,7 +210,7 @@ public class Service : IService
             transaction.Signature = request.Description; //
             transaction.UpdatedAt = DateTimeOffset.UtcNow;
             _dbContext.Update(transaction);
-
+            
             _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
             {
                 UserId = targetWallet.UserId,

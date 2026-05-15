@@ -118,7 +118,7 @@ public class Service : IService
             .FirstOrDefaultAsync(x => x.UserId == userId);
         if (existWallet == null)
         {
-            throw new Exception("Không tìm thấy ");
+            throw new Exception("Không tìm thấy ví");
         }
         var pendingTransaction = await _dbcontext.Transactions
             .FirstOrDefaultAsync(x => x.Status == "Pending" &&

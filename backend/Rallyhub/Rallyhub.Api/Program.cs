@@ -87,6 +87,7 @@ builder.Services.AddScoped<FeadbackService.IService, FeadbackService.Service>();
 builder.Services.AddScoped<DashboardService.IService, DashboardService.Service>();
 builder.Services.AddScoped<SystemReportService.IService, SystemReportService.Service>();
 builder.Services.AddScoped<RevenueService.IRevenueService, RevenueService.RevenueService>();
+builder.Services.AddScoped<ReportService.IService, ReportService.Service>();
 
 
 

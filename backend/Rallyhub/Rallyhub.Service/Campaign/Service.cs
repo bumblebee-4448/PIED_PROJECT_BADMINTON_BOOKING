@@ -121,7 +121,7 @@ public class Service: IService
 
     public async Task CreateCampaignCourt(Request.CreateCampaignCourtRequest request)
     {
-        var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == request.CourtId);
+        var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == request.CourtId && x.IsDeleted == false);
         if (court == null)
         {
             throw new Exception("Court not found");
@@ -302,13 +302,14 @@ public class Service: IService
     {
         var campaignList = _dbContext.Campaigns.Where(x => x.IsDeleted == false && x.IsGlobal == true);
         var sortEndTime = campaignList.OrderBy(x => x.EndDate);
+        var totalItems = await sortEndTime.CountAsync();
         var pageQuery = sortEndTime.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
         var selectQuery = pageQuery.Select(x => new Response.GetAllCampaignResponse()
         {
             Code =  x.Code,
             MaxDiscountAmount = x.MaxDiscountAmount,
             MinBookingAmount = x.MinBookingAmount,
-            Expired = x.EndDate - x.StartDate,
+            EndDate = x.EndDate,
             Quantity = x.UsageLimit - x.UsedCount,
         });
         var listResult = await selectQuery.ToListAsync();
@@ -317,11 +318,10 @@ public class Service: IService
             Items = listResult,
             PageIndex = request.PageIndex,
             PageSize =  request.PageSize,
-            TotalItems =  listResult.Count,
+            TotalItems =  totalItems,
         };
         return result;
     }
-
     public async Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaignCourt(Base.Request.PagingRequest request)
     {
         var getUserId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
@@ -340,13 +340,14 @@ public class Service: IService
                                                                         x.IsGlobal == false && 
                                                                         x.OwnerId == owner.Id);
         var sort = campaignList.OrderByDescending(x => x.CreatedAt);
+        var totalItems = await sort.CountAsync();
         var pageQuery = sort.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
         var selectQuery = pageQuery.Select(x => new Response.GetAllCampaignResponse()
         {
             Code =  x.Code,
             MaxDiscountAmount = x.MaxDiscountAmount,
             MinBookingAmount = x.MinBookingAmount,
-            Expired = x.EndDate - x.StartDate,
+            EndDate = x.EndDate,
             Quantity = x.UsageLimit - x.UsedCount,
         });
         var listResult = await selectQuery.ToListAsync();
@@ -355,14 +356,14 @@ public class Service: IService
             Items = listResult,
             PageIndex = request.PageIndex,
             PageSize =  request.PageSize,
-            TotalItems =  listResult.Count,
+            TotalItems =  totalItems,
         };
         return result;
     }
 
     public async Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> CampaignByCourt(Request.GetCampaignByCourtRequest request)
     {
-        var campaignCourtList = await _dbContext.CampaignCourts.Where(x => x.CourtId == request.CourtId).ToListAsync();
+        var campaignCourtList = await _dbContext.CampaignCourts.Where(x => x.CourtId == request.CourtId && x.IsDeleted == false).ToListAsync();
         List<Repository.Entity.Campaign> campaigns = new List<Repository.Entity.Campaign>();
         foreach (var item in campaignCourtList)
         {
@@ -377,7 +378,7 @@ public class Service: IService
             Code =  x.Code,
             MaxDiscountAmount = x.MaxDiscountAmount,
             MinBookingAmount = x.MinBookingAmount,
-            Expired = x.EndDate - x.StartDate,
+            EndDate = x.EndDate,
             Quantity = x.UsageLimit - x.UsedCount,
         });
         var listResult = selectCampaign.ToList();

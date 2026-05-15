@@ -148,7 +148,6 @@ public class Service: IService
                     throw new Exception("Campaign này không áp dụng cho sân bạn đang đặt");
                 }
             }
-
             var discountAmount = totalPrice * (campaign.DiscountPercent / 100m);
             if (discountAmount > campaign.MaxDiscountAmount)
             {
@@ -423,7 +422,28 @@ public class Service: IService
         {
             throw new Exception("Wallet apart balance failed");
         } 
-//transaction
+        //transaction
+        var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId.Id);
+        if (wallet == null)
+        {
+            throw new Exception("Wallet not found");
+        }
+        var transactionI = new Transaction.Request.CreateTransactionRequest()
+        {
+            Type = Transaction.Request.TypeList.Payment,
+            Amount = finalPrice,
+            BalanceBefore = wallet.Balance + finalPrice, 
+            BalanceAfter = wallet.Balance,           
+            Status = "Success",
+            BookingId = booking.Id,
+            WalletId = wallet.Id,
+        };
+
+        if (!await _transactionService.CreateTransaction(transactionI))
+        {
+            throw new Exception("Error creating transaction");
+        }
+
         booking.Status = "Banked";
         foreach (var item in bookingDetails)
         {
