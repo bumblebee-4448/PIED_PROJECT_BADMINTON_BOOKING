@@ -24,7 +24,7 @@ const fallbackCourtImage =
 const FEEDBACK_PAGE_SIZE = 10;
 
 const formatCourtPrice = (price?: number) => {
-  if (typeof price !== "number" || price <= 0) {
+  if (typeof price !== "number" || price < 0) {
     return "Liên hệ";
   }
 
@@ -103,6 +103,8 @@ export function CourtDetailPage() {
   }
 
   const isActive = court.status === "Active";
+  const hasListedPrice =
+    typeof court.defaultPrice === "number" && court.defaultPrice >= 0;
 
   return (
     <div className="min-h-screen bg-[#F9FBFA] pb-20 pt-20">
@@ -212,7 +214,7 @@ export function CourtDetailPage() {
             <p className="text-2xl font-black text-[#0B2421]">
               {formatCourtPrice(court.defaultPrice)}
             </p>
-            {court.defaultPrice ? (
+            {hasListedPrice ? (
               <p className="mt-1 text-xs font-bold text-gray-400">/giờ</p>
             ) : null}
           </div>

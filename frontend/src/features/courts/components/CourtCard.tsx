@@ -17,7 +17,7 @@ interface CourtCardProps {
 }
 
 const formatCourtPrice = (price?: number) => {
-  if (typeof price !== "number" || price <= 0) {
+  if (typeof price !== "number" || price < 0) {
     return "Liên hệ";
   }
 
@@ -36,7 +36,7 @@ export function CourtCard({ court, onClick }: CourtCardProps) {
 
   const isFavorite = favoritesResponse?.items.some((f) => f.courtId === court.courtId);
   const isLoading = isAdding || isRemoving;
-  const hasListedPrice = typeof court.defaultPrice === "number" && court.defaultPrice > 0;
+  const hasListedPrice = typeof court.defaultPrice === "number" && court.defaultPrice >= 0;
 
   const handleFavoriteClick = (event: MouseEvent) => {
     event.stopPropagation();

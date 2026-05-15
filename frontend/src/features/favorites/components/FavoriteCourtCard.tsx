@@ -63,9 +63,11 @@ export function FavoriteCourtCard({ court, onViewDetail }: FavoriteCourtCardProp
             </div>
           </div>
 
+          {court.price >= 0 && (
             <div className="text-emerald-600 font-bold text-sm mt-3">
               {court.price.toLocaleString("vi-VN")}đ / giờ
             </div>
+          )}
         </div>
 
         {/* Action Buttons */}
