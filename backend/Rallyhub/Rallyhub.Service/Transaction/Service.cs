@@ -215,4 +215,31 @@ public class Service : IService
         };
         return result;
     }
+
+    public async Task<List<Response.GetTransactionResponse>> GetTransactionByBookingId(Guid bookingId)
+    {
+        var booking = await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == bookingId);
+        var transactions = _dbContext.Transactions.Where(x => x.BookingId == bookingId);
+        var isExistTransaction = await transactions.AnyAsync();
+        if (isExistTransaction)
+        {
+            throw new ArgumentException("Dont has transaction");
+        }
+
+        var select = transactions.Select(x => new Response.GetTransactionResponse()
+        {
+            Id = x.Id,
+            Type = x.Type,
+            Amount = x.Amount,
+            BankRefCode = x.BankRefCode,
+            BankAccountNumber = x.BankAccountNumber,
+            Status = x.Status,
+            BookingId = x.BookingId,
+            CreatedAt = x.CreatedAt,
+            UpdatedAt = x.UpdatedAt,
+        });
+        select = select.OrderBy(x => x.CreatedAt);
+        var result = await select.ToListAsync();
+        return result;
+    }
 }
