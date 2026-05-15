@@ -245,6 +245,16 @@
                 // };
                 // builder.HasData(bookingDetails);
             });
+            modelBuilder.Entity<BookingDetail>()
+                .HasIndex(x => new
+                {
+                    x.SubCourtId,
+                    x.Date,
+                    x.StartTime,
+                    x.EndTime,
+                })
+                .IsUnique();
+            
             modelBuilder.Entity<Campaign>(builder =>
             {
                 builder.HasKey(x => x.Id);
