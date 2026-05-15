@@ -651,6 +651,7 @@ public class Service : IService
         }
          
         var isOverlap = await _dbContext.OverideSlots.AnyAsync(x =>
+            !x.IsDeleted &&
             x.SubCourtDetailId == request.SubCourtId &&
             (
                 (request.IsRecurring && x.IsRecurring && x.DayOfWeek == request.DayOfWeek) || 
@@ -819,6 +820,7 @@ public class Service : IService
         }
         
         var isOverlap = await  _dbContext.Exceptions.AnyAsync(x => 
+            !x.IsDeleted &&
             x.SubCourtDetailId == request.SubCourtId &&
             (
                 (request.IsRecurring && x.IsRecurring && x.DayOfWeek == request.DayOfWeek) || 
@@ -1023,9 +1025,9 @@ public class Service : IService
         if (subCourt == null)
             throw new Exception("Sân con không tồn tại");
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
-        var ownerIdGuid = Guid.Parse(ownerIdClaim!);
-        if (ownerIdGuid != null)
+        if (ownerIdClaim != null)
         {
+            var ownerIdGuid = Guid.Parse(ownerIdClaim!);
             var existSubCourt = await _dbContext.SubCourts
                 .Include(x => x.Court)
                 .FirstOrDefaultAsync(x => 

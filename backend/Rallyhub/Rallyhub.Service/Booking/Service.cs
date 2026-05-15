@@ -171,7 +171,9 @@ public class Service: IService
             CampaignId = request.CampaignId,
             CreatedAt = DateTimeOffset.UtcNow
         };
-
+        await _dbContext.Bookings.AddAsync(booking);
+        await _dbContext.SaveChangesAsync();
+        
         var bookingDetails = new List<BookingDetail>();
         foreach (var item in request.Items)
         {
@@ -190,7 +192,7 @@ public class Service: IService
             }));
         }
         
-        await _dbContext.Bookings.AddAsync(booking);
+        
         await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
         await _dbContext.SaveChangesAsync();
 
