@@ -63,18 +63,12 @@ export function BookingPage() {
   // Handlers
   const handleToggleSlot = (slot: AvailableSlot & { subCourtId: string }) => {
     setSelectedSlots(prev => {
-      // If selecting a slot on a different sub-court, clear previous selection
-      const currentSubCourtId = prev.length > 0 ? (prev[0] as any).subCourtId : null;
+      const exists = prev.find(s => 
+        (s as any).subCourtId === slot.subCourtId && 
+        s.startTime === slot.startTime && 
+        s.endTime === slot.endTime
+      );
       
-      if (currentSubCourtId && currentSubCourtId !== slot.subCourtId) {
-        toast.info(`Đã chuyển sang đặt sân ${subCourtsList.find(s => s.subCourtId === slot.subCourtId)?.name}`);
-        setSelectedSubCourtId(slot.subCourtId);
-        return [slot];
-      }
-
-      setSelectedSubCourtId(slot.subCourtId);
-      
-      const exists = prev.find(s => s.startTime === slot.startTime && s.endTime === slot.endTime);
       if (exists) {
         return prev.filter(s => s !== exists);
       }
@@ -83,13 +77,25 @@ export function BookingPage() {
   };
 
   const handleBookBank = async () => {
-    if (!effectiveSubCourtId || selectedSlots.length === 0) return;
+    if (selectedSlots.length === 0) return;
+
+    // Group selected slots by subCourtId
+    const groupedItems = selectedSlots.reduce((acc, slot) => {
+      const subCourtId = (slot as any).subCourtId;
+      if (!acc[subCourtId]) {
+        acc[subCourtId] = { subCourtId, slots: [] };
+      }
+      acc[subCourtId].slots.push({ 
+        startTime: slot.startTime, 
+        endTime: slot.endTime 
+      });
+      return acc;
+    }, {} as Record<string, { subCourtId: string; slots: { startTime: string; endTime: string }[] }>);
 
     try {
       const result = await createBooking.mutateAsync({
-        subCourtId: effectiveSubCourtId,
         date: formattedDate,
-        slots: selectedSlots.map(s => ({ startTime: s.startTime, endTime: s.endTime }))
+        items: Object.values(groupedItems)
       });
       setBookingResponse(result);
       setIsQrOpen(true);
@@ -99,13 +105,25 @@ export function BookingPage() {
   };
 
   const handleBookWallet = async () => {
-    if (!effectiveSubCourtId || selectedSlots.length === 0) return;
+    if (selectedSlots.length === 0) return;
+
+    // Group selected slots by subCourtId
+    const groupedItems = selectedSlots.reduce((acc, slot) => {
+      const subCourtId = (slot as any).subCourtId;
+      if (!acc[subCourtId]) {
+        acc[subCourtId] = { subCourtId, slots: [] };
+      }
+      acc[subCourtId].slots.push({ 
+        startTime: slot.startTime, 
+        endTime: slot.endTime 
+      });
+      return acc;
+    }, {} as Record<string, { subCourtId: string; slots: { startTime: string; endTime: string }[] }>);
 
     try {
       await createBookingByWallet.mutateAsync({
-        subCourtId: effectiveSubCourtId,
         date: formattedDate,
-        slots: selectedSlots.map(s => ({ startTime: s.startTime, endTime: s.endTime }))
+        items: Object.values(groupedItems)
       });
       toast.success("Đặt sân thành công bằng ví!");
       navigate("/history");

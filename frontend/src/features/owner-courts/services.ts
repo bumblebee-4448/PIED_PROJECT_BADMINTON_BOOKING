@@ -115,4 +115,10 @@ export const ownerCourtService = {
       params: { subCourtId },
     }) as unknown as Promise<ExceptionSlotResponse[]>;
   },
+
+  getBookingDetail: async (bookingDetailsId: string) => {
+    return apiClient.post("/Booking/GetBookingDetail", null, {
+      params: { bookingDetailsId }
+    }) as unknown as Promise<GetBookingDetailResponse>;
+  },
 };

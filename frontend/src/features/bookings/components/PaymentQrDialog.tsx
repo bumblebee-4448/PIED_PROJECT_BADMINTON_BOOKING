@@ -145,6 +145,17 @@ export function PaymentQrDialog({
               </div>
             </div>
 
+            <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl space-y-2">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black text-emerald-600/60 uppercase tracking-widest">Ngân hàng</span>
+                <span className="text-xs font-black text-[#0B2421] uppercase">{bookingResponse.bankName}</span>
+              </div>
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black text-emerald-600/60 uppercase tracking-widest">Số tài khoản</span>
+                <span className="text-xs font-black text-[#0B2421] tracking-wider">{bookingResponse.bankAccount}</span>
+              </div>
+            </div>
+
             <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
               <div className="flex items-center gap-3">
                 <Timer size={18} className="text-emerald-500" />
@@ -163,12 +174,15 @@ export function PaymentQrDialog({
                 </span>
               </div>
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Thời gian</span>
-                <div className="flex flex-col items-end">
-                  {bookingResponse.slots.map((slot, index) => (
-                    <span key={index} className="text-[#0B2421] font-black">
-                      {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
-                    </span>
+                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Lịch đặt</span>
+                <div className="flex flex-col items-end gap-2">
+                  {bookingResponse.items.map((item, index) => (
+                    <div key={index} className="flex flex-col items-end bg-gray-50/50 p-2 rounded-lg border border-gray-100 min-w-[120px]">
+                      <span className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter mb-0.5">{item.subCourtName}</span>
+                      <span className="text-[#0B2421] font-black text-xs">
+                        {item.startTime.substring(0, 5)} - {item.endTime.substring(0, 5)}
+                      </span>
+                    </div>
                   ))}
                 </div>
               </div>

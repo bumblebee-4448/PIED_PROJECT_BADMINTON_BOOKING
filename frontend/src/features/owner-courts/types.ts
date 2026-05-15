@@ -61,8 +61,19 @@ export type AvailableSlot = {
   endTime: string;
   price: number;
   isAvailable: boolean;
-  reason?: string; // Added to support blocked slots reason
+  type?: "Default" | "Booked" | "Blocked" | "Override" | string;
+  reason?: string;
+  bookingDetailId?: string;
 };
+
+export interface GetBookingDetailResponse {
+  name?: string;
+  phoneNumber?: string;
+  gmail: string;
+  subCourtName: string;
+  startTime: string;
+  endTime: string;
+}
 
 export interface CreateOverrideSlotRequest {
   subCourtId: string;

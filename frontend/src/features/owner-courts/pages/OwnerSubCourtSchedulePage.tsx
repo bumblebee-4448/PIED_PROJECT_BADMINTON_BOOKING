@@ -10,6 +10,7 @@ import {
   CalendarCheck,
   MessageSquare
 } from "lucide-react";
+import { useBookingDetail } from "../hooks/useOwnerSlots";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -37,6 +38,89 @@ const DAYS_OF_WEEK = [
   { value: 0, label: "Chủ Nhật" },
 ];
 
+function BookingDetailModal({ 
+  bookingDetailId, 
+  isOpen, 
+  onOpenChange 
+}: { 
+  bookingDetailId: string | null; 
+  isOpen: boolean; 
+  onOpenChange: (open: boolean) => void;
+}) {
+  const { data: detail, isLoading } = useBookingDetail(bookingDetailId || "");
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[400px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
+        <div className="bg-[#0B2421] p-6 text-white relative">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-black">Thông tin người đặt</DialogTitle>
+          </DialogHeader>
+          <div className="absolute -bottom-6 right-6 w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
+            <CalendarCheck size={24} className="text-white" />
+          </div>
+        </div>
+
+        <div className="p-6 pt-10 space-y-6">
+          {isLoading ? (
+            <div className="py-12 flex flex-col items-center gap-3">
+              <Loader2 className="animate-spin text-emerald-500" size={32} />
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Đang tải thông tin...</p>
+            </div>
+          ) : detail ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-lg font-black text-emerald-600">
+                  {detail.name?.charAt(0).toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Khách hàng</p>
+                  <p className="text-base font-black text-[#0B2421]">{detail.name}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Số điện thoại</p>
+                  <p className="text-sm font-bold text-[#0B2421]">{detail.phoneNumber || "N/A"}</p>
+                </div>
+                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Email</p>
+                  <p className="text-sm font-bold text-[#0B2421]">{detail.gmail}</p>
+                </div>
+              </div>
+
+              <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
+                <p className="text-[10px] font-black text-emerald-600/60 uppercase tracking-widest mb-1">Khung giờ đặt</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-black text-emerald-700">{detail.subCourtName}</span>
+                  <span className="text-sm font-black text-[#0B2421]">
+                    {detail.startTime.substring(0, 5)} - {detail.endTime.substring(0, 5)}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="py-12 text-center text-gray-400 font-bold">
+              Không tìm thấy thông tin chi tiết.
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="p-6 bg-gray-50 border-t border-gray-100">
+          <Button 
+            className="w-full h-12 bg-[#0B2421] hover:bg-[#1a3a36] text-white rounded-2xl font-black text-xs uppercase tracking-widest"
+            onClick={() => onOpenChange(false)}
+          >
+            Đóng cửa sổ
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
 export default function OwnerSubCourtSchedulePage() {
   const { id: subCourtId } = useParams();
   const navigate = useNavigate();
@@ -63,6 +147,11 @@ export default function OwnerSubCourtSchedulePage() {
   const [blockStartTime, setBlockStartTime] = useState("05:00");
   const [blockEndTime, setBlockEndTime] = useState("06:00");
   const [blockReason, setBlockReason] = useState("");
+  const [isBlockRecurring, setIsBlockRecurring] = useState(false);
+  const [selectedBlockDays, setSelectedBlockDays] = useState<number[]>([]);
+  
+  const [selectedBookingDetailId, setSelectedBookingDetailId] = useState<string | null>(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const { data: availableSlotsRaw, isLoading: isSlotsLoading } = useAvailableSlots({
     subCourtId: subCourtId || "",
@@ -120,16 +209,35 @@ export default function OwnerSubCourtSchedulePage() {
       return;
     }
 
+    const payloadBase = {
+      subCourtId: subCourtId || "",
+      isRecurring: isBlockRecurring,
+      startTime: blockStartTime + ":00",
+      endTime: blockEndTime + ":00",
+      reason: blockReason,
+    };
+
     try {
-      await createExceptionMutation.mutateAsync({
-        subCourtId: subCourtId || "",
-        date: blockDate,
-        startTime: blockStartTime + ":00",
-        endTime: blockEndTime + ":00",
-        reason: blockReason,
-      });
+      if (isBlockRecurring) {
+        if (selectedBlockDays.length === 0) {
+          toast.error("Vui lòng chọn ít nhất một thứ trong tuần");
+          return;
+        }
+        for (const day of selectedBlockDays) {
+          await createExceptionMutation.mutateAsync({
+            ...payloadBase,
+            dayOfWeek: day,
+          });
+        }
+      } else {
+        await createExceptionMutation.mutateAsync({
+          ...payloadBase,
+          date: blockDate,
+        });
+      }
       setIsBlockModalOpen(false);
       setBlockReason("");
+      setSelectedBlockDays([]);
     } catch (error) {}
   };
 
@@ -145,6 +253,12 @@ export default function OwnerSubCourtSchedulePage() {
 
   const toggleDay = (day: number) => {
     setSelectedDays(prev => 
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
+    );
+  };
+
+  const toggleBlockDay = (day: number) => {
+    setSelectedBlockDays(prev => 
       prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day]
     );
   };
@@ -321,21 +435,64 @@ export default function OwnerSubCourtSchedulePage() {
                   </div>
 
                   <div className="p-6 space-y-6">
-                    <div className="space-y-2">
-                      <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ngày áp dụng</Label>
-                      <div className="relative">
-                        <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-red-500" size={16} />
-                        <Input 
-                          type="date" 
-                          value={blockDate}
-                          onChange={(e) => setBlockDate(e.target.value)}
-                          className="pl-10 h-12 rounded-xl bg-red-50 border-red-100 focus:bg-white transition-all font-bold text-red-700"
-                        />
-                      </div>
-                      <p className="text-[10px] text-red-600/60 font-medium pl-1 italic">
-                        * {formatDate(blockDate)}
-                      </p>
+                    <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                      <Checkbox 
+                        id="blockRecurring" 
+                        checked={isBlockRecurring}
+                        onCheckedChange={(checked) => setIsBlockRecurring(!!checked)}
+                        className="border-red-200 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600"
+                      />
+                      <Label htmlFor="blockRecurring" className="text-sm font-bold text-gray-700 cursor-pointer">
+                        Lặp lại hàng tuần
+                      </Label>
                     </div>
+
+                    {isBlockRecurring ? (
+                      <div className="space-y-3">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Chọn thứ trong tuần</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                          {DAYS_OF_WEEK.map((day) => (
+                            <div 
+                              key={day.value}
+                              onClick={() => toggleBlockDay(day.value)}
+                              className={cn(
+                                "flex items-center gap-3 p-3 rounded-xl border transition-all cursor-pointer",
+                                selectedBlockDays.includes(day.value) 
+                                  ? "bg-red-50 border-red-200" 
+                                  : "bg-white border-gray-100 hover:border-gray-200"
+                              )}
+                            >
+                              <Checkbox 
+                                checked={selectedBlockDays.includes(day.value)}
+                                className="border-red-200 data-[state=checked]:bg-red-600 data-[state=checked]:border-red-600 pointer-events-none"
+                              />
+                              <span className={cn(
+                                "text-xs font-bold",
+                                selectedBlockDays.includes(day.value) ? "text-red-700" : "text-gray-600"
+                              )}>
+                                {day.label}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ngày áp dụng</Label>
+                        <div className="relative">
+                          <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 text-red-500" size={16} />
+                          <Input 
+                            type="date" 
+                            value={blockDate}
+                            onChange={(e) => setBlockDate(e.target.value)}
+                            className="pl-10 h-12 rounded-xl bg-red-50 border-red-100 focus:bg-white transition-all font-bold text-red-700"
+                          />
+                        </div>
+                        <p className="text-[10px] text-red-600/60 font-medium pl-1 italic">
+                          * {formatDate(blockDate)}
+                        </p>
+                      </div>
+                    )}
 
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -455,9 +612,15 @@ export default function OwnerSubCourtSchedulePage() {
                 {availableSlots.map((slot, index) => (
                   <div 
                     key={index}
+                    onClick={() => {
+                      if (slot.type === "Booked" && slot.bookingDetailId) {
+                        setSelectedBookingDetailId(slot.bookingDetailId);
+                        setIsDetailModalOpen(true);
+                      }
+                    }}
                     className={cn(
                       "p-5 rounded-xl border transition-all duration-300 relative overflow-hidden group",
-                      slot.type === "Booked" ? "bg-rose-50 border-rose-100 hover:shadow-md" :
+                      slot.type === "Booked" ? "bg-rose-50 border-rose-100 hover:shadow-md cursor-pointer" :
                       slot.type === "Blocked" ? "bg-gray-50 border-gray-200 opacity-60" :
                       slot.type === "Override" ? "bg-violet-50 border-violet-100 hover:shadow-md" :
                       "bg-white border-gray-100 hover:border-amber-400 hover:shadow-md"
@@ -527,6 +690,12 @@ export default function OwnerSubCourtSchedulePage() {
           </div>
         </div>
       </div>
+
+      <BookingDetailModal 
+        bookingDetailId={selectedBookingDetailId}
+        isOpen={isDetailModalOpen}
+        onOpenChange={setIsDetailModalOpen}
+      />
     </div>
   );
 }
