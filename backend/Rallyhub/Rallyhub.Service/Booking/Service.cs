@@ -428,10 +428,7 @@ public class Service: IService
                 CreatedAt = DateTimeOffset.UtcNow,
             }));
         }
-        if (!await _walletService.ApartBanlanceFromWallet(userId!.Id, finalPrice, "Payment"))
-        {
-            throw new Exception("Wallet apart balance failed");
-        } 
+        
         //transaction
         var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId.Id);
         if (wallet == null)
@@ -440,15 +437,18 @@ public class Service: IService
         }
         var transactionI = new Transaction.Request.CreateTransactionRequest()
         {
-            Type = Transaction.Request.TypeList.Payment,
+            Type = Transaction.Request.TypeList.PaymentByWallet,
             Amount = finalPrice,
-            BalanceBefore = wallet.Balance + finalPrice, 
-            BalanceAfter = wallet.Balance,           
+            BalanceBefore = wallet.Balance, 
+            BalanceAfter = wallet.Balance - finalPrice,           
             Status = "Success",
             BookingId = booking.Id,
             WalletId = wallet.Id,
         };
-
+        if (!await _walletService.ApartBanlanceFromWallet(userId!.Id, finalPrice, "Payment"))
+        {
+            throw new Exception("Wallet apart balance failed");
+        }
         if (!await _transactionService.CreateTransaction(transactionI))
         {
             throw new Exception("Error creating transaction");

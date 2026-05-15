@@ -93,19 +93,29 @@ public class Service : IService
                 newTransaction.Amount = request.Amount;
                 break;   
             }
-            case Request.TypeList.Payment: //trả cho ..
+            case Request.TypeList.PaymentByBank: //trả bằng chuển khoản
             {
-                newTransaction.Amount = -request.Amount;
+                newTransaction.Amount = request.Amount;
+                break;   
+            }
+            case Request.TypeList.PaymentByWallet: //trả bằng ví
+            {
+                newTransaction.Amount = request.Amount;
+                break;   
+            }
+            case Request.TypeList.Receive: //nhận được
+            {
+                newTransaction.Amount = request.Amount;
                 break;   
             }
             case Request.TypeList.Withdrawal: //rút tiền tiền
             {
-                newTransaction.Amount = -request.Amount;
+                newTransaction.Amount = request.Amount;
                 break;   
             }
             case Request.TypeList.AdminDeduct: //admin trừ tiền
             {
-                newTransaction.Amount = -request.Amount;
+                newTransaction.Amount = request.Amount;
                 break;   
             }
         }

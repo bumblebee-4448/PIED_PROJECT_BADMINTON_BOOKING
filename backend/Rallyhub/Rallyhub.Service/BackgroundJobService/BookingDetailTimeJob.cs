@@ -67,7 +67,7 @@ public class BookingDetailTimeJob : IJob
                 {
                     var transactionI = new Transaction.Request.CreateTransactionRequest()
                     {
-                        Type = Transaction.Request.TypeList.Payment,
+                        Type = Transaction.Request.TypeList.Receive,
                         Amount = booking.FinalPrice - (booking.FinalPrice * 0.05m),
                         BalanceBefore = wallet.Balance,
                         BalanceAfter = wallet.Balance + (booking.FinalPrice - (booking.FinalPrice * 0.05m)),
