@@ -216,6 +216,16 @@
             modelBuilder.Entity<BookingDetail>(builder =>
             {
                 builder.HasKey(x => x.Id);
+                builder
+                    .HasIndex(x => new
+                    {
+                        x.SubCourtId,
+                        x.Date,
+                        x.StartTime,
+                        x.EndTime,
+                    })
+                    .IsUnique()
+                    .HasFilter("\"Status\" IN ('Pending', 'Banked')");
                 builder.Property(x => x.Price)
                     .IsRequired()
                     .HasColumnType("decimal(18,2)");
@@ -245,15 +255,6 @@
                 // };
                 // builder.HasData(bookingDetails);
             });
-            modelBuilder.Entity<BookingDetail>()
-                .HasIndex(x => new
-                {
-                    x.SubCourtId,
-                    x.Date,
-                    x.StartTime,
-                    x.EndTime,
-                })
-                .IsUnique();
             
             modelBuilder.Entity<Campaign>(builder =>
             {

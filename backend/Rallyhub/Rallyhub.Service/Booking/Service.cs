@@ -192,9 +192,19 @@ public class Service: IService
             }));
         }
         
-        
-        await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
-        await _dbContext.SaveChangesAsync();
+        try
+        {
+            await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            if (ex.InnerException?.Message.Contains("23505") == true ||
+                ex.InnerException?.Message.Contains("duplicate") == true)
+            {
+                throw new Exception("Khung giờ này vừa được người khác đặt, vui lòng chọn khung giờ khác");
+            }
+        }
 
         var bookedSubCourtId = bookingDetails.FirstOrDefault()?.SubCourtId;
         var subCourt = await _dbContext.SubCourts
