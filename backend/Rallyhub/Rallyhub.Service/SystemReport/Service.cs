@@ -51,7 +51,11 @@ public class Service: IService
             throw new Exception("user not found");
         }
         var systemReportList = _dbContext.SystemReports
-                                                            .Where(x => x.Status == request.Status && x.IsDeleted == false);
+                                                            .Where(x => x.IsDeleted == false);
+        if (!string.IsNullOrWhiteSpace(request.Status))
+        {
+            systemReportList = systemReportList.Where(x => x.Status == request.Status);
+        }
         if (user.Role != "Admin")
         {
             systemReportList = systemReportList.Where(x => x.UserId == userId);
