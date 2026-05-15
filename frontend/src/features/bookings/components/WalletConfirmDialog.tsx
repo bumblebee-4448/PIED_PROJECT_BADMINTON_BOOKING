@@ -1,12 +1,6 @@
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import { Wallet, Calendar, ShoppingBag, ArrowRight } from "lucide-react";
 import { format } from "date-fns";

@@ -18,11 +18,10 @@ interface BookingCardProps {
   booking: GetBookingResponse;
   transaction?: TransactionItem;
   onCancelClick?: (id: string) => void;
-  onRefundClick?: (id: string) => void;
   onViewPaymentClick?: (transaction: TransactionItem) => void;
 }
 
-export function BookingCard({ booking, transaction, onCancelClick, onRefundClick, onViewPaymentClick }: BookingCardProps) {
+export function BookingCard({ booking, transaction, onCancelClick, onViewPaymentClick }: BookingCardProps) {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "Pending":

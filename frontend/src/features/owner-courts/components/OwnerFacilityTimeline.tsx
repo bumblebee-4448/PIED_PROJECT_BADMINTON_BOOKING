@@ -594,7 +594,7 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
                           
                           const durationMins = endMins - startMins;
                           const isMerged = slot.isAvailable && durationMins > 60;
-                          const isBooked = !slot.isAvailable && slot.reason?.includes("khách đặt");
+                          // const isBooked = !slot.isAvailable && slot.reason?.includes("khách đặt");
 
                           return (
                             <div 

@@ -4,10 +4,10 @@ import { BookingCard } from "../components/BookingCard";
 import { CancelBookingDialog } from "../components/CancelBookingDialog";
 import { useBookings } from "../hooks/useBookings";
 import { useFilteredBookings } from "../hooks/useFilteredBookings";
-import { useRefundBooking } from "../hooks/useRefundBooking";
+
 import { useTransactions } from "../hooks/useTransactions";
 import { TransactionDetailDialog } from "../components/TransactionDetailDialog";
-import { Loader2, ClipboardList, AlertCircle } from "lucide-react";
+import { Loader2, ClipboardList } from "lucide-react";
 import { 
   Pagination, 
   PaginationContent, 
@@ -16,19 +16,9 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from "@/shared/components/ui/pagination";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
+
 import { cn } from "@/lib/utils";
-import { DEFAULT_PAGE_SIZE, type FilterStatus, type TransactionItem } from "../types";
-import { toast } from "sonner";
+import { type FilterStatus, type TransactionItem } from "../types";
 
 export function BookingHistoryPage() {
   const [pageIndex, setPageIndex] = React.useState(1);
@@ -43,7 +33,7 @@ export function BookingHistoryPage() {
   const pageSize = 10;
   const totalPages = Math.ceil(filteredItems.length / pageSize);
   const paginatedItems = filteredItems.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
-  const refundMutation = useRefundBooking();
+
 
   const handleStatusChange = (status: FilterStatus) => {
     setActiveStatus(status);

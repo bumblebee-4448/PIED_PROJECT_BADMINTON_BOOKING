@@ -25,7 +25,7 @@ export function BookingPage() {
 
   // State
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedSubCourtId, setSelectedSubCourtId] = useState<string | null>(null);
+
   const [selectedSlots, setSelectedSlots] = useState<AvailableSlot[]>([]);
   const [bookingResponse, setBookingResponse] = useState<CreateBookingResponse | null>(null);
   const [isQrOpen, setIsQrOpen] = useState(false);
@@ -57,7 +57,7 @@ export function BookingPage() {
     return [];
   }, [subCourts, courtId]);
 
-  const effectiveSubCourtId = selectedSubCourtId || (subCourtsList.length > 0 ? subCourtsList[0].subCourtId : null);
+
 
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
 

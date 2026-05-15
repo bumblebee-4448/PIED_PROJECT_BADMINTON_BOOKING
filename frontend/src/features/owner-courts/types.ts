@@ -101,7 +101,9 @@ export interface GetAvailableSlotsRequest {
 
 export interface CreateExceptionSlotRequest {
   subCourtId: string;
-  date: string;
+  isRecurring?: boolean;
+  dayOfWeek?: number;
+  date?: string;
   startTime: string;
   endTime: string;
   reason: string;
