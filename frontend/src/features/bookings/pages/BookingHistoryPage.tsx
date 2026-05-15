@@ -34,13 +34,17 @@ export function BookingHistoryPage() {
   const [cancellingBooking, setCancellingBooking] = React.useState<{id: string, status: string} | null>(null);
   const [refundingId, setRefundingId] = React.useState<string | null>(null);
 
-  const { data, isLoading, isError } = useBookings(pageIndex, DEFAULT_PAGE_SIZE);
+  const { data, isLoading, isError } = useBookings(1, 1000);
   const { filteredItems, counts } = useFilteredBookings(data, activeStatus);
+
+  const pageSize = 10;
+  const totalPages = Math.ceil(filteredItems.length / pageSize);
+  const paginatedItems = filteredItems.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
   const refundMutation = useRefundBooking();
 
   const handleStatusChange = (status: FilterStatus) => {
     setActiveStatus(status);
-    setPageIndex(1); // Reset to first page on filter change
+    setPageIndex(1);
   };
 
   const handleRefund = () => {
@@ -57,7 +61,6 @@ export function BookingHistoryPage() {
     });
   };
 
-  const totalPages = data ? Math.ceil(data.totalItems / DEFAULT_PAGE_SIZE) : 0;
 
   if (isLoading) {
     return (
@@ -107,8 +110,8 @@ export function BookingHistoryPage() {
 
         {/* Booking List */}
         <div className="space-y-6">
-          {filteredItems.length > 0 ? (
-            filteredItems.map((booking, index) => (
+          {paginatedItems.length > 0 ? (
+            paginatedItems.map((booking, index) => (
               <BookingCard 
                 key={booking.bookingId || (booking as any).BookingId || (booking as any).Id || `booking-${index}`} 
                 booking={booking} 
@@ -155,7 +158,7 @@ export function BookingHistoryPage() {
 
                 <PaginationItem>
                   <PaginationNext 
-                    onClick={() => setPageIndex(p => p + 1)}
+                    onClick={() => setPageIndex(p => Math.min(totalPages, p + 1))}
                     className={cn("cursor-pointer", pageIndex >= totalPages && "pointer-events-none opacity-50")}
                   />
                 </PaginationItem>
@@ -163,6 +166,8 @@ export function BookingHistoryPage() {
             </Pagination>
           </div>
         )}
+
+
       </div>
 
       {/* Dialogs */}

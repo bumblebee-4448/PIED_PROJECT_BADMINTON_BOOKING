@@ -22,6 +22,12 @@ interface BookingCardProps {
 export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCardProps) {
   const getStatusConfig = (status: string) => {
     switch (status) {
+      case "Pending":
+        return {
+          label: "Chờ thanh toán",
+          icon: <Clock3 size={14} />,
+          className: "bg-amber-50 text-amber-600 border-amber-100",
+        };
       case "Banked":
         return {
           label: "Đã thanh toán",
@@ -29,6 +35,7 @@ export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCa
           className: "bg-emerald-50 text-emerald-600 border-emerald-100",
         };
       case "Complete":
+      case "Completed":
         return {
           label: "Hoàn thành",
           icon: <CheckCircle2 size={14} />,
@@ -40,6 +47,12 @@ export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCa
           label: "Đã hủy",
           icon: <XCircle size={14} />,
           className: "bg-red-50 text-red-600 border-red-100",
+        };
+      case "Refund":
+        return {
+          label: "Đã hoàn tiền",
+          icon: <XCircle size={14} />,
+          className: "bg-gray-100 text-gray-600 border-gray-200",
         };
       case "RefundPending":
         return {

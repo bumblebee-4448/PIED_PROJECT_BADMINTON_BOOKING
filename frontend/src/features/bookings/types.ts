@@ -1,4 +1,4 @@
-export type BookingStatus = "Pending" | "Banked" | "Cancel" | "Refund" | "Complete" | "RefundPending" | "Cancelled";
+export type BookingStatus = "Pending" | "Banked" | "Cancel" | "Refund" | "Completed" | "RefundPending" | "Cancelled";
 
 export interface BookingHistoryItem {
   id: string; // BookingDetailId
