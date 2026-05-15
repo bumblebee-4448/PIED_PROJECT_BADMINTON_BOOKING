@@ -31,4 +31,12 @@ public class TransactionController : ControllerBase
         var result = await _transactionService.AdminGetTransaction(userId, paginDay);
         return Ok(ApiResponseFactory.SuccessResponse(result, "Success", HttpContext.TraceIdentifier));
     }
+    
+    [HttpGet("GetTransactionByBookingId")]
+    [Authorize(Policy = JwtExtensions.AdminPolicy)]
+    public async Task<IActionResult> GetTransactionByBookingId([FromQuery] Guid bookingId)
+    {
+        var result = await _transactionService.GetTransactionByBookingId(bookingId);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success", HttpContext.TraceIdentifier));
+    }
 }

@@ -689,6 +689,7 @@ public class Service: IService
         booking = booking
             .Skip((pagingDay2.PageIndex - 1) * pagingDay2.PageSize)
             .Take(pagingDay2.PageSize);
+        
         var select = booking.Select(x => new Response.GetBookingResponse()
         {
             BookingId = x.Id,
@@ -706,7 +707,8 @@ public class Service: IService
                 Price = x.Price,
                 Date = x.Date,
             }).ToList(),
-            CreatedAt =  x.CreatedAt,
+            
+            CreatedAt =  x.UpdatedAt,
         });
         var list = await  select.ToListAsync();
         var result = new Base.Response.PageResult<Response.GetBookingResponse>()

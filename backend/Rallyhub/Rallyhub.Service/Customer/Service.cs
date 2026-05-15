@@ -40,14 +40,14 @@ public class Service : IService
             throw new Exception($"Tên {model.FirstName} {model.LastName} không khớp với tên của tài khoản này");
         }
 
-        var identityNumber =
-            await _dbContext.OwnerRequests.FirstOrDefaultAsync(x => x.IdentityNumber == model.IdentityNumber);
-        var isExistIdentityNumber = await _dbContext.OwnerRequests.AnyAsync(x => x.IdentityNumber == model.IdentityNumber);
-        if (isExistIdentityNumber && userIdGuid != identityNumber?.Customer.UserId)
+        var isDuplicateIdentity = await _dbContext.OwnerRequests
+            .AnyAsync(x => x.IdentityNumber == model.IdentityNumber && x.CustomerId != custmerIdGuild);
+            
+        if (isDuplicateIdentity)
         {
-            throw new Exception("Identity number already exists");
+            throw new ArgumentException("Số CMND/CCCD đã được sử dụng bởi người dùng khác.");
         }
-        var ownerRequest = new Repository.Entity.OwnerRequest()
+        var ownerRequest = new OwnerRequest()
         {
             BusinessName = model.BusinessName,
             TaxCode = model.TaxCode,
