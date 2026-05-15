@@ -19,12 +19,17 @@ public class Service: IService
 
     public async Task CreateReportBookings(Request.CreateReportBookingsRequest request)
     {
-        var getCustomerId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-        if (getCustomerId == null)
+        var getUserId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        if (getUserId == null)
         {
-            throw new Exception("Customer not found");
+            throw new Exception("User not found");
         }
-        var customerId = Guid.Parse(getCustomerId);
+        var userId = Guid.Parse(getUserId);
+        var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == userId);
+        if (customer == null)
+        {
+            throw new Exception("Customer not found 1");
+        }
         var bookingDetail = await _dbContext.BookingDetails.FirstOrDefaultAsync(x => x.BookingId == request.BookingId);
         if (bookingDetail == null)
         {
@@ -38,7 +43,7 @@ public class Service: IService
         var report = new Repository.Entity.Report()
         {
             Reason = request.Reason,
-            CustomerId = customerId,
+            CustomerId = customer.Id,
             CourtId = subCourt.CourtId,
             BookingId = request.BookingId,
             CreatedAt = DateTimeOffset.UtcNow
@@ -49,11 +54,28 @@ public class Service: IService
 
     public async Task<Base.Response.PageResult<Response.GetReportBookingsRequest>> GetReportBookings(Request.GetReportBookingsRequest request)
     {
+        var getUserId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        if (getUserId == null)
+        {
+            throw new Exception("User not found");
+        }
+        var userId = Guid.Parse(getUserId);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
         var report = _dbContext.Reports.Where(x => x.IsDeleted == false);
         if (!string.IsNullOrWhiteSpace(request.Status))
         {
             report = report.Where(x => x.Status == request.Status);
         }
+        if (user!.Role == "Customer")
+        {
+            var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == userId);
+            if (customer == null)
+            {
+                throw new Exception("user not found");
+            }
+            report = report.Where(x => x.CustomerId == customer.Id);
+        }
+        
         var sortTime = report.OrderByDescending(x => x.CreatedAt);
         var totalItems = await report.CountAsync();
         var pageQuery = sortTime.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
