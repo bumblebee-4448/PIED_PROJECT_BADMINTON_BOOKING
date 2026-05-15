@@ -31,7 +31,8 @@ using CampaignService = Rallyhub.Service.Campaign;
 using DashboardService = Rallyhub.Service.Dashboard;
 using SystemReportService = Rallyhub.Service.SystemReport;
 using RevenueService = Rallyhub.Service.Revenue;
-// using DiscordService = Rallyhub.Service.DiscordService;
+using ReportService = Rallyhub.Service.Report;
+using DiscordService = Rallyhub.Service.DiscordService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -65,7 +66,7 @@ builder.Services.AddSwaggerServices();
 builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
 builder.Services.AddScoped<MailService.IService, MailService.Service>();
 builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
-// builder.Services.AddHttpClient<DiscordService.IService, DiscordService.Service>();
+builder.Services.AddHttpClient<DiscordService.IService, DiscordService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<OtpService.IService, OtpService.Service>();
 builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
