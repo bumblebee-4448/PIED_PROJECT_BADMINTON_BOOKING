@@ -62,10 +62,10 @@ export function FavoriteCourtCard({ court, onViewDetail }: FavoriteCourtCardProp
               <span className="text-xs font-bold text-orange-600">{court.rating || 0}</span>
             </div>
           </div>
-{/* 
+
             <div className="text-emerald-600 font-bold text-sm mt-3">
               {court.price.toLocaleString("vi-VN")}đ / giờ
-            </div> */}
+            </div>
         </div>
 
         {/* Action Buttons */}
