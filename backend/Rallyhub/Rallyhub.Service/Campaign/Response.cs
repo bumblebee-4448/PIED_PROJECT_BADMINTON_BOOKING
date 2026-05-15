@@ -20,6 +20,6 @@ public class Response
         public decimal MaxDiscountAmount { get; set; }
         public decimal? MinBookingAmount { get; set; }
         public int Quantity { get; set; }
-        public TimeSpan Expired { get; set; }
+        public DateTimeOffset EndDate { get; set; }
     }
 }
