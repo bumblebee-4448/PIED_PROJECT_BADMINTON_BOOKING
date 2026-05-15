@@ -176,23 +176,18 @@ export function BookingCard({ booking, transaction, onCancelClick, onRefundClick
           </div>
 
           <div className="flex items-center gap-4 w-full md:w-auto">
-            {status === "Pending" && (
+            {(status === "Pending" || status === "Banked") && (
               <Button
                 variant="ghost"
                 onClick={() => onCancelClick?.(id)}
-                className="flex-1 md:flex-none text-red-500 font-bold text-sm hover:text-red-600 hover:bg-red-50 transition-colors px-4 rounded-2xl"
+                className={cn(
+                  "flex-1 md:flex-none font-bold text-sm transition-colors px-4 rounded-2xl",
+                  status === "Pending" 
+                    ? "text-red-500 hover:text-red-600 hover:bg-red-50" 
+                    : "text-orange-500 hover:text-orange-600 hover:bg-orange-50"
+                )}
               >
-                Hủy đơn
-              </Button>
-            )}
-
-            {status === "Banked" && (
-              <Button
-                variant="ghost"
-                onClick={() => onRefundClick?.(id)}
-                className="flex-1 md:flex-none text-orange-500 font-bold text-sm hover:text-orange-600 hover:bg-orange-50 transition-colors px-4 rounded-2xl"
-              >
-                Yêu cầu hoàn tiền
+                {status === "Pending" ? "Hủy đơn" : "Hủy & Hoàn tiền"}
               </Button>
             )}
 
