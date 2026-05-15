@@ -17,7 +17,6 @@ public class CampaignController: ControllerBase
         _dbContext = dbContext;
         _campaignService = campaignService;
     }
-
     [HttpPost("")]
     [Authorize(Policy = JwtExtensions.OwnerOrAdminPolicy)]
     public async Task<IActionResult> CreateCampaign(Request.CreateCampaignRequest request)
@@ -39,7 +38,6 @@ public class CampaignController: ControllerBase
         await _campaignService.UpdateCampaign(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("Update success", HttpContext.TraceIdentifier));
     }
-
     [HttpGet("Admin/Campaign")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> GetCampaign([FromQuery] Service.Base.Request.PagingRequest request)

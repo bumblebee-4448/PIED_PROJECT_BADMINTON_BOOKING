@@ -11,6 +11,8 @@ public class Response
         public string? BankAccountNumber { get; set; }
         public string? Status { get; set; }
         public Guid? BookingId { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
+        public DateTimeOffset UpdatedAt { get; set; }
         // public Guid WalletId { get; set; }
     }
     public class AdminGetTransactionResponse : GetTransactionResponse
@@ -26,7 +28,5 @@ public class Response
         public string? ActionCode { get; set; } //unique
         public string? Signature { get; set; }
         public Guid WalletId { get; set; }
-        public DateTimeOffset CreatedAt { get; set; }
-        public DateTimeOffset UpdatedAt { get; set; }
     }
 }

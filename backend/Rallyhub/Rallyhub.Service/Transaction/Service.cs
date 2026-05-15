@@ -142,6 +142,8 @@ public class Service : IService
             BankAccountNumber = x.BankAccountNumber,
             Status = x.Status,
             BookingId = x.BookingId,
+            CreatedAt = x.CreatedAt,
+            UpdatedAt =  x.UpdatedAt,
         });
         var listTransaction = await selectQuery.ToListAsync();
         var result = new Base.Response.PageResult<Response.GetTransactionResponse>()

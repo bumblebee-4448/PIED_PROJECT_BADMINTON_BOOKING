@@ -19,7 +19,8 @@ public class Service: IService
     {
         return new Response.DashboardAdminResponse()
         {
-            TotalAmount = await  _dbContext.Bookings.Where(x => x.Status == "Completed").SumAsync(y => y.FinalPrice),
+            TotalAmount = (await  _dbContext.Bookings.Where(x => x.Status == "Completed")
+                                                        .SumAsync(y => (decimal?)y.FinalPrice) ?? 0) * 0.05m,
             TotalUsers = await _dbContext.Users.CountAsync(x => x.IsDeleted == false),
             TotalCourtActive = await _dbContext.Courts.CountAsync(x => x.Status == "Active"),
         };
