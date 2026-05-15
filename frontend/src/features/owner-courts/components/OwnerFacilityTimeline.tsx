@@ -350,11 +350,11 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
 
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-emerald-500" />
+            <div className="w-3 h-3 rounded bg-white border border-gray-200" />
             <span className="text-[10px] font-medium text-gray-600">Trống</span>
           </div>
           <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-indigo-500" />
+            <div className="w-3 h-3 rounded bg-violet-500" />
             <span className="text-[10px] font-medium text-gray-600">Gộp</span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -447,10 +447,10 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
                               <div 
                                 className={cn(
                                   "w-full h-full rounded-lg border flex flex-col items-center justify-center gap-0.5 transition-all hover:brightness-95 cursor-pointer shadow-sm relative group/slot",
-                                  isMerged ? "bg-indigo-500 border-indigo-600 text-white" :
-                                  slot.isAvailable ? "bg-emerald-50 border-emerald-100 text-emerald-700" :
-                                  isBooked ? "bg-rose-500 border-rose-600 text-white" :
-                                  "bg-gray-400 border-gray-500 text-white"
+                                  slot.type === "Override" ? "bg-violet-500 border-violet-600 text-white" :
+                                  slot.type === "Booked" ? "bg-rose-500 border-rose-600 text-white" :
+                                  slot.type === "Blocked" ? "bg-gray-400 border-gray-500 text-white" :
+                                  "bg-white border-gray-100 text-gray-700"
                                 )}
                               >
                                 <span className={cn(

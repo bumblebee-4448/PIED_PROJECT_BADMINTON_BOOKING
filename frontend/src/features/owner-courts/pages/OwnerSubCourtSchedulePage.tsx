@@ -406,12 +406,20 @@ export default function OwnerSubCourtSchedulePage() {
             <h2 className="text-sm font-bold text-gray-900 border-b border-gray-50 pb-3">Trạng thái slot</h2>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-emerald-500" />
+                <div className="w-3 h-3 rounded-full bg-white border border-gray-200" />
                 <span className="text-xs font-medium text-gray-600">Còn trống</span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="w-3 h-3 rounded-full bg-gray-200" />
-                <span className="text-xs font-medium text-gray-600">Đã được đặt / Khóa</span>
+                <div className="w-3 h-3 rounded-full bg-rose-500" />
+                <span className="text-xs font-medium text-gray-600">Đã đặt</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-gray-400" />
+                <span className="text-xs font-medium text-gray-600">Bị khóa</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="w-3 h-3 rounded-full bg-violet-500" />
+                <span className="text-xs font-medium text-gray-600">Bị gộp</span>
               </div>
             </div>
           </div>
@@ -449,9 +457,10 @@ export default function OwnerSubCourtSchedulePage() {
                     key={index}
                     className={cn(
                       "p-5 rounded-xl border transition-all duration-300 relative overflow-hidden group",
-                      slot.isAvailable 
-                        ? "bg-white border-gray-100 hover:border-emerald-200 hover:shadow-md" 
-                        : "bg-gray-50 border-transparent opacity-60 grayscale"
+                      slot.type === "Booked" ? "bg-rose-50 border-rose-100 hover:shadow-md" :
+                      slot.type === "Blocked" ? "bg-gray-50 border-gray-200 opacity-60" :
+                      slot.type === "Override" ? "bg-violet-50 border-violet-100 hover:shadow-md" :
+                      "bg-white border-gray-100 hover:border-amber-400 hover:shadow-md"
                     )}
                   >
                     <div className="flex items-center justify-between mb-4">
@@ -462,13 +471,19 @@ export default function OwnerSubCourtSchedulePage() {
                         <Clock size={16} className={slot.isAvailable ? "text-emerald-600" : "text-gray-400"} />
                       </div>
                       <Badge 
-                        variant={slot.isAvailable ? "outline" : "secondary"}
+                        variant="outline"
                         className={cn(
                           "text-[10px] font-bold border-none px-3",
-                          slot.isAvailable ? "bg-emerald-50 text-emerald-600" : "bg-gray-200 text-gray-500"
+                          slot.type === "Booked" ? "bg-rose-500 text-white" :
+                          slot.type === "Blocked" ? "bg-gray-400 text-white" :
+                          slot.type === "Override" ? "bg-violet-500 text-white" :
+                          "bg-emerald-50 text-emerald-600"
                         )}
                       >
-                        {slot.isAvailable ? "TRỐNG" : "BỊ KHÓA"}
+                        {slot.type === "Booked" ? "ĐÃ ĐẶT" :
+                         slot.type === "Blocked" ? "BỊ KHÓA" :
+                         slot.type === "Override" ? "BỊ GỘP" :
+                         "TRỐNG"}
                       </Badge>
                     </div>
 

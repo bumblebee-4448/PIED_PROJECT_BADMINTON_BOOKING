@@ -63,16 +63,24 @@ export function BookingTimeline({
 
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-emerald-50 border border-emerald-100" />
+            <div className="w-3 h-3 rounded-full bg-amber-400 shadow-lg shadow-amber-400/20" />
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Đã chọn</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-white border border-gray-200" />
             <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Trống</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-emerald-500 shadow-lg shadow-emerald-500/20" />
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Đang chọn</span>
+            <div className="w-3 h-3 rounded-full bg-rose-500 shadow-lg shadow-rose-500/20" />
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Đã đặt</span>
           </div>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full bg-gray-100 border border-gray-200" />
-            <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Đã đặt</span>
+            <div className="w-3 h-3 rounded-full bg-gray-400" />
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Khóa</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full bg-violet-500 shadow-lg shadow-violet-500/20" />
+            <span className="text-[10px] font-black text-gray-400 uppercase tracking-wider">Gộp</span>
           </div>
         </div>
       </div>
@@ -161,10 +169,16 @@ export function BookingTimeline({
                                 className={cn(
                                   "w-full h-full rounded-2xl border-2 flex flex-col items-center justify-center gap-0.5 transition-all relative group/slot overflow-hidden",
                                   selected 
-                                    ? "bg-emerald-500 border-emerald-600 text-white shadow-lg shadow-emerald-500/30 scale-[1.02] z-10" 
-                                    : disabled
-                                      ? "bg-gray-100 border-gray-200 text-gray-300 cursor-not-allowed"
-                                      : "bg-emerald-50/30 border-emerald-100/50 text-emerald-700 hover:border-emerald-500 hover:bg-emerald-50 cursor-pointer"
+                                    ? "bg-amber-400 border-amber-500 text-white shadow-lg shadow-amber-400/30 scale-[1.02] z-10" 
+                                    : slot.type === "Booked"
+                                      ? "bg-rose-500 border-rose-600 text-white cursor-not-allowed shadow-md"
+                                      : slot.type === "Blocked"
+                                        ? "bg-gray-400 border-gray-500 text-white cursor-not-allowed"
+                                        : slot.type === "Override"
+                                          ? "bg-violet-500 border-violet-600 text-white shadow-md"
+                                          : isPast
+                                            ? "bg-gray-100 border-gray-200 text-gray-300 cursor-not-allowed"
+                                            : "bg-white border-gray-100 text-[#0B2421] hover:border-amber-400 hover:bg-amber-50 cursor-pointer shadow-sm"
                                 )}
                               >
                                 <span className={cn(
