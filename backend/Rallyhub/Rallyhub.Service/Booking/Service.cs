@@ -398,6 +398,8 @@ public class Service: IService
             ExpiresAt = DateTimeOffset.UtcNow.AddSeconds(100),
             CampaignId = request.CampaignId,
         };
+        await _dbContext.Bookings.AddAsync(booking);
+        await _dbContext.SaveChangesAsync();
 
         var bookingDetails = new List<BookingDetail>();
         foreach (var item in request.Items)
@@ -427,7 +429,7 @@ public class Service: IService
         {
             item.Status = "Banked";
         }
-        await _dbContext.Bookings.AddAsync(booking);
+        
         await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
 
         var bookedSubCourtId = bookingDetails.FirstOrDefault()?.SubCourtId;
