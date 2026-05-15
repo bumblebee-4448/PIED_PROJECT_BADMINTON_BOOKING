@@ -46,7 +46,7 @@ public class OwnerController : ControllerBase
     }   
     [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpPut("UpdateCourtInfo")]  
-    public async Task<IActionResult> UpdateCourtInfoRequest(Request.UpdateCourtInfoRequest request)  
+    public async Task<IActionResult> UpdateCourtInfoRequest([FromForm]Request.UpdateCourtInfoRequest request)  
     {  
         var result = await _ownerService.UpdateCourtInfo(request); 
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   

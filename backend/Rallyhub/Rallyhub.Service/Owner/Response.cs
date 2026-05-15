@@ -91,11 +91,14 @@ public class Response
 
     public class SlotResponse
     {
+        public Guid? ConfigSlotId { get; set; }
+        public Guid? OverrideSlotId { get; set; }
+        public Guid? ExceptionId { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }
         public bool IsAvailable { get; set; }
-       // public string? Reason { get; set; }
+        public string? Reason { get; set; }
         public string Type { get; set; } = null!;
     }
     

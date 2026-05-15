@@ -25,3 +25,33 @@ export const useOwnerSubCourts = (params: GetMySubCourtsRequest) => {
     enabled: !!params.courtId,
   });
 };
+
+export const useUpdateSubCourtInfo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { subCourtId: string; name: string }) => ownerCourtService.updateSubCourtInfo(data),
+    onSuccess: () => {
+      toast.success("Cập nhật thông tin sân con thành công");
+      queryClient.invalidateQueries({ queryKey: ["owner-sub-courts"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Cập nhật thất bại");
+    },
+  });
+};
+
+export const useRemoveSubCourt = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (subCourtId: string) => ownerCourtService.removeSubCourt(subCourtId),
+    onSuccess: () => {
+      toast.success("Xóa sân con thành công");
+      queryClient.invalidateQueries({ queryKey: ["owner-sub-courts"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Xóa sân con thất bại");
+    },
+  });
+};

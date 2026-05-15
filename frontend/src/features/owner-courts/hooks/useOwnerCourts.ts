@@ -24,3 +24,33 @@ export const useOwnerCourts = (params: GetMyCourtsRequest) => {
     queryFn: () => ownerCourtService.getCourts(params),
   });
 };
+
+export const useUpdateCourtInfo = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: any) => ownerCourtService.updateCourtInfo(data),
+    onSuccess: () => {
+      toast.success("Cập nhật thông tin sân thành công");
+      queryClient.invalidateQueries({ queryKey: ["owner-courts"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Cập nhật thất bại");
+    },
+  });
+};
+
+export const useRemoveCourt = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (courtId: string) => ownerCourtService.removeCourt(courtId),
+    onSuccess: () => {
+      toast.success("Xóa sân thành công");
+      queryClient.invalidateQueries({ queryKey: ["owner-courts"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.message || "Xóa sân thất bại");
+    },
+  });
+};
