@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { useOwnerCourts } from "../hooks/useOwnerCourts";
+import { useOwnerCourts, useRemoveCourt } from "../hooks/useOwnerCourts";
 import { CreateCourtDialog } from "../components/CreateCourtDialog";
+import { UpdateCourtDialog } from "../components/UpdateCourtDialog";
 import { Input } from "@/shared/components/ui/input";
-import { Search, Loader2, MapPin, Clock, Eye } from "lucide-react";
+import { Search, Loader2, MapPin, Clock, Eye, Edit2, Trash2 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
   Table,
@@ -25,6 +26,10 @@ export default function OwnerCourtsPage() {
   const [pageIndex] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedCourt, setSelectedCourt] = useState<MyCourtListItem | null>(null);
+  const [courtToEdit, setCourtToEdit] = useState<MyCourtListItem | null>(null);
+  const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  
+  const removeCourt = useRemoveCourt();
   
   const { data, isLoading } = useOwnerCourts({
     pageIndex,
@@ -118,17 +123,45 @@ export default function OwnerCourtsPage() {
                   </TableCell>
                   <TableCell>{getStatusBadge(court.status)}</TableCell>
                   <TableCell className="text-right">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      className="rounded-full h-9 w-9 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedCourt(court);
-                      }}
-                    >
-                      <Eye size={18} />
-                    </Button>
+                    <div className="flex justify-end gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setCourtToEdit(court);
+                          setIsUpdateOpen(true);
+                        }}
+                      >
+                        <Edit2 size={16} />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (window.confirm("Bạn có chắc chắn muốn xóa sân này? Hành động này không thể hoàn tác.")) {
+                            removeCourt.mutate(court.courtId);
+                          }
+                        }}
+                        disabled={removeCourt.isPending}
+                      >
+                        <Trash2 size={16} />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        className="rounded-full h-8 w-8 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedCourt(court);
+                        }}
+                      >
+                        <Eye size={16} />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -222,6 +255,12 @@ export default function OwnerCourtsPage() {
           )}
         </DialogContent>
       </Dialog>
+      {/* Update Dialog */}
+      <UpdateCourtDialog 
+        court={courtToEdit}
+        open={isUpdateOpen}
+        onOpenChange={setIsUpdateOpen}
+      />
     </div>
   );
 }

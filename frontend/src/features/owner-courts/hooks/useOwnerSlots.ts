@@ -64,6 +64,43 @@ export const useExceptionSlots = (subCourtId: string) => {
   });
 };
 
+export const useUnlockException = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (exceptionId: string) => ownerCourtService.unlockException(exceptionId),
+    onSuccess: () => {
+      toast.success("Mở khóa slot thành công");
+      queryClient.invalidateQueries({ queryKey: ["available-slots"] });
+    },
+  });
+};
+
+export const useRemoveOverrideSlot = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (overrideSlotId: string) => ownerCourtService.removeOverrideSlot(overrideSlotId),
+    onSuccess: () => {
+      toast.success("Gỡ gộp slot thành công");
+      queryClient.invalidateQueries({ queryKey: ["available-slots"] });
+      queryClient.invalidateQueries({ queryKey: ["override-slots"] });
+    },
+  });
+};
+
+export const useUpdateConfigSlotPrice = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { configSlotId: string; newPrice: number }) => ownerCourtService.updateConfigSlotPrice(data),
+    onSuccess: () => {
+      toast.success("Cập nhật giá slot thành công");
+      queryClient.invalidateQueries({ queryKey: ["available-slots"] });
+    },
+  });
+};
+
 export const useBookingDetail = (bookingDetailsId: string) => {
   return useQuery({
     queryKey: ["booking-detail", bookingDetailsId],

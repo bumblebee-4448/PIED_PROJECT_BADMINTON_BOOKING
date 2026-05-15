@@ -139,7 +139,7 @@ public class Service : IService
             throw new Exception("Email hoặc mật khẩu không chính xác.");
         }
 
-        if (user.Status == "Ban")
+        if (user.Status == "Banned")
         {
             throw new Exception("Your account has been banned.");
         }

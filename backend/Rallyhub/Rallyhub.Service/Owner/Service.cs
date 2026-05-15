@@ -71,7 +71,7 @@ public class Service : IService
         var hasCourt = await _dbContext.Courts
             .FirstOrDefaultAsync(x => 
                 x.Id ==  courtId &&
-                x.Status == "Active" &&
+                (x.Status == "Active" || x.Status == "Pending") &&
                 x.OwnerId == ownerId);
         if (hasCourt == null)
         {
@@ -166,7 +166,7 @@ public class Service : IService
             .FirstOrDefault(x => 
                 x.Id == request.CourtId && 
                 x.OwnerId == ownerIdGuid &&
-                x.Status == "Active");
+                (x.Status == "Active" || x.Status == "Pending"));
         if (existCourt == null)
         {
             throw new Exception("Không tìm thấy sân!");
@@ -291,7 +291,7 @@ public class Service : IService
         var court = await _dbContext.Courts
             .FirstOrDefaultAsync(x => 
                 x.Id == request.CourtId && 
-                x.Status == "Active");
+                (x.Status == "Active" || x.Status == "Pending"));
         if (court == null)
         {
             throw new Exception("Không tìm thấy sân");
@@ -357,7 +357,7 @@ public class Service : IService
             .FirstOrDefaultAsync(x => 
                 x.Id == subCourtId &&
                 x.Court.OwnerId == ownerId &&
-                x.Court.Status == "Active");
+                (x.Court.Status == "Active" || x.Court.Status == "Pending"));
         if (hasSubCourt == null)
         {
             throw new Exception("Không tìm thấy sân con");
@@ -390,7 +390,7 @@ public class Service : IService
                 .FirstOrDefaultAsync(x => 
                     x.Id == request.CourtId && 
                     x.OwnerId == ownerIdGuid);
-            if (court == null || court.Status != "Active")
+            if (court == null || (court.Status != "Active" && court.Status != "Pending"))
             {
                 throw new Exception("Sân chưa được vận hành");
             }
@@ -408,7 +408,7 @@ public class Service : IService
             .Include(x => x.Court)
             .Where(x =>
                 x.Court.OwnerId == ownerIdGuid &&
-                x.Court.Status == "Active")
+                (x.Court.Status == "Active" || x.Court.Status == "Pending"))
             .AsQueryable();
         if (request.CourtId != null)
         {
@@ -456,7 +456,7 @@ public class Service : IService
             .FirstOrDefault(x => 
                 x.Id == request.SubCourtId && 
                 x.Court.OwnerId == ownerIdGuid &&
-                x.Court.Status == "Active");
+                (x.Court.Status == "Active" || x.Court.Status == "Pending"));
         if (existSubCourt == null)
         {
             throw new Exception("Không tìm thấy sân!");
@@ -1021,7 +1021,7 @@ public class Service : IService
             .Include(x => x.Court)
             .FirstOrDefaultAsync(x => 
                 x.Id == request.SubCourtId && 
-                x.Court.Status == "Active");
+                (x.Court.Status == "Active" || x.Court.Status == "Pending"));
         if (subCourt == null)
             throw new Exception("Sân con không tồn tại");
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
@@ -1032,11 +1032,18 @@ public class Service : IService
                 .Include(x => x.Court)
                 .FirstOrDefaultAsync(x => 
                     x.Id == request.SubCourtId && 
-                    x.Court.Status == "Active" &&
+                    (x.Court.Status == "Active" || x.Court.Status == "Pending") &&
                     x.Court.OwnerId == ownerIdGuid);
             if (existSubCourt == null)
             {
                 throw new Exception("Sân con không tồn tại");
+            }
+        }
+        else
+        {
+            if (subCourt.Court.Status != "Active")
+            {
+                throw new Exception("Sân chưa được vận hành");
             }
         }
         
@@ -1070,6 +1077,7 @@ public class Service : IService
 
         var result = configSlots.Select(x => new Response.SlotResponse
         {
+            ConfigSlotId = x.Id,
             StartTime =  x.StartTime,
             EndTime =  x.EndTime,
             Price = x.Price,
@@ -1085,6 +1093,7 @@ public class Service : IService
 
             result.Add(new Response.SlotResponse
             {
+                OverrideSlotId = ov.Id,
                 StartTime = ov.StartTime,
                 EndTime = ov.EndTime,
                 Price = ov.Price,
@@ -1107,11 +1116,13 @@ public class Service : IService
                 {
                     result.Add(new Response.SlotResponse
                     {
+                        ConfigSlotId = slot.ConfigSlotId,
+                        OverrideSlotId = slot.OverrideSlotId,
                         StartTime = slot.StartTime,
                         EndTime = ex.StartTime,
                         IsAvailable = true,
                         Price = slot.Price,
-                        Type = "Default"
+                        Type = slot.Type
                     });
                 }
 
@@ -1119,10 +1130,11 @@ public class Service : IService
                 {
                     result.Add(new Response.SlotResponse()
                     {
+                        ExceptionId = ex.Id,
                         StartTime = ex.StartTime,
                         EndTime = ex.EndTime,
                         IsAvailable = false,
-                        //Reason = ex.Reason,
+                        Reason = ex.Reason,
                         Type = "Blocked"
                     });
                     exceptionAdd = true;
@@ -1132,11 +1144,13 @@ public class Service : IService
                 {
                     result.Add(new Response.SlotResponse()
                     {
+                        ConfigSlotId = slot.ConfigSlotId,
+                        OverrideSlotId = slot.OverrideSlotId,
                         StartTime = ex.EndTime,
                         EndTime = slot.EndTime,
                         IsAvailable = true,
                         Price = slot.Price,
-                        Type = "Default"
+                        Type = slot.Type
                     });
                 }
             }

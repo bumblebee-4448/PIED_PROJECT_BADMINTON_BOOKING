@@ -64,6 +64,9 @@ export type AvailableSlot = {
   type?: "Default" | "Booked" | "Blocked" | "Override" | string;
   reason?: string;
   bookingDetailId?: string;
+  configSlotId?: string;
+  overrideSlotId?: string;
+  exceptionId?: string;
 };
 
 export interface GetBookingDetailResponse {

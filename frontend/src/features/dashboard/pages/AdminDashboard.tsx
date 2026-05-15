@@ -12,11 +12,20 @@ import { DashboardAlerts } from "../components/DashboardAlerts";
 import { VisitorChart } from "../components/VisitorChart";
 import { SystemReportsList } from "../components/SystemReportsList";
 import { CashFlowTable } from "../components/CashFlowTable";
+import { formatCurrency } from "@/lib/utils";
 
 export function AdminDashboard() {
   const navigate = useNavigate();
-  const { pendingCourts, pendingPayouts, highPriorityReports, pendingReports } =
+  const { adminStats, isAdminStatsLoading, pendingCourts, pendingPayouts, highPriorityReports, pendingReports } =
     useAdminDashboard();
+
+  if (isAdminStatsLoading) {
+    return (
+      <div className="p-8 flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-emerald-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto">
@@ -40,27 +49,27 @@ export function AdminDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           label="Tổng Users"
-          value={ADMIN_STATS.totalUsers.toLocaleString()}
+          value={(adminStats?.totalUsers || 0).toLocaleString()}
           icon={<Users size={18} style={{ color: "#6366F1" }} />}
           color="#6366F1"
-          sub={`${ADMIN_STATS.totalOwners} chủ sân`}
+          sub="Đang hoạt động"
           onClick={() => navigate("/admin/users")}
         />
         <StatCard
           label="Sân đang hoạt động"
-          value={ADMIN_STATS.totalCourts}
+          value={adminStats?.totalCourtActive || 0}
           icon={<Building2 size={18} style={{ color: "#00897B" }} />}
           color="#00897B"
           sub={`${pendingCourts.length} chờ duyệt`}
-          onClick={() => navigate("/admin/products")}
+          onClick={() => navigate("/admin/court-approvals")}
         />
         <StatCard
           label="Doanh thu tháng"
-          value={`${(ADMIN_STATS.revenueThisMonth / 1000000000).toFixed(2)}B đ`}
+          value={formatCurrency(adminStats?.totalAmount || 0)}
           icon={<TrendingUp size={18} style={{ color: "#F59E0B" }} />}
           color="#F59E0B"
-          sub={`${ADMIN_STATS.totalBookingsToday} lượt hôm nay`}
-          onClick={() => navigate("/admin/cashflow")}
+          sub="Tổng doanh thu hệ thống"
+          onClick={() => navigate("/admin/transactions")}
         />
         <StatCard
           label="Báo cáo chờ xử lý"
@@ -68,7 +77,7 @@ export function AdminDashboard() {
           icon={<Flag size={18} style={{ color: "#EF4444" }} />}
           color="#EF4444"
           sub="Cần xử lý khẩn"
-          onClick={() => navigate("/admin/products")}
+          onClick={() => navigate("/admin/court-approvals")}
         />
       </div>
 

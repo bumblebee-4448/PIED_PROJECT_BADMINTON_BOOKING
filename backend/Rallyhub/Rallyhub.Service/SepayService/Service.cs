@@ -101,10 +101,10 @@ public class Service : IService
             }
             var transactionI = new Transaction.Request.CreateTransactionRequest()
             {
-                Type = Transaction.Request.TypeList.Payment,
+                Type = Transaction.Request.TypeList.PaymentByBank,
                 Amount = request.TransferAmount,
                 BalanceBefore = wallet.Balance,
-                BalanceAfter = wallet.Balance + request.TransferAmount,
+                BalanceAfter = wallet.Balance,
                 Status = "Success",
                 SePayId = request.Id.ToString(), //
                 BankRefCode = request.ReferenceCode, //

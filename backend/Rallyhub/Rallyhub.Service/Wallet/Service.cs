@@ -156,7 +156,7 @@ public class Service : IService
             string bankName = "MBBank";
             string bankAccount = "VQRQAIUZK3222";
             string description = $"WA-{existWallet.Id:N}";
-        
+            string nguoinhan = "PHAM QUOC HOANG";
             string qrCodeUrl = $"https://qr.sepay.vn/img?" +
                                $"acc={bankAccount}&" +
                                $"bank={bankName}&" +
@@ -182,8 +182,11 @@ public class Service : IService
             {
                 Id = existWallet.Id,
                 TransactionId = transactionI.Id,
+                BankName = bankName,
+                BankAccount = nguoinhan,
                 Amount = requestAmount,
                 QrCodeUrl = qrCodeUrl,
+                Created = DateTimeOffset.UtcNow,
             };
         }
     }
