@@ -36,6 +36,7 @@ import { format, addDays, subDays } from "date-fns";
 import { vi } from "date-fns/locale";
 import { toast } from "sonner";
 import { useCreateOverrideSlot, useCreateExceptionSlot } from "../hooks/useOwnerSlots";
+import { SlotActionModal } from "./SlotActionModal";
 import type { SubCourtListItem } from "../types";
 
 const DAYS_OF_WEEK = [
@@ -48,98 +49,7 @@ const DAYS_OF_WEEK = [
   { value: 0, label: "Chủ Nhật" },
 ];
 
-function SlotActionModal({
-  slot,
-  isOpen,
-  onOpenChange
-}: {
-  slot: any;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
-  const unlockMutation = useUnlockException();
-  const removeOverrideMutation = useRemoveOverrideSlot();
-  const updatePriceMutation = useUpdateConfigSlotPrice();
-  const [newPrice, setNewPrice] = useState(slot?.price?.toString() || "");
 
-  if (!slot) return null;
-
-  const handleAction = async () => {
-    try {
-      if (slot.type === "Blocked" && slot.exceptionId) {
-        await unlockMutation.mutateAsync(slot.exceptionId);
-      } else if (slot.type === "Override" && slot.overrideSlotId) {
-        await removeOverrideMutation.mutateAsync(slot.overrideSlotId);
-      } else if (slot.configSlotId) {
-        await updatePriceMutation.mutateAsync({
-          configSlotId: slot.configSlotId,
-          newPrice: Number(newPrice)
-        });
-      }
-      onOpenChange(false);
-    } catch (error) {}
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
-        <div className={cn(
-          "p-6 text-white relative",
-          slot.type === "Blocked" ? "bg-red-600" : 
-          slot.type === "Override" ? "bg-violet-600" : "bg-emerald-600"
-        )}>
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black">
-              {slot.type === "Blocked" ? "Mở khóa slot" : 
-               slot.type === "Override" ? "Gỡ gộp slot" : "Cập nhật giá slot"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-2 text-xs font-medium opacity-80">
-            {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
-          </div>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {(slot.type === "Blocked" || slot.type === "Override") ? (
-            <p className="text-sm font-medium text-gray-600">
-              Bạn có chắc chắn muốn {slot.type === "Blocked" ? "mở khóa" : "gỡ gộp"} khung giờ này không? 
-              Khung giờ sẽ trở về trạng thái mặc định.
-            </p>
-          ) : (
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Giá tiền mới (VNĐ)</Label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">₫</span>
-                <Input 
-                  type="number" 
-                  value={newPrice}
-                  onChange={(e) => setNewPrice(e.target.value)}
-                  className="pl-8 h-12 rounded-xl bg-gray-50 border-gray-100 focus:bg-white transition-all font-bold"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <DialogFooter className="p-6 bg-gray-50 border-t border-gray-100">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
-          <Button 
-            onClick={handleAction}
-            disabled={unlockMutation.isPending || removeOverrideMutation.isPending || updatePriceMutation.isPending}
-            className={cn(
-              "rounded-xl px-8 font-black text-white",
-              slot.type === "Blocked" ? "bg-red-600 hover:bg-red-700" : 
-              slot.type === "Override" ? "bg-violet-600 hover:bg-violet-700" : "bg-emerald-600 hover:bg-emerald-700"
-            )}
-          >
-            {unlockMutation.isPending || removeOverrideMutation.isPending || updatePriceMutation.isPending ? 
-              <Loader2 className="animate-spin" size={20} /> : "XÁC NHẬN"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function BookingDetailModal({ 
   bookingDetailId, 
@@ -267,7 +177,7 @@ function UpdateSubCourtModal({
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold">Hủy</Button>
           <Button onClick={handleUpdate} disabled={updateMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-black">
-            {updateMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "CẬP NHẬT"}
+            {updateMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "Cập nhật"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -530,7 +440,7 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
               <DialogFooter className="p-6 bg-gray-50 border-t border-gray-100">
                 <Button variant="ghost" onClick={() => setIsMergeModalOpen(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
                 <Button onClick={handleMergeSlots} disabled={createOverrideMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-black">
-                  {createOverrideMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "XÁC NHẬN"}
+                  {createOverrideMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "Xác nhận"}
                 </Button>
               </DialogFooter>
             </DialogContent>
@@ -641,7 +551,7 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
               <DialogFooter className="p-6 bg-gray-50 border-t border-gray-100">
                 <Button variant="ghost" onClick={() => setIsBlockModalOpen(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
                 <Button onClick={handleBlockSlots} disabled={createExceptionMutation.isPending} className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-8 font-black shadow-lg shadow-rose-600/20">
-                  {createExceptionMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "XÁC NHẬN KHÓA"}
+                  {createExceptionMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "Xác nhận khóa"}
                 </Button>
               </DialogFooter>
             </DialogContent>
