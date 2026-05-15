@@ -60,8 +60,8 @@ export const OwnerWalletPage: React.FC = () => {
     return depositMutation.mutateAsync(amount);
   };
 
-  const handleWithdrawal = async (data: any) => {
-    return withdrawalMutation.mutateAsync(data);
+  const handleWithdrawal = async (amount: number) => {
+    return withdrawalMutation.mutateAsync({ amount });
   };
 
   const handleAddBank = (data: any) => {
@@ -91,9 +91,6 @@ export const OwnerWalletPage: React.FC = () => {
           <div className="bg-emerald-50 p-1.5 rounded-lg text-emerald-600">
             <TrendingUp className="w-4 h-4" />
           </div>
-          <span className="text-xs font-bold text-slate-600 tracking-wide uppercase">
-            Ví đối tác RallyHub
-          </span>
         </div>
       </div>
 
@@ -108,7 +105,7 @@ export const OwnerWalletPage: React.FC = () => {
 
           <CardContent className="p-6 md:p-8 flex flex-col items-center text-center relative z-10 w-full">
             <div className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest mb-4">
-              Số dư khả dụng để rút
+              Số dư ví hiện tại 
             </div>
 
             <div className="flex items-baseline justify-center gap-2 mb-8">
@@ -132,23 +129,23 @@ export const OwnerWalletPage: React.FC = () => {
 
             <div className="grid grid-cols-2 gap-4 w-full max-w-xl mb-8">
               <Button
-                onClick={() => setIsWithdrawalOpen(true)}
+                onClick={() => setIsDepositOpen(true)}
                 className="bg-emerald-600 text-white hover:bg-emerald-700 font-bold px-6 py-4 h-auto text-base rounded-xl shadow-md shadow-emerald-100 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 group"
               >
                 <div className="bg-white/20 p-1.5 rounded-lg group-hover:rotate-12 transition-transform">
-                  <ArrowDownCircle className="w-5 h-5" />
+                  <ArrowUpCircle className="w-5 h-5" />
                 </div>
-                Rút tiền về ngân hàng
+                Nạp tiền
               </Button>
               <Button
-                onClick={() => setIsDepositOpen(true)}
+                onClick={() => setIsWithdrawalOpen(true)}
                 variant="outline"
                 className="border border-emerald-100 bg-white text-emerald-700 hover:bg-emerald-50 font-bold px-6 py-4 h-auto text-base rounded-xl shadow-sm transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-3 group"
               >
                 <div className="bg-emerald-50 p-1.5 rounded-lg group-hover:-rotate-12 transition-transform">
-                  <ArrowUpCircle className="w-5 h-5 text-emerald-600" />
+                  <ArrowDownCircle className="w-5 h-5 text-emerald-600" />
                 </div>
-                Nạp tiền vào ví
+                Rút tiền
               </Button>
             </div>
 

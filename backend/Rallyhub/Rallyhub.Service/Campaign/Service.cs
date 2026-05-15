@@ -152,6 +152,7 @@ public class Service: IService
         {
             throw new  Exception("Campaign owner mismatch");
         }
+        
         var result = new Repository.Entity.CampaignCourt()
         {
             CourtId = court.Id,
@@ -263,7 +264,6 @@ public class Service: IService
         return new Response.CampaignDetailResponse()
         {
             Code =  campaign.Code,
-            IsGlobal = campaign.IsGlobal,
             DiscountPercent = campaign.DiscountPercent,
             MaxDiscountAmount = campaign.MaxDiscountAmount,
             MinBookingAmount = campaign.MinBookingAmount,
@@ -288,10 +288,6 @@ public class Service: IService
         var campaignCourt = await _dbContext.CampaignCourts.Where(x => x.CampaignId == campaign.Id).ToListAsync();
         foreach (var item in campaignCourt)
         {
-            if (item.IsDeleted)
-            {
-                throw new Exception("Campaign is already deleted");
-            }
             item.IsDeleted = true;
             item.UpdatedAt = DateTimeOffset.UtcNow;
         }
@@ -302,20 +298,9 @@ public class Service: IService
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaign(Request.GetAllCampaignRequest request)
+    public async Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaign(Base.Request.PagingRequest request)
     {
-        var getUserId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
-        if (getUserId == null)
-        {
-            throw new Exception("No user claim found");
-        }
-        var userId = Guid.Parse(getUserId); 
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        if (user == null)
-        {
-            throw new Exception("No user found");
-        }
-        var campaignList = _dbContext.Campaigns.Where(x => x.IsDeleted == false);
+        var campaignList = _dbContext.Campaigns.Where(x => x.IsDeleted == false && x.IsGlobal == true);
         var sortEndTime = campaignList.OrderBy(x => x.EndDate);
         var pageQuery = sortEndTime.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
         var selectQuery = pageQuery.Select(x => new Response.GetAllCampaignResponse()
@@ -333,6 +318,75 @@ public class Service: IService
             PageIndex = request.PageIndex,
             PageSize =  request.PageSize,
             TotalItems =  listResult.Count,
+        };
+        return result;
+    }
+
+    public async Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaignCourt(Base.Request.PagingRequest request)
+    {
+        var getUserId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        if (getUserId == null)
+        {
+            throw new Exception("No user claim found");
+        }
+        var userId = Guid.Parse(getUserId);
+        var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == userId);
+        if (owner == null)
+        {
+            throw new Exception("No owner found");
+        }
+        var campaignList = _dbContext.Campaigns
+                                                .Where(x => x.IsDeleted == false && 
+                                                                        x.IsGlobal == false && 
+                                                                        x.OwnerId == owner.Id);
+        var sort = campaignList.OrderByDescending(x => x.CreatedAt);
+        var pageQuery = sort.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
+        var selectQuery = pageQuery.Select(x => new Response.GetAllCampaignResponse()
+        {
+            Code =  x.Code,
+            MaxDiscountAmount = x.MaxDiscountAmount,
+            MinBookingAmount = x.MinBookingAmount,
+            Expired = x.EndDate - x.StartDate,
+            Quantity = x.UsageLimit - x.UsedCount,
+        });
+        var listResult = await selectQuery.ToListAsync();
+        var result = new Base.Response.PageResult<Response.GetAllCampaignResponse>()
+        {
+            Items = listResult,
+            PageIndex = request.PageIndex,
+            PageSize =  request.PageSize,
+            TotalItems =  listResult.Count,
+        };
+        return result;
+    }
+
+    public async Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> CampaignByCourt(Request.GetCampaignByCourtRequest request)
+    {
+        var campaignCourtList = await _dbContext.CampaignCourts.Where(x => x.CourtId == request.CourtId).ToListAsync();
+        List<Repository.Entity.Campaign> campaigns = new List<Repository.Entity.Campaign>();
+        foreach (var item in campaignCourtList)
+        {
+            var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == item.CampaignId);
+            if (campaign != null)
+            {
+                campaigns.Add(campaign);
+            }
+        }
+        var selectCampaign = campaigns.Select(x => new Response.GetAllCampaignResponse()
+        {
+            Code =  x.Code,
+            MaxDiscountAmount = x.MaxDiscountAmount,
+            MinBookingAmount = x.MinBookingAmount,
+            Expired = x.EndDate - x.StartDate,
+            Quantity = x.UsageLimit - x.UsedCount,
+        });
+        var listResult = selectCampaign.ToList();
+        var result = new Base.Response.PageResult<Response.GetAllCampaignResponse>()
+        {
+            Items = listResult,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize,
+            TotalItems = listResult.Count,
         };
         return result;
     }

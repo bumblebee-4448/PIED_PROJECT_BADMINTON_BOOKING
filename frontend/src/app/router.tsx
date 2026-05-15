@@ -24,6 +24,8 @@ import OwnerSubCourtCalendarPage from "@/features/owner-courts/pages/OwnerSubCou
 import OwnerSubCourtSchedulePage from "@/features/owner-courts/pages/OwnerSubCourtSchedulePage";
 import AdminCourtsPage from "@/features/admin-courts/pages/AdminCourtsPage";
 import AdminUsersPage from "@/features/admin-users/pages/AdminUsersPage";
+import { AdminWithdrawalsPage } from "@/features/admin-wallet/pages/AdminWithdrawalsPage";
+import { AdminTransactionsPage } from "@/features/admin-wallet/pages/AdminTransactionsPage";
 import { WalletPage, OwnerWalletPage } from "@/features/wallet";
 
 /**
@@ -116,6 +118,8 @@ export const router = createBrowserRouter([
       { path: "owner-requests", element: <OwnerRequestsPage /> },
       { path: "court-approvals", element: <AdminCourtsPage /> },
       { path: "users", element: <AdminUsersPage /> },
+      { path: "withdrawals", element: <AdminWithdrawalsPage /> },
+      { path: "transactions", element: <AdminTransactionsPage /> },
     ],
   },
 

@@ -5,7 +5,6 @@ public class Response
     public class CampaignDetailResponse
     {
         public required string Code  { get; set; }
-        public bool IsGlobal { get; set; }
         public required decimal DiscountPercent  { get; set; }
         public decimal MaxDiscountAmount { get; set; }
         public decimal? MinBookingAmount { get; set; }

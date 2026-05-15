@@ -69,6 +69,10 @@ public class Service : IService
     public async Task UpdateProfile(Request.UpdateProfile request)
     {
         var getUserId = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        if (getUserId == null)
+        {
+            throw new Exception("Không tìm thấy thông tin của owner");
+        }
         var userId = Guid.Parse(getUserId!);
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
         user!.FirstName = request.FirstName;

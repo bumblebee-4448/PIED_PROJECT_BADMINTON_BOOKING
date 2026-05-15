@@ -86,7 +86,7 @@ public class Usercontroller : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse("Updated Profile Success", HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("GetMe")]
+    [HttpGet("Me")]
     [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]
     public async Task<IActionResult> GetMe()
     {

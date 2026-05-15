@@ -78,23 +78,32 @@ public class Service: IService
 
     public async Task<Base.Response.PageResult<Response.GetFeedbackResponse>> GetFeedback(Request.GetFeedbackRequest request)
     {
-        var feadbackCourtList = _dbContext.Feedbacks.Where(x => x.CourtId == request.CourtId && x.IsDeleted == false);
-        var sort = feadbackCourtList.OrderByDescending(x => x.CreatedAt);
-        var pageQuery = sort.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
-        var selectQuery = pageQuery.Select(x => new Response.GetFeedbackResponse()
-        {
-            NameCustomer = x.Customer.User.FirstName,
-            Rating = x.Rating,
-            Comment =  x.Comment,
-            CreatedAt = x.CreatedAt
-        });
-        var listResult = await selectQuery.ToListAsync();
+        if (request.PageIndex < 1)
+            throw new Exception("PageIndex must be greater than or equal to 1");
+        var feadbackCourtList = _dbContext.Feedbacks
+            .Where(x => 
+                x.CourtId == request.CourtId && 
+                x.IsDeleted == false);
+        
+        var totalCount = await feadbackCourtList.CountAsync();
+        
+        var selectQuery = await feadbackCourtList
+            .OrderByDescending(x => x.CreatedAt)
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(x => new Response.GetFeedbackResponse()
+            {
+                NameCustomer = x.Customer.User.FirstName,
+                Rating = x.Rating,
+                Comment =  x.Comment,
+                CreatedAt = x.CreatedAt
+            }).ToListAsync();
         var result = new Base.Response.PageResult<Response.GetFeedbackResponse>()
         {
-            Items = listResult,
+            Items = selectQuery,
             PageSize = request.PageSize,
             PageIndex = request.PageIndex,
-            TotalItems = listResult.Count
+            TotalItems = totalCount
         };
         return result;
     }

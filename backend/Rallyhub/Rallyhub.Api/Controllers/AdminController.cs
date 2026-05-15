@@ -25,7 +25,7 @@ public class AdminController: ControllerBase
             (result, "Success you!", HttpContext.TraceIdentifier));
     }
 
-    [HttpGet("getUserDetailById")]
+    [HttpGet("UserDetailById")]
     public async Task<IActionResult> UserDetail([FromQuery]Request.UserDetailRequest  request)
     {
         var result = await _adminService.UserDetail(request);

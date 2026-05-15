@@ -4,12 +4,13 @@ import {
   LayoutDashboard,
   Users,
   Building2,
-  DollarSign,
   Menu,
   Bell,
   ShieldCheck,
   Search,
   FileCheck,
+  Wallet,
+  History,
 } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store";
 import { Button } from "@/shared/components/ui/button";
@@ -20,16 +21,17 @@ import { useMe } from "@/features/profile/hooks/useMe";
 const ADMIN_NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
   { icon: Users, label: "Người dùng", path: "/admin/users" },
+  { icon: Wallet, label: "Duyệt rút tiền", path: "/admin/withdrawals" },
+  { icon: History, label: "Lịch sử giao dịch", path: "/admin/transactions" },
   { icon: FileCheck, label: "Duyệt chủ sân", path: "/admin/owner-requests" },
   { icon: ShieldCheck, label: "Duyệt sân", path: "/admin/court-approvals" },
   { icon: Building2, label: "Sân cầu lông", path: "/admin/courts" },
-  { icon: DollarSign, label: "Tài chính", path: "/admin/finance" },
 ];
 
 const OWNER_NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/owner" },
   { icon: Building2, label: "Quản lí cơ sở", path: "/owner/courts" },
-  { icon: DollarSign, label: "Doanh thu", path: "/owner/revenue" },
+  { icon: Wallet, label: "Ví của tôi", path: "/owner/wallet" },
 ];
 
 export function AdminLayout() {
@@ -167,7 +169,7 @@ export function AdminLayout() {
       {/* Main Content Area */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Header */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-20">
+        <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 px-8 py-4 flex items-center justify-between sticky top-0 z-[100]">
           <div className="flex items-center gap-4">
             <Button
               variant="ghost"
