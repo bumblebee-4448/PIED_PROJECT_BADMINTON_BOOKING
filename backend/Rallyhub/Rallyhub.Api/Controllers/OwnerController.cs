@@ -7,7 +7,6 @@ using Rallyhub.Service.Owner;
 namespace Rallyhub.Api.Controllers;
 
 [ApiController]
-[Authorize(Policy = JwtExtensions.OwnerPolicy)]
 [Route("[controller]")]
 public class OwnerController : ControllerBase
 {
@@ -17,7 +16,7 @@ public class OwnerController : ControllerBase
     {
         _ownerService = ownerService;
     }
-    
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpPost("OwnerCreateCourt")]  
     public async Task<IActionResult> CreateCourt([FromForm]Request.CreateCourtRequest request)  
     {  
@@ -25,7 +24,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Waiting for Admin accept"   
             , HttpContext.TraceIdentifier));  
     }  
-    
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpDelete("RemoveCourt{courtId}")]
     public async Task<IActionResult> RemoveCourt(Guid courtId)
     {
@@ -37,6 +36,7 @@ public class OwnerController : ControllerBase
             HttpContext.TraceIdentifier
         ));
     }
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpGet("OwnerGetAllCourts")]  
     public async Task<IActionResult> GetAllCourts([FromQuery]Request.GetAllMyCourtsRequest request)  
     {  
@@ -44,7 +44,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }   
-    
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpPut("UpdateCourtInfo")]  
     public async Task<IActionResult> UpdateCourtInfoRequest(Request.UpdateCourtInfoRequest request)  
     {  
@@ -52,7 +52,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
-    
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpPost("OwnerCreateSubCourt")]  
     public async Task<IActionResult> CreateSubCourt([FromBody]Request.CreateSubCourtRequest request)  
     {  
@@ -60,6 +60,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     } 
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpDelete("RemoveSubCourt{subCourtId}")]
     public async Task<IActionResult> RemoveSubCourt(Guid subCourtId)
     {
@@ -72,7 +73,7 @@ public class OwnerController : ControllerBase
         ));
     }
     
-    
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpGet("OwnerGetMySubCourts")] 
     public async Task<IActionResult> GetMySubCourts([FromQuery] Request.GetMySubCourtsRequest request)  
     {  
@@ -80,6 +81,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     } 
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpPut("UpdateSubCourtInfo")]  
     public async Task<IActionResult> UpdateSubCourtInfo(Request.UpdateSubCourtInfoRequest request)  
     {  
@@ -87,6 +89,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpGet("OwnerGetConfigSlot")]  
     public async Task<IActionResult> GetConfigSlotBySubCourtId(Guid subCourtId)  
     {  
@@ -94,6 +97,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpPut("UpdateConfigSlotPrice")]  
     public async Task<IActionResult> UpdateConfigSlotPrice(Request.UpdateConfigSlotPriceRequest request)  
     {  
@@ -101,7 +105,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
-        
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)] 
     [HttpPost("CreateOverrideSlot")]  
     public async Task<IActionResult> CreateOverrideSlot([FromBody]Request.CreateOverrideSlotRequest request)  
     {  
@@ -109,7 +113,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
-
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpGet("GetOverrideSlotBySubCourtId")]  
     public async Task<IActionResult> GetOverrideSlotBySubCourtId(Guid subCourtId)  
     {  
@@ -117,6 +121,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpDelete("RemoveOverrideSlot{overrideSlotId}")]
     public async Task<IActionResult> RemoveOverrideSlot(Guid overrideSlotId)
     {
@@ -128,6 +133,7 @@ public class OwnerController : ControllerBase
             HttpContext.TraceIdentifier
         ));
     }
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpPost("CreateExceptionSlot")]  
     public async Task<IActionResult> CreateExceptionSlot([FromBody]Request.CreateExceptionSlotRequest request)  
     {  
@@ -135,6 +141,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpGet("GetExceptionSlotBySubCourtId")]  
     public async Task<IActionResult> GetExceptionSlotResponse(Guid subCourtId)  
     {  
@@ -142,6 +149,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpDelete("UnlockException{exceptionId}")]
     public async Task<IActionResult> UnlockException(Guid exceptionId)
     {
@@ -153,6 +161,7 @@ public class OwnerController : ControllerBase
             HttpContext.TraceIdentifier
         ));
     }
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     [HttpGet("GetSetupSlotsBySubCourtId")]  
     public async Task<IActionResult> GetSetupSlots(Guid subCourtId, DateOnly date)  
     {  
@@ -160,7 +169,7 @@ public class OwnerController : ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse( result,"Success"   
             , HttpContext.TraceIdentifier));  
     }
-    
+    [Authorize(Policy = JwtExtensions.CustomerOrOwnerPolicy)]
     [HttpGet("GetAvailableSlots")]  
     public async Task<IActionResult> GetAvailableSlots([FromQuery]Request.GetAvailableSlotsRequest request)  
     {  
