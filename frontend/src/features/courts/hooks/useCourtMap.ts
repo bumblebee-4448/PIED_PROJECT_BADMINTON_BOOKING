@@ -114,13 +114,16 @@ export function useCourtMap({ mapContainerRef, searchQuery, onMarkerClick }: Use
   useEffect(() => {
     if (!mapRef.current) return;
 
-    // Gộp dữ liệu từ API Bbox và API Radius
+    // Gộp dữ liệu từ API Bbox, Radius và Text Search
     const allCourtsMap = new Map();
     if (mapData?.listCourts) {
       mapData.listCourts.forEach(c => allCourtsMap.set(c.id, c));
     }
     if (radiusData?.listCourts) {
       radiusData.listCourts.forEach(c => allCourtsMap.set(c.id, c));
+    }
+    if (textSearchData?.listCourts) {
+      textSearchData.listCourts.forEach(c => allCourtsMap.set(c.id, c));
     }
 
     const courts = Array.from(allCourtsMap.values());
@@ -165,7 +168,7 @@ export function useCourtMap({ mapContainerRef, searchQuery, onMarkerClick }: Use
         markersRef.current[court.id] = marker;
       }
     });
-  }, [mapData, radiusData, onMarkerClick]);
+  }, [mapData, radiusData, textSearchData, onMarkerClick]);
 
   // Marker cho vị trí người dùng
   const userMarkerRef = useRef<vietmapgl.Marker | null>(null);

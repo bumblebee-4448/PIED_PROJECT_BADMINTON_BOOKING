@@ -63,3 +63,11 @@ export const useExceptionSlots = (subCourtId: string) => {
     enabled: !!subCourtId,
   });
 };
+
+export const useBookingDetail = (bookingDetailsId: string) => {
+  return useQuery({
+    queryKey: ["booking-detail", bookingDetailsId],
+    queryFn: () => ownerCourtService.getBookingDetail(bookingDetailsId),
+    enabled: !!bookingDetailsId,
+  });
+};

@@ -11,6 +11,7 @@ public class Response
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
 
     public class CreateBookingResponse
@@ -24,6 +25,7 @@ public class Response
         public List<BookingDetailItem> Items { get; set; } = new();
         public string QrCodeUrl { get; set; } = null!;
         public int TotalSlots { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
     public class BookingRefundResponse
     {
@@ -31,6 +33,7 @@ public class Response
         public string Status { get; set; } = null!;
         public decimal RefundAmount { get; set; }
         public string Message { get; set; } = null!;
+        public DateTimeOffset CreatedAt { get; set; }
     }
     public class GetBookingResponse
     {
@@ -42,7 +45,7 @@ public class Response
         public List<SlotsResponse> SlotsResponses { get; set; } = new();
         public string PhoneNumber { get; set; } = null!;
         public string UrlMap { get; set; } = null!;
-        
+        public DateTimeOffset CreatedAt { get; set; }
     }
 
     public class SlotsResponse
@@ -62,5 +65,6 @@ public class Response
         public string SubCourtName { get; set; } = null!;
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }

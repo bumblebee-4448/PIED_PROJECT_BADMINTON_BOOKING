@@ -12,7 +12,9 @@ import { useSubCourts } from "../hooks/useSubCourts";
 import { useCreateBooking, useCreateBookingByWallet } from "../hooks/useBookingOperations";
 import { BookingPaymentSummary } from "../components/BookingPaymentSummary";
 import { PaymentQrDialog } from "../components/PaymentQrDialog";
+import { WalletConfirmDialog } from "../components/WalletConfirmDialog";
 import { useCourtDetail } from "@/features/courts/hooks/useCourts";
+import { useWallet } from "@/features/wallet";
 import type { AvailableSlot, CreateBookingResponse, SubCourt } from "../types";
 import { toast } from "sonner";
 import { BookingTimeline } from "../components/BookingTimeline";
@@ -23,14 +25,17 @@ export function BookingPage() {
 
   // State
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
-  const [selectedSubCourtId, setSelectedSubCourtId] = useState<string | null>(null);
+
   const [selectedSlots, setSelectedSlots] = useState<AvailableSlot[]>([]);
   const [bookingResponse, setBookingResponse] = useState<CreateBookingResponse | null>(null);
   const [isQrOpen, setIsQrOpen] = useState(false);
+  const [isWalletConfirmOpen, setIsWalletConfirmOpen] = useState(false);
 
   // Queries
   const { data: court, isLoading: isCourtLoading } = useCourtDetail(courtId || "");
   const { data: subCourts, isLoading: isSubCourtsLoading } = useSubCourts(courtId || "");
+  const { useWalletInfo } = useWallet();
+  const { data: wallet } = useWalletInfo();
   
   // Normalize sub-courts data (handle both array and paginated object)
   const subCourtsList = useMemo(() => {
@@ -52,7 +57,7 @@ export function BookingPage() {
     return [];
   }, [subCourts, courtId]);
 
-  const effectiveSubCourtId = selectedSubCourtId || (subCourtsList.length > 0 ? subCourtsList[0].subCourtId : null);
+
 
   const formattedDate = format(selectedDate, "yyyy-MM-dd");
 
@@ -63,18 +68,12 @@ export function BookingPage() {
   // Handlers
   const handleToggleSlot = (slot: AvailableSlot & { subCourtId: string }) => {
     setSelectedSlots(prev => {
-      // If selecting a slot on a different sub-court, clear previous selection
-      const currentSubCourtId = prev.length > 0 ? (prev[0] as any).subCourtId : null;
+      const exists = prev.find(s => 
+        (s as any).subCourtId === slot.subCourtId && 
+        s.startTime === slot.startTime && 
+        s.endTime === slot.endTime
+      );
       
-      if (currentSubCourtId && currentSubCourtId !== slot.subCourtId) {
-        toast.info(`Đã chuyển sang đặt sân ${subCourtsList.find(s => s.subCourtId === slot.subCourtId)?.name}`);
-        setSelectedSubCourtId(slot.subCourtId);
-        return [slot];
-      }
-
-      setSelectedSubCourtId(slot.subCourtId);
-      
-      const exists = prev.find(s => s.startTime === slot.startTime && s.endTime === slot.endTime);
       if (exists) {
         return prev.filter(s => s !== exists);
       }
@@ -83,13 +82,25 @@ export function BookingPage() {
   };
 
   const handleBookBank = async () => {
-    if (!effectiveSubCourtId || selectedSlots.length === 0) return;
+    if (selectedSlots.length === 0) return;
+
+    // Group selected slots by subCourtId
+    const groupedItems = selectedSlots.reduce((acc, slot) => {
+      const subCourtId = (slot as any).subCourtId;
+      if (!acc[subCourtId]) {
+        acc[subCourtId] = { subCourtId, slots: [] };
+      }
+      acc[subCourtId].slots.push({ 
+        startTime: slot.startTime, 
+        endTime: slot.endTime 
+      });
+      return acc;
+    }, {} as Record<string, { subCourtId: string; slots: { startTime: string; endTime: string }[] }>);
 
     try {
       const result = await createBooking.mutateAsync({
-        subCourtId: effectiveSubCourtId,
         date: formattedDate,
-        slots: selectedSlots.map(s => ({ startTime: s.startTime, endTime: s.endTime }))
+        items: Object.values(groupedItems)
       });
       setBookingResponse(result);
       setIsQrOpen(true);
@@ -98,16 +109,34 @@ export function BookingPage() {
     }
   };
 
-  const handleBookWallet = async () => {
-    if (!effectiveSubCourtId || selectedSlots.length === 0) return;
+  const handleBookWallet = () => {
+    if (selectedSlots.length === 0) return;
+    setIsWalletConfirmOpen(true);
+  };
+
+  const handleConfirmWalletPayment = async () => {
+    if (selectedSlots.length === 0) return;
+
+    // Group selected slots by subCourtId
+    const groupedItems = selectedSlots.reduce((acc, slot) => {
+      const subCourtId = (slot as any).subCourtId;
+      if (!acc[subCourtId]) {
+        acc[subCourtId] = { subCourtId, slots: [] };
+      }
+      acc[subCourtId].slots.push({ 
+        startTime: slot.startTime, 
+        endTime: slot.endTime 
+      });
+      return acc;
+    }, {} as Record<string, { subCourtId: string; slots: { startTime: string; endTime: string }[] }>);
 
     try {
       await createBookingByWallet.mutateAsync({
-        subCourtId: effectiveSubCourtId,
         date: formattedDate,
-        slots: selectedSlots.map(s => ({ startTime: s.startTime, endTime: s.endTime }))
+        items: Object.values(groupedItems)
       });
       toast.success("Đặt sân thành công bằng ví!");
+      setIsWalletConfirmOpen(false);
       navigate("/history");
     } catch {
       toast.error("Thanh toán bằng ví thất bại. Vui lòng kiểm tra số dư.");
@@ -141,6 +170,17 @@ export function BookingPage() {
           toast.success("Hệ thống đang xác nhận thanh toán của bạn!");
           navigate("/history");
         }}
+      />
+
+      <WalletConfirmDialog
+        isOpen={isWalletConfirmOpen}
+        onClose={() => setIsWalletConfirmOpen(false)}
+        onConfirm={handleConfirmWalletPayment}
+        totalPrice={selectedSlots.reduce((sum, s) => sum + s.price, 0)}
+        slotCount={selectedSlots.length}
+        date={selectedDate}
+        walletBalance={wallet?.balance}
+        isLoading={createBookingByWallet.isPending}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">

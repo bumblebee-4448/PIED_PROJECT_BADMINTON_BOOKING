@@ -4,8 +4,10 @@ import { BookingCard } from "../components/BookingCard";
 import { CancelBookingDialog } from "../components/CancelBookingDialog";
 import { useBookings } from "../hooks/useBookings";
 import { useFilteredBookings } from "../hooks/useFilteredBookings";
-import { useRefundBooking } from "../hooks/useRefundBooking";
-import { Loader2, ClipboardList, AlertCircle } from "lucide-react";
+
+import { useTransactions } from "../hooks/useTransactions";
+import { TransactionDetailDialog } from "../components/TransactionDetailDialog";
+import { Loader2, ClipboardList } from "lucide-react";
 import { 
   Pagination, 
   PaginationContent, 
@@ -14,50 +16,31 @@ import {
   PaginationNext, 
   PaginationPrevious 
 } from "@/shared/components/ui/pagination";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/shared/components/ui/alert-dialog";
+
 import { cn } from "@/lib/utils";
-import { DEFAULT_PAGE_SIZE, type FilterStatus } from "../types";
-import { toast } from "sonner";
+import { type FilterStatus, type TransactionItem } from "../types";
 
 export function BookingHistoryPage() {
   const [pageIndex, setPageIndex] = React.useState(1);
   const [activeStatus, setActiveStatus] = React.useState<FilterStatus>("all");
   const [cancellingBooking, setCancellingBooking] = React.useState<{id: string, status: string} | null>(null);
-  const [refundingId, setRefundingId] = React.useState<string | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = React.useState<TransactionItem | null>(null);
 
-  const { data, isLoading, isError } = useBookings(pageIndex, DEFAULT_PAGE_SIZE);
+  const { data, isLoading, isError } = useBookings(1, 1000);
+  const { data: transactionsData } = useTransactions(1, 1000);
   const { filteredItems, counts } = useFilteredBookings(data, activeStatus);
-  const refundMutation = useRefundBooking();
+
+  const pageSize = 10;
+  const totalPages = Math.ceil(filteredItems.length / pageSize);
+  const paginatedItems = filteredItems.slice((pageIndex - 1) * pageSize, pageIndex * pageSize);
+
 
   const handleStatusChange = (status: FilterStatus) => {
     setActiveStatus(status);
-    setPageIndex(1); // Reset to first page on filter change
+    setPageIndex(1);
   };
 
-  const handleRefund = () => {
-    if (!refundingId) return;
-    
-    refundMutation.mutate(refundingId, {
-      onSuccess: () => {
-        toast.success("Đã gửi yêu cầu hoàn tiền thành công!");
-        setRefundingId(null);
-      },
-      onError: () => {
-        toast.error("Không thể hoàn tiền. Vui lòng thử lại sau.");
-      }
-    });
-  };
 
-  const totalPages = data ? Math.ceil(data.totalItems / DEFAULT_PAGE_SIZE) : 0;
 
   if (isLoading) {
     return (
@@ -107,15 +90,21 @@ export function BookingHistoryPage() {
 
         {/* Booking List */}
         <div className="space-y-6">
-          {filteredItems.length > 0 ? (
-            filteredItems.map((booking) => (
-              <BookingCard 
-                key={booking.bookingId} 
-                booking={booking} 
-                onCancelClick={(id) => setCancellingBooking({ id, status: booking.status })}
-                onRefundClick={(id) => setRefundingId(id)}
-              />
-            ))
+          {paginatedItems.length > 0 ? (
+            paginatedItems.map((booking, index) => {
+              const bookingId = booking.bookingId || (booking as any).BookingId || (booking as any).Id || `booking-${index}`;
+              const transaction = transactionsData?.items.find(t => t.bookingId === bookingId);
+              
+              return (
+                <BookingCard 
+                  key={bookingId} 
+                  booking={booking} 
+                  transaction={transaction}
+                  onCancelClick={(id) => setCancellingBooking({ id, status: booking.status })}
+                  onViewPaymentClick={(t) => setSelectedTransaction(t)}
+                />
+              );
+            })
           ) : (
             <div className="bg-white rounded-[40px] p-16 text-center border border-dashed border-gray-200">
               <div className="w-24 h-24 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mx-auto mb-8">
@@ -142,7 +131,7 @@ export function BookingHistoryPage() {
                 </PaginationItem>
                 
                 {Array.from({ length: totalPages }).map((_, i) => (
-                  <PaginationItem key={i}>
+                  <PaginationItem key={`page-${i}`}>
                     <PaginationLink 
                       isActive={pageIndex === i + 1}
                       onClick={() => setPageIndex(i + 1)}
@@ -155,7 +144,7 @@ export function BookingHistoryPage() {
 
                 <PaginationItem>
                   <PaginationNext 
-                    onClick={() => setPageIndex(p => p + 1)}
+                    onClick={() => setPageIndex(p => Math.min(totalPages, p + 1))}
                     className={cn("cursor-pointer", pageIndex >= totalPages && "pointer-events-none opacity-50")}
                   />
                 </PaginationItem>
@@ -163,6 +152,8 @@ export function BookingHistoryPage() {
             </Pagination>
           </div>
         )}
+
+
       </div>
 
       {/* Dialogs */}
@@ -173,30 +164,12 @@ export function BookingHistoryPage() {
         onClose={() => setCancellingBooking(null)} 
       />
 
-      {/* Refund Confirmation */}
-      <AlertDialog open={!!refundingId} onOpenChange={(open) => !open && setRefundingId(null)}>
-        <AlertDialogContent className="rounded-3xl p-6">
-          <AlertDialogHeader>
-            <div className="w-12 h-12 rounded-2xl bg-orange-50 flex items-center justify-center text-orange-500 mb-4">
-              <AlertCircle size={24} />
-            </div>
-            <AlertDialogTitle className="text-xl font-black text-gray-900">Xác nhận hoàn tiền</AlertDialogTitle>
-            <AlertDialogDescription className="text-gray-500 font-medium">
-              Bạn có chắc chắn muốn hoàn tiền cho đơn đặt sân này? 
-              Tiền sẽ được cộng lại vào ví của bạn sau khi hệ thống xử lý.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="gap-3 mt-6">
-            <AlertDialogCancel className="rounded-xl h-11 border-gray-100 font-bold text-gray-500">Hủy</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleRefund}
-              className="rounded-xl h-11 bg-orange-500 hover:bg-orange-600 font-bold text-white shadow-lg shadow-orange-200"
-            >
-              {refundMutation.isPending ? "Đang xử lý..." : "Xác nhận hoàn tiền"}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+
+      <TransactionDetailDialog 
+        isOpen={!!selectedTransaction}
+        onClose={() => setSelectedTransaction(null)}
+        transaction={selectedTransaction}
+      />
     </div>
   );
 }

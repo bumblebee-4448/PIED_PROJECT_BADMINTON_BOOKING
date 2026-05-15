@@ -1,6 +1,9 @@
 import { MapPin, Phone, Clock, Star, Info, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useCourtDetail } from "../hooks/useCourts";
+import { useCourtDetail, useCourtFeedbacks } from "../hooks/useCourts";
+import { CourtFeedbackSection } from "./CourtFeedbackSection";
+import { useState, useEffect, useMemo } from "react";
+import type { CourtFeedback } from "../types";
 import {
   Dialog,
   DialogContent,
@@ -20,11 +23,40 @@ interface CourtDetailDialogProps {
 
 export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialogProps) {
   const navigate = useNavigate();
+  const [feedbackPage, setFeedbackPage] = useState(1);
+  const [loadedFeedbacks, setLoadedFeedbacks] = useState<CourtFeedback[]>([]);
+  
   const { data: court, isLoading, isError } = useCourtDetail(courtId || "");
+  const {
+    data: feedbacks,
+    isLoading: isFeedbackLoading,
+    isFetching: isFeedbackFetching,
+    isError: isFeedbackError,
+  } = useCourtFeedbacks(courtId || "", feedbackPage, 5); // Show fewer feedbacks in dialog initially
+
+  useEffect(() => {
+    if (isOpen) {
+      setFeedbackPage(1);
+      setLoadedFeedbacks([]);
+    }
+  }, [courtId, isOpen]);
+
+  useEffect(() => {
+    if (!feedbacks?.items) return;
+
+    setLoadedFeedbacks((current) =>
+      feedbackPage === 1 ? feedbacks.items : [...current, ...feedbacks.items]
+    );
+  }, [feedbackPage, feedbacks]);
+
+  const canLoadMoreFeedbacks = useMemo(() => {
+    const totalItems = feedbacks?.totalItems ?? 0;
+    return loadedFeedbacks.length < totalItems;
+  }, [feedbacks?.totalItems, loadedFeedbacks.length]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white rounded-3xl border-none shadow-2xl">
+      <DialogContent className="max-w-2xl p-0 overflow-hidden bg-white rounded-3xl border-none shadow-2xl max-h-[90vh] flex flex-col">
         {/* Accessibility requirement: Title and Description must always exist */}
         <div className="sr-only">
           <DialogHeader>
@@ -47,7 +79,7 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
             <p className="text-red-500 font-bold">Không thể tải thông tin sân. Vui lòng thử lại sau.</p>
           </div>
         ) : (
-          <div className="flex flex-col">
+          <div className="flex flex-col overflow-y-auto custom-scrollbar">
             {/* Cover Image */}
             <div className="relative h-64 w-full group">
               <img 
@@ -148,7 +180,7 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
                 </div>
               )}
 
-              <div className="pt-4">
+              <div className="pt-4 pb-8">
                 <Button 
                   onClick={() => {
                     onClose();
@@ -159,10 +191,38 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
                   ĐẶT SÂN NGAY
                 </Button>
               </div>
+
+              {/* Feedback Section */}
+              <div className="pt-6 border-t border-gray-100">
+                <CourtFeedbackSection
+                  feedbacks={loadedFeedbacks}
+                  totalItems={feedbacks?.totalItems ?? 0}
+                  isLoading={isFeedbackLoading}
+                  isLoadingMore={isFeedbackFetching && feedbackPage > 1}
+                  isError={isFeedbackError}
+                  canLoadMore={canLoadMoreFeedbacks}
+                  onLoadMore={() => setFeedbackPage((page) => page + 1)}
+                />
+              </div>
             </div>
           </div>
         )}
       </DialogContent>
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+          width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+          background: #e2e8f0;
+          border-radius: 10px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+          background: #cbd5e1;
+        }
+      `}</style>
     </Dialog>
   );
 }

@@ -98,7 +98,7 @@ public class Service : IService
         
         var courtResult = await _dbContext.Courts
             .Include(x => x.Feedbacks)
-            .Where(x => x.Id == courtId)
+            .Where(x => x.Id == courtId && x.Status == "Active")
             .Select(court => new Response.SearchCourtByIdResponse
             {
                 CourtId = court.Id,
