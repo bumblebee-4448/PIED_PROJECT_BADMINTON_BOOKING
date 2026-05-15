@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
 import {
   TrendingUp,
@@ -26,8 +26,11 @@ import {
 } from "../data/mockData";
 import { StatCard } from "../components/StatCard";
 import { Button } from "@/shared/components/ui/button";
+import { useOwnerRevenue } from "@/features/owner-revenue/hooks/useOwnerRevenue";
+import { format } from "date-fns";
+import { formatCurrency } from "@/lib/utils";
 
-const PERIOD_OPTS = ["Tuần", "Tháng"];
+const PERIOD_OPTS = ["Hôm nay", "Tuần", "Tháng", "Năm"];
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (!active || !payload?.length) return null;
@@ -63,10 +66,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 export function OwnerDashboard() {
   const navigate = useNavigate();
   const [period, setPeriod] = useState("Tháng");
-  const revenueData = period === "Tuần" ? REVENUE_WEEKLY : REVENUE_MONTHLY;
+  
+  const startDate = useMemo(() => {
+    const now = new Date();
+    if (period === "Hôm nay") return format(now, "yyyy-MM-dd");
+    if (period === "Tuần") return format(new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), "yyyy-MM-dd");
+    if (period === "Năm") return format(new Date(now.getFullYear(), 0, 1), "yyyy-MM-dd");
+    return format(new Date(now.getFullYear(), now.getMonth(), 1), "yyyy-MM-dd");
+  }, [period]);
+  
+  const { data: revenueData, isLoading } = useOwnerRevenue({
+    startDate,
+    endDate: format(new Date(), "yyyy-MM-dd")
+  });
 
-  const totalRevenue = OWNER_COURTS.reduce((s, c) => s + c.totalRevenue, 0);
-  const totalBookings = OWNER_COURTS.reduce((s, c) => s + c.totalBookings, 0);
+  const displayTotalRevenue = revenueData?.totalRevenue || 0;
+  const displayTotalBookings = revenueData?.totalBookings || 0;
+
   const avgRating = (
     OWNER_COURTS.reduce((s, c) => s + c.rating, 0) / OWNER_COURTS.length
   ).toFixed(1);
@@ -77,6 +93,11 @@ export function OwnerDashboard() {
       ),
     ),
   );
+
+  const chartData = revenueData?.chartData.map(d => ({
+    label: format(new Date(d.date), "dd/MM"),
+    revenue: d.amount
+  })) || [];
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto">
@@ -99,19 +120,21 @@ export function OwnerDashboard() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <StatCard
           label="Tổng doanh thu"
-          value={`${(totalRevenue / 1000000).toFixed(1)}M đ`}
+          value={formatCurrency(displayTotalRevenue)}
           sub="+12% so với tháng trước"
           trend={true}
           icon={<TrendingUp size={18} style={{ color: "#00897B" }} />}
           color="#00897B"
+          onClick={() => navigate("/owner/revenue")}
         />
         <StatCard
           label="Tổng lượt đặt"
-          value={totalBookings}
+          value={displayTotalBookings}
           sub="+8% so với tuần trước"
           trend={true}
           icon={<Calendar size={18} style={{ color: "#6366F1" }} />}
           color="#6366F1"
+          onClick={() => navigate("/owner/revenue")}
         />
         <StatCard
           label="Lượt đặt hôm nay"
@@ -170,7 +193,7 @@ export function OwnerDashboard() {
             </div>
           </div>
           <ResponsiveContainer width="100%" height={220}>
-            <AreaChart data={revenueData}>
+            <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#00C896" stopOpacity={0.2} />

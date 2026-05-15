@@ -43,6 +43,29 @@ export const ownerCourtService = {
     });
   },
 
+  updateCourtInfo: async (data: any) => {
+    const formData = new FormData();
+    formData.append("CourtId", data.courtId);
+    if (data.name) formData.append("Name", data.name);
+    if (data.address) formData.append("Address", data.address);
+    if (data.mapUrl) formData.append("MapUrl", data.mapUrl);
+    if (data.description) formData.append("Description", data.description);
+    if (data.openTime) formData.append("OpenTime", data.openTime);
+    if (data.closeTime) formData.append("CloseTime", data.closeTime);
+    if (data.timeRefundBefore !== undefined) formData.append("TimeRefundBefore", data.timeRefundBefore.toString());
+    if (data.pictureUrl) {
+      formData.append("PictureUrl", data.pictureUrl);
+    }
+
+    return apiClient.put("/Owner/UpdateCourtInfo", formData, {
+      headers: { "Content-Type": undefined },
+    });
+  },
+
+  removeCourt: async (courtId: string) => {
+    return apiClient.delete(`/Owner/RemoveCourt${courtId}`);
+  },
+
   // Sub-court Management
   getSubCourts: async (params: { courtId: string; pageIndex: number; pageSize: number; name?: string }) => {
     return apiClient.get<PaginatedResponse<SubCourtListItem>>(
@@ -64,6 +87,17 @@ export const ownerCourtService = {
       Name: data.name,
       DefaultPrice: data.defaultPrice,
     });
+  },
+
+  updateSubCourtInfo: async (data: { subCourtId: string; name: string }) => {
+    return apiClient.put("/Owner/UpdateSubCourtInfo", {
+      SubCourtId: data.subCourtId,
+      Name: data.name,
+    });
+  },
+
+  removeSubCourt: async (subCourtId: string) => {
+    return apiClient.delete(`/Owner/RemoveSubCourt${subCourtId}`);
   },
 
   // Slot Configuration
@@ -100,6 +134,17 @@ export const ownerCourtService = {
     }) as unknown as Promise<OverrideSlotResponse[]>;
   },
 
+  removeOverrideSlot: async (overrideSlotId: string) => {
+    return apiClient.delete(`/Owner/RemoveOverrideSlot${overrideSlotId}`);
+  },
+
+  updateConfigSlotPrice: async (data: { configSlotId: string; newPrice: number }) => {
+    return apiClient.put("/Owner/UpdateConfigSlotPrice", {
+      ConfigSlotId: data.configSlotId,
+      NewPrice: data.newPrice,
+    });
+  },
+
   // Exception (Block) Slots
   createExceptionSlot: async (data: CreateExceptionSlotRequest) => {
     return apiClient.post("/Owner/CreateExceptionSlot", {
@@ -119,9 +164,19 @@ export const ownerCourtService = {
     }) as unknown as Promise<ExceptionSlotResponse[]>;
   },
 
+  unlockException: async (exceptionId: string) => {
+    return apiClient.delete(`/Owner/UnlockException${exceptionId}`);
+  },
+
   getBookingDetail: async (bookingDetailsId: string) => {
     return apiClient.post("/Booking/GetBookingDetail", null, {
       params: { bookingDetailsId }
     }) as unknown as Promise<GetBookingDetailResponse>;
+  },
+
+  getSetupSlots: async (subCourtId: string, date: string) => {
+    return apiClient.get("/Owner/GetSetupSlotsBySubCourtId", {
+      params: { subCourtId, date }
+    });
   },
 };

@@ -74,26 +74,25 @@ export default function AdminUsersPage() {
   const banUnbanMutation = useBanUnbanUser();
   const { data: userDetail } = useUserDetail(selectedUserId || "");
 
-  const handleToggleStatus = (userId: string, currentStatus: number) => {
-    // Assuming 0 is Active, anything else is Banned for the mutation to work
-    const newStatus = currentStatus === 0 ? "Banned" : "Active";
+  const handleToggleStatus = (userId: string, currentStatus: string) => {
+    const newStatus = currentStatus === "Active" ? "Banned" : "Active";
     banUnbanMutation.mutate({ id: userId, status: newStatus });
   };
 
-  const getRoleLabel = (roleVal: number) => {
-    switch (roleVal) {
-      case 0: return { label: "Admin", class: "bg-blue-50 text-blue-600" };
-      case 1: return { label: "Chủ sân", class: "bg-purple-50 text-purple-600" };
-      case 2: return { label: "Khách hàng", class: "bg-emerald-50 text-emerald-600" };
-      default: return { label: "Người dùng", class: "bg-gray-50 text-gray-600" };
+  const getRoleLabel = (role: string) => {
+    switch (role) {
+      case "Admin": return { label: "Admin", class: "bg-blue-50 text-blue-600" };
+      case "Owner": return { label: "Chủ sân", class: "bg-purple-50 text-purple-600" };
+      case "Customer": return { label: "Khách hàng", class: "bg-emerald-50 text-emerald-600" };
+      default: return { label: role || "Người dùng", class: "bg-gray-50 text-gray-600" };
     }
   };
 
-  const getStatusLabel = (statusVal: number) => {
-    switch (statusVal) {
-      case 0: return { label: "Hoạt động", class: "bg-emerald-100 text-emerald-700" };
-      case 1: return { label: "Đã khóa", class: "bg-red-100 text-red-700" };
-      default: return { label: "Không xác định", class: "bg-gray-100 text-gray-700" };
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case "Active": return { label: "Hoạt động", class: "bg-emerald-100 text-emerald-700" };
+      case "Banned": return { label: "Đã khóa", class: "bg-red-100 text-red-700" };
+      default: return { label: status || "Không xác định", class: "bg-gray-100 text-gray-700" };
     }
   };
 
@@ -166,8 +165,8 @@ export default function AdminUsersPage() {
             </TableHeader>
             <TableBody>
               {data.items.map((user) => {
-                const roleInfo = getRoleLabel(Number(user.role));
-                const statusInfo = getStatusLabel(Number(user.status));
+                const roleInfo = getRoleLabel(user.role);
+                const statusInfo = getStatusLabel(user.status);
                 
                 return (
                   <TableRow key={user.id} className="hover:bg-gray-50/50 transition-colors">
@@ -217,12 +216,12 @@ export default function AdminUsersPage() {
                           <DropdownMenuItem 
                             className={cn(
                               "flex items-center gap-2 cursor-pointer py-2",
-                              Number(user.status) === 0 ? "text-red-600 focus:text-red-600" : "text-emerald-600 focus:text-emerald-600"
+                              user.status === "Active" ? "text-red-600 focus:text-red-600" : "text-emerald-600 focus:text-emerald-600"
                             )}
-                            onClick={() => handleToggleStatus(user.id, Number(user.status))}
+                            onClick={() => handleToggleStatus(user.id, user.status)}
                             disabled={banUnbanMutation.isPending}
                           >
-                            {Number(user.status) === 0 ? (
+                            {user.status === "Active" ? (
                               <><Ban size={16} /> <span>Khóa tài khoản</span></>
                             ) : (
                               <><Unlock size={16} /> <span>Mở khóa tài khoản</span></>
@@ -290,8 +289,8 @@ export default function AdminUsersPage() {
               <div className="flex items-center justify-between mb-1">
                 <h2 className="text-2xl font-black text-gray-900">{userDetail?.firstName} {userDetail?.lastName}</h2>
                 {userDetail && (
-                  <Badge className={cn("border-none pointer-events-none shadow-none", getStatusLabel(Number(userDetail.status)).class)}>
-                    {getStatusLabel(Number(userDetail.status)).label}
+                  <Badge className={cn("border-none pointer-events-none shadow-none", getStatusLabel(userDetail.status).class)}>
+                    {getStatusLabel(userDetail.status).label}
                   </Badge>
                 )}
               </div>
@@ -308,8 +307,8 @@ export default function AdminUsersPage() {
               <div className="space-y-1">
                 <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Vai trò</p>
                 {userDetail && (
-                  <Badge className={cn("border-none mt-1 pointer-events-none shadow-none", getRoleLabel(Number(userDetail.role)).class)}>
-                    {getRoleLabel(Number(userDetail.role)).label}
+                  <Badge className={cn("border-none mt-1 pointer-events-none shadow-none", getRoleLabel(userDetail.role).class)}>
+                    {getRoleLabel(userDetail.role).label}
                   </Badge>
                 )}
               </div>
