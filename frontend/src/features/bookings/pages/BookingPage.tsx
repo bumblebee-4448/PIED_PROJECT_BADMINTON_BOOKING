@@ -12,7 +12,9 @@ import { useSubCourts } from "../hooks/useSubCourts";
 import { useCreateBooking, useCreateBookingByWallet } from "../hooks/useBookingOperations";
 import { BookingPaymentSummary } from "../components/BookingPaymentSummary";
 import { PaymentQrDialog } from "../components/PaymentQrDialog";
+import { WalletConfirmDialog } from "../components/WalletConfirmDialog";
 import { useCourtDetail } from "@/features/courts/hooks/useCourts";
+import { useWallet } from "@/features/wallet";
 import type { AvailableSlot, CreateBookingResponse, SubCourt } from "../types";
 import { toast } from "sonner";
 import { BookingTimeline } from "../components/BookingTimeline";
@@ -27,10 +29,13 @@ export function BookingPage() {
   const [selectedSlots, setSelectedSlots] = useState<AvailableSlot[]>([]);
   const [bookingResponse, setBookingResponse] = useState<CreateBookingResponse | null>(null);
   const [isQrOpen, setIsQrOpen] = useState(false);
+  const [isWalletConfirmOpen, setIsWalletConfirmOpen] = useState(false);
 
   // Queries
   const { data: court, isLoading: isCourtLoading } = useCourtDetail(courtId || "");
   const { data: subCourts, isLoading: isSubCourtsLoading } = useSubCourts(courtId || "");
+  const { useWalletInfo } = useWallet();
+  const { data: wallet } = useWalletInfo();
   
   // Normalize sub-courts data (handle both array and paginated object)
   const subCourtsList = useMemo(() => {
@@ -104,7 +109,12 @@ export function BookingPage() {
     }
   };
 
-  const handleBookWallet = async () => {
+  const handleBookWallet = () => {
+    if (selectedSlots.length === 0) return;
+    setIsWalletConfirmOpen(true);
+  };
+
+  const handleConfirmWalletPayment = async () => {
     if (selectedSlots.length === 0) return;
 
     // Group selected slots by subCourtId
@@ -126,6 +136,7 @@ export function BookingPage() {
         items: Object.values(groupedItems)
       });
       toast.success("Đặt sân thành công bằng ví!");
+      setIsWalletConfirmOpen(false);
       navigate("/history");
     } catch {
       toast.error("Thanh toán bằng ví thất bại. Vui lòng kiểm tra số dư.");
@@ -159,6 +170,17 @@ export function BookingPage() {
           toast.success("Hệ thống đang xác nhận thanh toán của bạn!");
           navigate("/history");
         }}
+      />
+
+      <WalletConfirmDialog
+        isOpen={isWalletConfirmOpen}
+        onClose={() => setIsWalletConfirmOpen(false)}
+        onConfirm={handleConfirmWalletPayment}
+        totalPrice={selectedSlots.reduce((sum, s) => sum + s.price, 0)}
+        slotCount={selectedSlots.length}
+        date={selectedDate}
+        walletBalance={wallet?.balance}
+        isLoading={createBookingByWallet.isPending}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">

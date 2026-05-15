@@ -13,6 +13,10 @@ export const useWallet = () => {
       queryKey: QUERY_KEYS.WALLET_INFO,
       queryFn: () => walletService.getWalletInfo(),
       enabled,
+      refetchInterval: 5000, // Fetch every 5 seconds
+      refetchIntervalInBackground: true,
+      staleTime: 0,
+      refetchOnWindowFocus: true,
     });
 
   const useMyTransactions = (params: PagingParams) =>
