@@ -17,14 +17,14 @@ public class CampaignController: ControllerBase
         _dbContext = dbContext;
         _campaignService = campaignService;
     }
-    [HttpPost("Campaigns")]
+    [HttpPost("")]
     [Authorize(Policy = JwtExtensions.OwnerOrAdminPolicy)]
     public async Task<IActionResult> CreateCampaign(Request.CreateCampaignRequest request)
     {
         await _campaignService.CreateCampaign(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("Create success", HttpContext.TraceIdentifier));
     }
-    [HttpPost("CampaignCourt")]
+    [HttpPost("courts")]
     [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     public async Task<IActionResult> CreateCampaignCourt(Request.CreateCampaignCourtRequest request)
     {
@@ -45,21 +45,21 @@ public class CampaignController: ControllerBase
         var result = await _campaignService.GetAllCampaign(request);
         return  Ok(Service.Models.ApiResponseFactory.SuccessResponse(result,"List Campagin", HttpContext.TraceIdentifier));
     }
-    [HttpGet("CampaignCourt")]
+    [HttpGet("courts")]
     [Authorize(Policy = JwtExtensions.OwnerPolicy)]
     public async Task<IActionResult> GetAllCampaignCourt([FromQuery] Service.Base.Request.PagingRequest request)
     {
         var result = await _campaignService.GetAllCampaignCourt(request);
         return  Ok(Service.Models.ApiResponseFactory.SuccessResponse(result,"List Campagin", HttpContext.TraceIdentifier));
     }
-    [HttpGet("Campaigns")]
+    [HttpGet("by-court")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> CampaignByCourt([FromQuery] Request.GetCampaignByCourtRequest request)
     {
         var result = await _campaignService.CampaignByCourt(request);
         return  Ok(Service.Models.ApiResponseFactory.SuccessResponse(result,"List Campagin", HttpContext.TraceIdentifier));
     }
-    [HttpGet("CampaignDetail")]
+    [HttpGet("detail")]
     [Authorize(Policy = JwtExtensions.OwnerOrAdminPolicy)]
     public async Task<IActionResult> GetCampaignDetail([FromQuery] Request.CampaignDetailRequest request)
     {

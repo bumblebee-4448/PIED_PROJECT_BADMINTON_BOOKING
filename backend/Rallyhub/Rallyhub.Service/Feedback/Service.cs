@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 
-namespace Rallyhub.Service.Feadback;
+namespace Rallyhub.Service.Feedback;
 
 public class Service: IService
 {

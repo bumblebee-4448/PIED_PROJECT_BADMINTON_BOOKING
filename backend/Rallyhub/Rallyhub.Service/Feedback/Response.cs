@@ -1,4 +1,4 @@
-﻿namespace Rallyhub.Service.Feadback;
+﻿namespace Rallyhub.Service.Feedback;
 
 public class Response
 {
