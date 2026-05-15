@@ -1178,6 +1178,263 @@ public class Service : IService
         }
         return result.OrderBy(x => x.StartTime).ToList();
     }
+
+    public async Task<Response.DashboardResponse> GetDashboard(Request.DashboardRequest request)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null)
+        {
+            throw new Exception("Owner không tồn tại");
+        }
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+
+        List<Guid> targetCourtIds = new List<Guid>();
+
+        if (request.CourtId.HasValue)
+        {
+            var court = await _dbContext.Courts
+                .FirstOrDefaultAsync(x => x.Id == request.CourtId.Value && x.OwnerId == ownerIdGuid);
+            if (court == null) throw new Exception("Sân không tồn tại hoặc không thuộc quyền sở hữu của bạn");
+            targetCourtIds.Add(request.CourtId.Value);
+        }
+        else if (request.BookingId.HasValue)
+        {
+            var courtIdFromBooking = await _dbContext.BookingDetails
+                .Where(bd => bd.BookingId == request.BookingId.Value)
+                .Select(bd => bd.SubCourt.CourtId)
+                .FirstOrDefaultAsync();
+            if (courtIdFromBooking == Guid.Empty) throw new Exception("Không tìm thấy sân liên quan đến Booking này");
+            
+            var court = await _dbContext.Courts
+                .FirstOrDefaultAsync(x => x.Id == courtIdFromBooking && x.OwnerId == ownerIdGuid);
+            if (court == null) throw new Exception("Sân liên quan đến Booking này không thuộc quyền sở hữu của bạn");
+            
+            targetCourtIds.Add(courtIdFromBooking);
+        }
+        else
+        {
+            // Nếu không truyền gì, lấy tất cả ID sân của Owner này
+            targetCourtIds = await _dbContext.Courts
+                .Where(x => x.OwnerId == ownerIdGuid)
+                .Select(x => x.Id)
+                .ToListAsync();
+
+            if (!targetCourtIds.Any())
+            {
+                // Trả về kết quả trống nếu owner chưa có sân nào
+                return new Response.DashboardResponse 
+                { 
+                    Period = request.Period,
+                    ComparisonStatus = "NoChange",
+                    BookingComparisonStatus = "NoChange"
+                };
+            }
+        }
+
+        DateTimeOffset now = DateTimeOffset.Now;
+        DateTimeOffset referenceDate = request.Date.HasValue
+            ? new DateTimeOffset(request.Date.Value.ToDateTime(TimeOnly.MinValue), now.Offset)
+            : now;
+            
+        DateTimeOffset currentStart, currentEnd, prevStart, prevEnd;
+
+        switch (request.Period.ToLower())
+        {
+            case "week":
+                // Tính từ Thứ 2 của tuần chứa ngày referenceDate
+                int diff = (7 + (referenceDate.DayOfWeek - DayOfWeek.Monday)) % 7;
+                currentStart = referenceDate.AddDays(-1 * diff).Date;
+                currentStart = new DateTimeOffset(currentStart.DateTime, referenceDate.Offset);
+                currentEnd = currentStart.AddDays(7).AddTicks(-1);
+                prevStart = currentStart.AddDays(-7);
+                prevEnd = currentStart.AddTicks(-1);
+                break;
+            case "month":
+                currentStart = new DateTimeOffset(referenceDate.Year, referenceDate.Month, 1, 0, 0, 0, referenceDate.Offset);
+                currentEnd = currentStart.AddMonths(1).AddTicks(-1);
+                prevStart = currentStart.AddMonths(-1);
+                prevEnd = currentStart.AddTicks(-1);
+                break;
+            case "quarter":
+                int quarter = (referenceDate.Month - 1) / 3 + 1;
+                currentStart = new DateTimeOffset(referenceDate.Year, (quarter - 1) * 3 + 1, 1, 0, 0, 0, referenceDate.Offset);
+                currentEnd = currentStart.AddMonths(3).AddTicks(-1);
+                prevStart = currentStart.AddMonths(-3);
+                prevEnd = currentStart.AddTicks(-1);
+                break;
+            case "year":
+                currentStart = new DateTimeOffset(referenceDate.Year, 1, 1, 0, 0, 0, referenceDate.Offset);
+                currentEnd = currentStart.AddYears(1).AddTicks(-1);
+                prevStart = currentStart.AddYears(-1);
+                prevEnd = currentStart.AddTicks(-1);
+                break;
+            case "day":
+            default:
+                currentStart = new DateTimeOffset(referenceDate.Year, referenceDate.Month, referenceDate.Day, 0, 0, 0, referenceDate.Offset);
+                currentEnd = currentStart.AddDays(1).AddTicks(-1);
+                prevStart = currentStart.AddDays(-1);
+                prevEnd = currentStart.AddTicks(-1);
+                break;
+        }
+
+        currentStart = currentStart.ToUniversalTime();
+        currentEnd = currentEnd.ToUniversalTime();
+        prevStart = prevStart.ToUniversalTime();
+        prevEnd = prevEnd.ToUniversalTime();
+
+        var currentRevenue = await _dbContext.Transactions
+            .Where(t => t.Type == "Receive" && t.Status == "Success" &&
+                        t.CreatedAt >= currentStart && t.CreatedAt <= currentEnd &&
+                        t.Booking.BookingDetails.Any(bd => targetCourtIds.Contains(bd.SubCourt.CourtId)))
+            .SumAsync(t => t.Amount);
+
+        var prevRevenue = await _dbContext.Transactions
+            .Where(t => t.Type == "Receive" && t.Status == "Success" &&
+                        t.CreatedAt >= prevStart && t.CreatedAt <= prevEnd &&
+                        t.Booking.BookingDetails.Any(bd => targetCourtIds.Contains(bd.SubCourt.CourtId)))
+            .SumAsync(t => t.Amount);
+
+        var currentBookingCount = await _dbContext.Bookings
+            .Where(b => b.CreatedAt >= currentStart && b.CreatedAt <= currentEnd &&
+                        (b.Status == "Banked" || b.Status == "Complete") &&
+                        b.BookingDetails.Any(bd => targetCourtIds.Contains(bd.SubCourt.CourtId)))
+            .CountAsync();
+
+        var prevBookingCount = await _dbContext.Bookings
+            .Where(b => b.CreatedAt >= prevStart && b.CreatedAt <= prevEnd &&
+                        (b.Status == "Banked" || b.Status == "Complete") &&
+                        b.BookingDetails.Any(bd => targetCourtIds.Contains(bd.SubCourt.CourtId)))
+            .CountAsync();
+
+        decimal difference = currentRevenue - prevRevenue;
+        double percentage = 0;
+        if (prevRevenue != 0)
+        {
+            percentage = (double)(difference / prevRevenue) * 100;
+        }
+        else if (currentRevenue != 0)
+        {
+            percentage = 100;
+        }
+
+        string status = "NoChange";
+        if (difference > 0) status = "Increase";
+        else if (difference < 0) status = "Decrease";
+
+        int bookingDiff = currentBookingCount - prevBookingCount;
+        double bookingPercentage = 0;
+        if (prevBookingCount != 0)
+        {
+            bookingPercentage = (double)bookingDiff / prevBookingCount * 100;
+        }
+        else if (currentBookingCount != 0)
+        {
+            bookingPercentage = 100;
+        }
+
+        string bookingStatus = "NoChange";
+        if (bookingDiff > 0) bookingStatus = "Increase";
+        else if (bookingDiff < 0) bookingStatus = "Decrease";
+
+        return new Response.DashboardResponse
+        {
+            CurrentRevenue = currentRevenue,
+            PreviousRevenue = prevRevenue,
+            RevenueDifference = Math.Abs(difference),
+            ComparisonPercentage = Math.Round(percentage, 2),
+            ComparisonStatus = status,
+            CurrentBookingCount = currentBookingCount,
+            PreviousBookingCount = prevBookingCount,
+            BookingDifference = Math.Abs(bookingDiff),
+            BookingComparisonPercentage = Math.Round(bookingPercentage, 2),
+            BookingComparisonStatus = bookingStatus,
+            Period = request.Period
+        };
+        // return response;
+    }
+
+    public async Task<Base.Response.PageResult<Response.GetCourtBookingsResponse>> GetCourtBookings(Request.GetCourtBookingsRequest request)
+    {
+        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+        if (ownerIdClaim == null) throw new Exception("Owner không tồn tại");
+        var ownerIdGuid = Guid.Parse(ownerIdClaim);
+
+        var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == request.CourtId && x.OwnerId == ownerIdGuid);
+        if (court == null) throw new Exception("Sân không tồn tại hoặc không thuộc quyền sở hữu của bạn");
+
+        DateTimeOffset now = DateTimeOffset.Now;
+        DateTimeOffset referenceDate = request.Date.HasValue
+            ? new DateTimeOffset(request.Date.Value.ToDateTime(TimeOnly.MinValue), now.Offset)
+            : now;
+
+        DateTimeOffset start, end;
+        switch (request.Period.ToLower())
+        {
+            case "week":
+                int diff = (7 + (referenceDate.DayOfWeek - DayOfWeek.Monday)) % 7;
+                start = referenceDate.AddDays(-1 * diff).Date;
+                start = new DateTimeOffset(start.DateTime, referenceDate.Offset);
+                end = start.AddDays(7).AddTicks(-1);
+                break;
+            case "month":
+                start = new DateTimeOffset(referenceDate.Year, referenceDate.Month, 1, 0, 0, 0, referenceDate.Offset);
+                end = start.AddMonths(1).AddTicks(-1);
+                break;
+            case "quarter":
+                int quarter = (referenceDate.Month - 1) / 3 + 1;
+                start = new DateTimeOffset(referenceDate.Year, (quarter - 1) * 3 + 1, 1, 0, 0, 0, referenceDate.Offset);
+                end = start.AddMonths(3).AddTicks(-1);
+                break;
+            case "year":
+                start = new DateTimeOffset(referenceDate.Year, 1, 1, 0, 0, 0, referenceDate.Offset);
+                end = start.AddYears(1).AddTicks(-1);
+                break;
+            case "day":
+            default:
+                start = new DateTimeOffset(referenceDate.Year, referenceDate.Month, referenceDate.Day, 0, 0, 0, referenceDate.Offset);
+                end = start.AddDays(1).AddTicks(-1);
+                break;
+        }
+
+        start = start.ToUniversalTime();
+        end = end.ToUniversalTime();
+
+        var query = _dbContext.Bookings
+            .Where(b => b.CreatedAt >= start && b.CreatedAt <= end &&
+                        b.BookingDetails.Any(bd => bd.SubCourt.CourtId == request.CourtId))
+            .OrderByDescending(b => b.CreatedAt);
+
+        var total = await query.CountAsync();
+        var pagedBookings = await query
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize)
+            .Select(b => new Response.GetCourtBookingsResponse
+            {
+                BookingId = b.Id,
+                CustomerName = b.Customer.User.FirstName + " " + b.Customer.User.LastName,
+                CustomerPhone = b.Customer.User.PhoneNumber ?? "",
+                SubCourtName = b.BookingDetails.FirstOrDefault().SubCourt.Name,
+                BookingDate = b.BookingDetails.FirstOrDefault().Date,
+                TotalPrice = b.FinalPrice,
+                Status = b.Status,
+                CreatedAt = b.CreatedAt,
+                Slots = b.BookingDetails.Select(bd => new Response.BookingSlotResponse
+                {
+                    StartTime = bd.StartTime,
+                    EndTime = bd.EndTime,
+                    Price = bd.Price
+                }).ToList()
+            })
+            .ToListAsync();
+
+        return new Base.Response.PageResult<Response.GetCourtBookingsResponse>
+        {
+            Items = pagedBookings,
+            TotalItems = total,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize
+        };
+    }
 }
 
     

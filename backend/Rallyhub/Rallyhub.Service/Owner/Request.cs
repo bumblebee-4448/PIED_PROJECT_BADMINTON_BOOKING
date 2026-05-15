@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 
 namespace Rallyhub.Service.Owner;
 
@@ -86,5 +86,20 @@ public class Request
     {
         public Guid SubCourtId { get; set; }
         public string Name { get; set; } = null!;
+    }
+
+    public class DashboardRequest
+    {
+        public Guid? CourtId { get; set; }
+        public Guid? BookingId { get; set; }
+        public string Period { get; set; } = "Day"; // Day, Month, Quarter, Year
+        public DateOnly? Date { get; set; }
+    }
+
+    public class GetCourtBookingsRequest : Base.Request.Pagination
+    {
+        public Guid CourtId { get; set; }
+        public string Period { get; set; } = "Day"; // Day, Week, Month, Quarter, Year
+        public DateOnly? Date { get; set; }
     }
 }

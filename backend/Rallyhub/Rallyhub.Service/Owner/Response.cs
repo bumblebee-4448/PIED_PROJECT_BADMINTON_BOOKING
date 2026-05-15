@@ -119,4 +119,41 @@ public class Response
         public Guid SubCourtId { get; set; }
         public string Name { get; set; } = null!;
     }
+
+    public class DashboardResponse
+    {
+        public decimal CurrentRevenue { get; set; }
+        public decimal PreviousRevenue { get; set; }
+        public double ComparisonPercentage { get; set; }
+        public decimal RevenueDifference { get; set; }
+        public string ComparisonStatus { get; set; } = null!; // "Increase", "Decrease", "NoChange"
+        
+        public int CurrentBookingCount { get; set; }
+        public int PreviousBookingCount { get; set; }
+        public double BookingComparisonPercentage { get; set; }
+        public int BookingDifference { get; set; }
+        public string BookingComparisonStatus { get; set; } = null!;
+
+        public string Period { get; set; } = null!;
+    }
+
+    public class GetCourtBookingsResponse
+    {
+        public Guid BookingId { get; set; }
+        public string CustomerName { get; set; } = null!;
+        public string CustomerPhone { get; set; } = null!;
+        public string SubCourtName { get; set; } = null!;
+        public DateTimeOffset BookingDate { get; set; }
+        public decimal TotalPrice { get; set; }
+        public string Status { get; set; } = null!;
+        public List<BookingSlotResponse> Slots { get; set; } = new();
+        public DateTimeOffset CreatedAt { get; set; }
+    }
+
+    public class BookingSlotResponse
+    {
+        public TimeOnly StartTime { get; set; }
+        public TimeOnly EndTime { get; set; }
+        public decimal Price { get; set; }
+    }
 }

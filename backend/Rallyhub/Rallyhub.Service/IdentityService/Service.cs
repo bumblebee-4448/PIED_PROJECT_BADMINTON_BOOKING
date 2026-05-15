@@ -55,7 +55,7 @@ public class Service : IService
             FirstName = request.FirstName,
             LastName = request.LastName,
             PhoneNumber = request.PhoneNumber,
-            
+            CreatedAt = DateTimeOffset.UtcNow,
         };
         await _otpService.GenerateAndSendOtpAsync(request.Email, "Register", pendingUser);
         return "Check mail, verify otp";

@@ -1,4 +1,4 @@
-﻿namespace Rallyhub.Service.Owner;
+namespace Rallyhub.Service.Owner;
 
 public interface IService
 {
@@ -21,4 +21,6 @@ public interface IService
     public Task<string> UnlockException(Guid exceptionSlotId);
     public Task<Response.GetSetupSlotResponse> GetSetupSlots(Guid subCourtId, DateOnly date);
     public Task<List<Response.SlotResponse>> GetAvailableSlots(Request.GetAvailableSlotsRequest request);
+    public Task<Response.DashboardResponse> GetDashboard(Request.DashboardRequest request);
+    public Task<Base.Response.PageResult<Response.GetCourtBookingsResponse>> GetCourtBookings(Request.GetCourtBookingsRequest request);
 }

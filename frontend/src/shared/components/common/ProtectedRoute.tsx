@@ -25,7 +25,11 @@ export function ProtectedRoute({
   }
 
   if (allowedRoles && role && !allowedRoles.includes(role)) {
-    return <Navigate to="/unauthorized" replace />;
+    // Tự động đưa về trang chủ của role đó thay vì trang unauthorized
+    const roleBase = role.toLowerCase();
+    if (roleBase === "admin") return <Navigate to="/admin" replace />;
+    if (roleBase === "owner") return <Navigate to="/owner" replace />;
+    return <Navigate to="/" replace />;
   }
 
   return <>{children}</>;

@@ -178,5 +178,19 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }
 
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
+    [HttpGet("GetDashboard")]
+    public async Task<IActionResult> GetDashboard([FromQuery] Request.DashboardRequest request)
+    {
+        var result = await _ownerService.GetDashboard(request);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success", HttpContext.TraceIdentifier));
+    }
 
+    [Authorize(Policy = JwtExtensions.OwnerPolicy)]
+    [HttpGet("GetCourtBookings")]
+    public async Task<IActionResult> GetCourtBookings([FromQuery] Request.GetCourtBookingsRequest request)
+    {
+        var result = await _ownerService.GetCourtBookings(request);
+        return Ok(ApiResponseFactory.SuccessResponse(result, "Success", HttpContext.TraceIdentifier));
+    }
 }
