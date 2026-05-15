@@ -31,6 +31,7 @@ using CampaignService = Rallyhub.Service.Campaign;
 using DashboardService = Rallyhub.Service.Dashboard;
 using SystemReportService = Rallyhub.Service.SystemReport;
 using RevenueService = Rallyhub.Service.Revenue;
+using ReportService = Rallyhub.Service.Report;
 // using DiscordService = Rallyhub.Service.DiscordService;
 
 var builder = WebApplication.CreateBuilder(args);
