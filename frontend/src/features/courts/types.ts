@@ -6,7 +6,8 @@ export interface Court {
   averageRating: number;
   phoneNumber: string;
   pictureUrl: string;
-  mapUrl: string;
+  defaultPrice?: number;
+  mapUrl?: string;
 }
 
 export interface CourtDetail extends Court {
@@ -33,6 +34,20 @@ export interface ApiResponse<T> {
 
 export interface CourtListResponse {
   items: Court[];
+  totalItems: number;
+  pageSize: number;
+  pageIndex: number;
+}
+
+export interface CourtFeedback {
+  nameCustomer: string;
+  comment: string | null;
+  rating: number;
+  createdAt: string;
+}
+
+export interface CourtFeedbackListResponse {
+  items: CourtFeedback[];
   totalItems: number;
   pageSize: number;
   pageIndex: number;

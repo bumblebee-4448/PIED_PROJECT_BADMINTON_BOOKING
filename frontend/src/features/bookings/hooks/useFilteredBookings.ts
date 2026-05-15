@@ -24,12 +24,12 @@ export function useFilteredBookings(
 
     switch (activeStatus) {
       case "ongoing":
-        return data.items.filter((item) => item.status === "Banked");
+        return data.items.filter((item) => ["Pending", "Banked"].includes(item.status));
       case "completed":
-        return data.items.filter((item) => item.status === "Complete");
+        return data.items.filter((item) => item.status === "Completed");
       case "cancelled":
         return data.items.filter((item) =>
-          ["Cancel", "Cancelled", "RefundPending"].includes(item.status),
+          ["Cancel", "Cancelled", "Refund", "RefundPending"].includes(item.status),
         );
       default:
         return data.items;
@@ -40,11 +40,11 @@ export function useFilteredBookings(
     if (!data?.items) return { all: 0, ongoing: 0, completed: 0, cancelled: 0 };
 
     return {
-      all: data.totalItems,
-      ongoing: data.items.filter((i) => i.status === "Banked").length,
-      completed: data.items.filter((i) => i.status === "Complete").length,
+      all: data.items.length,
+      ongoing: data.items.filter((i) => ["Pending", "Banked"].includes(i.status)).length,
+      completed: data.items.filter((i) => ["Complete", "Completed"].includes(i.status)).length,
       cancelled: data.items.filter((i) =>
-        ["Cancel", "Cancelled", "RefundPending"].includes(i.status),
+        ["Cancel", "Cancelled", "Refund", "RefundPending"].includes(i.status),
       ).length,
     };
   }, [data]);

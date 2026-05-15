@@ -1,4 +1,5 @@
 export * from "./pages/CourtSearchPage";
+export * from "./pages/CourtDetailPage";
 export * from "./types";
 export * from "./services";
 export * from "./hooks/useCourts";

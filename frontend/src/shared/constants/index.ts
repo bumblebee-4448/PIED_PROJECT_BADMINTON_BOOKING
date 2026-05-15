@@ -21,9 +21,13 @@ export const API_ENDPOINTS = {
    * - PROFILE: Update profile user hiện tại
    */
   USER: {
-    ME: "/User/GetMe",
+    ME: "/User/Me",
     PROFILE: "/User/UpdateProfile",
     CHANGE_PASSWORD: "/User/ChangePassword",
+  },
+  OWNER: {
+    GET_AVAILABLE_SLOTS: "/Owner/GetAvailableSlots",
+    GET_ALL_BOOKING: "/Owner/GetAvailableSlots",
   },
   /**
    * Customer endpoints - Quản lý sân yêu thích.
@@ -32,7 +36,6 @@ export const API_ENDPOINTS = {
     GET_ALL_LIKE_LIST: "/Customer/GetAllLikeList",
     ADD_COURT_LIKE: "/Customer/AddCourtLikeList",
     DELETE_COURT_LIKE: "/Customer/DeleteCourtLikeList",
-    // GET_ALL_BOOKING: "/Customer/GetAllBooking",
     CHECK_CANCEL_BOOKING: "/Customer/CheckCancelBooking",
     CANCEL_BOOKING: "/Customer/CancelBooking",
   },
@@ -44,11 +47,13 @@ export const API_ENDPOINTS = {
     GET_BY_ID: "/Court/CustomerGetCourtDetailsById{courtId}",
     GET_SUB_COURTS: "/Court/CustomerGetSubCourtByCourtId{courtId}",
   },
+  FEEDBACK: {
+    GET_BY_COURT: "/Feedback",
+  },
   /**
    * Booking endpoints
    */
   BOOKING: {
-    GET_AVAILABLE_SLOTS: "/Booking/GetAvailableSlots",
     CREATE: "/Booking/CreateBooking",
     CREATE_BY_WALLET: "/Booking/CreateBookingByWallet",
     CANCEL: "/Booking/CancelBooking",
@@ -58,7 +63,7 @@ export const API_ENDPOINTS = {
   MAP: {
     BOXING_BOX: "/Map/boxing_ox",
     RADIUS: "/Map/SearchByRadius",
-    TEXT: "/Map/text",
+    TEXT: "/Map/SeachByText",
   },
   /**
    * Wallet endpoints
@@ -99,6 +104,8 @@ export const QUERY_KEYS = {
   BOOKINGS: ["bookings"] as const, // Danh sách lịch sử đặt sân
   COURTS: (filters?: any) => ["courts", filters] as const, // Danh sách sân (với filters)
   COURT_DETAIL: (id: string) => ["court", id] as const, // Chi tiết 1 sân
+  COURT_FEEDBACKS: (courtId: string, pageIndex = 1, pageSize = 10) =>
+    ["court-feedbacks", courtId, pageIndex, pageSize] as const,
   MAP_SEARCH: (filters: any) => ["map-search", filters] as const, // Tìm kiếm bản đồ
   WALLET_INFO: ["wallet-info"] as const, // Thông tin ví
 } as const;
@@ -107,9 +114,9 @@ export const QUERY_KEYS = {
  * Difficulty levels cho rituals - Dùng trong filters và forms.
  * RitualCatalog, ManageRitualList, RitualForm
  */
-export const DIFFICULTY_LEVELS = [
-  { value: "dễ", label: "Dễ" },
-  { value: "trung bình", label: "Trung bình" },
-  { value: "khó", label: "Khó" },
-  { value: "rất khó", label: "Rất khó" },
-] as const;
+// export const DIFFICULTY_LEVELS = [
+//   { value: "dễ", label: "Dễ" },
+//   { value: "trung bình", label: "Trung bình" },
+//   { value: "khó", label: "Khó" },
+//   { value: "rất khó", label: "Rất khó" },
+// ] as const;
