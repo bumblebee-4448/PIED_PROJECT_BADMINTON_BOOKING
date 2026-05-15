@@ -18,3 +18,15 @@ export const useCourtDetail = (id: string) => {
     enabled: !!id,
   });
 };
+
+export const useCourtFeedbacks = (
+  courtId: string,
+  pageIndex = 1,
+  pageSize = 10
+) => {
+  return useQuery({
+    queryKey: QUERY_KEYS.COURT_FEEDBACKS(courtId, pageIndex, pageSize),
+    queryFn: () => courtService.getCourtFeedbacks(courtId, pageIndex, pageSize),
+    enabled: !!courtId,
+  });
+};

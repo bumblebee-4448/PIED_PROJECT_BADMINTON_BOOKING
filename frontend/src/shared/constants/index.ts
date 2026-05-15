@@ -44,6 +44,9 @@ export const API_ENDPOINTS = {
     GET_BY_ID: "/Court/CustomerGetCourtDetailsById{courtId}",
     GET_SUB_COURTS: "/Court/CustomerGetSubCourtByCourtId{courtId}",
   },
+  FEEDBACK: {
+    GET_BY_COURT: "/Feedback",
+  },
   /**
    * Booking endpoints
    */
@@ -99,6 +102,8 @@ export const QUERY_KEYS = {
   BOOKINGS: ["bookings"] as const, // Danh sách lịch sử đặt sân
   COURTS: (filters?: any) => ["courts", filters] as const, // Danh sách sân (với filters)
   COURT_DETAIL: (id: string) => ["court", id] as const, // Chi tiết 1 sân
+  COURT_FEEDBACKS: (courtId: string, pageIndex = 1, pageSize = 10) =>
+    ["court-feedbacks", courtId, pageIndex, pageSize] as const,
   MAP_SEARCH: (filters: any) => ["map-search", filters] as const, // Tìm kiếm bản đồ
   WALLET_INFO: ["wallet-info"] as const, // Thông tin ví
 } as const;

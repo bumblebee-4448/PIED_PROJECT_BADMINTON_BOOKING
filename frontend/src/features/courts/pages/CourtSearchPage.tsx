@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,7 +12,6 @@ import { Button } from "@/shared/components/ui/button";
 import { useCourts } from "../hooks/useCourts";
 import { CourtCard } from "../components/CourtCard";
 import { CourtFilters } from "../components/CourtFilters";
-import { CourtDetailDialog } from "../components/CourtDetailDialog";
 import { CourtMap } from "../components/CourtMap";
 import { cn } from "@/lib/utils";
 import { useCourtSearch } from "../hooks/useCourtSearch";
@@ -30,11 +30,10 @@ const unwrapCourtListResponse = (
 };
 
 export function CourtSearchPage() {
+  const navigate = useNavigate();
   const { searchQuery, setSearchQuery, debouncedSearch } = useCourtSearch();
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
   const [pageIndex, setPageIndex] = useState(1);
-  const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     setPageIndex(1);
@@ -65,9 +64,8 @@ export function CourtSearchPage() {
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
   const handleCardClick = useCallback((id: string) => {
-    setSelectedCourtId(id);
-    setIsDialogOpen(true);
-  }, []);
+    navigate(`/courts/${id}`);
+  }, [navigate]);
 
   const handlePreviousPage = useCallback(() => {
     setPageIndex((page) => Math.max(1, page - 1));
@@ -79,12 +77,6 @@ export function CourtSearchPage() {
 
   return (
     <div className="min-h-screen bg-[#F9FBFA] pb-20 pt-20">
-      <CourtDetailDialog
-        courtId={selectedCourtId}
-        isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
-      />
-
       {viewMode === "list" && (
         <div className="bg-transparent pb-4 pt-8">
           <CourtFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
