@@ -1,5 +1,12 @@
-import { useState, useMemo, useCallback } from "react";
-import { Search, List, Map as MapIcon, Loader2 } from "lucide-react";
+import { useState, useMemo, useCallback, useEffect } from "react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  List,
+  Loader2,
+  Map as MapIcon,
+  Search,
+} from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { useCourts } from "../hooks/useCourts";
 import { CourtCard } from "../components/CourtCard";
@@ -8,83 +15,130 @@ import { CourtDetailDialog } from "../components/CourtDetailDialog";
 import { CourtMap } from "../components/CourtMap";
 import { cn } from "@/lib/utils";
 import { useCourtSearch } from "../hooks/useCourtSearch";
+import type { ApiResponse, CourtListResponse } from "../types";
+
+const PAGE_SIZE = 10;
+
+const unwrapCourtListResponse = (
+  response: CourtListResponse | ApiResponse<CourtListResponse> | undefined
+) => {
+  if (response && "data" in response) {
+    return response.data;
+  }
+
+  return response;
+};
 
 export function CourtSearchPage() {
-  const { 
-    searchQuery, 
-    setSearchQuery, 
-    debouncedSearch,
-  } = useCourtSearch();
+  const { searchQuery, setSearchQuery, debouncedSearch } = useCourtSearch();
   const [viewMode, setViewMode] = useState<"list" | "map">("list");
-  
-  // Detail Dialog State
+  const [pageIndex, setPageIndex] = useState(1);
   const [selectedCourtId, setSelectedCourtId] = useState<string | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  useEffect(() => {
+    setPageIndex(1);
+  }, [debouncedSearch]);
 
-  const filters = useMemo(() => ({
-    search: debouncedSearch,
-  }), [debouncedSearch]);
+  const filters = useMemo(
+    () => ({
+      search: debouncedSearch,
+      page: pageIndex,
+      limit: PAGE_SIZE,
+    }),
+    [debouncedSearch, pageIndex]
+  );
 
   const { data: response, isLoading, isError } = useCourts(filters);
-  const courts = response?.items || [];
+  const courtPage = useMemo(
+    () =>
+      unwrapCourtListResponse(
+        response as CourtListResponse | ApiResponse<CourtListResponse> | undefined
+      ),
+    [response]
+  );
+
+  const courts = courtPage?.items ?? [];
+  const totalItems = courtPage?.totalItems ?? courts.length;
+  const currentPage = courtPage?.pageIndex ?? pageIndex;
+  const pageSize = courtPage?.pageSize ?? PAGE_SIZE;
+  const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
   const handleCardClick = useCallback((id: string) => {
     setSelectedCourtId(id);
     setIsDialogOpen(true);
   }, []);
 
+  const handlePreviousPage = useCallback(() => {
+    setPageIndex((page) => Math.max(1, page - 1));
+  }, []);
+
+  const handleNextPage = useCallback(() => {
+    setPageIndex((page) => Math.min(totalPages, page + 1));
+  }, [totalPages]);
+
   return (
     <div className="min-h-screen bg-[#F9FBFA] pb-20 pt-20">
-      {/* Detail Dialog */}
-      <CourtDetailDialog 
+      <CourtDetailDialog
         courtId={selectedCourtId}
         isOpen={isDialogOpen}
         onClose={() => setIsDialogOpen(false)}
       />
 
-      {/* Header & Filters Section */}
       {viewMode === "list" && (
-        <div className="bg-transparent pt-8 pb-4">
-          <CourtFilters 
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-          />
+        <div className="bg-transparent pb-4 pt-8">
+          <CourtFilters searchQuery={searchQuery} setSearchQuery={setSearchQuery} />
         </div>
       )}
 
-      {/* Main Content */}
-      <div className={cn("max-w-6xl mx-auto px-4 sm:px-6", viewMode === "list" ? "mt-6" : "mt-8")}>
-        <div className={cn("flex items-center mb-6", viewMode === "list" ? "justify-between" : "justify-end")}>
+      <div
+        className={cn(
+          "mx-auto max-w-6xl px-4 sm:px-6",
+          viewMode === "list" ? "mt-6" : "mt-8"
+        )}
+      >
+        <div
+          className={cn(
+            "mb-6 flex items-center",
+            viewMode === "list" ? "justify-between" : "justify-end"
+          )}
+        >
           {viewMode === "list" && (
-            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-[0.2em]">
+            <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400">
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 size={12} className="animate-spin" /> ĐANG TÌM KIẾM...
                 </span>
               ) : (
-                <>TÌM THẤY <span className="text-[#0B2421] font-black">{courts.length}</span> SÂN</>
+                <>
+                  TÌM THẤY{" "}
+                  <span className="font-black text-[#0B2421]">{totalItems}</span> SÂN
+                </>
               )}
             </p>
           )}
 
-          <div className="flex bg-white border border-gray-100 p-1 rounded-xl shadow-sm">
-            <Button 
+          <div className="flex rounded-xl border border-gray-100 bg-white p-1 shadow-sm">
+            <Button
               variant="ghost"
               onClick={() => setViewMode("list")}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-wider h-auto",
-                viewMode === "list" ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                "flex h-auto items-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all",
+                viewMode === "list"
+                  ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                  : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
               )}
             >
               <List size={14} /> Danh sách
             </Button>
-            <Button 
+            <Button
               variant="ghost"
               onClick={() => setViewMode("map")}
               className={cn(
-                "px-3 py-1.5 rounded-lg text-[10px] font-black flex items-center gap-2 transition-all uppercase tracking-wider h-auto",
-                viewMode === "map" ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100" : "text-gray-400 hover:text-gray-600 hover:bg-gray-50"
+                "flex h-auto items-center gap-2 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all",
+                viewMode === "map"
+                  ? "bg-emerald-50 text-emerald-600 hover:bg-emerald-100"
+                  : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
               )}
             >
               <MapIcon size={14} /> Bản đồ
@@ -93,44 +147,80 @@ export function CourtSearchPage() {
         </div>
 
         {isError && (
-          <div className="bg-red-50 border border-red-100 rounded-2xl p-6 text-center mb-6">
-            <p className="text-red-600 font-bold">Đã có lỗi xảy ra khi tải danh sách sân. Vui lòng thử lại sau.</p>
+          <div className="mb-6 rounded-2xl border border-red-100 bg-red-50 p-6 text-center">
+            <p className="font-bold text-red-600">
+              Đã có lỗi xảy ra khi tải danh sách sân. Vui lòng thử lại sau.
+            </p>
           </div>
         )}
 
         {viewMode === "list" ? (
-          <div className="grid grid-cols-1 gap-4">
-            {!isLoading && courts.length > 0 ? (
-              courts.map((court) => (
-                <CourtCard 
-                  key={court.courtId} 
-                  court={court} 
-                  onClick={handleCardClick} 
-                />
-              ))
-            ) : !isLoading ? (
-              <div className="bg-white rounded-[2.5rem] p-20 text-center border border-gray-100 shadow-sm">
-                <div className="w-20 h-20 bg-gray-50 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                  <Search className="text-gray-300" size={32} />
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-4">
+              {!isLoading && courts.length > 0 ? (
+                courts.map((court) => (
+                  <CourtCard
+                    key={court.courtId}
+                    court={court}
+                    onClick={handleCardClick}
+                  />
+                ))
+              ) : !isLoading ? (
+                <div className="rounded-[2.5rem] border border-gray-100 bg-white p-20 text-center shadow-sm">
+                  <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-3xl bg-gray-50">
+                    <Search className="text-gray-300" size={32} />
+                  </div>
+                  <h3 className="mb-2 text-xl font-black text-[#0B2421]">
+                    Không tìm thấy sân
+                  </h3>
+                  <p className="text-sm font-medium text-gray-400">
+                    Hãy thử thay đổi từ khóa hoặc khu vực lọc của bạn nhé!
+                  </p>
                 </div>
-                <h3 className="text-xl font-black text-[#0B2421] mb-2">Không tìm thấy sân</h3>
-                <p className="text-gray-400 text-sm font-medium">Hãy thử thay đổi từ khóa hoặc khu vực lọc của bạn nhé!</p>
-              </div>
-            ) : (
-              // Loading skeletons could go here
-              <div className="space-y-4">
-                {[1, 2, 3].map(i => (
-                  <div key={i} className="h-32 bg-gray-100 animate-pulse rounded-2xl" />
-                ))}
+              ) : (
+                <div className="space-y-4">
+                  {[1, 2, 3].map((item) => (
+                    <div
+                      key={item}
+                      className="h-32 animate-pulse rounded-2xl bg-gray-100"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {!isLoading && totalItems > pageSize && (
+              <div className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
+                <p className="text-xs font-bold text-gray-400">
+                  Trang <span className="text-[#0B2421]">{currentPage}</span> /{" "}
+                  {totalPages}
+                </p>
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={handlePreviousPage}
+                    disabled={pageIndex <= 1}
+                    className="h-9 rounded-xl border-gray-100 text-xs font-bold"
+                  >
+                    <ChevronLeft size={16} />
+                    Trước
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={handleNextPage}
+                    disabled={pageIndex >= totalPages}
+                    className="h-9 rounded-xl border-gray-100 text-xs font-bold"
+                  >
+                    Sau
+                    <ChevronRight size={16} />
+                  </Button>
+                </div>
               </div>
             )}
           </div>
         ) : (
           <div className="h-[70vh] w-full">
-            <CourtMap 
-              onMarkerClick={handleCardClick} 
-              searchQuery={debouncedSearch}
-            />
+            <CourtMap onMarkerClick={handleCardClick} searchQuery={debouncedSearch} />
           </div>
         )}
       </div>

@@ -21,7 +21,7 @@ export const API_ENDPOINTS = {
    * - PROFILE: Update profile user hiện tại
    */
   USER: {
-    ME: "/User/GetMe",
+    ME: "/User/Me",
     PROFILE: "/User/UpdateProfile",
     CHANGE_PASSWORD: "/User/ChangePassword",
   },

@@ -6,7 +6,8 @@ export interface Court {
   averageRating: number;
   phoneNumber: string;
   pictureUrl: string;
-  mapUrl: string;
+  defaultPrice?: number;
+  mapUrl?: string;
 }
 
 export interface CourtDetail extends Court {
