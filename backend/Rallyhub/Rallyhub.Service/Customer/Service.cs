@@ -40,14 +40,14 @@ public class Service : IService
             throw new Exception($"Tên {model.FirstName} {model.LastName} không khớp với tên của tài khoản này");
         }
 
-        var identityNumber =
-            await _dbContext.OwnerRequests.FirstOrDefaultAsync(x => x.IdentityNumber == model.IdentityNumber);
-        var isExistIdentityNumber = await _dbContext.OwnerRequests.AnyAsync(x => x.IdentityNumber == model.IdentityNumber);
-        if (isExistIdentityNumber && userIdGuid != identityNumber?.Customer.UserId)
+        var isDuplicateIdentity = await _dbContext.OwnerRequests
+            .AnyAsync(x => x.IdentityNumber == model.IdentityNumber && x.CustomerId != custmerIdGuild);
+            
+        if (isDuplicateIdentity)
         {
-            throw new Exception("Identity number already exists");
+            throw new ArgumentException("Số CMND/CCCD đã được sử dụng bởi người dùng khác.");
         }
-        var ownerRequest = new Repository.Entity.OwnerRequest()
+        var ownerRequest = new OwnerRequest()
         {
             BusinessName = model.BusinessName,
             TaxCode = model.TaxCode,
@@ -296,9 +296,15 @@ public class Service : IService
     }
     public async Task<Base.Response.PageResult<Response.BookingResponse>> GetAllBooking(Base.Request.PagingRequest request)
     {
-        var getCustomerId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-        var customerId = Guid.Parse(getCustomerId!);
-        var bookingList = _dbContext.Bookings.Where(x => x.CustomerId == customerId);
+        
+        var userId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        var userIdGuild = Guid.Parse(userId!);
+        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userIdGuild);
+        if (user == null)
+        {
+            throw new UnauthorizedAccessException("User not found");
+        }
+        var bookingList = _dbContext.Bookings.Where(x => x.Customer.UserId == user.Id);
         var pageQuery = bookingList
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize);
@@ -307,6 +313,7 @@ public class Service : IService
             Id =  x.Id,
             FinalPrice = x.FinalPrice,
             Status = x.Status,
+            CreatedAt = x.CreatedAt,
         });
         var result = await selectQuery.ToListAsync();
         return new Base.Response.PageResult<Response.BookingResponse>()
