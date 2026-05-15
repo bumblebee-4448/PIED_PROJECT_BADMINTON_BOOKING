@@ -187,6 +187,7 @@ public class Service: IService
                     x.StartTime == slot.StartTime &&
                     x.EndTime == slot.EndTime).Price,
                 Status = "Pending",
+                CreatedAt = DateTimeOffset.UtcNow
             }));
         }
         
@@ -246,7 +247,8 @@ public class Service: IService
                 EndTime = x.EndTime,
                 Price = x.Price
             }).ToList(),
-            QrCodeUrl = qrCodeUrl
+            QrCodeUrl = qrCodeUrl,
+            // CreatedAt = booking.CreatedAt,
         };
     }
     public async Task<Response.CreateBookingResponse> CreateBookingByWallet(Request.CreateBookingRequest request)
@@ -399,7 +401,6 @@ public class Service: IService
             var availableSlots = availableSlotsSubCourt[item.SubCourtId];
             bookingDetails.AddRange(item.Slots.Select(slot => new BookingDetail()
             {
-                Id = Guid.NewGuid(),
                 SubCourtId = item.SubCourtId,
                 BookingId = booking.Id,
                 Date = dateTime,
@@ -409,6 +410,7 @@ public class Service: IService
                     x.StartTime == slot.StartTime &&
                     x.EndTime == slot.EndTime).Price,
                 Status = "Pending",
+                CreatedAt = DateTimeOffset.UtcNow,
             }));
         }
         if (!await _walletService.ApartBanlanceFromWallet(customerId, finalPrice, "Payment"))
@@ -455,6 +457,7 @@ public class Service: IService
             ExpiredAt = booking.ExpiresAt,
             Status = booking.Status,
             TotalSlots = bookingDetails.Count(),
+            CreatedAt = DateTimeOffset.UtcNow,
             Items = bookingDetails.Select(x => new Response.BookingDetailItem
             {
                 SubCourtId = x.SubCourtId,
@@ -494,7 +497,7 @@ public class Service: IService
                 SubCourtName = x.SubCourt.Name,
                 StartTime = x.StartTime,
                 EndTime = x.EndTime,
-                
+                CreatedAt = x.CreatedAt,
             })
             .FirstOrDefaultAsync();
             
@@ -610,7 +613,8 @@ public class Service: IService
             BookingId = booking.Id,
             Status = "Refund",
             RefundAmount = booking.FinalPrice,
-            Message = "Hoàn tiền thành công"
+            Message = "Hoàn tiền thành công",
+            CreatedAt = DateTimeOffset.UtcNow,
         };
     }
     public async Task<string> CanCelBooking(Guid bookingId)
@@ -702,7 +706,7 @@ public class Service: IService
                 Price = x.Price,
                 Date = x.Date,
             }).ToList(),
-            
+            CreatedAt =  x.CreatedAt,
         });
         var list = await  select.ToListAsync();
         var result = new Base.Response.PageResult<Response.GetBookingResponse>()

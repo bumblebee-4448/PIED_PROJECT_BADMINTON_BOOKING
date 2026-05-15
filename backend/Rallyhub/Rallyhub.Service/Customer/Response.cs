@@ -36,5 +36,6 @@ public class Response
         public Guid Id { get; set; }
         public decimal FinalPrice  { get; set; }
         public string Status  { get; set; }
+        public DateTimeOffset CreatedAt { get; set; }
     }
 }
