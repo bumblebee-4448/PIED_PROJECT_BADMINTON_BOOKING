@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useCancelBooking } from "../hooks/useBookingOperations";
-import { bookingsService } from "../services";
+import { useCancelBooking, useBookingStatus } from "../hooks";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -34,6 +33,11 @@ export function PaymentQrDialog({
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
+
+  const handleSuccess = useCallback(() => {
+    setIsSuccess(true);
+    onSuccess();
+  }, [onSuccess]);
 
   const handleCancel = useCallback(() => {
     if (bookingResponse?.bookingId && !isSuccess) {
@@ -82,40 +86,17 @@ export function PaymentQrDialog({
   }, [isOpen, bookingResponse, isSuccess, handleCancel]);
 
   // ─── Polling Logic for Payment Status ───────────────────
+  const { data: currentBooking } = useBookingStatus(
+    bookingResponse?.bookingId,
+    isOpen && !isSuccess
+  );
+
   useEffect(() => {
-    let pollingInterval: ReturnType<typeof setInterval>;
-
-    if (isOpen && bookingResponse?.bookingId && !isSuccess) {
-      const checkStatus = async () => {
-        try {
-          const response = await bookingsService.getAll({ pageIndex: 1, pageSize: 10 });
-          const currentBooking = response.items.find(item => item.bookingId === bookingResponse.bookingId);
-          
-          if (currentBooking?.status === "Banked") {
-            toast.success("Thanh toán thành công!");
-            handleSuccess();
-          }
-        } catch (error) {
-          console.error("Error polling booking status:", error);
-        }
-      };
-
-      // Poll every 5 seconds
-      pollingInterval = setInterval(checkStatus, 5000);
-      
-      // Initial check
-      checkStatus();
+    if (currentBooking?.status === "Banked") {
+      toast.success("Thanh toán thành công!");
+      handleSuccess();
     }
-
-    return () => {
-      if (pollingInterval) clearInterval(pollingInterval);
-    };
-  }, [isOpen, bookingResponse?.bookingId, isSuccess]);
-
-  const handleSuccess = () => {
-    setIsSuccess(true);
-    onSuccess();
-  };
+  }, [currentBooking?.status, handleSuccess]);
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
@@ -176,11 +157,11 @@ export function PaymentQrDialog({
               <div className="flex justify-between text-sm">
                 <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Lịch đặt</span>
                 <div className="flex flex-col items-end gap-2">
-                  {bookingResponse.items.map((item, index) => (
+                   {bookingResponse.items.map((item, index) => (
                     <div key={index} className="flex flex-col items-end bg-gray-50/50 p-2 rounded-lg border border-gray-100 min-w-[120px]">
                       <span className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter mb-0.5">{item.subCourtName}</span>
                       <span className="text-[#0B2421] font-black text-xs">
-                        {item.startTime.substring(0, 5)} - {item.endTime.substring(0, 5)}
+                        {(item.startTime || "").substring(0, 5)} - {(item.endTime || "").substring(0, 5)}
                       </span>
                     </div>
                   ))}
