@@ -5,6 +5,8 @@ import { CancelBookingDialog } from "../components/CancelBookingDialog";
 import { useBookings } from "../hooks/useBookings";
 import { useFilteredBookings } from "../hooks/useFilteredBookings";
 import { useRefundBooking } from "../hooks/useRefundBooking";
+import { useTransactions } from "../hooks/useTransactions";
+import { TransactionDetailDialog } from "../components/TransactionDetailDialog";
 import { Loader2, ClipboardList, AlertCircle } from "lucide-react";
 import { 
   Pagination, 
@@ -25,7 +27,7 @@ import {
   AlertDialogTitle,
 } from "@/shared/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
-import { DEFAULT_PAGE_SIZE, type FilterStatus } from "../types";
+import { DEFAULT_PAGE_SIZE, type FilterStatus, type TransactionItem } from "../types";
 import { toast } from "sonner";
 
 export function BookingHistoryPage() {
@@ -33,8 +35,10 @@ export function BookingHistoryPage() {
   const [activeStatus, setActiveStatus] = React.useState<FilterStatus>("all");
   const [cancellingBooking, setCancellingBooking] = React.useState<{id: string, status: string} | null>(null);
   const [refundingId, setRefundingId] = React.useState<string | null>(null);
+  const [selectedTransaction, setSelectedTransaction] = React.useState<TransactionItem | null>(null);
 
   const { data, isLoading, isError } = useBookings(1, 1000);
+  const { data: transactionsData } = useTransactions(1, 1000);
   const { filteredItems, counts } = useFilteredBookings(data, activeStatus);
 
   const pageSize = 10;
@@ -111,14 +115,21 @@ export function BookingHistoryPage() {
         {/* Booking List */}
         <div className="space-y-6">
           {paginatedItems.length > 0 ? (
-            paginatedItems.map((booking, index) => (
-              <BookingCard 
-                key={booking.bookingId || (booking as any).BookingId || (booking as any).Id || `booking-${index}`} 
-                booking={booking} 
-                onCancelClick={(id) => setCancellingBooking({ id, status: booking.status })}
-                onRefundClick={(id) => setRefundingId(id)}
-              />
-            ))
+            paginatedItems.map((booking, index) => {
+              const bookingId = booking.bookingId || (booking as any).BookingId || (booking as any).Id || `booking-${index}`;
+              const transaction = transactionsData?.items.find(t => t.bookingId === bookingId);
+              
+              return (
+                <BookingCard 
+                  key={bookingId} 
+                  booking={booking} 
+                  transaction={transaction}
+                  onCancelClick={(id) => setCancellingBooking({ id, status: booking.status })}
+                  onRefundClick={(id) => setRefundingId(id)}
+                  onViewPaymentClick={(t) => setSelectedTransaction(t)}
+                />
+              );
+            })
           ) : (
             <div className="bg-white rounded-[40px] p-16 text-center border border-dashed border-gray-200">
               <div className="w-24 h-24 rounded-full bg-gray-50 flex items-center justify-center text-gray-300 mx-auto mb-8">
@@ -202,6 +213,12 @@ export function BookingHistoryPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <TransactionDetailDialog 
+        isOpen={!!selectedTransaction}
+        onClose={() => setSelectedTransaction(null)}
+        transaction={selectedTransaction}
+      />
     </div>
   );
 }

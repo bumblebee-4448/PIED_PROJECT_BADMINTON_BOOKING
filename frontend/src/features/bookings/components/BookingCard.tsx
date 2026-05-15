@@ -6,20 +6,23 @@ import {
   XCircle,
   Clock3,
   Phone,
-  Hash
+  Hash,
+  CreditCard
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
-import type { GetBookingResponse } from "../types";
+import type { GetBookingResponse, TransactionItem } from "../types";
 
 interface BookingCardProps {
   booking: GetBookingResponse;
+  transaction?: TransactionItem;
   onCancelClick?: (id: string) => void;
   onRefundClick?: (id: string) => void;
+  onViewPaymentClick?: (transaction: TransactionItem) => void;
 }
 
-export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCardProps) {
+export function BookingCard({ booking, transaction, onCancelClick, onRefundClick, onViewPaymentClick }: BookingCardProps) {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "Pending":
@@ -121,6 +124,15 @@ export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCa
               <span>{phoneNumber}</span>
             </div>
           </div>
+          {transaction && (
+            <div className="bg-emerald-50/30 rounded-2xl p-4 border border-emerald-100/50 flex flex-col items-center justify-center text-center md:col-span-2">
+              <span className="text-[10px] uppercase tracking-widest font-black text-emerald-600 mb-2">Ngày chuyển khoản</span>
+              <div className="flex items-center gap-2 font-bold text-emerald-700">
+                <Calendar size={16} className="text-emerald-500" />
+                <span>{format(parseISO(transaction.createdAt), "HH:mm - dd/MM/yyyy")}</span>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Slots List */}
@@ -181,6 +193,17 @@ export function BookingCard({ booking, onCancelClick, onRefundClick }: BookingCa
                 className="flex-1 md:flex-none text-orange-500 font-bold text-sm hover:text-orange-600 hover:bg-orange-50 transition-colors px-4 rounded-2xl"
               >
                 Yêu cầu hoàn tiền
+              </Button>
+            )}
+
+            {transaction && (
+              <Button
+                variant="outline"
+                onClick={() => onViewPaymentClick?.(transaction)}
+                className="flex-1 md:flex-none border-emerald-100 text-[#00897B] font-bold text-sm hover:bg-emerald-50 transition-colors px-4 rounded-2xl h-12"
+              >
+                <CreditCard size={16} className="mr-2" />
+                Chi tiết thanh toán
               </Button>
             )}
             

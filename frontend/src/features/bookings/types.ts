@@ -119,5 +119,25 @@ export interface GetBookingHistoryRequest {
   date?: string;
 }
 
+// ─── Transaction Types ─────────────────────────────────────
+export interface TransactionItem {
+  id: string;
+  type: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+  bankRefCode?: string;
+  bankAccountNumber?: string;
+  bookingId?: string;
+}
+
+export interface TransactionResponse {
+  items: TransactionItem[];
+  totalItems: number;
+  pageSize: number;
+  pageIndex: number;
+}
+
 // ─── Constants ───────────────────────────────────────────
 export const DEFAULT_PAGE_SIZE = 10;
