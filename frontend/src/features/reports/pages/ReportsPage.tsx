@@ -1,13 +1,9 @@
-import { useState } from "react";
-import { format, parseISO } from "date-fns";
 import { 
   AlertTriangle, 
   MessageSquare, 
   Clock, 
   CheckCircle2, 
-  ChevronRight,
-  Search,
-  Filter
+  ChevronRight
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useBookingReports, useSystemReports } from "../hooks/useReports";
@@ -16,19 +12,20 @@ import { Card, CardContent } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { LoadingSpinner } from "@/shared/components/common/LoadingSpinner";
 import { EmptyState } from "@/shared/components/common/EmptyState";
-import type { ReportStatus } from "../types";
+import type { ReportBookingResponse, ReportStatus, SystemReportResponse } from "../types";
+
+type ReportListResponse<T> = T[] | { items?: T[] };
+
+function getReportItems<T>(data: ReportListResponse<T> | undefined): T[] {
+  return Array.isArray(data) ? data : data?.items ?? [];
+}
 
 export function ReportsPage() {
   const { data: bookingReportsData, isLoading: isLoadingBooking } = useBookingReports();
   const { data: systemReportsData, isLoading: isLoadingSystem } = useSystemReports();
 
-  const bookingReports = Array.isArray(bookingReportsData) 
-    ? bookingReportsData 
-    : (bookingReportsData as any)?.items || [];
-    
-  const systemReports = Array.isArray(systemReportsData) 
-    ? systemReportsData 
-    : (systemReportsData as any)?.items || [];
+  const bookingReports = getReportItems<ReportBookingResponse>(bookingReportsData);
+  const systemReports = getReportItems<SystemReportResponse>(systemReportsData);
 
   const getStatusConfig = (status: ReportStatus) => {
     switch (status) {
@@ -94,7 +91,6 @@ export function ReportsPage() {
             <EmptyState 
               title="Chưa có báo cáo nào" 
               description="Bạn chưa gửi báo cáo nào cho các đơn đặt sân."
-              icon={<AlertTriangle size={48} className="text-gray-300" />}
             />
           ) : (
             <div className="grid gap-4">
@@ -141,7 +137,6 @@ export function ReportsPage() {
             <EmptyState 
               title="Chưa có báo cáo hệ thống" 
               description="Hệ thống đang hoạt động ổn định. Cảm ơn bạn!"
-              icon={<MessageSquare size={48} className="text-gray-300" />}
             />
           ) : (
             <div className="grid gap-4">
