@@ -100,14 +100,14 @@ export const API_ENDPOINTS = {
    * Report endpoints
    */
   REPORT: {
-    CREATE_BOOKING: "/Report",
-    GET_BOOKING: "/Report",
+    CREATE_BOOKING: "/Report/CreateReportBookings",
+    GET_BOOKING: "/Report/GetReportBookings",
     CONFIRM_BOOKING: "/Report",
   },
   SYSTEM_REPORT: {
-    CREATE: "/SystemReport",
-    GET_ALL: "/SystemReport",
-    REPLY: "/SystemReport",
+    CREATE: "/SystemReport/CreateSystemReport",
+    GET_ALL: "/SystemReport/GetSystemReport",
+    REPLY: "/SystemReport/SubmitReportReply",
   },
 } as const;
 
@@ -123,10 +123,13 @@ export const QUERY_KEYS = {
   COURT_DETAIL: (id: string) => ["court", id] as const, // Chi tiết 1 sân
   COURT_FEEDBACKS: (courtId: string, pageIndex = 1, pageSize = 10) =>
     ["court-feedbacks", courtId, pageIndex, pageSize] as const,
+  FEEDBACK_LOOKUP: (bookingId: string) => ["feedback-lookup", bookingId] as const,
   MAP_SEARCH: (filters: unknown) => ["map-search", filters] as const, // Tìm kiếm bản đồ
   WALLET_INFO: ["wallet-info"] as const, // Thông tin ví
   NOTIFICATIONS: (params?: any) => ["notifications", params] as const, // Thông báo
   UNREAD_COUNT: ["unread-count"] as const, // Số thông báo chưa đọc
+  REPORTS_BOOKING: ["reports-booking"] as const, // Danh sách báo cáo đặt sân
+  REPORTS_SYSTEM: ["reports-system"] as const, // Danh sách báo cáo hệ thống
 } as const;
 
 /**
