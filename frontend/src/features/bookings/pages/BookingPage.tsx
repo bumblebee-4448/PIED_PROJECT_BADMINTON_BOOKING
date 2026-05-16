@@ -196,12 +196,12 @@ export function BookingPage() {
         </button>
 
         {/* Page Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
-          <div className="space-y-4">
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-6">
+          <div className="space-y-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-bold">
               Tiện ích đặt sân
             </div>
-            <h1 className="text-4xl md:text-5xl font-black text-[#0B2421] leading-tight">
+            <h1 className="text-4xl md:text-5xl font-bold text-[#0B2421] leading-tight">
               Đặt sân <span className="text-emerald-500">{court?.name}</span>
             </h1>
             <div className="flex flex-wrap items-center gap-4">
@@ -212,8 +212,8 @@ export function BookingPage() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 min-w-[300px]">
-            <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Chọn ngày thi đấu</p>
+          <div className="flex flex-col gap-2 min-w-[280px]">
+            <p className="text-[10px] font-bold text-gray-400 ml-1">Chọn ngày</p>
             <div className="relative group">
               <div className="absolute inset-0 bg-emerald-500/5 group-hover:bg-emerald-500/10 blur-xl rounded-full transition-all" />
               <div className="relative">
@@ -229,7 +229,7 @@ export function BookingPage() {
                     setSelectedDate(new Date(year, month - 1, day));
                     setSelectedSlots([]); // Clear slots on date change
                   }}
-                  className="w-full h-14 pl-12 pr-4 rounded-2xl border-2 border-gray-100 bg-white font-black text-xs uppercase tracking-widest focus:border-emerald-500 focus:outline-none transition-all appearance-none cursor-pointer"
+                  className="w-full h-14 pl-12 pr-4 rounded-2xl border-2 border-gray-100 bg-white font-bold text-xs focus:border-emerald-500 focus:outline-none transition-all appearance-none cursor-pointer"
                 />
               </div>
             </div>
@@ -237,8 +237,8 @@ export function BookingPage() {
         </div>
 
         {/* New Unified Timeline View */}
-        <div className="space-y-4">
-          <p className="text-[10px] font-black text-gray-400 uppercase tracking-[0.2em] mb-4 ml-1">Lịch thi đấu chi tiết</p>
+        <div className="space-y-2">
+          <p className="text-[10px] font-bold text-gray-400 ml-1">Lịch thi đấu chi tiết</p>
           <BookingTimeline 
             subCourts={subCourtsList}
             selectedDate={selectedDate}

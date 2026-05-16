@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { useAvailableSlots, useCreateOverrideSlot, useCreateExceptionSlot, useUnlockException, useRemoveOverrideSlot, useUpdateConfigSlotPrice } from "../hooks/useOwnerSlots";
+import { useAvailableSlots, useCreateOverrideSlot, useCreateExceptionSlot } from "../hooks/useOwnerSlots";
 import { 
   ArrowLeft, 
   Calendar as CalendarIcon, 

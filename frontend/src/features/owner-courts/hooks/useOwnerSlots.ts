@@ -37,7 +37,6 @@ export const useCreateOverrideSlot = () => {
   return useMutation({
     mutationFn: (data: CreateOverrideSlotRequest) => ownerCourtService.createOverrideSlot(data),
     onSuccess: () => {
-      toast.success("Đã gộp slot thành công");
       queryClient.invalidateQueries({ queryKey: ["available-slots"] });
       queryClient.invalidateQueries({ queryKey: ["override-slots"] });
     },
@@ -50,7 +49,6 @@ export const useCreateExceptionSlot = () => {
   return useMutation({
     mutationFn: (data: CreateExceptionSlotRequest) => ownerCourtService.createExceptionSlot(data),
     onSuccess: () => {
-      toast.success("Đã khóa slot thành công");
       queryClient.invalidateQueries({ queryKey: ["available-slots"] });
     },
   });

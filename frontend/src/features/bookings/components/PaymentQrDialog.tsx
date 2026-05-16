@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
@@ -100,113 +99,100 @@ export function PaymentQrDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && handleCancel()}>
-      <DialogContent className="max-w-[60%] sm:max-w-[400px] h-[600px] overflow-y-auto p-6 bg-white rounded-3xl border-none shadow-2xl">
-        <DialogHeader className="text-center mb-4">
-          <div className="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center mx-auto mb-3">
-            <CheckCircle2 size={24} className="text-emerald-500" />
+      <DialogContent className="max-w-[420px] p-0 bg-white rounded-2xl border-none shadow-2xl overflow-hidden flex flex-col max-h-[95vh]">
+        {/* Header Section (Simplified) */}
+        <div className="p-8 text-center border-b border-gray-50">
+          <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-4">
+            <CheckCircle2 size={32} className="text-emerald-500" />
           </div>
-          <DialogTitle className="text-xl font-black text-[#0B2421]">
-            Đã tạo đơn thành công!
+          <DialogTitle className="text-2xl font-bold text-gray-900 mb-1">
+            Đặt sân thành công!
           </DialogTitle>
           <p className="text-gray-400 text-xs font-medium">
-            Vui lòng quét mã QR bên dưới để thanh toán đơn hàng.
+            Mã QR của bạn đã sẵn sàng để thanh toán
           </p>
-        </DialogHeader>
+        </div>
 
         {bookingResponse ? (
-          <div className="space-y-4">
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-3xl blur opacity-25 group-hover:opacity-40 transition duration-1000 group-hover:duration-200" />
-              <div className="relative bg-white p-4 rounded-[2rem] border border-gray-50 flex items-center justify-center">
+        <div className="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
+            {/* QR Section */}
+            <div className="flex flex-col items-center">
+              <div className="p-4 bg-white rounded-2xl border-2 border-gray-50 shadow-sm relative mb-4">
                 <img 
                   src={bookingResponse.qrCodeUrl} 
                   alt="Payment QR" 
-                  className="w-full aspect-square object-contain rounded-2xl"
+                  className="w-48 h-48 object-contain"
                 />
               </div>
-            </div>
-
-            <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl space-y-2">
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-emerald-600/60 uppercase tracking-widest">Ngân hàng</span>
-                <span className="text-xs font-black text-[#0B2421] uppercase">{bookingResponse.bankName}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-[10px] font-black text-emerald-600/60 uppercase tracking-widest">Số tài khoản</span>
-                <span className="text-xs font-black text-[#0B2421] tracking-wider">{bookingResponse.bankAccount}</span>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl">
-              <div className="flex items-center gap-3">
-                <Timer size={18} className="text-emerald-500" />
-                <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Thời gian còn lại</span>
-              </div>
-              <span className="text-lg font-black text-emerald-600 tabular-nums">
-                {formatTime(timeLeft)}
-              </span>
-            </div>
-
-            <div className="space-y-2 border-t border-b border-gray-100 py-4">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Mã đơn hàng</span>
-                <span className="text-[#0B2421] font-black truncate max-w-[150px]" title={bookingResponse.bookingId}>
-                  #{bookingResponse.bookingId.split('-')[0].toUpperCase()}
+              <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-full">
+                <Timer size={14} className="text-emerald-600" />
+                <span className="text-xs font-black text-emerald-600 tabular-nums">
+                  {formatTime(timeLeft)}
                 </span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider ml-1">còn lại</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Lịch đặt</span>
-                <div className="flex flex-col items-end gap-2">
-                   {bookingResponse.items.map((item, index) => (
-                    <div key={index} className="flex flex-col items-end bg-gray-50/50 p-2 rounded-lg border border-gray-100 min-w-[120px]">
-                      <span className="text-[8px] font-black text-emerald-600 uppercase tracking-tighter mb-0.5">{item.subCourtName}</span>
-                      <span className="text-[#0B2421] font-black text-xs">
-                        {(item.startTime || "").substring(0, 5)} - {(item.endTime || "").substring(0, 5)}
-                      </span>
+            </div>
+
+            {/* Account Details */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Ngân hàng</p>
+                <p className="text-xs font-black text-slate-700">{bookingResponse.bankName}</p>
+              </div>
+              <div className="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Số tài khoản</p>
+                <p className="text-xs font-black text-slate-700 tracking-wider">{bookingResponse.bankAccount}</p>
+              </div>
+            </div>
+
+            {/* Booking Summary */}
+            <div className="space-y-3 bg-slate-50/50 p-4 rounded-xl border border-slate-100">
+              <div className="flex justify-between items-center">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Mã đơn hàng</span>
+                <span className="text-xs font-black text-slate-700">#{bookingResponse.bookingId.split('-')[0].toUpperCase()}</span>
+              </div>
+              
+              <div className="flex justify-between items-start">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest pt-1">Chi tiết sân</span>
+                <div className="flex flex-col items-end gap-1">
+                  {bookingResponse.items.map((item, index) => (
+                    <div key={index} className="flex items-center gap-2 text-[11px] font-bold text-slate-600">
+                      <span>{item.subCourtName}</span>
+                      <span className="text-slate-300">|</span>
+                      <span>{(item.startTime || "").substring(0, 5)} - {(item.endTime || "").substring(0, 5)}</span>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Trạng thái</span>
-                <span className="text-amber-500 font-black flex items-center gap-2">
-                  <Loader2 size={12} className="animate-spin" /> 
-                  {bookingResponse.status === "Pending" ? "Chờ thanh toán" : bookingResponse.status}
-                </span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-400 font-bold uppercase text-[10px] tracking-widest">Tổng thanh toán</span>
-                <span className="text-[#0B2421] font-black text-base">
+
+              <div className="pt-2 mt-2 border-t border-slate-200/60 flex justify-between items-center">
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tổng tiền</span>
+                <span className="text-lg font-black text-[#0B2421]">
                   {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(bookingResponse.totalPrice)}
                 </span>
               </div>
             </div>
 
-            <div className="pt-1 flex flex-col gap-2">
-              <div className="flex items-center justify-center gap-2 py-2 px-4 bg-emerald-50 text-emerald-600 rounded-xl mb-2">
+            {/* Actions */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-center gap-2 py-3 px-4 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
                 <Loader2 size={14} className="animate-spin" />
-                <span className="text-[10px] font-bold uppercase tracking-wider">Đang tự động kiểm tra thanh toán...</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider">Hệ thống đang tự động xác thực...</span>
               </div>
-
-              {/* <Button 
-                onClick={handleSuccess}
-                className="w-full h-12 bg-[#0B2421] hover:bg-[#1a3a36] text-white rounded-2xl font-black text-xs uppercase tracking-widest transition-all"
-              >
-                Tôi đã chuyển khoản
-              </Button> */}
+              
               <Button 
                 variant="ghost" 
                 onClick={handleCancel}
-                className="w-full h-12 text-gray-400 hover:text-gray-600 font-black text-[10px] uppercase tracking-widest"
+                className="w-full h-10 text-slate-400 hover:text-rose-500 font-bold text-[10px] uppercase tracking-[0.2em] transition-colors"
               >
-                Hủy đơn
+                Hủy đơn đặt sân
               </Button>
             </div>
           </div>
         ) : (
-          <div className="h-64 flex flex-col items-center justify-center gap-4">
+          <div className="h-96 flex flex-col items-center justify-center gap-4">
             <Loader2 size={40} className="text-emerald-500 animate-spin" />
-            <p className="text-gray-400 font-bold animate-pulse">Đang chuẩn bị mã QR...</p>
+            <p className="text-gray-400 font-bold animate-pulse uppercase text-[10px] tracking-widest">Đang chuẩn bị mã QR...</p>
           </div>
         )}
       </DialogContent>

@@ -1,432 +1,431 @@
-import { useState, useEffect } from "react";
-import { 
-  TrendingUp, 
-  Calendar, 
-  DollarSign, 
-  Users, 
-  ArrowUpRight, 
-  ArrowDownRight, 
-  Filter,
+import { useState, useMemo } from "react";
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  CalendarCheck,
+  DollarSign,
+  Users,
+  Loader2,
   BarChart3,
-  CalendarDays,
-  LayoutGrid,
-  MapPin,
-  ChevronRight,
-  User,
-  Phone,
-  ChevronLeft,
-  Clock,
-  Activity,
-  ArrowLeft
 } from "lucide-react";
 import { 
-  BarChart, 
-  Bar, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer, 
-  Cell 
-} from "recharts";
-import { 
-  useOwnerDashboard, 
-  useCourtBookings 
-} from "@/features/owner-revenue/hooks/useOwnerRevenue";
-import { useOwnerCourts } from "@/features/owner-courts/hooks/useOwnerCourts";
-import { format } from "date-fns";
-import { vi } from "date-fns/locale";
-import { formatCurrency } from "@/lib/utils";
-import { Button } from "@/shared/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
-import { Input } from "@/shared/components/ui/input";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/shared/components/ui/card";
-import { Badge } from "@/shared/components/ui/badge";
+  format, 
+  parseISO, 
+  startOfWeek, 
+  endOfWeek, 
+  eachDayOfInterval, 
+  startOfMonth, 
+  endOfMonth, 
+  isSameDay,
+  isSameMonth,
+  startOfYear,
+  endOfYear,
+  eachMonthOfInterval,
+  subWeeks,
+  subMonths,
+  subYears,
+} from "date-fns";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { useOwnerCourts } from "@/features/owner-courts/hooks/useOwnerCourts";
+import { useOwnerCourtBookings, useOwnerDashboardStats } from "../hooks/useOwnerDashboard";
+import type { CourtBooking } from "../services/ownerDashboardService";
 
-const PERIOD_OPTIONS = [
-  { value: "Day", label: "Ngày" },
-  { value: "Week", label: "Tuần" },
-  { value: "Month", label: "Tháng" },
-  { value: "Quarter", label: "Quý" },
-  { value: "Year", label: "Năm" },
+// ─── Period config ────────────────────────────────────────────────────────────
+
+const PERIODS = [
+  { value: "week",    label: "Tuần này" },
+  { value: "month",  label: "Tháng này" },
+  { value: "quarter",label: "Quý này" },
+  { value: "year",   label: "Năm này" },
 ];
 
-type ViewMode = "Overview" | "Detail";
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-export function OwnerDashboard() {
-  const [viewMode, setViewMode] = useState<ViewMode>("Overview");
-  const [period, setPeriod] = useState<"Day" | "Week" | "Month" | "Quarter" | "Year">("Day");
-  const [date, setDate] = useState<string>(format(new Date(), "yyyy-MM-dd"));
-  const [courtId, setCourtId] = useState<string>("");
-  const [pageIndex, setPageIndex] = useState(1);
-  const pageSize = 10;
-  
-  const { data: courtsListData } = useOwnerCourts({ pageIndex: 1, pageSize: 100 });
+function fmtCurrency(n: number) {
+  return new Intl.NumberFormat("vi-VN", { style: "currency", currency: "VND" }).format(n);
+}
 
-  useEffect(() => {
-    if (viewMode === "Detail" && !courtId && courtsListData?.items.length) {
-      setCourtId(courtsListData.items[0].courtId);
+/**
+ * Builds chart data by filling gaps and optionally adding comparison data from previous period
+ */
+function buildChartData(currentBookings: CourtBooking[], prevBookings: CourtBooking[], period: string) {
+  const now = new Date();
+  let interval: Date[] = [];
+  let formatStr = "dd/MM";
+
+  if (period === "week") {
+    interval = eachDayOfInterval({ start: startOfWeek(now, { weekStartsOn: 1 }), end: endOfWeek(now, { weekStartsOn: 1 }) });
+  } else if (period === "month") {
+    interval = eachDayOfInterval({ start: startOfMonth(now), end: endOfMonth(now) });
+  } else if (period === "year") {
+    interval = eachMonthOfInterval({ start: startOfYear(now), end: endOfYear(now) });
+    formatStr = "MM/yyyy";
+  } else {
+    // Basic fallback
+    if (!currentBookings.length) return [];
+    const map = new Map<string, { revenue: number }>();
+    for (const b of currentBookings) {
+      const d = parseISO(b.createdAt);
+      const key = format(d, "dd/MM");
+      map.set(key, { revenue: (map.get(key)?.revenue ?? 0) + b.totalPrice });
     }
-  }, [viewMode, courtsListData, courtId]);
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0])).map(([date, vals]) => ({ date, ...vals }));
+  }
 
-  const { data: dashboardData, isLoading: isStatsLoading, refetch: refetchStats } = useOwnerDashboard({
-    period,
-    date,
-    courtId: viewMode === "Overview" ? undefined : courtId
+  return interval.map((date) => {
+    const key = format(date, formatStr);
+    
+    // Current period value
+    const dayBookings = currentBookings.filter(b => {
+      const bDate = parseISO(b.createdAt);
+      return period === "year" ? isSameMonth(bDate, date) : isSameDay(bDate, date);
+    });
+    const currentRevenue = dayBookings.reduce((s, b) => s + b.totalPrice, 0);
+
+    // Previous period value (offset calculation)
+    let prevDate: Date;
+    if (period === "week") prevDate = subWeeks(date, 1);
+    else if (period === "month") prevDate = subMonths(date, 1);
+    else prevDate = subYears(date, 1);
+
+    const prevDayBookings = prevBookings.filter(b => {
+      const bDate = parseISO(b.createdAt);
+      return period === "year" ? isSameMonth(bDate, prevDate) : isSameDay(bDate, prevDate);
+    });
+    const prevRevenue = prevDayBookings.reduce((s, b) => s + b.totalPrice, 0);
+
+    return {
+      date: key,
+      revenue: currentRevenue,
+      prevRevenue: prevRevenue,
+      count: dayBookings.length,
+    };
   });
+}
 
-  const { data: bookingsData, isLoading: isBookingsLoading, refetch: refetchBookings } = useCourtBookings({
-    courtId: viewMode === "Detail" ? courtId : "skip",
-    period,
-    date,
-    pageIndex,
-    pageSize
-  });
+// ─── Custom Tooltip ───────────────────────────────────────────────────────────
 
-  useEffect(() => {
-    refetchStats();
-    if (viewMode === "Detail" && courtId) {
-      refetchBookings();
-    }
-  }, [period, date, courtId, pageIndex, viewMode, refetchStats, refetchBookings]);
+function CustomTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div className="bg-white border border-gray-100 rounded-xl px-4 py-3 shadow-xl text-sm min-w-[180px]">
+      <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest mb-2 border-b border-gray-50 pb-2">{label}</p>
+      <div className="space-y-2">
+        <div>
+          <p className="text-[10px] text-gray-400 font-bold uppercase">Hiện tại</p>
+          <p className="font-bold text-base text-emerald-600">
+            {fmtCurrency(payload[0]?.value ?? 0)}
+          </p>
+        </div>
+        {payload[1] && (
+          <div>
+            <p className="text-[10px] text-gray-400 font-bold uppercase">Kỳ trước</p>
+            <p className="font-bold text-sm text-gray-400 line-through decoration-gray-300">
+              {fmtCurrency(payload[1]?.value ?? 0)}
+            </p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-  const stats = [
-    {
-      title: "Doanh thu",
-      current: dashboardData?.currentRevenue || 0,
-      previous: dashboardData?.previousRevenue || 0,
-      diff: dashboardData?.revenueDifference || 0,
-      percent: dashboardData?.comparisonPercentage || 0,
-      status: dashboardData?.comparisonStatus || "NoChange",
-      icon: <DollarSign className="w-4 h-4 text-emerald-500" />,
-      isCurrency: true,
-      color: "emerald"
-    },
-    {
-      title: "Lượt đặt sân",
-      current: dashboardData?.currentBookingCount || 0,
-      previous: dashboardData?.previousBookingCount || 0,
-      diff: dashboardData?.bookingDifference || 0,
-      percent: dashboardData?.bookingComparisonPercentage || 0,
-      status: dashboardData?.bookingComparisonStatus || "NoChange",
-      icon: <Calendar className="w-4 h-4 text-blue-500" />,
-      isCurrency: false,
-      color: "blue"
-    }
-  ];
+// ─── Stat Card ────────────────────────────────────────────────────────────────
 
-  const chartData = [
-    { name: "Kỳ trước", value: stats[0].previous },
-    { name: "Kỳ này", value: stats[0].current }
-  ];
-
-  const bookingChartData = [
-    { name: "Kỳ trước", value: stats[1].previous },
-    { name: "Kỳ này", value: stats[1].current }
-  ];
+function StatCard({
+  label, value, sub, pct, status, icon, color,
+}: {
+  label: string;
+  value: string;
+  sub: string;
+  pct: number;
+  status: string;
+  icon: React.ReactNode;
+  color: string;
+}) {
+  const isUp   = status === "Increase";
+  const isDown = status === "Decrease";
 
   return (
-    <div className="p-4 lg:p-6 max-w-6xl mx-auto space-y-6 animate-in fade-in duration-700 pb-12">
-      
-      {/* Header & Filter Bar */}
-      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-4 bg-white/70 backdrop-blur-xl p-5 rounded-[24px] border border-white shadow-xl shadow-gray-200/40">
-        <div className="space-y-0.5">
-          <h1 className="text-2xl font-black text-gray-900 tracking-tight flex items-center gap-2">
-            {viewMode === "Overview" ? (
-              <>Dashboard <span className="text-emerald-500 font-bold">Tổng</span></>
-            ) : (
-              <div className="flex items-center gap-2">
-                <Button 
-                  variant="ghost" 
-                  size="icon" 
-                  onClick={() => setViewMode("Overview")}
-                  className="w-8 h-8 rounded-lg hover:bg-gray-100"
-                >
-                  <ArrowLeft className="w-5 h-5 text-gray-400" />
-                </Button>
-                <span>Báo cáo <span className="text-blue-500 font-bold">Chi tiết</span></span>
-              </div>
-            )}
+    <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm hover:shadow-md transition-all duration-300 group">
+      <div className="flex items-center justify-between mb-4">
+        <div
+          className="w-11 h-11 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform"
+          style={{ background: `${color}10` }}
+        >
+          {icon}
+        </div>
+        <div
+          className={cn(
+            "flex items-center gap-1 text-[11px] font-bold px-2.5 py-1 rounded-full",
+            isUp   ? "bg-emerald-50 text-emerald-600" :
+            isDown ? "bg-rose-50 text-rose-600" :
+                     "bg-gray-50 text-gray-400"
+          )}
+        >
+          {isUp   ? <TrendingUp  size={12} /> :
+           isDown ? <TrendingDown size={12} /> :
+                    <Minus size={12} />}
+          {Math.abs(pct).toFixed(1)}%
+        </div>
+      </div>
+
+      <div className="space-y-1">
+        <p className="text-2xl font-bold text-gray-900 tracking-tight">{value}</p>
+        <p className="text-[11px] text-gray-400 font-semibold uppercase tracking-wider">{label}</p>
+      </div>
+
+      <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between gap-2">
+        <div className="flex flex-col">
+          <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter">Kỳ trước</span>
+          <span className="text-[11px] text-gray-600 font-semibold">{sub.replace("Kỳ trước: ", "")}</span>
+        </div>
+        {pct !== 0 && (
+          <div className={cn(
+            "flex flex-col items-end px-2 py-1 rounded-lg",
+            isUp ? "bg-emerald-50 text-emerald-600" : isDown ? "bg-rose-50 text-rose-600" : "bg-gray-50 text-gray-500"
+          )}>
+            <span className="text-[10px] font-black uppercase">{isUp ? "Tăng" : isDown ? "Giảm" : "—"}</span>
+            <span className="text-xs font-bold leading-none">{Math.abs(pct).toFixed(1)}%</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── Main Page ────────────────────────────────────────────────────────────────
+
+export function OwnerDashboard() {
+  const [selectedCourtId, setSelectedCourtId] = useState<string>("");
+  const [period, setPeriod]                   = useState<string>("month");
+
+  // Fetch courts list
+  const { data: courtsData, isLoading: isCourtsLoading } = useOwnerCourts({
+    pageIndex: 1,
+    pageSize: 100,
+  });
+
+  const courts = courtsData?.items ?? [];
+  const effectiveCourtId = selectedCourtId || courts[0]?.courtId || "";
+  const periodLabel = PERIODS.find(p => p.value === period)?.label ?? "";
+
+  // Fetch current period bookings
+  const { data: currentBookingsData, isLoading: isCurrentLoading } = useOwnerCourtBookings({
+    courtId: effectiveCourtId,
+    period,
+    pageSize: 500,
+  });
+
+  // Calculate previous period date
+  const now = new Date();
+  let prevDateStr = "";
+  if (period === "week") prevDateStr = format(subWeeks(now, 1), "yyyy-MM-dd");
+  else if (period === "month") prevDateStr = format(subMonths(now, 1), "yyyy-MM-dd");
+  else if (period === "year") prevDateStr = format(subYears(now, 1), "yyyy-MM-dd");
+
+  // Fetch previous period bookings for comparison chart
+  const { data: prevBookingsData, isLoading: isPrevLoading } = useOwnerCourtBookings({
+    courtId: effectiveCourtId,
+    period,
+    date: prevDateStr,
+    pageSize: 500,
+  });
+
+  // Fetch comparison stats
+  const { data: stats } = useOwnerDashboardStats({
+    courtId: effectiveCourtId,
+    period,
+  });
+
+  const currentBookings = currentBookingsData?.items ?? [];
+  const prevBookings    = prevBookingsData?.items ?? [];
+  const chartData       = useMemo(() => buildChartData(currentBookings, prevBookings, period), [currentBookings, prevBookings, period]);
+
+  const paidCount = currentBookings.filter(b => ["Paid", "Completed", "Banked"].includes(b.status)).length;
+  const isLoading = isCourtsLoading || isCurrentLoading || isPrevLoading;
+
+  return (
+    <div className="p-5 sm:p-7 max-w-[1400px] mx-auto space-y-8 animate-in fade-in duration-500">
+
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+        <div>
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-2">
+            <div className="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center shadow-md">
+              <BarChart3 size={20} className="text-white" />
+            </div>
+            Tổng quan kinh doanh
           </h1>
-          <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-            {viewMode === "Overview" ? "Hệ thống tổng hợp" : `Sân: ${courtsListData?.items.find(c => c.courtId === courtId)?.name || "..."}`}
+          <p className="text-sm text-gray-500 mt-1 font-medium">
+            Phân tích hiệu quả kinh doanh và so sánh với kỳ trước
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
-           {viewMode === "Detail" && (
-             <div className="flex items-center gap-2 bg-white p-0.5 rounded-xl border border-gray-100 shadow-sm min-w-[160px]">
-                <MapPin className="ml-2 w-3.5 h-3.5 text-blue-500" />
-                <Select value={courtId} onValueChange={(val) => { setCourtId(val); setPageIndex(1); }}>
-                  <SelectTrigger className="border-none bg-transparent focus:ring-0 font-bold text-gray-700 h-8 text-xs">
-                    <SelectValue placeholder="Chọn sân" />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl border-gray-100">
-                    {courtsListData?.items.map(court => (
-                      <SelectItem key={court.courtId} value={court.courtId} className="text-xs">{court.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-             </div>
-           )}
+        <div className="flex items-center gap-3">
+          {!isCourtsLoading && courts.length > 0 && (
+            <Select value={effectiveCourtId} onValueChange={setSelectedCourtId}>
+              <SelectTrigger className="h-10 min-w-[200px] rounded-xl border-gray-200 bg-white shadow-sm font-semibold text-sm text-gray-700">
+                <SelectValue placeholder="Chọn cơ sở" />
+              </SelectTrigger>
+              <SelectContent className="rounded-xl border-gray-100 shadow-xl">
+                {courts.map(c => (
+                  <SelectItem key={c.courtId} value={c.courtId} className="font-medium">
+                    {c.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
 
-           <div className="flex items-center gap-0.5 bg-gray-100/80 p-1 rounded-xl border border-gray-200">
-             {PERIOD_OPTIONS.map((opt) => (
-               <Button
-                 key={opt.value}
-                 variant="ghost"
-                 size="sm"
-                 onClick={() => { setPeriod(opt.value as any); setPageIndex(1); }}
-                 className={cn(
-                   "h-8 px-3 rounded-lg text-[10px] font-black transition-all",
-                   period === opt.value 
-                     ? "bg-white text-emerald-600 shadow-sm" 
-                     : "text-gray-500 hover:text-gray-900"
-                 )}
-               >
-                 {opt.label}
-               </Button>
-             ))}
-           </div>
-           
-           {/* Date Picker */}
-           <div className="flex items-center gap-2 bg-white px-3 h-10 rounded-xl border border-gray-100 shadow-sm transition-all hover:border-emerald-200 group">
-             <CalendarDays className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-             <input 
-               type="date"
-               value={date}
-               onChange={(e) => {
-                 const newDate = e.target.value;
-                 if (newDate) {
-                   setDate(newDate);
-                   setPageIndex(1);
-                 }
-               }}
-               onClick={(e) => e.currentTarget.showPicker?.()}
-               className="bg-transparent border-none focus:ring-0 font-bold text-gray-700 text-[10px] cursor-pointer w-[110px] outline-none"
-             />
-           </div>
+          <Select value={period} onValueChange={setPeriod}>
+            <SelectTrigger className="h-10 w-[140px] rounded-xl border-gray-200 bg-white shadow-sm font-semibold text-sm text-gray-700">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="rounded-xl border-gray-100 shadow-xl">
+              {PERIODS.map(p => (
+                <SelectItem key={p.value} value={p.value} className="font-medium">
+                  {p.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {stats.map((stat, i) => (
-          <Card key={i} className="overflow-hidden border-none shadow-xl shadow-gray-200/40 rounded-[28px] group transition-all hover:-translate-y-0.5">
-            <CardContent className="p-6 space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className={cn("p-3 rounded-xl", stat.color === "emerald" ? "bg-emerald-50 text-emerald-600" : "bg-blue-50 text-blue-600")}>
-                    {stat.icon}
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">{stat.title}</p>
-                    <h3 className="text-2xl font-black text-gray-900 mt-0.5 tracking-tight">
-                      {stat.isCurrency ? formatCurrency(stat.current) : stat.current}
-                    </h3>
-                  </div>
-                </div>
-                <Badge className={cn(
-                  "h-8 px-3 rounded-lg border-none font-black text-[10px] shadow-sm",
-                  stat.status === "Increase" ? "bg-emerald-100 text-emerald-600" : 
-                  stat.status === "Decrease" ? "bg-rose-100 text-rose-600" : 
-                  "bg-gray-100 text-gray-400"
-                )}>
-                  {stat.status === "Increase" && <ArrowUpRight className="w-3 h-3 mr-1 stroke-[4]" />}
-                  {stat.status === "Decrease" && <ArrowDownRight className="w-3 h-3 mr-1 stroke-[4]" />}
-                  {stat.percent}%
-                </Badge>
-              </div>
-
-              <div className="pt-4 border-t border-gray-50 flex items-center justify-between">
-                <div className="space-y-0.5">
-                  <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">Kỳ trước</p>
-                  <p className="text-sm font-bold text-gray-400">
-                    {stat.isCurrency ? formatCurrency(stat.previous) : stat.previous}
-                  </p>
-                </div>
-                <div className="text-right space-y-0.5">
-                  <p className="text-[9px] font-black text-gray-300 uppercase tracking-widest">Chênh lệch</p>
-                  <p className={cn(
-                    "text-sm font-black",
-                    stat.diff >= 0 ? "text-emerald-500" : "text-rose-500"
-                  )}>
-                    {stat.diff >= 0 ? "+" : ""}{stat.isCurrency ? formatCurrency(stat.diff) : stat.diff}
-                  </p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <StatCard
+          label={`Doanh thu ${periodLabel.toLowerCase()}`}
+          value={fmtCurrency(stats?.currentRevenue ?? 0)}
+          sub={`Kỳ trước: ${fmtCurrency(stats?.previousRevenue ?? 0)}`}
+          pct={stats?.comparisonPercentage ?? 0}
+          status={stats?.comparisonStatus ?? "NoChange"}
+          icon={<DollarSign size={20} className="text-emerald-600" />}
+          color="#10b981"
+        />
+        <StatCard
+          label={`Lượt đặt ${periodLabel.toLowerCase()}`}
+          value={(stats?.currentBookingCount ?? currentBookings.length).toLocaleString()}
+          sub={`Kỳ trước: ${stats?.previousBookingCount ?? 0} lượt`}
+          pct={stats?.bookingComparisonPercentage ?? 0}
+          status={stats?.bookingComparisonStatus ?? "NoChange"}
+          icon={<CalendarCheck size={20} className="text-indigo-600" />}
+          color="#6366f1"
+        />
+        <StatCard
+          label={`Tỷ lệ hoàn tất`}
+          value={currentBookings.length ? `${((paidCount / currentBookings.length) * 100).toFixed(0)}%` : "0%"}
+          sub={`Trên tổng ${currentBookings.length} đơn`}
+          pct={0}
+          status="NoChange"
+          icon={<Users size={20} className="text-amber-600" />}
+          color="#f59e0b"
+        />
       </div>
 
-      {/* Comparison Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {[
-          { title: "Doanh thu", data: chartData, icon: <BarChart3 className="w-4 h-4 text-emerald-500" />, unit: "Revenue" },
-          { title: "Lượt đặt", data: bookingChartData, icon: <Users className="w-4 h-4 text-blue-500" />, unit: "Bookings" }
-        ].map((c, i) => (
-          <Card key={i} className="border-none shadow-xl shadow-gray-200/40 rounded-[28px] p-6 bg-white">
-            <CardHeader className="p-0 mb-6">
-              <CardTitle className="text-lg font-black text-gray-900 flex items-center gap-2">
-                {c.icon} {c.title}
-              </CardTitle>
-            </CardHeader>
-            <div className="h-[200px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={c.data} margin={{ top: 0, right: 0, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fontWeight: 800, fill: '#64748b' }} dy={8} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fontSize: 9, fontWeight: 700, fill: '#cbd5e1' }} tickFormatter={(v) => c.unit === "Revenue" ? `${v/1000}k` : v} />
-                  <Tooltip cursor={{ fill: '#f8fafc' }} contentStyle={{ borderRadius: '12px', border: 'none', padding: '10px', fontSize: '11px' }} />
-                  <Bar dataKey="value" radius={[8, 8, 8, 8]} barSize={40}>
-                    {c.data.map((_, idx) => (
-                      <Cell key={`cell-${idx}`} fill={idx === 1 ? (i === 0 ? '#10b981' : '#3b82f6') : '#f1f5f9'} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+      {/* Comparison Chart */}
+      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center">
+              <TrendingUp size={20} className="text-emerald-500" />
             </div>
-          </Card>
-        ))}
-      </div>
-
-      {/* Main Action Button (Only in Overview) */}
-      {viewMode === "Overview" && (
-        <div className="flex flex-col items-center py-6">
-          <Button 
-            size="lg"
-            onClick={() => setViewMode("Detail")}
-            className="bg-gray-900 text-white hover:bg-emerald-600 px-10 h-14 rounded-[20px] font-black text-lg shadow-xl transition-all hover:scale-105 active:scale-95 flex items-center gap-3 group"
-          >
-            <Activity className="w-6 h-6 text-emerald-400" />
-            Xem chi tiết từng sân
-            <ChevronRight className="w-6 h-6 group-hover:translate-x-1.5 transition-transform" />
-          </Button>
+            <div>
+              <h2 className="text-lg font-bold text-gray-900 tracking-tight">Biểu đồ so sánh doanh thu</h2>
+              <p className="text-[11px] text-gray-400 font-bold uppercase tracking-widest mt-1">
+                Kỳ này vs Kỳ trước · {periodLabel}
+              </p>
+            </div>
+          </div>
+          {isLoading && <Loader2 size={20} className="animate-spin text-emerald-300" />}
         </div>
-      )}
 
-      {/* Detail Mode - Booking Table */}
-      {viewMode === "Detail" && (
-        <Card className="border-none shadow-xl shadow-gray-200/40 rounded-[28px] overflow-hidden bg-white animate-in slide-in-from-bottom-6 duration-500">
-          <div className="p-6 border-b border-gray-50 flex items-center justify-between">
-            <div className="space-y-0.5">
-              <h3 className="text-lg font-black text-gray-900 flex items-center gap-2">
-                <LayoutGrid className="text-purple-500 w-5 h-5" /> Đơn đặt sân
-              </h3>
-            </div>
-            <Badge className="bg-purple-50 text-purple-600 border-none h-8 px-4 rounded-lg font-black text-[10px]">
-              {bookingsData?.totalItems || 0} Đơn
-            </Badge>
+        {isLoading ? (
+          <div className="h-[350px] flex items-center justify-center">
+            <Loader2 size={32} className="animate-spin text-emerald-500/10" />
           </div>
+        ) : chartData.length === 0 ? (
+          <div className="h-[350px] flex flex-col items-center justify-center text-gray-200 gap-4">
+            <BarChart3 size={64} strokeWidth={1} />
+            <p className="text-sm font-semibold text-gray-400">Không có dữ liệu thống kê cho kỳ này</p>
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height={350}>
+            <AreaChart data={chartData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+              <defs>
+                <linearGradient id="gradCurrent" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%"  stopColor="#10b981" stopOpacity={0.15} />
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
+                </linearGradient>
+              </defs>
 
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50/50">
-                  <th className="p-4 text-[9px] font-black text-gray-300 uppercase tracking-widest">Khách hàng</th>
-                  <th className="p-4 text-[9px] font-black text-gray-300 uppercase tracking-widest">Sân & Ngày</th>
-                  <th className="p-4 text-[9px] font-black text-gray-300 uppercase tracking-widest">Khung giờ</th>
-                  <th className="p-4 text-[9px] font-black text-gray-300 uppercase tracking-widest">Tổng tiền</th>
-                  <th className="p-4 text-[9px] font-black text-gray-300 uppercase tracking-widest text-center">Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-50">
-                {isBookingsLoading ? (
-                  [1, 2].map(i => (
-                    <tr key={i} className="animate-pulse">
-                      <td colSpan={5} className="p-6"><div className="h-10 bg-gray-100 rounded-xl w-full" /></td>
-                    </tr>
-                  ))
-                ) : !bookingsData || bookingsData.items.length === 0 ? (
-                  <tr>
-                    <td colSpan={5} className="p-20 text-center text-gray-300 font-black text-sm">Trống rỗng...</td>
-                  </tr>
-                ) : (
-                  bookingsData.items.map((booking) => (
-                    <tr key={booking.bookingId} className="hover:bg-gray-50/30 transition-all group">
-                      <td className="p-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600 font-black text-sm shadow-inner">
-                            {booking.customerName.charAt(0)}
-                          </div>
-                          <div>
-                            <p className="font-black text-gray-900 text-sm">{booking.customerName}</p>
-                            <p className="text-[9px] font-bold text-gray-400 flex items-center gap-1 mt-0.5">
-                              <Phone className="w-2.5 h-2.5" /> {booking.customerPhone}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="space-y-0.5">
-                          <p className="font-bold text-gray-800 text-xs flex items-center gap-1.5">
-                            <MapPin className="w-3 h-3 text-emerald-500" /> {booking.subCourtName}
-                          </p>
-                          <p className="text-[9px] font-bold text-gray-400 flex items-center gap-1.5">
-                            <Calendar className="w-3 h-3" /> {format(new Date(booking.bookingDate), "dd/MM/yyyy")}
-                          </p>
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex flex-wrap gap-1 max-w-[150px]">
-                          {booking.slots.map((slot, idx) => (
-                            <Badge key={idx} variant="secondary" className="bg-blue-50/50 text-blue-600 border-none rounded-md text-[8px] font-black px-1.5 py-0.5">
-                              {slot.startTime.substring(0, 5)}
-                            </Badge>
-                          ))}
-                        </div>
-                      </td>
-                      <td className="p-4">
-                        <p className="text-lg font-black text-emerald-600 tracking-tight">{formatCurrency(booking.totalPrice)}</p>
-                      </td>
-                      <td className="p-4">
-                        <div className="flex justify-center">
-                          <Badge className={cn(
-                            "rounded-lg px-3 py-1 border-none font-black text-[9px] shadow-sm",
-                            booking.status === "Complete" ? "bg-emerald-100 text-emerald-700" :
-                            booking.status === "Banked" ? "bg-blue-100 text-blue-700" :
-                            booking.status === "Cancelled" ? "bg-rose-100 text-rose-700" :
-                            "bg-gray-100 text-gray-500"
-                          )}>
-                            {booking.status}
-                          </Badge>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+              <CartesianGrid strokeDasharray="3 3" stroke="#f8fafc" vertical={false} />
+              <XAxis
+                dataKey="date"
+                tick={{ fontSize: 9, fontWeight: 700, fill: "#94a3b8" }}
+                axisLine={false}
+                tickLine={false}
+                dy={10}
+                interval={period === "month" ? 2 : 0}
+              />
+              <YAxis
+                tickFormatter={v => `${(v / 1000).toFixed(0)}k`}
+                tick={{ fontSize: 10, fontWeight: 600, fill: "#94a3b8" }}
+                axisLine={false}
+                tickLine={false}
+                width={45}
+              />
+              <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#f1f5f9", strokeWidth: 2 }} />
 
-          {/* Compact Pagination */}
-          <div className="p-6 bg-gray-50/30 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-               <span className="text-[10px] font-black text-gray-400">Trang {pageIndex}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                className="rounded-xl h-9 px-4 border-gray-200 font-black text-xs gap-1 hover:bg-white transition-all disabled:opacity-30"
-                disabled={pageIndex <= 1}
-                onClick={() => setPageIndex(p => p - 1)}
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </Button>
-              <Button 
-                variant="outline" 
-                className="rounded-xl h-9 px-4 border-gray-200 font-black text-xs gap-1 hover:bg-white transition-all disabled:opacity-30"
-                disabled={pageIndex >= Math.ceil((bookingsData?.totalItems || 1) / pageSize)}
-                onClick={() => setPageIndex(p => p + 1)}
-              >
-                Sau <ChevronRight className="w-4 h-4" />
-              </Button>
-            </div>
+              {/* Previous Period Line */}
+              <Area
+                type="monotone"
+                dataKey="prevRevenue"
+                stroke="#cbd5e1"
+                strokeWidth={2}
+                fill="transparent"
+                strokeDasharray="5 5"
+                dot={false}
+                activeDot={false}
+              />
+
+              {/* Current Period Area */}
+              <Area
+                type="monotone"
+                dataKey="revenue"
+                stroke="#10b981"
+                strokeWidth={3}
+                fill="url(#gradCurrent)"
+                dot={false}
+                activeDot={{ r: 6, fill: "#10b981", stroke: "#fff", strokeWidth: 2 }}
+              />
+            </AreaChart>
+          </ResponsiveContainer>
+        )}
+
+        <div className="flex items-center gap-6 mt-8 justify-center border-t border-gray-50 pt-6">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-1 bg-emerald-500 rounded-full" />
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Kỳ này (VNĐ)</span>
           </div>
-        </Card>
-      )}
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-1 bg-gray-300 rounded-full border-t border-dashed" />
+            <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Kỳ trước (VNĐ)</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
