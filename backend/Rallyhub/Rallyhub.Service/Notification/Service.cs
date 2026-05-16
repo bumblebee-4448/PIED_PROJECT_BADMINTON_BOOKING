@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
@@ -163,7 +164,7 @@ public class Service : IService
     public async Task<Base.Response.PageResult<Response.GetNotificationResponse>> GetNotification(Base.Request.PagingRequest request)
     {
         var userIdStr = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
-        if (userIdStr == null) throw new Exception("Unauthorized");
+        if (userIdStr == null) throw new AuthenticationException("Unauthorized");
         var userIdGuild = Guid.Parse(userIdStr);
         
         var query = _dbContext.Notifications
@@ -185,7 +186,7 @@ public class Service : IService
                 .ThenInclude(or => or.Customer)
                     .ThenInclude(c => c.User)
             .Include(n => n.Withdrawal)
-            .Where(x => x.UserId == userIdGuild)
+            .Where(x => x.UserId == userIdGuild && x.IsDeleted == false)
             .OrderByDescending(x => x.CreatedAt);
 
         var total = await query.CountAsync();
@@ -231,7 +232,8 @@ public class Service : IService
                 x.Type == Request.TypeNotification.SystemReportCreated || 
                 x.Type == Request.TypeNotification.ReportCreated ||
                 x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
-                x.Type == Request.TypeNotification.WithdrawalRequested)
+                x.Type == Request.TypeNotification.WithdrawalRequested && 
+                x.IsDeleted == false)
             .OrderByDescending(x => x.CreatedAt);
 
         var total = await query.CountAsync();
