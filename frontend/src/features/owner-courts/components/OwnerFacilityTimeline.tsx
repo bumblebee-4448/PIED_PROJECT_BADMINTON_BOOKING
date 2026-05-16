@@ -1,23 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQueries } from "@tanstack/react-query";
 import { ownerCourtService } from "../services";
 import { 
-  Calendar as CalendarIcon, 
-  Clock, 
-  ChevronLeft, 
+  Calendar as CalendarIcon,
+  ChevronLeft,
   ChevronRight,
   Info,
   Plus,
   Loader2,
-  Lock,
+  Lock as LockIcon,
   CalendarCheck,
-  Edit2,
-  Trash2
+  Check as CheckIcon
 } from "lucide-react";
-import { useBookingDetail, useUnlockException, useRemoveOverrideSlot, useUpdateConfigSlotPrice } from "../hooks/useOwnerSlots";
-import { useUpdateSubCourtInfo, useRemoveSubCourt } from "../hooks/useOwnerSubCourts";
+import { useBookingDetail } from "../hooks/useOwnerSlots";
+import { useUpdateSubCourtInfo } from "../hooks/useOwnerSubCourts";
 import { Button } from "@/shared/components/ui/button";
-import { Badge } from "@/shared/components/ui/badge";
 import { 
   Dialog, 
   DialogContent, 
@@ -30,13 +27,14 @@ import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Textarea } from "@/shared/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { cn } from "@/lib/utils";
 import { format, addDays, subDays } from "date-fns";
 import { vi } from "date-fns/locale";
 import { toast } from "sonner";
 import { useCreateOverrideSlot, useCreateExceptionSlot } from "../hooks/useOwnerSlots";
 import type { SubCourtListItem } from "../types";
+import { SlotActionModal } from "./SlotActionModal";
+import { CourtScheduleGrid } from "@/shared/components/CourtScheduleGrid";
 
 const DAYS_OF_WEEK = [
   { value: 1, label: "Thứ Hai" },
@@ -48,98 +46,7 @@ const DAYS_OF_WEEK = [
   { value: 0, label: "Chủ Nhật" },
 ];
 
-function SlotActionModal({
-  slot,
-  isOpen,
-  onOpenChange
-}: {
-  slot: any;
-  isOpen: boolean;
-  onOpenChange: (open: boolean) => void;
-}) {
-  const unlockMutation = useUnlockException();
-  const removeOverrideMutation = useRemoveOverrideSlot();
-  const updatePriceMutation = useUpdateConfigSlotPrice();
-  const [newPrice, setNewPrice] = useState(slot?.price?.toString() || "");
 
-  if (!slot) return null;
-
-  const handleAction = async () => {
-    try {
-      if (slot.type === "Blocked" && slot.exceptionId) {
-        await unlockMutation.mutateAsync(slot.exceptionId);
-      } else if (slot.type === "Override" && slot.overrideSlotId) {
-        await removeOverrideMutation.mutateAsync(slot.overrideSlotId);
-      } else if (slot.configSlotId) {
-        await updatePriceMutation.mutateAsync({
-          configSlotId: slot.configSlotId,
-          newPrice: Number(newPrice)
-        });
-      }
-      onOpenChange(false);
-    } catch (error) {}
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
-        <div className={cn(
-          "p-6 text-white relative",
-          slot.type === "Blocked" ? "bg-red-600" : 
-          slot.type === "Override" ? "bg-violet-600" : "bg-emerald-600"
-        )}>
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black">
-              {slot.type === "Blocked" ? "Mở khóa slot" : 
-               slot.type === "Override" ? "Gỡ gộp slot" : "Cập nhật giá slot"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="mt-2 text-xs font-medium opacity-80">
-            {slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}
-          </div>
-        </div>
-
-        <div className="p-6 space-y-6">
-          {(slot.type === "Blocked" || slot.type === "Override") ? (
-            <p className="text-sm font-medium text-gray-600">
-              Bạn có chắc chắn muốn {slot.type === "Blocked" ? "mở khóa" : "gỡ gộp"} khung giờ này không? 
-              Khung giờ sẽ trở về trạng thái mặc định.
-            </p>
-          ) : (
-            <div className="space-y-2">
-              <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Giá tiền mới (VNĐ)</Label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">₫</span>
-                <Input 
-                  type="number" 
-                  value={newPrice}
-                  onChange={(e) => setNewPrice(e.target.value)}
-                  className="pl-8 h-12 rounded-xl bg-gray-50 border-gray-100 focus:bg-white transition-all font-bold"
-                />
-              </div>
-            </div>
-          )}
-        </div>
-
-        <DialogFooter className="p-6 bg-gray-50 border-t border-gray-100">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
-          <Button 
-            onClick={handleAction}
-            disabled={unlockMutation.isPending || removeOverrideMutation.isPending || updatePriceMutation.isPending}
-            className={cn(
-              "rounded-xl px-8 font-black text-white",
-              slot.type === "Blocked" ? "bg-red-600 hover:bg-red-700" : 
-              slot.type === "Override" ? "bg-violet-600 hover:bg-violet-700" : "bg-emerald-600 hover:bg-emerald-700"
-            )}
-          >
-            {unlockMutation.isPending || removeOverrideMutation.isPending || updatePriceMutation.isPending ? 
-              <Loader2 className="animate-spin" size={20} /> : "XÁC NHẬN"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 function BookingDetailModal({ 
   bookingDetailId, 
@@ -223,6 +130,7 @@ function BookingDetailModal({
   );
 }
 
+
 function UpdateSubCourtModal({
   subCourt,
   isOpen,
@@ -234,6 +142,10 @@ function UpdateSubCourtModal({
 }) {
   const updateMutation = useUpdateSubCourtInfo();
   const [name, setName] = useState(subCourt?.name || "");
+
+  useEffect(() => {
+    if (subCourt) setName(subCourt.name);
+  }, [subCourt]);
 
   if (!subCourt) return null;
 
@@ -252,7 +164,7 @@ function UpdateSubCourtModal({
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[400px] rounded-3xl p-6">
         <DialogHeader>
-          <DialogTitle className="text-xl font-black">Cập nhật sân con</DialogTitle>
+          <DialogTitle className="text-xl font-bold">Cập nhật sân con</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
@@ -265,9 +177,9 @@ function UpdateSubCourtModal({
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold">Hủy</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
           <Button onClick={handleUpdate} disabled={updateMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-black">
-            {updateMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "CẬP NHẬT"}
+            {updateMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "Cập nhật"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -275,50 +187,46 @@ function UpdateSubCourtModal({
   );
 }
 
-interface OwnerFacilityTimelineProps {
-  subCourts: SubCourtListItem[];
-  courtName: string;
-}
-
-// Generate time slots from 05:00 to 23:00 with 30min intervals
-const TIME_SLOTS = Array.from({ length: 37 }, (_, i) => {
-  const hour = Math.floor(i / 2) + 5;
-  const minute = i % 2 === 0 ? "00" : "30";
-  return `${hour.toString().padStart(2, "0")}:${minute}`;
-});
-
-export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTimelineProps) {
+export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: SubCourtListItem[]; courtName: string; }) {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const dateStr = format(selectedDate, "yyyy-MM-dd");
 
   const todayStr = format(new Date(), "yyyy-MM-dd");
-  const [targetSubCourtId, setTargetSubCourtId] = useState<string>(subCourts[0]?.subCourtId || "");
+  const [selectedSubCourtIds, setSelectedSubCourtIds] = useState<string[]>([]);
   const [isMergeModalOpen, setIsMergeModalOpen] = useState(false);
   const [isBlockModalOpen, setIsBlockModalOpen] = useState(false);
   const [modalDate, setModalDate] = useState(dateStr);
   const [isRecurring, setIsRecurring] = useState(false);
   const [selectedDays, setSelectedDays] = useState<number[]>([]);
-  const [startTime, setStartTime] = useState("05:00");
-  const [endTime, setEndTime] = useState("06:00");
+  const [startTime, setStartTime] = useState("08:00");
+  const [endTime, setEndTime] = useState("12:00");
   const [price, setPrice] = useState("");
   const [blockReason, setBlockReason] = useState("");
   const [isBlockRecurring, setIsBlockRecurring] = useState(false);
   const [selectedBlockDays, setSelectedBlockDays] = useState<number[]>([]);
+
+  const formatVND = (val: string) => {
+    const num = val.replace(/\D/g, "");
+    if (!num) return "";
+    return parseInt(num).toLocaleString("vi-VN");
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setPrice(formatVND(e.target.value));
+  };
 
   const [selectedBookingDetailId, setSelectedBookingDetailId] = useState<string | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   const createOverrideMutation = useCreateOverrideSlot();
   const createExceptionMutation = useCreateExceptionSlot();
-  const removeSubCourtMutation = useRemoveSubCourt();
 
   const [selectedSlotForAction, setSelectedSlotForAction] = useState<any>(null);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
 
-  const [subCourtToEdit, setSubCourtToEdit] = useState<SubCourtListItem | null>(null);
+  const [subCourtToEdit] = useState<SubCourtListItem | null>(null);
   const [isUpdateSubCourtOpen, setIsUpdateSubCourtOpen] = useState(false);
 
-  // Fetch all slots for all sub-courts in parallel
   const subCourtQueries = useQueries({
     queries: subCourts.map((sub) => ({
       queryKey: ["available-slots", { subCourtId: sub.subCourtId, date: dateStr }],
@@ -327,46 +235,56 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
     })),
   });
 
+  const isLoading = subCourtQueries.some(q => q.isLoading);
+
   const handleMergeSlots = async () => {
-    if (!targetSubCourtId || !startTime || !endTime || !price) {
+    if (selectedSubCourtIds.length === 0 || !startTime || !endTime || !price) {
       toast.error("Vui lòng nhập đầy đủ thông tin");
       return;
     }
 
     const payloadBase = {
-      subCourtId: targetSubCourtId,
       isRecurring,
       startTime: startTime + ":00",
       endTime: endTime + ":00",
-      price: Number(price),
+      price: Number(price.replace(/\./g, "")),
     };
 
     try {
-      if (isRecurring) {
-        if (selectedDays.length === 0) {
-          toast.error("Vui lòng chọn ít nhất một thứ trong tuần");
-          return;
+      const promises: Promise<any>[] = [];
+      
+      for (const subCourtId of selectedSubCourtIds) {
+        if (isRecurring) {
+          if (selectedDays.length === 0) {
+            toast.error("Vui lòng chọn ít nhất một thứ trong tuần");
+            return;
+          }
+          for (const day of selectedDays) {
+            promises.push(createOverrideMutation.mutateAsync({ ...payloadBase, subCourtId, dayOfWeek: day }));
+          }
+        } else {
+          promises.push(createOverrideMutation.mutateAsync({ ...payloadBase, subCourtId, date: modalDate }));
         }
-        for (const day of selectedDays) {
-          await createOverrideMutation.mutateAsync({ ...payloadBase, dayOfWeek: day });
-        }
-      } else {
-        await createOverrideMutation.mutateAsync({ ...payloadBase, date: modalDate });
       }
+      
+      await Promise.all(promises);
+      toast.success(`Đã gộp slot thành công cho ${selectedSubCourtIds.length} sân`);
       setIsMergeModalOpen(false);
+      setSelectedSubCourtIds([]);
       setPrice("");
       setSelectedDays([]);
-    } catch (error) {}
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi gộp slot");
+    }
   };
 
   const handleBlockSlots = async () => {
-    if (!targetSubCourtId || !startTime || !endTime || !blockReason) {
+    if (selectedSubCourtIds.length === 0 || !startTime || !endTime || !blockReason) {
       toast.error("Vui lòng nhập đầy đủ thông tin khóa sân");
       return;
     }
 
     const payloadBase = {
-      subCourtId: targetSubCourtId,
       isRecurring: isBlockRecurring,
       startTime: startTime + ":00",
       endTime: endTime + ":00",
@@ -374,27 +292,39 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
     };
 
     try {
-      if (isBlockRecurring) {
-        if (selectedBlockDays.length === 0) {
-          toast.error("Vui lòng chọn ít nhất một thứ trong tuần");
-          return;
-        }
-        for (const day of selectedBlockDays) {
-          await createExceptionMutation.mutateAsync({
+      const promises: Promise<any>[] = [];
+
+      for (const subCourtId of selectedSubCourtIds) {
+        if (isBlockRecurring) {
+          if (selectedBlockDays.length === 0) {
+            toast.error("Vui lòng chọn ít nhất một thứ trong tuần");
+            return;
+          }
+          for (const day of selectedBlockDays) {
+            promises.push(createExceptionMutation.mutateAsync({
+              ...payloadBase,
+              subCourtId,
+              dayOfWeek: day,
+            }));
+          }
+        } else {
+          promises.push(createExceptionMutation.mutateAsync({
             ...payloadBase,
-            dayOfWeek: day,
-          });
+            subCourtId,
+            date: modalDate,
+          }));
         }
-      } else {
-        await createExceptionMutation.mutateAsync({
-          ...payloadBase,
-          date: modalDate,
-        });
       }
+
+      await Promise.all(promises);
+      toast.success(`Đã khóa slot thành công cho ${selectedSubCourtIds.length} sân`);
       setIsBlockModalOpen(false);
+      setSelectedSubCourtIds([]);
       setBlockReason("");
       setSelectedBlockDays([]);
-    } catch (error) {}
+    } catch (error) {
+      toast.error("Có lỗi xảy ra khi khóa slot");
+    }
   };
 
   const toggleDay = (day: number) => {
@@ -411,29 +341,24 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
 
   const handlePrevDay = () => setSelectedDate(prev => subDays(prev, 1));
   const handleNextDay = () => setSelectedDate(prev => addDays(prev, 1));
-  const handleToday = () => setSelectedDate(new Date());
-
-  const isLoading = subCourtQueries.some(q => q.isLoading);
 
   return (
     <>
-      <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col h-[calc(100vh-220px)]">
-      {/* Header with Date Navigation */}
-      <div className="p-4 border-b border-gray-50 flex flex-wrap items-center justify-between gap-4 bg-white sticky top-0 z-10">
-        <div className="flex items-center gap-4">
-          <div className="bg-emerald-50 p-2 rounded-lg text-emerald-600">
-            <CalendarIcon size={20} />
+    <div className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden flex flex-col flex-1">
+      <div className="px-6 py-3 flex flex-wrap items-center justify-between gap-4 bg-white sticky top-0 z-[5]">
+        <div className="flex items-center gap-3">
+          <div className="bg-emerald-50 p-2 rounded-xl text-emerald-600">
+            <CalendarIcon size={18} />
           </div>
           <div>
             <h2 className="text-sm font-bold text-gray-900">{courtName} - Lịch tổng quan</h2>
-            <p className="text-[10px] text-gray-500">
+            <p className="text-[10px] text-gray-400 font-medium">
               {format(selectedDate, "EEEE, dd 'tháng' MM, yyyy", { locale: vi })}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Merge Modal */}
           <Dialog open={isMergeModalOpen} onOpenChange={setIsMergeModalOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg h-9 px-4 font-bold shadow-sm">
@@ -446,22 +371,38 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
                 <DialogHeader>
                   <DialogTitle className="text-xl font-black">Gộp Slot Mới</DialogTitle>
                 </DialogHeader>
-                <p className="text-emerald-100 text-xs mt-1 font-medium">Tạo khung giờ cố định cho sân được chọn</p>
+                <p className="text-emerald-100 text-xs mt-1 font-medium">Tạo khung giờ cố định cho các sân được chọn</p>
               </div>
 
-              <div className="p-6 space-y-5">
-                <div className="space-y-2">
+              <div className="p-5 space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar">
+                <div className="space-y-3">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Chọn sân áp dụng</Label>
-                  <Select value={targetSubCourtId} onValueChange={setTargetSubCourtId}>
-                    <SelectTrigger className="h-12 rounded-xl bg-gray-50 border-gray-100 font-bold">
-                      <SelectValue placeholder="Chọn sân con" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {subCourts.map(sub => (
-                        <SelectItem key={sub.subCourtId} value={sub.subCourtId}>{sub.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100 max-h-40 overflow-y-auto">
+                    {subCourts.map(sc => (
+                      <div 
+                        key={sc.subCourtId} 
+                        onClick={() => {
+                          setSelectedSubCourtIds(prev => 
+                            prev.includes(sc.subCourtId) ? prev.filter(id => id !== sc.subCourtId) : [...prev, sc.subCourtId]
+                          );
+                        }}
+                        className={cn(
+                          "flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border",
+                          selectedSubCourtIds.includes(sc.subCourtId) 
+                            ? "bg-emerald-50 border-emerald-200 text-emerald-700" 
+                            : "bg-white border-transparent text-gray-600 hover:bg-gray-100"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-4 h-4 rounded border flex items-center justify-center transition-all",
+                          selectedSubCourtIds.includes(sc.subCourtId) ? "bg-emerald-500 border-emerald-500" : "border-gray-300"
+                        )}>
+                          {selectedSubCourtIds.includes(sc.subCourtId) && <CheckIcon size={10} className="text-white" />}
+                        </div>
+                        <span className="text-xs font-bold">{sc.name}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -523,24 +464,29 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
 
                 <div className="space-y-2">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Giá tiền (VNĐ)</Label>
-                  <Input type="number" placeholder="Ví dụ: 100000" value={price} onChange={(e) => setPrice(e.target.value)} className="h-12 rounded-xl bg-gray-50 border-gray-100 font-bold" />
+                  <Input 
+                    type="text" 
+                    placeholder="Ví dụ: 100.000" 
+                    value={price} 
+                    onChange={handlePriceChange} 
+                    className="h-12 rounded-xl bg-gray-50 border-gray-100 font-bold" 
+                  />
                 </div>
               </div>
 
-              <DialogFooter className="p-6 bg-gray-50 border-t border-gray-100">
+              <DialogFooter className="p-5 bg-gray-50 border-t border-gray-100 flex-shrink-0">
                 <Button variant="ghost" onClick={() => setIsMergeModalOpen(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
                 <Button onClick={handleMergeSlots} disabled={createOverrideMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-black">
-                  {createOverrideMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "XÁC NHẬN"}
+                  {createOverrideMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "Xác nhận"}
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
 
-          {/* Block Modal */}
           <Dialog open={isBlockModalOpen} onOpenChange={setIsBlockModalOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="text-rose-600 border-rose-100 hover:bg-rose-50 rounded-lg h-9 px-4 font-bold shadow-sm">
-                <Lock size={16} className="mr-2" />
+                <LockIcon size={16} className="mr-2" />
                 Khóa slot
               </Button>
             </DialogTrigger>
@@ -552,19 +498,35 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
                 <p className="text-rose-100 text-xs mt-1 font-medium">Chặn đặt sân cho khoảng thời gian cụ thể</p>
               </div>
 
-              <div className="p-6 space-y-5">
-                <div className="space-y-2">
+              <div className="p-5 space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar">
+                <div className="space-y-3">
                   <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Chọn sân áp dụng</Label>
-                  <Select value={targetSubCourtId} onValueChange={setTargetSubCourtId}>
-                    <SelectTrigger className="h-12 rounded-xl bg-gray-50 border-gray-100 font-bold">
-                      <SelectValue placeholder="Chọn sân con" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {subCourts.map(sub => (
-                        <SelectItem key={sub.subCourtId} value={sub.subCourtId}>{sub.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100 max-h-40 overflow-y-auto">
+                    {subCourts.map(sc => (
+                      <div 
+                        key={sc.subCourtId} 
+                        onClick={() => {
+                          setSelectedSubCourtIds(prev => 
+                            prev.includes(sc.subCourtId) ? prev.filter(id => id !== sc.subCourtId) : [...prev, sc.subCourtId]
+                          );
+                        }}
+                        className={cn(
+                          "flex items-center gap-2 p-2 rounded-lg cursor-pointer transition-all border",
+                          selectedSubCourtIds.includes(sc.subCourtId) 
+                            ? "bg-rose-50 border-rose-200 text-rose-700" 
+                            : "bg-white border-transparent text-gray-600 hover:bg-gray-100"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-4 h-4 rounded border flex items-center justify-center transition-all",
+                          selectedSubCourtIds.includes(sc.subCourtId) ? "bg-rose-500 border-rose-500" : "border-gray-300"
+                        )}>
+                          {selectedSubCourtIds.includes(sc.subCourtId) && <CheckIcon size={10} className="text-white" />}
+                        </div>
+                        <span className="text-xs font-bold">{sc.name}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
 
                 <div className="flex items-center space-x-3 bg-gray-50 p-4 rounded-xl border border-gray-100">
@@ -638,212 +600,55 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: OwnerFacilityTim
                 </div>
               </div>
 
-              <DialogFooter className="p-6 bg-gray-50 border-t border-gray-100">
+              <DialogFooter className="p-5 bg-gray-50 border-t border-gray-100 flex-shrink-0">
                 <Button variant="ghost" onClick={() => setIsBlockModalOpen(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
                 <Button onClick={handleBlockSlots} disabled={createExceptionMutation.isPending} className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-8 font-black shadow-lg shadow-rose-600/20">
-                  {createExceptionMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "XÁC NHẬN KHÓA"}
+                  {createExceptionMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "Xác nhận khóa"}
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
 
-          <Button variant="outline" size="sm" onClick={handleToday} className="h-9 text-xs font-bold border-gray-200">Hôm nay</Button>
-          <div className="flex items-center bg-gray-50 rounded-lg p-0.5 border border-gray-200">
-            <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-7 w-7 text-gray-500 hover:text-emerald-600">
-              <ChevronLeft size={16} />
-            </Button>
-            <div className="px-3 text-xs font-bold min-w-[100px] text-center text-gray-700">
-              {format(selectedDate, "dd/MM/yyyy")}
-            </div>
-            <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-7 w-7 text-gray-500 hover:text-emerald-600">
-              <ChevronRight size={16} />
-            </Button>
+        <div className="flex items-center bg-gray-50 rounded-lg p-0.5 border border-gray-200">
+          <Button variant="ghost" size="icon" onClick={handlePrevDay} className="h-7 w-7 text-gray-500 hover:text-emerald-600">
+            <ChevronLeft size={16} />
+          </Button>
+          <div className="px-3 text-[10px] font-bold min-w-[100px] text-center text-gray-500">
+            {format(selectedDate, "dd/MM/yyyy")}
           </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-white border border-gray-200" />
-            <span className="text-[10px] font-medium text-gray-600">Trống</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-violet-500" />
-            <span className="text-[10px] font-medium text-gray-600">Gộp</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-rose-500" />
-            <span className="text-[10px] font-medium text-gray-600">Đã đặt</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <div className="w-3 h-3 rounded bg-gray-400" />
-            <span className="text-[10px] font-medium text-gray-600">Khóa</span>
-          </div>
+          <Button variant="ghost" size="icon" onClick={handleNextDay} className="h-7 w-7 text-gray-500 hover:text-emerald-600">
+            <ChevronRight size={16} />
+          </Button>
         </div>
       </div>
+    </div>
 
-      {/* Timeline Grid */}
-      <div className="flex-1 overflow-auto relative">
-        <div className="min-w-[1200px]">
-          {/* Time Header */}
-          <div className="flex border-b border-gray-100 bg-gray-50/50 sticky top-0 z-20">
-            <div className="w-40 shrink-0 border-r border-gray-100 p-3 bg-gray-50 flex items-center gap-2">
-              <Clock size={14} className="text-gray-400" />
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Sân con</span>
+      <div className="relative px-6 py-2 bg-slate-50/10">
+        <CourtScheduleGrid 
+          subCourts={subCourts.map((sub, idx) => ({
+            id: sub.subCourtId,
+            name: sub.name,
+            slots: (subCourtQueries[idx].data as any[]) || []
+          }))}
+          startTime="05:00"
+          endTime="23:30"
+          selectedDate={selectedDate}
+          isLoading={isLoading}
+          onSlotClick={(_subId, slot) => {
+            if (slot.type === "Booked" && slot.bookingDetailId) {
+              setSelectedBookingDetailId(slot.bookingDetailId);
+              setIsDetailModalOpen(true);
+            } else if (slot.type !== "Booked") {
+              setSelectedSlotForAction(slot);
+              setIsActionModalOpen(true);
+            }
+          }}
+          renderCellExtra={(_subId, _slot) => (
+            <div className="flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-1 left-1">
+               {/* Nút sửa nhanh nếu cần */}
             </div>
-            <div className="flex flex-1">
-              {TIME_SLOTS.map((time, idx) => (
-                <div 
-                  key={time} 
-                  className={cn(
-                    "flex-1 text-center py-2 text-[9px] font-bold text-gray-400 border-r border-gray-50/50",
-                    idx % 2 !== 0 && "bg-gray-100/30"
-                  )}
-                >
-                  {time}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Sub-court Rows */}
-          <div className="divide-y divide-gray-100">
-            {subCourts.map((sub, rowIndex) => {
-              const query = subCourtQueries[rowIndex];
-              const slots = query.data || [];
-              
-              return (
-                <div key={sub.subCourtId} className="flex group hover:bg-gray-50/30 transition-colors relative hover:z-40">
-                  {/* Sub-court info */}
-                  <div className="w-40 shrink-0 border-r border-gray-100 p-4 bg-white sticky left-0 z-10 shadow-[2px_0_5px_rgba(0,0,0,0.02)]">
-                    <div className="flex items-center justify-between group/info">
-                      <div className="truncate flex-1">
-                        <p className="font-bold text-sm text-gray-900 truncate">{sub.name}</p>
-                        <p className="text-[9px] text-gray-400 truncate">ID: {sub.subCourtId.split('-')[0]}</p>
-                      </div>
-                      <div className="flex flex-col gap-1 opacity-0 group-hover/info:opacity-100 transition-opacity">
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6 text-blue-500 hover:bg-blue-50"
-                          onClick={() => {
-                            setSubCourtToEdit(sub);
-                            setIsUpdateSubCourtOpen(true);
-                          }}
-                        >
-                          <Edit2 size={12} />
-                        </Button>
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          className="h-6 w-6 text-red-500 hover:bg-red-50"
-                          onClick={() => {
-                            if (window.confirm(`Bạn có chắc muốn xóa sân ${sub.name}?`)) {
-                              removeSubCourtMutation.mutate(sub.subCourtId);
-                            }
-                          }}
-                        >
-                          <Trash2 size={12} />
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Slots row container */}
-                  <div className="flex-1 relative h-16 bg-gray-50/10">
-                    {/* Background Grid Lines */}
-                    <div className="absolute inset-0 flex">
-                      {TIME_SLOTS.slice(0, -1).map((time) => (
-                        <div key={time} className="flex-1 border-r border-gray-100/50" />
-                      ))}
-                    </div>
-
-                    {isLoading ? (
-                      <div className="absolute inset-0 flex items-center justify-center px-4">
-                        <div className="w-full h-2 bg-emerald-100 animate-pulse rounded-full" />
-                      </div>
-                    ) : (
-                      <div className="absolute inset-0">
-                        {slots.map((slot, slotIdx) => {
-                          const [sH, sM] = slot.startTime.split(':').map(Number);
-                          const [eH, eM] = slot.endTime.split(':').map(Number);
-                          
-                          // Clamp times to timeline range (05:00 - 23:00)
-                          const startMins = Math.max(0, (sH - 5) * 60 + sM);
-                          const endMins = Math.min(1080, (eH - 5) * 60 + eM);
-                          
-                          if (startMins >= endMins) return null;
-
-                          const left = (startMins / 1080) * 100;
-                          const width = ((endMins - startMins) / 1080) * 100;
-                          
-                          const durationMins = endMins - startMins;
-                          const isMerged = slot.isAvailable && durationMins > 60;
-                          // const isBooked = !slot.isAvailable && slot.reason?.includes("khách đặt");
-
-                          return (
-                            <div 
-                              key={`${slot.startTime}-${slotIdx}`}
-                              className="absolute h-full py-2 px-0.5 transition-all duration-300"
-                              style={{ left: `${left}%`, width: `${width}%` }}
-                            >
-                              <div 
-                                onClick={() => {
-                                  if (slot.type === "Booked" && slot.bookingDetailId) {
-                                    setSelectedBookingDetailId(slot.bookingDetailId);
-                                    setIsDetailModalOpen(true);
-                                  } else if (slot.type !== "Booked") {
-                                    setSelectedSlotForAction(slot);
-                                    setIsActionModalOpen(true);
-                                  }
-                                }}
-                                className={cn(
-                                  "w-full h-full rounded-lg border flex flex-col items-center justify-center gap-0.5 transition-all hover:brightness-95 cursor-pointer shadow-sm relative group/slot",
-                                  slot.type === "Override" ? "bg-violet-500 border-violet-600 text-white" :
-                                  slot.type === "Booked" ? "bg-rose-500 border-rose-600 text-white" :
-                                  slot.type === "Blocked" ? "bg-gray-400 border-gray-500 text-white" :
-                                  "bg-white border-gray-100 text-gray-700"
-                                )}
-                              >
-                                <span className={cn(
-                                  "text-[10px] font-black leading-none",
-                                  durationMins < 45 && "hidden" // Hide text if too narrow
-                                )}>
-                                  {slot.startTime.substring(0, 5)}
-                                </span>
-                                {durationMins >= 60 && (
-                                  <span className="text-[8px] opacity-80 font-bold leading-none">
-                                    {slot.price.toLocaleString()}đ
-                                  </span>
-                                )}
-
-                                {/* Hover Tooltip */}
-                                <div className={cn(
-                                  "absolute left-1/2 -translate-x-1/2 w-48 p-2 bg-gray-900 text-white text-[10px] rounded-xl opacity-0 group-hover/slot:opacity-100 pointer-events-none transition-all z-50 shadow-2xl border border-white/10",
-                                  rowIndex === 0 ? "top-[110%]" : "bottom-[110%]"
-                                )}>
-                                  <div className="flex items-center justify-between border-b border-white/10 pb-1.5 mb-1.5">
-                                    <span className="font-black text-emerald-400">{slot.startTime.substring(0, 5)} - {slot.endTime.substring(0, 5)}</span>
-                                    <Badge variant="outline" className="text-[8px] h-4 border-white/20 text-white">
-                                      {durationMins} phút
-                                    </Badge>
-                                  </div>
-                                  <p className="font-medium leading-relaxed">
-                                    {slot.reason || (isMerged ? "Khung giờ đã gộp" : "Khung giờ mặc định")}
-                                  </p>
-                                  <p className="mt-1.5 text-emerald-400 font-bold">Giá: {slot.price.toLocaleString()} VNĐ</p>
-                                </div>
-                              </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
+          )}
+        />
       </div>
 
       {/* Footer Info */}

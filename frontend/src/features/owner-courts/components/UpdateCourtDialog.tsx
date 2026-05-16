@@ -16,7 +16,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  FormDescription,
 } from '@/shared/components/ui/form';
 import { updateCourtSchema, type UpdateCourtFormValues } from "../schema";
 import type { MyCourtListItem } from "../types";
@@ -43,8 +42,8 @@ export const UpdateCourtDialog = ({ court, open, onOpenChange }: UpdateCourtDial
       closeTime: court?.endTime || "22:00:00",
       address: court?.address || "",
       mapUrl: court?.mapUrl || "",
-      description: "", // Need to handle description if available in MyCourtListItem
-      timeRefundBefore: 0,
+      description: (court as any)?.description || "",
+      timeRefundBefore: (court as any)?.timeRefundBefore || 0,
     },
   });
 
@@ -126,6 +125,7 @@ export const UpdateCourtDialog = ({ court, open, onOpenChange }: UpdateCourtDial
               )}
             />
 
+
             <FormField
               control={form.control}
               name="mapUrl"
@@ -149,27 +149,6 @@ export const UpdateCourtDialog = ({ court, open, onOpenChange }: UpdateCourtDial
                   <FormControl>
                     <Textarea placeholder="Nhập mô tả về sân của bạn..." className="resize-none h-32" {...field} />
                   </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="timeRefundBefore"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Thời gian hoàn tiền trước (Giờ)</FormLabel>
-                  <FormControl>
-                    <Input 
-                      type="number" 
-                      value={field.value}
-                      onChange={(e) => field.onChange(parseInt(e.target.value) || 0)}
-                    />
-                  </FormControl>
-                  <FormDescription className="text-[10px]">
-                    Ví dụ: Nhập 24 để khách hàng chỉ được hoàn tiền nếu hủy trước 24 giờ.
-                  </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}

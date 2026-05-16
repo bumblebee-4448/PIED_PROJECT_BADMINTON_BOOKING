@@ -17,7 +17,7 @@ public class AppDbContext : DbContext
     public static readonly Guid TestSubCourtId = Guid.Parse("66666666-6666-6666-6666-666666666666");
     public static readonly Guid TestBookingId1 = Guid.Parse("77777777-7777-7777-7777-777777777777");
     public static readonly Guid TestBookingId2 = Guid.Parse("88888888-8888-8888-8888-888888888888");
-    public static readonly Guid TestWalletIdOwner = Guid.Parse("99999999-9999-9999-9999-999999999999");
+    public static readonly Guid TestWalletIdOwner = Guid.Parse("ba0ba849-3003-4962-95d1-52da516768aa");
     public static readonly Guid TestWalletIdCus1 = Guid.Parse("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
     public static readonly Guid TestWalletIdCus2 = Guid.Parse("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
     public static readonly Guid TestTransactionId1 = Guid.Parse("cccccccc-cccc-cccc-cccc-cccccccccccc");
@@ -82,7 +82,20 @@ public class AppDbContext : DbContext
             builder.HasData(new List<Booking>
             {
                 new() { Id = TestBookingId1, TotalPrice = 200000, FinalPrice = 200000, Status = "Complete", CustomerId = TestCustomerId1, CreatedAt = DateTimeOffset.UtcNow.AddDays(-5), UpdatedAt = DateTimeOffset.UtcNow.AddDays(-5) },
-                new() { Id = TestBookingId2, TotalPrice = 300000, FinalPrice = 300000, Status = "Complete", CustomerId = TestCustomerId2, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow }
+                new() { Id = TestBookingId2, TotalPrice = 300000, FinalPrice = 300000, Status = "Complete", CustomerId = TestCustomerId2, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                // Thêm booking cho 3 ngày gần đây cho Sân Test Dashboard
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000001"), TotalPrice = 150000, FinalPrice = 150000, Status = "Complete", CustomerId = TestCustomerId1, CreatedAt = new DateTimeOffset(2026, 5, 14, 8, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 14, 8, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000002"), TotalPrice = 180000, FinalPrice = 180000, Status = "Complete", CustomerId = TestCustomerId2, CreatedAt = new DateTimeOffset(2026, 5, 14, 14, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 14, 14, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000003"), TotalPrice = 200000, FinalPrice = 200000, Status = "Complete", CustomerId = TestCustomerId1, CreatedAt = new DateTimeOffset(2026, 5, 15, 9, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 9, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000004"), TotalPrice = 220000, FinalPrice = 220000, Status = "Complete", CustomerId = TestCustomerId2, CreatedAt = new DateTimeOffset(2026, 5, 15, 15, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 15, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000005"), TotalPrice = 250000, FinalPrice = 250000, Status = "Complete", CustomerId = TestCustomerId1, CreatedAt = new DateTimeOffset(2026, 5, 15, 18, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 18, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000006"), TotalPrice = 190000, FinalPrice = 190000, Status = "Complete", CustomerId = TestCustomerId2, CreatedAt = new DateTimeOffset(2026, 5, 16, 7, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 16, 7, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000007"), TotalPrice = 230000, FinalPrice = 230000, Status = "Complete", CustomerId = TestCustomerId1, CreatedAt = new DateTimeOffset(2026, 5, 16, 16, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 16, 16, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000008"), TotalPrice = 150000, FinalPrice = 150000, Status = "Complete", CustomerId = TestCustomerId1, CreatedAt = new DateTimeOffset(2026, 5, 13, 10, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 13, 10, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000009"), TotalPrice = 200000, FinalPrice = 200000, Status = "Complete", CustomerId = TestCustomerId2, CreatedAt = new DateTimeOffset(2026, 5, 13, 15, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 13, 15, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000010"), TotalPrice = 180000, FinalPrice = 180000, Status = "Complete", CustomerId = TestCustomerId1, CreatedAt = new DateTimeOffset(2026, 5, 14, 19, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 14, 19, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000011"), TotalPrice = 220000, FinalPrice = 220000, Status = "Complete", CustomerId = TestCustomerId2, CreatedAt = new DateTimeOffset(2026, 5, 15, 7, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 7, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("b0000000-0000-0000-0000-000000000012"), TotalPrice = 170000, FinalPrice = 170000, Status = "Complete", CustomerId = TestCustomerId1, CreatedAt = new DateTimeOffset(2026, 5, 16, 20, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 16, 20, 0, 0, TimeSpan.Zero) }
             });
         });
 
@@ -100,7 +113,20 @@ public class AppDbContext : DbContext
             builder.HasData(new List<BookingDetail>
             {
                 new() { Id = Guid.Parse("10000000-0000-0000-0000-000000000001"), SubCourtId = TestSubCourtId, BookingId = TestBookingId1, Date = DateTimeOffset.UtcNow.AddDays(-5), StartTime = new TimeOnly(8, 0), EndTime = new TimeOnly(10, 0), Price = 200000, Status = "Banked", CreatedAt = DateTimeOffset.UtcNow.AddDays(-5), UpdatedAt = DateTimeOffset.UtcNow.AddDays(-5) },
-                new() { Id = Guid.Parse("20000000-0000-0000-0000-000000000002"), SubCourtId = TestSubCourtId, BookingId = TestBookingId2, Date = DateTimeOffset.UtcNow, StartTime = new TimeOnly(14, 0), EndTime = new TimeOnly(16, 0), Price = 300000, Status = "Banked", CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow }
+                new() { Id = Guid.Parse("20000000-0000-0000-0000-000000000002"), SubCourtId = TestSubCourtId, BookingId = TestBookingId2, Date = DateTimeOffset.UtcNow, StartTime = new TimeOnly(14, 0), EndTime = new TimeOnly(16, 0), Price = 300000, Status = "Banked", CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                // Thêm booking detail
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000001"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000001"), Date = new DateTimeOffset(2026, 5, 14, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(8, 0), EndTime = new TimeOnly(9, 0), Price = 150000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 14, 8, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 14, 8, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000002"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000002"), Date = new DateTimeOffset(2026, 5, 14, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(14, 0), EndTime = new TimeOnly(15, 0), Price = 180000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 14, 14, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 14, 14, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000003"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000003"), Date = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(9, 0), EndTime = new TimeOnly(11, 0), Price = 200000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 15, 9, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 9, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000004"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000004"), Date = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(15, 0), EndTime = new TimeOnly(17, 0), Price = 220000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 15, 15, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 15, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000005"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000005"), Date = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(18, 0), EndTime = new TimeOnly(20, 0), Price = 250000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 15, 18, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 18, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000006"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000006"), Date = new DateTimeOffset(2026, 5, 16, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(7, 0), EndTime = new TimeOnly(9, 0), Price = 190000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 16, 7, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 16, 7, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000007"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000007"), Date = new DateTimeOffset(2026, 5, 16, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(16, 0), EndTime = new TimeOnly(18, 0), Price = 230000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 16, 16, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 16, 16, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000008"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000008"), Date = new DateTimeOffset(2026, 5, 13, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(10, 0), EndTime = new TimeOnly(11, 0), Price = 150000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 13, 10, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 13, 10, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000009"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000009"), Date = new DateTimeOffset(2026, 5, 13, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(15, 0), EndTime = new TimeOnly(17, 0), Price = 200000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 13, 15, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 13, 15, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000010"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000010"), Date = new DateTimeOffset(2026, 5, 14, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(19, 0), EndTime = new TimeOnly(21, 0), Price = 180000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 14, 19, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 14, 19, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000011"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000011"), Date = new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(7, 0), EndTime = new TimeOnly(9, 0), Price = 220000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 15, 7, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 7, 0, 0, TimeSpan.Zero) },
+                new() { Id = Guid.Parse("d0000000-0000-0000-0000-000000000012"), SubCourtId = TestSubCourtId, BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000012"), Date = new DateTimeOffset(2026, 5, 16, 0, 0, 0, TimeSpan.Zero), StartTime = new TimeOnly(20, 0), EndTime = new TimeOnly(22, 0), Price = 170000, Status = "Banked", CreatedAt = new DateTimeOffset(2026, 5, 16, 20, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 16, 20, 0, 0, TimeSpan.Zero) }
             });
         });
 
@@ -147,7 +173,164 @@ public class AppDbContext : DbContext
             builder.Property(x => x.MapUrl).IsRequired().HasMaxLength(1000);
             builder.HasOne(x => x.Owner).WithMany(x => x.Courts).HasForeignKey(x => x.OwnerId).OnDelete(DeleteBehavior.Cascade);
 
-            builder.HasData(new Court { Id = TestCourtId, Name = "Sân Test Dashboard", Address = "Test Address", OpenTime = new TimeOnly(6, 0), CloseTime = new TimeOnly(22, 0), Status = "Active", PictureUrl = "https://example.com/court.jpg", Latitude = 10.0m, Longitude = 106.0m, MapUrl = "https://maps.google.com", OwnerId = TestOwnerId, CreatedAt = DateTimeOffset.UtcNow.AddMonths(-1), UpdatedAt = DateTimeOffset.UtcNow.AddMonths(-1) });
+            builder.HasData(new List<Court>
+            {
+                new() { Id = TestCourtId, Name = "Sân Test Dashboard", Address = "Test Address", OpenTime = new TimeOnly(6, 0), CloseTime = new TimeOnly(22, 0), Status = "Active", PictureUrl = "https://example.com/court.jpg", Latitude = 10.0m, Longitude = 106.0m, MapUrl = "https://maps.google.com", OwnerId = TestOwnerId, CreatedAt = DateTimeOffset.UtcNow.AddMonths(-1), UpdatedAt = DateTimeOffset.UtcNow.AddMonths(-1) },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000001"), 
+                    Name = "Sân Cầu Lông Tân Bình", 
+                    Address = "18 Xuân Hồng, Phường 4, Tân Bình, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(5, 0), CloseTime = new TimeOnly(23, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/tanbinh.jpg", 
+                    Latitude = 10.7963m, Longitude = 106.6521m, 
+                    MapUrl = "https://maps.app.goo.gl/tanbinh", 
+                    OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000002"), 
+                    Name = "Sân Cầu Lông Quận 10", 
+                    Address = "11 Thành Thái, Phường 14, Quận 10, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(6, 0), CloseTime = new TimeOnly(22, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/district10.jpg", 
+                    Latitude = 10.7745m, Longitude = 106.6635m, 
+                    MapUrl = "https://maps.app.goo.gl/district10", 
+                    OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000003"), 
+                    Name = "Sân Cầu Lông Phú Thọ", 
+                    Address = "219 Lý Thường Kiệt, Phường 15, Quận 11, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(5, 0), CloseTime = new TimeOnly(22, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/phutho.jpg", 
+                    Latitude = 10.7685m, Longitude = 106.6575m, 
+                    MapUrl = "https://maps.app.goo.gl/phutho", 
+                    OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000004"), 
+                    Name = "Sân Cầu Lông Chu Văn An", 
+                    Address = "110 Chu Văn An, Phường 26, Bình Thạnh, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(6, 0), CloseTime = new TimeOnly(23, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/chuvanan.jpg", 
+                    Latitude = 10.8123m, Longitude = 106.7045m, 
+                    MapUrl = "https://maps.app.goo.gl/chuvanan", 
+                    OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000005"), 
+                    Name = "Sân Cầu Lông Thống Nhất", 
+                    Address = "138 Đào Duy Từ, Phường 6, Quận 10, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(5, 0), CloseTime = new TimeOnly(22, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/thongnhat.jpg", 
+                    Latitude = 10.7612m, Longitude = 106.6655m, 
+                    MapUrl = "https://maps.app.goo.gl/thongnhat", 
+                    OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000006"), 
+                    Name = "Sân Cầu Lông Lan Anh", 
+                    Address = "291 Cách Mạng Tháng Tám, Phường 12, Quận 10, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(6, 0), CloseTime = new TimeOnly(23, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/lananh.jpg", 
+                    Latitude = 10.7798m, Longitude = 106.6785m, 
+                    MapUrl = "https://maps.app.goo.gl/lananh", 
+                    OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000007"), 
+                    Name = "Sân Cầu Lông Viettel", 
+                    Address = "158 Hoàng Hoa Thám, Phường 12, Tân Bình, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(5, 0), CloseTime = new TimeOnly(22, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/viettel.jpg", 
+                    Latitude = 10.8012m, Longitude = 106.6456m, 
+                    MapUrl = "https://maps.app.goo.gl/viettel", 
+                    OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000008"), 
+                    Name = "Sân Cầu Lông Bình Thạnh", 
+                    Address = "14 Phan Đăng Lưu, Phường 14, Bình Thạnh, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(6, 0), CloseTime = new TimeOnly(23, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/binhthanh.jpg", 
+                    Latitude = 10.8034m, Longitude = 106.6967m, 
+                    MapUrl = "https://maps.app.goo.gl/binhthanh", 
+                    OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000009"), 
+                    Name = "Sân Cầu Lông Quận 1", 
+                    Address = "1 Huyền Trân Công Chúa, Phường Bến Thành, Quận 1, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(5, 0), CloseTime = new TimeOnly(22, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/district1.jpg", 
+                    Latitude = 10.7756m, Longitude = 106.6945m, 
+                    MapUrl = "https://maps.app.goo.gl/district1", 
+                    OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                new() 
+                { 
+                    Id = Guid.Parse("c0000000-0000-0000-0000-000000000010"), 
+                    Name = "Sân Cầu Lông Hoa Lư", 
+                    Address = "2 Đinh Tiên Hoàng, Phường Đa Kao, Quận 1, Hồ Chí Minh", 
+                    OpenTime = new TimeOnly(6, 0), CloseTime = new TimeOnly(23, 0), 
+                    Status = "Active", PictureUrl = "https://example.com/hoalu.jpg", 
+                    Latitude = 10.7889m, Longitude = 106.7012m, 
+                    MapUrl = "https://maps.app.goo.gl/hoalu", 
+                    OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), 
+                    CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow 
+                },
+                // Thủ Đức
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000011"), Name = "Sân Cầu Lông Lan Anh Thủ Đức", Address = "Thủ Đức, HCM", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/td1.jpg", Latitude = 10.8523m, Longitude = 106.7589m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000012"), Name = "Sân Cầu Lông Tam Phú", Address = "Thủ Đức, HCM", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/td2.jpg", Latitude = 10.8645m, Longitude = 106.7432m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000013"), Name = "Sân Cầu Lông Hiệp Bình Chánh", Address = "Thủ Đức, HCM", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(23,0), Status = "Active", PictureUrl = "https://example.com/td3.jpg", Latitude = 10.8256m, Longitude = 106.7234m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000014"), Name = "Sân Cầu Lông Linh Trung", Address = "Thủ Đức, HCM", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/td4.jpg", Latitude = 10.8712m, Longitude = 106.7789m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000015"), Name = "Sân Cầu Lông Phước Long B", Address = "Thủ Đức, HCM", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/td5.jpg", Latitude = 10.8234m, Longitude = 106.7845m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000016"), Name = "Sân Cầu Lông Tăng Nhơn Phú", Address = "Thủ Đức, HCM", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/td6.jpg", Latitude = 10.8345m, Longitude = 106.7912m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000017"), Name = "Sân Cầu Lông Long Thạnh Mỹ", Address = "Thủ Đức, HCM", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(23,0), Status = "Active", PictureUrl = "https://example.com/td7.jpg", Latitude = 10.8456m, Longitude = 106.8234m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000018"), Name = "Sân Cầu Lông Trường Thọ", Address = "Thủ Đức, HCM", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/td8.jpg", Latitude = 10.8312m, Longitude = 106.7654m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                // Bình Chánh
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000019"), Name = "Sân Cầu Lông Bình Hưng", Address = "Bình Chánh, HCM", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bc1.jpg", Latitude = 10.7123m, Longitude = 106.6789m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000020"), Name = "Sân Cầu Lông Phong Phú", Address = "Bình Chánh, HCM", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bc2.jpg", Latitude = 10.6945m, Longitude = 106.6634m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000021"), Name = "Sân Cầu Lông Đa Phước", Address = "Bình Chánh, HCM", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(23,0), Status = "Active", PictureUrl = "https://example.com/bc3.jpg", Latitude = 10.6612m, Longitude = 106.6856m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000022"), Name = "Sân Cầu Lông Vĩnh Lộc", Address = "Bình Chánh, HCM", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bc4.jpg", Latitude = 10.8034m, Longitude = 106.5878m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000023"), Name = "Sân Cầu Lông Lê Minh Xuân", Address = "Bình Chánh, HCM", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bc5.jpg", Latitude = 10.7545m, Longitude = 106.5234m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000024"), Name = "Sân Cầu Lông Phạm Văn Hai", Address = "Bình Chánh, HCM", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bc6.jpg", Latitude = 10.7812m, Longitude = 106.5123m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000025"), Name = "Sân Cầu Lông Tân Túc", Address = "Bình Chánh, HCM", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(23,0), Status = "Active", PictureUrl = "https://example.com/bc7.jpg", Latitude = 10.6912m, Longitude = 106.5845m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                // Bình Dương
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000026"), Name = "Sân Cầu Lông Thuận An", Address = "Thuận An, Bình Dương", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bd1.jpg", Latitude = 10.9012m, Longitude = 106.7034m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000027"), Name = "Sân Cầu Lông Dĩ An", Address = "Dĩ An, Bình Dương", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bd2.jpg", Latitude = 10.9123m, Longitude = 106.7845m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000028"), Name = "Sân Cầu Lông Thủ Dầu Một", Address = "Thủ Dầu Một, Bình Dương", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(23,0), Status = "Active", PictureUrl = "https://example.com/bd3.jpg", Latitude = 10.9845m, Longitude = 106.6534m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000029"), Name = "Sân Cầu Lông Bến Cát", Address = "Bến Cát, Bình Dương", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bd4.jpg", Latitude = 11.1234m, Longitude = 106.6012m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000030"), Name = "Sân Cầu Lông Tân Uyên", Address = "Tân Uyên, Bình Dương", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bd5.jpg", Latitude = 11.0545m, Longitude = 106.8234m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000031"), Name = "Sân Cầu Lông Lái Thiêu", Address = "Thuận An, Bình Dương", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bd6.jpg", Latitude = 10.8912m, Longitude = 106.6912m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000032"), Name = "Sân Cầu Lông Sóng Thần", Address = "Dĩ An, Bình Dương", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(23,0), Status = "Active", PictureUrl = "https://example.com/bd7.jpg", Latitude = 10.8945m, Longitude = 106.7534m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000033"), Name = "Sân Cầu Lông Mỹ Phước", Address = "Bến Cát, Bình Dương", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/bd8.jpg", Latitude = 11.1012m, Longitude = 106.5845m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                // Vũng Tàu
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000034"), Name = "Sân Cầu Lông Bãi Trước", Address = "Vũng Tàu", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/vt1.jpg", Latitude = 10.3456m, Longitude = 107.0789m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000035"), Name = "Sân Cầu Lông Bãi Sau", Address = "Vũng Tàu", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/vt2.jpg", Latitude = 10.3545m, Longitude = 107.1012m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000036"), Name = "Sân Cầu Lông Chí Linh", Address = "Vũng Tàu", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(23,0), Status = "Active", PictureUrl = "https://example.com/vt3.jpg", Latitude = 10.3812m, Longitude = 107.1234m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000037"), Name = "Sân Cầu Lông Rạch Dừa", Address = "Vũng Tàu", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/vt4.jpg", Latitude = 10.4034m, Longitude = 107.1123m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000038"), Name = "Sân Cầu Lông Thắng Nhất", Address = "Vũng Tàu", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/vt5.jpg", Latitude = 10.3912m, Longitude = 107.0945m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000039"), Name = "Sân Cầu Lông Phường 7", Address = "Vũng Tàu", OpenTime = new TimeOnly(6,0), CloseTime = new TimeOnly(22,0), Status = "Active", PictureUrl = "https://example.com/vt6.jpg", Latitude = 10.3645m, Longitude = 107.0856m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("d9035646-41ac-4110-b9d1-d30b1c125ffe"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow },
+                new() { Id = Guid.Parse("c0000000-0000-0000-0000-000000000040"), Name = "Sân Cầu Lông Long Sơn", Address = "Vũng Tàu", OpenTime = new TimeOnly(5,0), CloseTime = new TimeOnly(23,0), Status = "Active", PictureUrl = "https://example.com/vt7.jpg", Latitude = 10.4512m, Longitude = 107.0812m, MapUrl = "https://maps.google.com", OwnerId = Guid.Parse("11bdc660-19e9-42cc-a7bb-448453c2852a"), CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow }
+            });
         });
 
         modelBuilder.Entity<Customer>(builder =>
@@ -290,7 +473,20 @@ public class AppDbContext : DbContext
             builder.HasData(new List<Transaction>
             {
                 new() { Id = TestTransactionId1, Type = "Receive", Amount = 200000, BalanceBefore = 0, BalanceAfter = 200000, Status = "Success", BookingId = TestBookingId1, WalletId = TestWalletIdCus1, CreatedAt = DateTimeOffset.UtcNow.AddDays(-5), UpdatedAt = DateTimeOffset.UtcNow.AddDays(-5), SePayId = "TEST001", BankRefCode = "REF001" },
-                new() { Id = TestTransactionId2, Type = "Receive", Amount = 300000, BalanceBefore = 200000, BalanceAfter = 500000, Status = "Success", BookingId = TestBookingId2, WalletId = TestWalletIdCus1, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow, SePayId = "TEST002", BankRefCode = "REF002" }
+                new() { Id = TestTransactionId2, Type = "Receive", Amount = 300000, BalanceBefore = 200000, BalanceAfter = 500000, Status = "Success", BookingId = TestBookingId2, WalletId = TestWalletIdCus1, CreatedAt = DateTimeOffset.UtcNow, UpdatedAt = DateTimeOffset.UtcNow, SePayId = "TEST002", BankRefCode = "REF002" },
+                // Giao dịch cho Owner (Receive) dựa trên pattern hôm qua
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000001"), Type = "Receive", Amount = 150000, BalanceBefore = 0, BalanceAfter = 150000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000001"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 14, 8, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 14, 8, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_001", BankRefCode = "REF_OWN_001" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000002"), Type = "Receive", Amount = 180000, BalanceBefore = 150000, BalanceAfter = 330000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000002"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 14, 14, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 14, 14, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_002", BankRefCode = "REF_OWN_002" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000003"), Type = "Receive", Amount = 200000, BalanceBefore = 330000, BalanceAfter = 530000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000003"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 15, 9, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 9, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_003", BankRefCode = "REF_OWN_003" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000004"), Type = "Receive", Amount = 220000, BalanceBefore = 530000, BalanceAfter = 750000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000004"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 15, 15, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 15, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_004", BankRefCode = "REF_OWN_004" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000005"), Type = "Receive", Amount = 250000, BalanceBefore = 750000, BalanceAfter = 1000000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000005"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 15, 18, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 18, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_005", BankRefCode = "REF_OWN_005" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000006"), Type = "Receive", Amount = 190000, BalanceBefore = 1000000, BalanceAfter = 1190000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000006"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 16, 7, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 16, 7, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_006", BankRefCode = "REF_OWN_006" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000007"), Type = "Receive", Amount = 230000, BalanceBefore = 1190000, BalanceAfter = 1420000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000007"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 16, 16, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 16, 16, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_007", BankRefCode = "REF_OWN_007" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000008"), Type = "Receive", Amount = 150000, BalanceBefore = 1420000, BalanceAfter = 1570000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000008"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 13, 10, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 13, 10, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_008", BankRefCode = "REF_OWN_008" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000009"), Type = "Receive", Amount = 200000, BalanceBefore = 1570000, BalanceAfter = 1770000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000009"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 13, 15, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 13, 15, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_009", BankRefCode = "REF_OWN_009" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000010"), Type = "Receive", Amount = 180000, BalanceBefore = 1770000, BalanceAfter = 1950000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000010"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 14, 19, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 14, 19, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_010", BankRefCode = "REF_OWN_010" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000011"), Type = "Receive", Amount = 220000, BalanceBefore = 1950000, BalanceAfter = 2170000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000011"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 15, 7, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 15, 7, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_011", BankRefCode = "REF_OWN_011" },
+                new() { Id = Guid.Parse("e0000000-0000-0000-0000-000000000012"), Type = "Receive", Amount = 170000, BalanceBefore = 2170000, BalanceAfter = 2340000, Status = "Success", BookingId = Guid.Parse("b0000000-0000-0000-0000-000000000012"), WalletId = TestWalletIdOwner, CreatedAt = new DateTimeOffset(2026, 5, 16, 20, 0, 0, TimeSpan.Zero), UpdatedAt = new DateTimeOffset(2026, 5, 16, 20, 0, 0, TimeSpan.Zero), SePayId = "SE_OWN_012", BankRefCode = "REF_OWN_012" }
             });
         });
 

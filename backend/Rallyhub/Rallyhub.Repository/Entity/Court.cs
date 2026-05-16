@@ -1,4 +1,4 @@
-﻿using Rallyhub.Repository.Abtraction;
+using Rallyhub.Repository.Abtraction;
 
 namespace Rallyhub.Repository.Entity;
 
@@ -11,8 +11,8 @@ public class Court : BaseEntity<Guid>, IAuditableEntity
     public int? TimeRefundBefor { get; set; } = 120;
     public string Status { get; set; } = "Active";//"Pending", "InActive"
     
-    public required decimal Latitude { get; set; } //vĩ độ (10, 8)
-    public required decimal Longitude { get; set; } //kinh độ (11, 8)
+    public decimal? Latitude { get; set; } //vĩ độ (10, 8)
+    public decimal? Longitude { get; set; } //kinh độ (11, 8)
     public required string MapUrl  { get; set; } //link của gg map
     
     public required string PictureUrl { get; set; }

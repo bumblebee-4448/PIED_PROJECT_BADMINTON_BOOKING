@@ -194,26 +194,37 @@ apiClient.interceptors.response.use(
     // 🔴 XỬ LÝ LỖI CHUNG (400, 403, 404, 500...)
     // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     
-    // Nếu request yêu cầu skip toast thì skip luôn
+    // 1. Bỏ qua nếu request bị cancel (do unmount component)
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
+    // 2. Nếu request yêu cầu skip toast thì skip luôn
     if (originalRequest.skipToast) {
       return Promise.reject(error);
     }
 
-    // Normalize error message từ server
-    // BE thường trả về: { message: "...", statusCode: 400, ... }
-    // Nếu có lỗi nghiệp vụ cụ thể (vd trùng slot), BE nhét vào errors.originalMessage
+    // 3. Normalize error message
+    const data = error.response?.data;
     const message =
-      error.response?.data?.errors?.originalMessage ||
-      error.response?.data?.message || 
-      error.response?.data?.Message || 
-      error.message || 
+      data?.errors?.originalMessage ||
+      data?.errors?.detail ||
+      data?.errors?.rootCauseDetail ||
+      (data?.message !== "An unexpected error occurred" ? data?.message : null) || 
+      data?.Message || 
+      (error.code === "ECONNABORTED" ? "Kết nối quá hạn, vui lòng thử lại" : error.message) || 
       "Đã có lỗi xảy ra";
 
-    // Toast error cho user TRỪ KHI là logout endpoint (useLogout hook tự toast)
-    const isLogoutEndpoint = originalRequest.url?.includes("/auth/logout");
+    // 4. Toast error cho user 
+    // TRỪ KHI:
+    // - Là endpoint logout (useLogout tự xử lý)
+    // - Là endpoint refresh token (đã có xử lý logout + toast riêng ở trên)
+    const isAuthRelated = originalRequest.url?.includes("/auth/");
 
-    if (!isLogoutEndpoint) {
-      toast.error(message);
+    if (!isAuthRelated) {
+      toast.error(message, {
+        id: message, // Tránh duplicate toast cùng nội dung trong thời gian ngắn
+      });
     }
 
     return Promise.reject(error);

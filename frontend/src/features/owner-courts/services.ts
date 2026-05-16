@@ -31,8 +31,6 @@ export const ownerCourtService = {
     formData.append("OpenTime", data.openTime);
     formData.append("CloseTime", data.closeTime);
     formData.append("Address", data.address);
-    formData.append("Latitude", data.latitude.toString());
-    formData.append("Longitude", data.longitude.toString());
     formData.append("MapUrl", data.mapUrl);
     if (data.pictureUrl) {
       formData.append("PictureUrl", data.pictureUrl);
@@ -45,7 +43,9 @@ export const ownerCourtService = {
 
   updateCourtInfo: async (data: any) => {
     const formData = new FormData();
-    formData.append("CourtId", data.courtId);
+    // Normalize ID if it contains spaces (sometimes happens with copy-paste or weird formatting)
+    const normalizedCourtId = data.courtId?.toString().replace(/\s+/g, '-');
+    formData.append("CourtId", normalizedCourtId);
     if (data.name) formData.append("Name", data.name);
     if (data.address) formData.append("Address", data.address);
     if (data.mapUrl) formData.append("MapUrl", data.mapUrl);
@@ -63,7 +63,8 @@ export const ownerCourtService = {
   },
 
   removeCourt: async (courtId: string) => {
-    return apiClient.delete(`/Owner/RemoveCourt${courtId}`);
+    const normalizedId = courtId.replace(/\s+/g, '-');
+    return apiClient.delete(`/Owner/RemoveCourt/${normalizedId}`);
   },
 
   // Sub-court Management
@@ -83,7 +84,7 @@ export const ownerCourtService = {
 
   createSubCourt: async (data: { courtId: string; name: string; defaultPrice: number }) => {
     return apiClient.post("/Owner/OwnerCreateSubCourt", {
-      CourtId: data.courtId,
+      CourtId: data.courtId.replace(/\s+/g, '-'),
       Name: data.name,
       DefaultPrice: data.defaultPrice,
     });
@@ -91,13 +92,14 @@ export const ownerCourtService = {
 
   updateSubCourtInfo: async (data: { subCourtId: string; name: string }) => {
     return apiClient.put("/Owner/UpdateSubCourtInfo", {
-      SubCourtId: data.subCourtId,
+      SubCourtId: data.subCourtId.replace(/\s+/g, '-'),
       Name: data.name,
     });
   },
 
   removeSubCourt: async (subCourtId: string) => {
-    return apiClient.delete(`/Owner/RemoveSubCourt${subCourtId}`);
+    const normalizedId = subCourtId.replace(/\s+/g, '-');
+    return apiClient.delete(`/Owner/RemoveSubCourt/${normalizedId}`);
   },
 
   // Slot Configuration

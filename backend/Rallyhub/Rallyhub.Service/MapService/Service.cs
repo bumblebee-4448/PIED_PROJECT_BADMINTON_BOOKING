@@ -23,8 +23,8 @@ public class Service : IService
     {
         var markers = await _dbContext.Courts
             .Where(x => x.Status == "Active"
-                        && x.Latitude >= request.MinLat && x.Latitude <= request.MaxLat
-                        && x.Longitude >= request.MinLon && x.Longitude <= request.MaxLon)
+                        && x.Latitude != null && x.Latitude >= request.MinLat && x.Latitude <= request.MaxLat
+                        && x.Longitude != null && x.Longitude >= request.MinLon && x.Longitude <= request.MaxLon)
             .Select(x => new Response.CourtMapItem
             {
                 Id = x.Id,
@@ -42,7 +42,7 @@ public class Service : IService
         CancellationToken cancellationToken)
     {
         var allCourts = await _dbContext.Courts
-            .Where(x => x.Status == "Active")
+            .Where(x => x.Status == "Active" && x.Latitude != null && x.Longitude != null)
             .Select(x => new Response.CourtMapItem
             {
                 Id = x.Id,
@@ -106,7 +106,7 @@ public class Service : IService
                         + $"&point={userLat.ToString(CultureInfo.InvariantCulture)},{userLon.ToString(CultureInfo.InvariantCulture)}";
         foreach (var court in courts)
             //Thịnh fixbug lỗi dấu câu
-            url += $"&point={court.Latitude.ToString(CultureInfo.InvariantCulture)},{court.Longitude.ToString(CultureInfo.InvariantCulture)}";
+            url += $"&point={court.Latitude?.ToString(CultureInfo.InvariantCulture)},{court.Longitude?.ToString(CultureInfo.InvariantCulture)}";
         url += "&sources=0";
         url += "&annotation=distance";
         url += $"&destinations={string.Join(";", Enumerable.Range(1, courts.Count))}";

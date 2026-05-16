@@ -25,6 +25,7 @@ import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { PlusCircle, Upload } from "lucide-react";
 import { useState } from "react";
+import { Textarea } from "@/shared/components/ui/textarea";
 
 export const CreateCourtDialog = () => {
   const [open, setOpen] = useState(false);
@@ -37,9 +38,9 @@ export const CreateCourtDialog = () => {
       openTime: "05:00:00",
       closeTime: "22:00:00",
       address: "",
-      latitude: 10.762622, // Default HCM
-      longitude: 106.660172,
       mapUrl: "",
+      description: "",
+      timeRefundBefore: 0,
     },
   });
 
@@ -127,51 +128,6 @@ export const CreateCourtDialog = () => {
               )}
             />
 
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="latitude"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vĩ độ (Latitude)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="any"
-                        value={field.value}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        onBlur={field.onBlur}
-                        name={field.name}
-                        ref={field.ref}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="longitude"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Kinh độ (Longitude)</FormLabel>
-                    <FormControl>
-                      <Input 
-                        type="number" 
-                        step="any"
-                        value={field.value}
-                        onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                        onBlur={field.onBlur}
-                        name={field.name}
-                        ref={field.ref}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             <FormField
               control={form.control}
               name="mapUrl"
@@ -180,6 +136,24 @@ export const CreateCourtDialog = () => {
                   <FormLabel>Google Maps URL</FormLabel>
                   <FormControl>
                     <Input placeholder="https://maps.google.com/..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Mô tả sân</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Nhập mô tả về sân của bạn (tiện ích, quy định...)" 
+                      className="resize-none h-32 rounded-xl border-gray-200" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
