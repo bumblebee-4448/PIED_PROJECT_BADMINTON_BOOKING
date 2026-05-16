@@ -28,6 +28,7 @@ import { AdminWithdrawalsPage } from "@/features/admin-wallet/pages/AdminWithdra
 import { AdminTransactionsPage } from "@/features/admin-wallet/pages/AdminTransactionsPage";
 import { WalletPage, OwnerWalletPage } from "@/features/wallet";
 import { ReportsPage } from "@/features/reports/pages/ReportsPage";
+import { AdminReportsPage } from "@/features/reports/pages/AdminReportsPage";
 
 /**
  * React Router v6 config – createBrowserRouter (Data API).
@@ -130,6 +131,7 @@ export const router = createBrowserRouter([
       { path: "users", element: <AdminUsersPage /> },
       { path: "withdrawals", element: <AdminWithdrawalsPage /> },
       { path: "transactions", element: <AdminTransactionsPage /> },
+      { path: "reports", element: <AdminReportsPage /> },
     ],
   },
 

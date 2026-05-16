@@ -102,7 +102,7 @@ export const API_ENDPOINTS = {
   REPORT: {
     CREATE_BOOKING: "/Report/CreateReportBookings",
     GET_BOOKING: "/Report/GetReportBookings",
-    CONFIRM_BOOKING: "/Report",
+    CONFIRM_BOOKING: "/Report/ConfirmReport",
   },
   SYSTEM_REPORT: {
     CREATE: "/SystemReport/CreateSystemReport",

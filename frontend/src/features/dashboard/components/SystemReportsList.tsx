@@ -22,7 +22,7 @@ export function SystemReportsList({ reports }: SystemReportsListProps) {
         <h3 style={{ fontWeight: 700, color: "#1a1a2e", fontSize: "0.95rem" }}>Báo cáo hệ thống</h3>
         <Button 
           variant="link"
-          onClick={() => navigate("/admin/products")} 
+          onClick={() => navigate("/admin/reports")} 
           style={{ fontSize: "0.72rem", color: "#00897B", fontWeight: 600 }} 
           className="flex items-center gap-1 p-0 h-auto hover:no-underline"
         >

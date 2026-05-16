@@ -21,11 +21,28 @@ function getReportItems<T>(data: ReportListResponse<T> | undefined): T[] {
 }
 
 export function ReportsPage() {
-  const { data: bookingReportsData, isLoading: isLoadingBooking } = useBookingReports();
-  const { data: systemReportsData, isLoading: isLoadingSystem } = useSystemReports();
+  const {
+    data: bookingReportsData,
+    isLoading: isLoadingBooking,
+    isFetching: isFetchingBooking,
+  } = useBookingReports(
+    { pageIndex: 1, pageSize: 50 },
+    { realtime: true, refetchInterval: 3_000 },
+  );
+  const {
+    data: systemReportsData,
+    isLoading: isLoadingSystem,
+    isFetching: isFetchingSystem,
+  } = useSystemReports(
+    { pageIndex: 1, pageSize: 50 },
+    { realtime: true, refetchInterval: 3_000 },
+  );
 
   const bookingReports = getReportItems<ReportBookingResponse>(bookingReportsData);
   const systemReports = getReportItems<SystemReportResponse>(systemReportsData);
+  const isSyncing =
+    (isFetchingBooking && !isLoadingBooking) ||
+    (isFetchingSystem && !isLoadingSystem);
 
   const getStatusConfig = (status: ReportStatus) => {
     switch (status) {
@@ -61,6 +78,13 @@ export function ReportsPage() {
           <p className="text-gray-500 font-medium">
             Theo dõi trạng thái và phản hồi các báo cáo của bạn
           </p>
+        </div>
+        <div className="min-h-8">
+          {isSyncing && (
+            <Badge className="rounded-full border border-emerald-100 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-600 shadow-none">
+              Đang đồng bộ phản hồi...
+            </Badge>
+          )}
         </div>
       </div>
 

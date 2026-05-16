@@ -10,6 +10,7 @@ import {
   FileCheck,
   Wallet,
   History,
+  MessageSquare,
 } from "lucide-react";
 import { useAuthStore } from "@/features/auth/store";
 import { Button } from "@/shared/components/ui/button";
@@ -23,6 +24,7 @@ const ADMIN_NAV_ITEMS = [
   { icon: Users, label: "Người dùng", path: "/admin/users" },
   { icon: Wallet, label: "Duyệt rút tiền", path: "/admin/withdrawals" },
   { icon: History, label: "Lịch sử giao dịch", path: "/admin/transactions" },
+  { icon: MessageSquare, label: "Báo cáo người dùng", path: "/admin/reports" },
   { icon: FileCheck, label: "Duyệt chủ sân", path: "/admin/owner-requests" },
   { icon: ShieldCheck, label: "Duyệt sân", path: "/admin/court-approvals" },
 ];

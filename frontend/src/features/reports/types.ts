@@ -22,6 +22,8 @@ export interface GetReportBookingsRequest {
   bookingId?: string;
   courtId?: string;
   status?: string;
+  pageIndex?: number;
+  pageSize?: number;
 }
 
 // System Report
@@ -38,7 +40,8 @@ export interface SystemReportResponse {
 }
 
 export interface GetSystemReportRequest {
-  // Add query params if needed by backend
+  pageIndex?: number;
+  pageSize?: number;
 }
 
 export interface SubmitReportReplyRequest {

@@ -9,6 +9,9 @@ import type {
   GetSystemReportRequest
 } from "../types";
 
+
+
+
 export function useCreateReportBooking() {
   const queryClient = useQueryClient();
 
@@ -39,16 +42,62 @@ export function useCreateSystemReport() {
   });
 }
 
-export function useBookingReports(params: GetReportBookingsRequest = {}) {
+export function useBookingReports(
+  params: GetReportBookingsRequest = {}
+) {
   return useQuery({
     queryKey: [...QUERY_KEYS.REPORTS_BOOKING, params],
     queryFn: () => reportsService.getBookingReports(params),
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    staleTime: 0,
   });
 }
 
-export function useSystemReports(params: GetSystemReportRequest = {}) {
+export function useSystemReports(
+  params: GetSystemReportRequest = {}
+) {
   return useQuery({
     queryKey: [...QUERY_KEYS.REPORTS_SYSTEM, params],
     queryFn: () => reportsService.getSystemReports(params),
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
+    staleTime: 0,
   });
 }
+
+export function useConfirmBookingReport() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (reportBookingId: string) =>
+      reportsService.confirmBookingReport(reportBookingId),
+    onSuccess: () => {
+      toast.success("Đã xử lý báo cáo đặt sân");
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS_BOOKING });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.NOTIFICATIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.UNREAD_COUNT });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Không thể xử lý báo cáo. Vui lòng thử lại.");
+    },
+  });
+}
+
+export function useSubmitSystemReportReply() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => reportsService.submitSystemReportReply({ id }),
+    onSuccess: () => {
+      toast.success("Đã phản hồi báo cáo hệ thống");
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.REPORTS_SYSTEM });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.NOTIFICATIONS() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.UNREAD_COUNT });
+    },
+    onError: (error: any) => {
+      toast.error(error?.response?.data?.message || "Không thể phản hồi báo cáo. Vui lòng thử lại.");
+    },
+  });
+}
+
