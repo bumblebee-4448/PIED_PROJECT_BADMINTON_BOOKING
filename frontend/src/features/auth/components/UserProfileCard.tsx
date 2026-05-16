@@ -102,17 +102,19 @@ export function UserProfileCard() {
               <span className="text-sm">Cập nhật Profile</span>
             </Button>
 
-            <Button 
-              variant="ghost" 
-              onClick={() => {
-                setIsOpen(false);
-                setIsReportDialogOpen(true);
-              }}
-              className="w-full justify-start gap-3 rounded-xl hover:bg-emerald-50 text-emerald-600 font-semibold h-11 px-3"
-            >
-              <AlertCircle size={18} className="text-emerald-400" />
-              <span className="text-sm">Báo cáo hệ thống</span>
-            </Button>
+            {role !== "Admin" && (
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  setIsOpen(false);
+                  setIsReportDialogOpen(true);
+                }}
+                className="w-full justify-start gap-3 rounded-xl hover:bg-emerald-50 text-emerald-600 font-semibold h-11 px-3"
+              >
+                <AlertCircle size={18} className="text-emerald-400" />
+                <span className="text-sm">Báo cáo hệ thống</span>
+              </Button>
+            )}
 
             <Button
               variant="ghost"
