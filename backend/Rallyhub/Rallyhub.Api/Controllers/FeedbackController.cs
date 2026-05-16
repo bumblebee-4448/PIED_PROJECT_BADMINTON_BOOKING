@@ -31,9 +31,15 @@ public class FeedbackController: ControllerBase
     public async Task<IActionResult> GetFeedback([FromQuery]Request.GetFeedbackRequest request)
     {
         var result = await _feadbackService.GetFeedback(request);
-        return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "feedback success", HttpContext.TraceIdentifier));
+        return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "get feedback success", HttpContext.TraceIdentifier));
     }
-
+    [HttpGet("byBookingId/{id}")]
+    // [Authorize(Policy = JwtExtensions.OwnerPolicy)]
+    public async Task<IActionResult> FeedbackByBookingId([FromQuery]Guid bookingId)
+    {
+        var result = await _feadbackService.FeedbackByBookingId(bookingId);
+        return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "get feedback success", HttpContext.TraceIdentifier));
+    }
     [HttpPatch("")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> UpdateFeedback(Request.UpdateFeedbackRequest request)

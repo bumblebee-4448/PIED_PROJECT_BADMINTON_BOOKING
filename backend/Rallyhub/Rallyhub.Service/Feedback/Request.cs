@@ -20,6 +20,7 @@ public class Request
 
     public class UpdateFeedbackRequest
     {
+        public required Guid Id  { get; set; }
         public required Guid BookingId  { get; set; }
         public required int Rating { get; set; }
         public string? Comment   { get; set; }

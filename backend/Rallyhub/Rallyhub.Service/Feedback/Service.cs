@@ -54,7 +54,8 @@ public class Service: IService
             BookingId = request.BookingId,
             CourtId = bookingDetail.SubCourt.CourtId,
             Comment = request.Comment,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
         };
         
         await _dbContext.AddAsync(newFeedback);
@@ -93,7 +94,8 @@ public class Service: IService
             .Take(request.PageSize)
             .Select(x => new Response.GetFeedbackResponse()
             {
-                NameCustomer = x.Customer.User.FirstName,
+                Id = x.Id,
+                NameCustomer = x.Customer.User.FirstName + " "  + x.Customer.User.LastName,
                 Rating = x.Rating,
                 Comment =  x.Comment,
                 CreatedAt = x.CreatedAt
@@ -106,6 +108,24 @@ public class Service: IService
             TotalItems = totalCount
         };
         return result;
+    }
+
+    public async Task<Response.GetFeedbackResponse> FeedbackByBookingId(Guid bookingId)
+    {
+        var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.BookingId == bookingId);
+        if (feedback == null)
+        {
+            throw new ArgumentException("Không tìm thấy feedback");
+        }
+
+        return new Response.GetFeedbackResponse()
+        {
+            Id = feedback.Id,
+            NameCustomer = feedback.Customer.User.FirstName + " " + feedback.Customer.User.LastName,
+            Rating = feedback.Rating,
+            Comment = feedback.Comment,
+            CreatedAt = feedback.CreatedAt
+        };
     }
 
     public async Task DeteteFeedback(Request.DeteteFeedbackRequest request)
@@ -128,18 +148,18 @@ public class Service: IService
 
     public async Task UpdateFeeback(Request.UpdateFeedbackRequest request)
     {
-        var getCustomerId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-        if (getCustomerId == null)
-        {
-            throw new Exception("CustomerId not found");
-        }
-        var customerId = Guid.Parse(getCustomerId);
-        var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.CustomerId == customerId && x.BookingId == request.BookingId);
-        if (feedback == null)
-        {
-            throw new Exception("feedback not found");
-        }
-
+        // var getCustomerId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        // if (getCustomerId == null)
+        // {
+        //     throw new Exception("CustomerId not found");
+        // }
+        // var customerId = Guid.Parse(getCustomerId);
+        // var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.CustomerId == customerId && x.BookingId == request.BookingId);
+        // if (feedback == null)
+        // {
+        //     throw new Exception("feedback not found");
+        // }
+        var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.Id == request.Id);
         if (request.Rating > 5 || request.Rating < 1)
         {
             throw new Exception("Chỉ có thể đánh giá từ 1 - 5 sao");
