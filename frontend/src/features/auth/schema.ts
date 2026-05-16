@@ -7,7 +7,10 @@ export const loginSchema = z.object({
     .email({ message: "Email không hợp lệ" }),
   password: z
     .string()
-    .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự" }),
+    .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự" })
+    .regex(/[A-Z]/, { message: "Mật khẩu phải chứa ít nhất 1 chữ hoa" })
+    .regex(/[0-9]/, { message: "Mật khẩu phải chứa ít nhất 1 chữ số" })
+    .regex(/[^a-zA-Z0-9]/, { message: "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt" }),
 });
 
 export const registerSchema = z.object({
@@ -24,7 +27,10 @@ export const registerSchema = z.object({
     .email({ message: "Email không hợp lệ" }),
   password: z
     .string()
-    .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự" }),
+    .min(6, { message: "Mật khẩu phải có ít nhất 6 ký tự" })
+    .regex(/[A-Z]/, { message: "Mật khẩu phải chứa ít nhất 1 chữ hoa" })
+    .regex(/[0-9]/, { message: "Mật khẩu phải chứa ít nhất 1 chữ số" })
+    .regex(/[^a-zA-Z0-9]/, { message: "Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt" }),
 });
 
 export const forgotPasswordSchema = z.object({
@@ -45,5 +51,8 @@ export const resetPasswordSchema = z.object({
     .max(6, { message: "Mã OTP phải có 6 ký tự" }),
   newPassword: z
     .string()
-    .min(6, { message: "Mật khẩu mới phải có ít nhất 6 ký tự" }),
+    .min(6, { message: "Mật khẩu mới phải có ít nhất 6 ký tự" })
+    .regex(/[A-Z]/, { message: "Mật khẩu mới phải chứa ít nhất 1 chữ hoa" })
+    .regex(/[0-9]/, { message: "Mật khẩu mới phải chứa ít nhất 1 chữ số" })
+    .regex(/[^a-zA-Z0-9]/, { message: "Mật khẩu mới phải chứa ít nhất 1 ký tự đặc biệt" }),
 });
