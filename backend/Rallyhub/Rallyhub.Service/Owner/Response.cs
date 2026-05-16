@@ -94,6 +94,7 @@ public class Response
         public Guid? ConfigSlotId { get; set; }
         public Guid? OverrideSlotId { get; set; }
         public Guid? ExceptionId { get; set; }
+        public Guid? BookingDetailId { get; set; }
         public TimeOnly StartTime { get; set; }
         public TimeOnly EndTime { get; set; }
         public decimal Price { get; set; }

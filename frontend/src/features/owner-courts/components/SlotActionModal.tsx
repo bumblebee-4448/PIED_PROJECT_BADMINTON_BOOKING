@@ -90,59 +90,55 @@ export function SlotActionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[420px] rounded-[32px] p-0 overflow-hidden border-none shadow-2xl">
-        <div className="relative p-8 space-y-6 bg-white">
+      <DialogContent className="sm:max-w-[420px] rounded-2xl p-0 overflow-hidden border-none shadow-xl">
+        <div className="p-6 space-y-6 bg-white">
           {/* Header Section */}
-          <div className="flex flex-col items-center text-center space-y-3 pt-4">
-            <div className="space-y-2">
-              <DialogHeader>
-                <DialogTitle className="text-2xl font-black text-gray-900 tracking-tight">
-                  {theme.title}
-                </DialogTitle>
-              </DialogHeader>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-gray-100 rounded-full text-[11px] font-bold text-gray-500 uppercase tracking-wider">
-                <Unlock size={12} className="opacity-60" />
-                {slot.startTime.substring(0, 5)} — {slot.endTime.substring(0, 5)}
-              </div>
+          <div className="flex flex-col space-y-1">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold text-gray-900">
+                {theme.title}
+              </DialogTitle>
+            </DialogHeader>
+            <div className="inline-flex items-center gap-2 w-fit px-2.5 py-1 bg-gray-100 rounded-lg text-xs font-semibold text-gray-600">
+              <Unlock size={14} className="opacity-70" />
+              {slot.startTime.substring(0, 5)} — {slot.endTime.substring(0, 5)}
             </div>
           </div>
 
           {/* Content Section */}
-          <div className="space-y-5">
+          <div className="space-y-4">
             {slot.type === "Blocked" || slot.type === "Override" ? (
-              <div className="text-center px-2">
-                <p className="text-sm font-medium text-gray-600 leading-relaxed">
-                  {theme.description}
-                </p>
-              </div>
+              <p className="text-sm font-medium text-gray-500 leading-relaxed">
+                {theme.description}
+              </p>
             ) : (
-              <div className="space-y-3">
-                <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-gray-400 ml-1">
+              <div className="space-y-2">
+                <Label className="text-xs font-semibold text-gray-500 ml-1">
                   Giá tiền mới (VNĐ)
                 </Label>
                 <div className="relative group">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 font-black text-lg">₫</div>
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 font-bold text-lg">₫</div>
                   <Input 
                     type="text" 
                     value={newPrice}
                     onChange={(e) => setNewPrice(formatVND(e.target.value))}
-                    className="pl-10 h-14 rounded-2xl bg-gray-50 border-gray-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/5 transition-all font-bold text-lg text-gray-900"
+                    className="pl-10 h-12 rounded-xl bg-gray-50 border-gray-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/5 transition-all font-bold text-gray-900"
                     placeholder="0"
                   />
                 </div>
-                <p className="text-[10px] text-gray-400 font-medium ml-1">
-                  * Giá này sẽ được áp dụng cho slot hiện tại.
+                <p className="text-[10px] text-gray-400 font-medium ml-1 italic">
+                  * Giá này sẽ được áp dụng cho khung giờ hiện tại.
                 </p>
               </div>
             )}
           </div>
 
           {/* Footer Section */}
-          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+          <div className="flex items-center gap-3 pt-2">
             <Button 
               variant="ghost" 
               onClick={() => onOpenChange(false)} 
-              className="flex-1 h-14 rounded-2xl font-bold text-gray-500 hover:bg-gray-50"
+              className="flex-1 h-12 rounded-xl font-bold text-gray-500 hover:bg-gray-50"
             >
               Hủy
             </Button>
@@ -150,13 +146,13 @@ export function SlotActionModal({
               onClick={handleAction}
               disabled={isPending}
               className={cn(
-                "flex-[1.5] h-14 rounded-2xl font-black text-white shadow-lg transition-all active:scale-95",
+                "flex-[1.5] h-12 rounded-xl font-bold text-white shadow-md transition-all active:scale-95",
                 theme.confirmColor
               )}
             >
               {isPending ? (
                 <div className="flex items-center gap-2">
-                  <Loader2 className="animate-spin" size={20} />
+                  <Loader2 className="animate-spin" size={18} />
                   <span>Đang xử lý</span>
                 </div>
               ) : (

@@ -19,8 +19,8 @@ export interface UserDetail extends UserListItem {
 export interface FilterUserRequest {
   search?: string;
   id?: string;
-  role?: number;
-  status?: number;
+  role?: string;
+  status?: string;
   pageIndex: number;
   pageSize: number;
 }

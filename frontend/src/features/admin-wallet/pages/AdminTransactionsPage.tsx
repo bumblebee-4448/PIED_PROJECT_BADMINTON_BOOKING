@@ -27,6 +27,7 @@ import {
 import { format } from "date-fns";
 import { Avatar, AvatarFallback, AvatarImage } from "@/shared/components/ui/avatar";
 import { cn } from "@/lib/utils";
+import { DataTablePagination } from "@/shared/components/DataTablePagination";
 
 import { 
   Tabs, 
@@ -284,44 +285,13 @@ export const AdminTransactionsPage: React.FC = () => {
         )}
 
         {/* Pagination */}
-        {data && data.totalItems > pageParams.pageSize && (
-          <div className="p-4 border-t border-gray-50 flex items-center justify-between bg-gray-50/20">
-            <p className="text-xs font-semibold text-gray-400">
-              Tổng cộng: <span className="text-gray-900 font-bold">{data.totalItems}</span> giao dịch
-            </p>
-            <div className="flex items-center gap-1">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                disabled={pageParams.pageIndex === 1}
-                onClick={() => setPageParams(prev => ({ ...prev, pageIndex: prev.pageIndex - 1 }))}
-                className="rounded-lg font-bold border-gray-200 h-8"
-              >
-                Trước
-              </Button>
-              <div className="flex items-center gap-1">
-                {[...Array(Math.ceil(data.totalItems / pageParams.pageSize))].map((_, i) => (
-                  <Button
-                    key={i}
-                    variant={pageParams.pageIndex === i + 1 ? "default" : "ghost"}
-                    size="sm"
-                    onClick={() => setPageParams(prev => ({ ...prev, pageIndex: i + 1 }))}
-                    className={cn("w-8 h-8 rounded-lg font-bold text-xs", pageParams.pageIndex === i + 1 ? "bg-emerald-600" : "text-gray-500")}
-                  >
-                    {i + 1}
-                  </Button>
-                ))}
-              </div>
-              <Button 
-                variant="outline" 
-                size="sm"
-                disabled={pageParams.pageIndex >= Math.ceil(data.totalItems / pageParams.pageSize)}
-                onClick={() => setPageParams(prev => ({ ...prev, pageIndex: prev.pageIndex + 1 }))}
-                className="rounded-lg font-bold border-gray-200 h-8"
-              >
-                Sau
-              </Button>
-            </div>
+        {data && Math.ceil(data.totalItems / data.pageSize) > 1 && (
+          <div className="p-4 border-t border-gray-50 bg-gray-50/20">
+            <DataTablePagination 
+              pageIndex={pageParams.pageIndex}
+              totalPages={Math.ceil(data.totalItems / data.pageSize)}
+              onPageChange={(page) => setPageParams(prev => ({ ...prev, pageIndex: page }))}
+            />
           </div>
         )}
       </div>

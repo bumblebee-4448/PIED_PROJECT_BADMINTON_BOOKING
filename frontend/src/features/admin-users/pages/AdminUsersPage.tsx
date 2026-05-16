@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAdminUsers, useBanUnbanUser, useUserDetail } from "../hooks/useAdminUsers";
+import { useDebounce } from "@/shared/hooks/useDebounce";
 import { 
   Table, 
   TableBody, 
@@ -41,34 +42,40 @@ import {
   DropdownMenuTrigger 
 } from "@/shared/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { DataTablePagination } from "@/shared/components/DataTablePagination";
 
 const ROLE_OPTIONS = [
   { label: "Tất cả vai trò", value: "all" },
-  { label: "Admin", value: "0" },
-  { label: "Chủ sân", value: "1" },
-  { label: "Khách hàng", value: "2" },
+  { label: "Chủ sân", value: "Owner" },
+  { label: "Khách hàng", value: "Customer" },
 ];
 
 const STATUS_OPTIONS = [
   { label: "Tất cả trạng thái", value: "all" },
-  { label: "Hoạt động", value: "0" },
-  { label: "Đã khóa", value: "1" },
+  { label: "Hoạt động", value: "Active" },
+  { label: "Đã khóa", value: "Banned" },
 ];
 
 export default function AdminUsersPage() {
   const [search, setSearch] = useState("");
   const [role, setRole] = useState<string>("all");
   const [status, setStatus] = useState<string>("all");
+  const debouncedSearch = useDebounce(search, 500);
   const [pageIndex, setPageIndex] = useState(1);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
 
   const { data, isLoading } = useAdminUsers({
-    search: search || undefined,
-    role: role === "all" ? undefined : Number(role),
-    status: status === "all" ? undefined : Number(status),
+    search: debouncedSearch || undefined,
+    role: role === "all" ? undefined : role,
+    status: status === "all" ? undefined : status,
     pageIndex,
     pageSize: 10,
   });
+
+  // Reset to first page when filters change
+  useEffect(() => {
+    setPageIndex(1);
+  }, [debouncedSearch, role, status]);
 
 
   const banUnbanMutation = useBanUnbanUser();
@@ -244,28 +251,13 @@ export default function AdminUsersPage() {
           </div>
         )}
 
-        {/* Pagination placeholder */}
         {data && data.totalPages > 1 && (
-          <div className="p-4 border-t border-gray-50 flex items-center justify-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              disabled={pageIndex === 1}
-              onClick={() => setPageIndex(p => p - 1)}
-            >
-              Trước
-            </Button>
-            <span className="text-xs font-bold text-gray-500 px-4">
-              Trang {pageIndex} / {data.totalPages}
-            </span>
-            <Button 
-              variant="outline" 
-              size="sm"
-              disabled={pageIndex === data.totalPages}
-              onClick={() => setPageIndex(p => p + 1)}
-            >
-              Sau
-            </Button>
+          <div className="p-4 border-t border-gray-50 bg-gray-50/20">
+            <DataTablePagination 
+              pageIndex={pageIndex}
+              totalPages={data.totalPages}
+              onPageChange={setPageIndex}
+            />
           </div>
         )}
       </div>

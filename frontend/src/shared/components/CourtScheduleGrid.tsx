@@ -131,7 +131,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
     return (
       <div className="flex flex-col items-center justify-center h-80 bg-slate-50/50 rounded-3xl border border-dashed border-slate-200">
         <div className="w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full animate-spin mb-4" />
-        <p className="text-slate-400 font-bold uppercase tracking-widest text-[10px]">Đang tải lịch sân...</p>
+        <p className="text-slate-400 font-semibold text-xs">Đang tải lịch sân...</p>
       </div>
     );
   }
@@ -144,7 +144,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
           <div className="bg-emerald-50 p-2 rounded-xl text-emerald-600">
             <Search size={16} />
           </div>
-          <span className="text-sm font-black text-slate-800">Lịch sân chi tiết</span>
+          <span className="text-sm font-bold text-slate-800">Lịch sân chi tiết</span>
         </div>
 
         <div className="flex items-center gap-4 bg-slate-50/50 p-2 px-4 rounded-2xl border border-slate-100">
@@ -161,7 +161,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
             />
           </div>
           <ZoomIn size={14} className="text-slate-400" />
-          <span className="text-[10px] font-black text-slate-500 min-w-[30px]">{zoom}%</span>
+          <span className="text-[10px] font-bold text-slate-500 min-w-[30px]">{zoom}%</span>
         </div>
       </div>
 
@@ -176,14 +176,14 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
           {/* Header row */}
           <div className="contents">
             <div className="sticky top-0 left-0 z-[20] bg-slate-50 border-b border-r border-slate-200 p-4 flex items-center justify-center">
-              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sân</span>
+              <span className="text-[10px] font-bold text-slate-400">Sân</span>
             </div>
             {timeColumns.map((time) => (
               <div 
                 key={time} 
                 className="sticky top-0 z-[10] bg-slate-50 border-b border-r border-slate-200 p-4 text-center"
               >
-                <span className="text-[10px] font-black text-slate-500">{time}</span>
+                <span className="text-[10px] font-bold text-slate-500">{time}</span>
               </div>
             ))}
           </div>
@@ -193,7 +193,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
             <div key={sc.id} className="contents group">
               {/* Row Header (Court Name) */}
               <div className="sticky left-0 z-[5] bg-white border-b border-r border-slate-100 p-5 flex items-center shadow-[4px_0_8px_rgba(0,0,0,0.02)] group-hover:bg-slate-50 transition-colors">
-                <span className="text-xs font-black text-slate-800 truncate">{sc.name}</span>
+                <span className="text-xs font-bold text-slate-800 truncate">{sc.name}</span>
               </div>
 
                {/* Grouped Time Cells */}
@@ -209,21 +209,28 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                    return slotDate < now;
                  })();
  
-                 const disabled = slot && (isSlotDisabled?.(sc.id, slot) || !slot.isAvailable || isPast);
- 
+                 const disabled = slot && (isSlotDisabled?.(sc.id, slot) || (!slot.isAvailable && slot.type !== "Blocked") || isPast);
+
                  return (
                    <div 
                      key={time}
-                     onClick={() => slot && !disabled && onSlotClick?.(sc.id, slot)}
+                     onClick={() => {
+                       if (!slot) return;
+                       const isBooked = slot.type === "Booked";
+                       const isBlocked = slot.type === "Blocked";
+                       if (!disabled || isBooked || isBlocked) {
+                         onSlotClick?.(sc.id, slot);
+                       }
+                     }}
                      style={{ gridColumn: `span ${span}` }}
                      className={cn(
                        "h-20 border-b border-r border-slate-100 flex flex-col items-center justify-center gap-1 transition-all relative",
                        selected ? "bg-emerald-600 hover:bg-emerald-700 z-10 scale-[1.01] shadow-lg shadow-emerald-200" :
                        !slot ? "bg-slate-50 border-slate-200" : 
                        isPast ? "bg-slate-100 cursor-not-allowed opacity-60" :
-                       slot.type === "Blocked" ? "bg-slate-600 border-slate-700 text-white cursor-not-allowed" :
-                       slot.type === "Booked" ? "bg-rose-500 border-rose-600 text-white cursor-pointer" :
-                       slot.type === "Override" ? "bg-violet-600 border-violet-700 text-white cursor-pointer shadow-md" :
+                       slot.type === "Blocked" ? "bg-slate-700 border-slate-800 text-white cursor-pointer hover:bg-slate-800" :
+                       slot.type === "Booked" ? "bg-rose-500 border-rose-600 text-white cursor-pointer hover:bg-rose-600" :
+                       slot.type === "Override" ? "bg-violet-600 border-violet-700 text-white cursor-pointer shadow-md hover:bg-violet-700" :
                        "bg-white hover:bg-emerald-50 border-emerald-100 cursor-pointer"
                      )}
                    >
@@ -232,7 +239,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                          <div className="flex flex-col items-center">
                            {slot.type !== "Blocked" && (
                              <span className={cn(
-                               "text-[11px] font-black tracking-tight",
+                               "text-[11px] font-bold",
                                selected || slot.type === "Booked" || slot.type === "Override" ? "text-white" :
                                isPast ? "text-slate-400" :
                                "text-emerald-700"
@@ -240,9 +247,12 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                                {slot.price ? `${(slot.price / 1000).toLocaleString()}k` : ""}
                              </span>
                            )}
-                           {span > 1 && (
+                           {slot.type === "Blocked" && (
+                             <span className="text-[10px] font-bold text-white/90">Đã khóa</span>
+                           )}
+                           {(span > 1 || slot.type === "Blocked") && (
                              <span className={cn(
-                               "text-[8px] font-black uppercase tracking-tighter opacity-90",
+                               "text-[8px] font-bold opacity-90",
                                selected || slot.type === "Booked" || slot.type === "Blocked" || slot.type === "Override" ? "text-white/80" : 
                                isPast ? "text-slate-300" : "text-slate-500"
                              )}>
@@ -257,7 +267,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                            <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500" />
                          )}
                          {(slot.type === "Blocked" || isPast) && (
-                           <div className="absolute inset-0 flex items-center justify-center opacity-10">
+                           <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
                              <LockIcon size={32} />
                            </div>
                          )}
@@ -275,23 +285,23 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
       <div className="p-3 bg-slate-50 border-t border-slate-100 flex items-center gap-6 overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-2 shrink-0">
           <div className="w-3 h-3 rounded-full bg-emerald-600 shadow-sm" />
-          <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Đã chọn</span>
+          <span className="text-[9px] font-bold text-slate-600">Đã chọn</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <div className="w-3 h-3 rounded-full bg-white border-2 border-slate-200" />
-          <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Trống</span>
+          <span className="text-[9px] font-bold text-slate-600">Trống</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <div className="w-3 h-3 rounded-full bg-rose-500" />
-          <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Đã đặt</span>
+          <span className="text-[9px] font-bold text-slate-600">Đã đặt</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <div className="w-3 h-3 rounded-full bg-violet-600" />
-          <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Gộp</span>
+          <span className="text-[9px] font-bold text-slate-600">Gộp</span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <div className="w-3 h-3 rounded-full bg-slate-600" />
-          <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">Khóa</span>
+          <div className="w-3 h-3 rounded-full bg-slate-700" />
+          <span className="text-[9px] font-bold text-slate-600">Khóa</span>
         </div>
         <div className="ml-auto flex items-center gap-2 text-[9px] text-slate-400 font-medium shrink-0">
           <span>* Giá vé hiển thị theo từng block 30 phút</span>

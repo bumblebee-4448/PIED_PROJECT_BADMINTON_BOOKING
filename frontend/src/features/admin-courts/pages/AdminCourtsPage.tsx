@@ -40,6 +40,7 @@ import {
 } from "@/shared/components/ui/alert-dialog";
 import type { PendingCourt } from "../types";
 import { cn } from "@/lib/utils";
+import { DataTablePagination } from "@/shared/components/DataTablePagination";
 
 export default function AdminCourtsPage() {
   const [pageIndex, setPageIndex] = useState(1);
@@ -206,28 +207,13 @@ export default function AdminCourtsPage() {
           </div>
         )}
 
-        {/* Pagination placeholder */}
         {data && data.totalPages > 1 && (
-          <div className="p-4 border-t border-gray-50 flex items-center justify-center gap-2">
-            <Button 
-              variant="outline" 
-              size="sm" 
-              disabled={pageIndex === 1}
-              onClick={() => setPageIndex(p => p - 1)}
-            >
-              Trước
-            </Button>
-            <span className="text-xs font-bold text-gray-500 px-4">
-              Trang {pageIndex} / {data.totalPages}
-            </span>
-            <Button 
-              variant="outline" 
-              size="sm"
-              disabled={pageIndex === data.totalPages}
-              onClick={() => setPageIndex(p => p + 1)}
-            >
-              Sau
-            </Button>
+          <div className="p-4 border-t border-gray-50 bg-gray-50/20">
+            <DataTablePagination 
+              pageIndex={pageIndex}
+              totalPages={data.totalPages}
+              onPageChange={setPageIndex}
+            />
           </div>
         )}
       </div>

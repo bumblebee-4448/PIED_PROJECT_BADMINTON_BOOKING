@@ -3,16 +3,16 @@ import {
   LayoutDashboard, 
   Building2, 
   Menu,
-  Bell,
   LayoutGrid,
   Wallet,
   CalendarCheck
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UserProfileCard } from "@/features/auth/components/UserProfileCard";
 import { useMe } from "@/features/profile/hooks/useMe";
+import { NotificationBell } from "@/features/notifications";
 import { useAuthStore } from "@/features/auth/store";
 
 const NAV_ITEMS = [
@@ -32,6 +32,16 @@ export default function OwnerLayout() {
   const { isLoading: isProfileLoading } = useMe();
 
   const location = useLocation();
+
+  // Ngăn chặn duplicate scrollbar (body và layout)
+  useEffect(() => {
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   if (!accessToken || !user) {
     navigate("/login");
@@ -130,10 +140,7 @@ export default function OwnerLayout() {
           </Button>
 
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" className="text-gray-500 hover:bg-gray-50 rounded-xl relative">
-              <Bell size={20} />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-            </Button>
+            <NotificationBell />
             <UserProfileCard />
           </div>
         </header>

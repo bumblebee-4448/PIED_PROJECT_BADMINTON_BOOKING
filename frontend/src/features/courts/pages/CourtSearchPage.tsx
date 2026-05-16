@@ -1,8 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  ChevronLeft,
-  ChevronRight,
   List,
   Loader2,
   Map as MapIcon,
@@ -16,6 +14,7 @@ import { CourtMap } from "../components/CourtMap";
 import { CourtDetailDialog } from "../components/CourtDetailDialog";
 import { cn } from "@/lib/utils";
 import { useCourtSearch } from "../hooks/useCourtSearch";
+import { DataTablePagination } from "@/shared/components/DataTablePagination";
 import type { ApiResponse, CourtListResponse } from "../types";
 
 const PAGE_SIZE = 10;
@@ -62,7 +61,6 @@ export function CourtSearchPage() {
 
   const courts = courtPage?.items ?? [];
   const totalItems = courtPage?.totalItems ?? courts.length;
-  const currentPage = courtPage?.pageIndex ?? pageIndex;
   const pageSize = courtPage?.pageSize ?? PAGE_SIZE;
   const totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
 
@@ -75,13 +73,6 @@ export function CourtSearchPage() {
     setIsDetailDialogOpen(true);
   }, []);
 
-  const handlePreviousPage = useCallback(() => {
-    setPageIndex((page) => Math.max(1, page - 1));
-  }, []);
-
-  const handleNextPage = useCallback(() => {
-    setPageIndex((page) => Math.min(totalPages, page + 1));
-  }, [totalPages]);
 
   return (
     <div className="min-h-screen bg-[#F9FBFA] pb-20 pt-20">
@@ -189,32 +180,13 @@ export function CourtSearchPage() {
               )}
             </div>
 
-            {!isLoading && totalItems > pageSize && (
-              <div className="flex items-center justify-between rounded-2xl border border-gray-100 bg-white px-4 py-3 shadow-sm">
-                <p className="text-xs font-bold text-gray-400">
-                  Trang <span className="text-[#0B2421]">{currentPage}</span> /{" "}
-                  {totalPages}
-                </p>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={handlePreviousPage}
-                    disabled={pageIndex <= 1}
-                    className="h-9 rounded-xl border-gray-100 text-xs font-bold"
-                  >
-                    <ChevronLeft size={16} />
-                    Trước
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={handleNextPage}
-                    disabled={pageIndex >= totalPages}
-                    className="h-9 rounded-xl border-gray-100 text-xs font-bold"
-                  >
-                    Sau
-                    <ChevronRight size={16} />
-                  </Button>
-                </div>
+            {!isLoading && totalPages > 1 && (
+              <div className="rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
+                <DataTablePagination 
+                  pageIndex={pageIndex}
+                  totalPages={totalPages}
+                  onPageChange={setPageIndex}
+                />
               </div>
             )}
           </div>

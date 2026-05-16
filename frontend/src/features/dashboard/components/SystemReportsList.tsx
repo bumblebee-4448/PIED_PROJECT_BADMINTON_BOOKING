@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router";
 import { ChevronRight } from "lucide-react";
-import type { SystemReport } from "../types";
+import type { SystemReport } from "../dashboardTypes";
 import { Button } from "@/shared/components/ui/button";
 
 const PRIORITY_CONFIG = {
@@ -31,25 +31,28 @@ export function SystemReportsList({ reports }: SystemReportsListProps) {
       </div>
       <div className="flex flex-col gap-2.5">
         {reports.slice(0, 4).map((r) => {
-          const cfg = PRIORITY_CONFIG[r.priority];
+          const statusConfig = r.status.toLowerCase() === "pending" 
+            ? PRIORITY_CONFIG.medium 
+            : PRIORITY_CONFIG.low;
+            
           return (
-            <div key={r.id} className="p-3 rounded-xl" style={{ background: cfg.bg, border: `1px solid ${cfg.color}20` }}>
+            <div key={r.id} className="p-3 rounded-xl" style={{ background: statusConfig.bg, border: `1px solid ${statusConfig.color}20` }}>
               <div className="flex items-center justify-between mb-1">
                 <span 
                   className="px-2 py-0.5 rounded text-xs font-bold" 
-                  style={{ background: cfg.color, color: "white" }}
+                  style={{ background: statusConfig.color, color: "white" }}
                 >
-                  {cfg.label}
+                  {r.status}
                 </span>
                 <span style={{ fontSize: "0.65rem", color: "#9ca3af" }}>
-                  {new Date(r.createdAt).toLocaleDateString("vi-VN")}
+                  {r.createdAt ? new Date(r.createdAt).toLocaleDateString("vi-VN") : "N/A"}
                 </span>
               </div>
               <p style={{ fontSize: "0.78rem", fontWeight: 600, color: "#1a1a2e" }} className="line-clamp-1">
-                {r.courtName}
+                {r.title}
               </p>
               <p style={{ fontSize: "0.72rem", color: "#6b7280" }} className="line-clamp-1">
-                {r.description}
+                {r.reason}
               </p>
             </div>
           );
