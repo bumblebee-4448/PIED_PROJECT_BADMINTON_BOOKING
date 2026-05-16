@@ -19,10 +19,10 @@ public class Service: IService
 
     public async Task CreateFeedback(Request.CreateFeedbackRequest request)
     {
-        // 1. Kiểm tra xem booking đã có feedback chưa
         if (await _dbContext.Feedbacks.AnyAsync(x => x.BookingId == request.BookingId))
         {
-            throw new ArgumentException("Bạn đã đánh giá cho đơn đặt sân này rồi");
+            
+            return;
         }
 
         var booking = await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == request.BookingId);
