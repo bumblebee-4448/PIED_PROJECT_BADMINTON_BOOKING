@@ -583,12 +583,19 @@ public class Service: IService
         {
             throw new Exception("Booking details not found");
         }
-
-        var earlierSlot = booking.BookingDetails.OrderBy(x => x.StartTime).First();
-        var slotStartDateTime = earlierSlot.Date.Date.Add(earlierSlot.StartTime.ToTimeSpan());
+        
+        var vnZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        var now = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, vnZone);
+        
+        var earlierSlot = booking.BookingDetails
+            .OrderBy(x => x.Date)
+            .ThenBy(x => x.StartTime)
+            .First();
+        var slotStartDateTime = earlierSlot.Date.Date
+                .Add(earlierSlot.StartTime.ToTimeSpan());
         var refundDeadline = slotStartDateTime.AddMinutes(-(double)earlierSlot.SubCourt.Court.TimeRefundBefor!);
         
-        if (DateTime.Now > refundDeadline)
+        if (now > refundDeadline)
         {
             throw new Exception("The refund deadline has passed according to the court's policy");
         }

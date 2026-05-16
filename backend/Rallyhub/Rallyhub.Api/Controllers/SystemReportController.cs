@@ -18,14 +18,14 @@ public class SystemReportController: ControllerBase
         _systemReportService = systemReportService;
     }
 
-    [HttpPost("")]
+    [HttpPost("CreateSystemReport")]
     [Authorize(Policy = JwtExtensions.CustomerOrOwnerPolicy)]
     public async Task<IActionResult> CreateSystemReport(Request.CreateSystemReportRequest request)
     {
         await _systemReportService.CreateSystemReport(request);
         return Ok(ApiResponseFactory.SuccessResponse("Create success", HttpContext.TraceIdentifier));
     }
-    [HttpGet("")]
+    [HttpGet("GetSystemReport")]
     [Authorize]
     public async Task<IActionResult> GetSystemReport ([FromQuery]Request.GetSystemReportRequest request)
     {
@@ -33,7 +33,7 @@ public class SystemReportController: ControllerBase
         return Ok(ApiResponseFactory.SuccessResponse
             (result, "Success you!", HttpContext.TraceIdentifier));
     }
-    [HttpPatch("")]
+    [HttpPatch("SubmitReportReply")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
     public async Task<IActionResult> SubmitReportReply(Request.SubmitReportReplyRequest request)
     {
