@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { 
   MapPin, 
   Calendar, 
@@ -8,12 +9,14 @@ import {
   Phone,
   Hash,
   CreditCard,
-  Star
+  Star,
+  AlertTriangle
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { useFeedbackLookup } from "@/features/feedback";
+import { ReportBookingDialog } from "@/features/reports";
 import type { GetBookingResponse, TransactionItem } from "../types";
 
 interface BookingCardProps {
@@ -31,6 +34,7 @@ export function BookingCard({
   onViewPaymentClick,
   onFeedbackClick,
 }: BookingCardProps) {
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "Pending":
@@ -239,6 +243,17 @@ export function BookingCard({
               </Button>
             )}
 
+            {canReview && (
+              <Button
+                variant="outline"
+                onClick={() => setIsReportDialogOpen(true)}
+                className="flex-1 md:flex-none border-red-100 bg-red-50/70 text-red-600 font-bold text-sm hover:bg-red-100 hover:text-red-700 transition-colors px-4 rounded-2xl h-12"
+              >
+                <AlertTriangle size={16} className="mr-2" />
+                Báo cáo
+              </Button>
+            )}
+
             {(status === "Pending" || status === "Banked") && (
               <Button
                 variant="ghost"
@@ -278,6 +293,13 @@ export function BookingCard({
           </div>
         </div>
       </div>
+
+      <ReportBookingDialog
+        bookingId={id}
+        isOpen={isReportDialogOpen}
+        onOpenChange={setIsReportDialogOpen}
+        courtName={courtName}
+      />
     </div>
   );
 }

@@ -96,6 +96,19 @@ export const API_ENDPOINTS = {
     GET_MY: "/Transaction/GetTransaction",
     ADMIN_GET: "/Transaction/AdminGetTransaction",
   },
+  /**
+   * Report endpoints
+   */
+  REPORT: {
+    CREATE_BOOKING: "/Report",
+    GET_BOOKING: "/Report",
+    CONFIRM_BOOKING: "/Report",
+  },
+  SYSTEM_REPORT: {
+    CREATE: "/SystemReport",
+    GET_ALL: "/SystemReport",
+    REPLY: "/SystemReport",
+  },
 } as const;
 
 /**
@@ -113,6 +126,8 @@ export const QUERY_KEYS = {
   MAP_SEARCH: (filters: unknown) => ["map-search", filters] as const, // Tìm kiếm bản đồ
   WALLET_INFO: ["wallet-info"] as const, // Thông tin ví
   FEEDBACK_LOOKUP: (bookingId: string) => ["booking-feedback-lookup", bookingId] as const,
+  REPORTS_BOOKING: ["reports-booking"] as const,
+  REPORTS_SYSTEM: ["reports-system"] as const,
 } as const;
 
 /**
