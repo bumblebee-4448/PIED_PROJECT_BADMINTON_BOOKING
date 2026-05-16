@@ -123,17 +123,6 @@ export interface GetBookingHistoryRequest {
   date?: string;
 }
 
-// ─── Feedback Types ─────────────────────────────────────────────
-export interface BookingFeedbackPayload {
-  bookingId: string;
-  rating: number;
-  comment?: string | null;
-}
-
-export interface DeleteFeedbackPayload {
-  id: string;
-}
-
 // ─── Transaction Types ─────────────────────────────────────
 export interface TransactionItem {
   id: string;

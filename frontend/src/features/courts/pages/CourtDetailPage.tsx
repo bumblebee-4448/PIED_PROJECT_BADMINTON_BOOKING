@@ -16,13 +16,16 @@ import {
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 import { useAuthStore } from "@/features/auth/store";
-import { FeedbackDialog } from "@/features/bookings/components/FeedbackDialog";
-import { useDeleteBookingFeedback } from "@/features/bookings/hooks/useBookingFeedback";
+import { 
+  FeedbackDialog, 
+  CourtFeedbackSection, 
+  useDeleteFeedback,
+  useCourtFeedbacks,
+  type Feedback 
+} from "@/features/feedback";
 import { useBookings } from "@/features/bookings/hooks/useBookings";
-import { useCourtDetail, useCourtFeedbacks } from "../hooks/useCourts";
+import { useCourtDetail } from "../hooks/useCourts";
 import { CourtDetailItem } from "../components/CourtDetailItem";
-import { CourtFeedbackSection } from "../components/CourtFeedbackSection";
-import type { CourtFeedback } from "../types";
 import type { GetBookingResponse } from "@/features/bookings/types";
 
 const fallbackCourtImage =
@@ -47,7 +50,7 @@ export function CourtDetailPage() {
   const user = useAuthStore((state) => state.user);
   const [feedbackPage, setFeedbackPage] = useState(1);
   const [editingFeedback, setEditingFeedback] = useState<GetBookingResponse | null>(null);
-  const deleteFeedback = useDeleteBookingFeedback();
+  const deleteFeedback = useDeleteFeedback();
   const { data: bookingsData } = useBookings(1, 1000);
   const { data: court, isLoading, isError } = useCourtDetail(courtId || "");
   const {
@@ -69,7 +72,7 @@ export function CourtDetailPage() {
     [user?.firstName, user?.lastName],
   );
 
-  const canManageFeedback = useCallback((feedback: CourtFeedback) => {
+  const canManageFeedback = useCallback((feedback: Feedback) => {
     if (!currentCustomerName) {
       return false;
     }
@@ -101,7 +104,7 @@ export function CourtDetailPage() {
 
         return {
           ...feedback,
-          bookingId: completedBooking?.bookingId,
+          bookingId: completedBooking?.bookingId || feedback.bookingId || "",
           feedbackId: feedback.feedbackId || feedback.id || completedBooking?.feedbackId,
         };
       }),
@@ -112,7 +115,7 @@ export function CourtDetailPage() {
     ],
   );
 
-  const handleEditFeedback = (feedback: CourtFeedback) => {
+  const handleEditFeedback = (feedback: Feedback) => {
     const bookingId = feedback.bookingId || getCompletedBookingForCourt()?.bookingId;
     if (!bookingId) {
       toast.error("Không tìm thấy đơn hoàn thành để sửa đánh giá.");
@@ -135,7 +138,7 @@ export function CourtDetailPage() {
     });
   };
 
-  const handleDeleteFeedback = (feedback: CourtFeedback) => {
+  const handleDeleteFeedback = (feedback: Feedback) => {
     const feedbackId =
       feedback.feedbackId || feedback.id || getCompletedBookingForCourt()?.feedbackId;
     if (!feedbackId) {

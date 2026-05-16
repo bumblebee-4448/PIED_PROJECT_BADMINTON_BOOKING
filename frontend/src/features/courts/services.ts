@@ -3,8 +3,6 @@ import { API_ENDPOINTS } from "@/shared/constants";
 import type { 
   CourtDetail, 
   CourtFilters, 
-  CourtFeedback,
-  CourtFeedbackListResponse,
   CourtListResponse, 
   BoundingBoxRequest, 
   MapSearchResponse, 
@@ -12,24 +10,7 @@ import type {
   TextSearchRequest 
 } from "./types";
 
-type RawCourtFeedback = {
-  id?: string;
-  Id?: string;
-  feedbackId?: string;
-  FeedbackId?: string;
-  bookingId?: string;
-  BookingId?: string;
-  customerId?: string;
-  CustomerId?: string;
-  nameCustomer?: string;
-  NameCustomer?: string;
-  comment?: string | null;
-  Comment?: string | null;
-  rating?: number;
-  Rating?: number;
-  createdAt?: string;
-  CreatedAt?: string;
-};
+
 
 export const courtService = {
   // Lấy danh sách sân kèm theo bộ lọc (Search theo tên, địa chỉ, phân trang)
@@ -49,44 +30,7 @@ export const courtService = {
     return apiClient.get(API_ENDPOINTS.COURT.GET_BY_ID.replace("{courtId}", id));
   },
 
-  getCourtFeedbacks: async (
-    courtId: string,
-    pageIndex = 1,
-    pageSize = 10
-  ): Promise<CourtFeedbackListResponse> => {
-    const response = (await apiClient.get(API_ENDPOINTS.FEEDBACK.GET_BY_COURT, {
-      params: {
-        CourtId: courtId,
-        PageIndex: pageIndex,
-        PageSize: pageSize,
-      },
-      skipToast: true,
-    })) as unknown as CourtFeedbackListResponse & {
-      Items?: unknown[];
-      TotalItems?: number;
-      PageSize?: number;
-      PageIndex?: number;
-    };
 
-    const rawItems = (response.items || response.Items || []) as RawCourtFeedback[];
-    const items = rawItems.map((item: RawCourtFeedback): CourtFeedback => ({
-      id: item.id || item.Id,
-      feedbackId: item.feedbackId || item.FeedbackId || item.id || item.Id,
-      bookingId: item.bookingId || item.BookingId,
-      customerId: item.customerId || item.CustomerId,
-      nameCustomer: item.nameCustomer || item.NameCustomer || "Khách hàng",
-      comment: item.comment ?? item.Comment ?? null,
-      rating: item.rating ?? item.Rating ?? 0,
-      createdAt: item.createdAt || item.CreatedAt || new Date().toISOString(),
-    }));
-
-    return {
-      items,
-      totalItems: response.totalItems ?? response.TotalItems ?? items.length,
-      pageSize: response.pageSize ?? response.PageSize ?? pageSize,
-      pageIndex: response.pageIndex ?? response.PageIndex ?? pageIndex,
-    };
-  },
 
   // Map Search APIs
   searchByBoundingBox: async (request: BoundingBoxRequest): Promise<MapSearchResponse> => {

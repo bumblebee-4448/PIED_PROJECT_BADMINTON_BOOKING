@@ -1,19 +1,19 @@
 import { Edit3, Loader2, MessageSquare, Star, Trash2, UserRound } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
-import type { CourtFeedback } from "../types";
+import type { Feedback } from "../types";
 
 interface CourtFeedbackSectionProps {
-  feedbacks: CourtFeedback[];
+  feedbacks: Feedback[];
   totalItems: number;
   isLoading: boolean;
   isLoadingMore: boolean;
   isError: boolean;
   canLoadMore: boolean;
   onLoadMore: () => void;
-  canManageFeedback?: (feedback: CourtFeedback) => boolean;
-  onEditFeedback?: (feedback: CourtFeedback) => void;
-  onDeleteFeedback?: (feedback: CourtFeedback) => void;
+  canManageFeedback?: (feedback: Feedback) => boolean;
+  onEditFeedback?: (feedback: Feedback) => void;
+  onDeleteFeedback?: (feedback: Feedback) => void;
 }
 
 export function CourtFeedbackSection({
@@ -108,10 +108,10 @@ function FeedbackCard({
   onEdit,
   onDelete,
 }: {
-  feedback: CourtFeedback;
+  feedback: Feedback;
   canManage: boolean;
-  onEdit?: (feedback: CourtFeedback) => void;
-  onDelete?: (feedback: CourtFeedback) => void;
+  onEdit?: (feedback: Feedback) => void;
+  onDelete?: (feedback: Feedback) => void;
 }) {
   return (
     <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-5">

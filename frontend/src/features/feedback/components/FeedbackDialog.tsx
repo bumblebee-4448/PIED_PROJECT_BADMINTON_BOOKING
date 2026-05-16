@@ -13,14 +13,16 @@ import {
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Textarea } from "@/shared/components/ui/textarea";
-import {
-  useDeleteBookingFeedback,
-  useUpsertBookingFeedback,
-} from "../hooks/useBookingFeedback";
-import type { GetBookingResponse } from "../types";
+import { useDeleteFeedback, useUpsertFeedback } from "../hooks/useFeedback";
 
 interface FeedbackDialogProps {
-  booking: GetBookingResponse | null;
+  booking: {
+    bookingId: string;
+    courtName: string;
+    rating?: number;
+    comment?: string | null;
+    feedbackId?: string;
+  } | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -32,8 +34,16 @@ export function FeedbackDialog({
 }: FeedbackDialogProps) {
   const [rating, setRating] = React.useState(booking?.rating || 5);
   const [comment, setComment] = React.useState(booking?.comment || "");
-  const upsertFeedback = useUpsertBookingFeedback();
-  const deleteFeedback = useDeleteBookingFeedback();
+  const upsertFeedback = useUpsertFeedback();
+  const deleteFeedback = useDeleteFeedback();
+
+  // Update local state when booking changes (e.g. when lookup finishes)
+  React.useEffect(() => {
+    if (booking) {
+      setRating(booking.rating || 5);
+      setComment(booking.comment || "");
+    }
+  }, [booking]);
 
   const feedbackId = booking?.feedbackId;
   const isSubmitting = upsertFeedback.isPending || deleteFeedback.isPending;
@@ -45,21 +55,18 @@ export function FeedbackDialog({
       return;
     }
 
-    upsertFeedback.mutate(
-      {
-        bookingId: booking.bookingId,
-        rating,
-        comment: comment.trim() || null,
-      },
-      {
-        onSuccess: onClose,
-      },
-    );
+    const payload = feedbackId 
+      ? { id: feedbackId, bookingId: booking.bookingId, rating, comment: comment.trim() || null }
+      : { bookingId: booking.bookingId, rating, comment: comment.trim() || null };
+
+    upsertFeedback.mutate(payload, {
+      onSuccess: onClose,
+    });
   };
 
   const handleDelete = () => {
     if (!feedbackId) {
-      toast.error("Chưa có mã feedback để xóa. API GET /Feedback cần trả thêm id/feedbackId.");
+      toast.error("Không tìm thấy mã đánh giá để xóa.");
       return;
     }
 
@@ -137,7 +144,7 @@ export function FeedbackDialog({
           </div>
 
           <DialogFooter className="gap-3 border-t border-gray-50 px-6 py-5 sm:space-x-0">
-            {(feedbackId || booking?.rating || booking?.comment) && (
+            {feedbackId && (
               <Button
                 type="button"
                 variant="ghost"

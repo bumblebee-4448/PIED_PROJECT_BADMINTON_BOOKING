@@ -2,13 +2,16 @@ import { MapPin, Phone, Clock, Star, Info, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuthStore } from "@/features/auth/store";
-import { FeedbackDialog } from "@/features/bookings/components/FeedbackDialog";
-import { useDeleteBookingFeedback } from "@/features/bookings/hooks/useBookingFeedback";
+import { 
+  FeedbackDialog, 
+  CourtFeedbackSection, 
+  useDeleteFeedback,
+  useCourtFeedbacks,
+  type Feedback 
+} from "@/features/feedback";
 import { useBookings } from "@/features/bookings/hooks/useBookings";
-import { useCourtDetail, useCourtFeedbacks } from "../hooks/useCourts";
-import { CourtFeedbackSection } from "./CourtFeedbackSection";
+import { useCourtDetail } from "../hooks/useCourts";
 import { useCallback, useState, useMemo } from "react";
-import type { CourtFeedback } from "../types";
 import type { GetBookingResponse } from "@/features/bookings/types";
 import {
   Dialog,
@@ -32,7 +35,7 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
   const user = useAuthStore((state) => state.user);
   const [feedbackPage, setFeedbackPage] = useState(1);
   const [editingFeedback, setEditingFeedback] = useState<GetBookingResponse | null>(null);
-  const deleteFeedback = useDeleteBookingFeedback();
+  const deleteFeedback = useDeleteFeedback();
   const { data: bookingsData } = useBookings(1, 1000);
   
   const { data: court, isLoading, isError } = useCourtDetail(courtId || "");
@@ -55,7 +58,7 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
     [user?.firstName, user?.lastName],
   );
 
-  const canManageFeedback = useCallback((feedback: CourtFeedback) => {
+  const canManageFeedback = useCallback((feedback: Feedback) => {
     if (!currentCustomerName) {
       return false;
     }
@@ -87,7 +90,7 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
 
         return {
           ...feedback,
-          bookingId: completedBooking?.bookingId,
+          bookingId: completedBooking?.bookingId || feedback.bookingId || "",
           feedbackId: feedback.feedbackId || feedback.id || completedBooking?.feedbackId,
         };
       }),
@@ -98,7 +101,7 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
     ],
   );
 
-  const handleEditFeedback = (feedback: CourtFeedback) => {
+  const handleEditFeedback = (feedback: Feedback) => {
     const bookingId = feedback.bookingId || getCompletedBookingForCourt()?.bookingId;
     if (!bookingId) {
       toast.error("Không tìm thấy đơn hoàn thành để sửa đánh giá.");
@@ -121,7 +124,7 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
     });
   };
 
-  const handleDeleteFeedback = (feedback: CourtFeedback) => {
+  const handleDeleteFeedback = (feedback: Feedback) => {
     const feedbackId =
       feedback.feedbackId || feedback.id || getCompletedBookingForCourt()?.feedbackId;
     if (!feedbackId) {

@@ -49,6 +49,7 @@ export const API_ENDPOINTS = {
   },
   FEEDBACK: {
     GET_BY_COURT: "/Feedback",
+    GET_BY_BOOKING: "/Feedback/byBookingId/{id}",
     CREATE: "/Feedback",
     UPDATE: "/Feedback",
     DELETE: "/Feedback",
@@ -111,6 +112,7 @@ export const QUERY_KEYS = {
     ["court-feedbacks", courtId, pageIndex, pageSize] as const,
   MAP_SEARCH: (filters: unknown) => ["map-search", filters] as const, // Tìm kiếm bản đồ
   WALLET_INFO: ["wallet-info"] as const, // Thông tin ví
+  FEEDBACK_LOOKUP: (bookingId: string) => ["booking-feedback-lookup", bookingId] as const,
 } as const;
 
 /**

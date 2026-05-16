@@ -13,7 +13,7 @@ import {
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
-import { useBookingFeedbackLookup } from "../hooks/useBookingFeedbackLookup";
+import { useFeedbackLookup } from "@/features/feedback";
 import type { GetBookingResponse, TransactionItem } from "../types";
 
 interface BookingCardProps {
@@ -93,7 +93,7 @@ export function BookingCard({
   const phoneNumber = booking.phoneNumber || "N/A";
   const urlMap = booking.urlMap;
   const canReview = status === "Complete" || status === "Completed";
-  const { data: existingFeedback } = useBookingFeedbackLookup(booking, canReview);
+  const { data: existingFeedback } = useFeedbackLookup(booking, canReview);
   const currentRating = booking.rating ?? existingFeedback?.rating;
   const currentComment = booking.comment ?? existingFeedback?.comment;
   const currentFeedbackId =

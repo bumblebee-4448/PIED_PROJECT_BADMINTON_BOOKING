@@ -1,9 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { QUERY_KEYS } from "@/shared/constants";
-import { bookingsService } from "../services";
-import type { BookingFeedbackPayload, DeleteFeedbackPayload } from "../types";
+import { feedbackService } from "../services";
+import type { CreateFeedbackRequest, DeleteFeedbackRequest, UpdateFeedbackRequest } from "../types";
 
 function getErrorMessage(error: unknown) {
   if (typeof error !== "object" || error === null) {
@@ -45,21 +45,27 @@ function isFeedbackNotFound(error: unknown) {
   return getErrorMessage(error).toLowerCase().includes("feedback not found");
 }
 
-export function useUpsertBookingFeedback() {
+export function useUpsertFeedback() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: BookingFeedbackPayload) => {
+    mutationFn: async (payload: CreateFeedbackRequest | UpdateFeedbackRequest) => {
       try {
-        await bookingsService.updateFeedback(payload);
-        return "updated" as const;
-      } catch (error) {
-        if (!isFeedbackNotFound(error)) {
-          throw error;
+        // If it has an ID, it's an update
+        if ("id" in payload && payload.id) {
+          await feedbackService.update(payload as UpdateFeedbackRequest);
+          return "updated" as const;
         }
-
-        await bookingsService.createFeedback(payload);
+        
+        await feedbackService.create(payload as CreateFeedbackRequest);
         return "created" as const;
+      } catch (error) {
+        // Fallback for cases where UI thinks it's an update but backend disagrees
+        if (isFeedbackNotFound(error)) {
+          await feedbackService.create(payload as CreateFeedbackRequest);
+          return "created" as const;
+        }
+        throw error;
       }
     },
     onSuccess: (result) => {
@@ -78,17 +84,33 @@ export function useUpsertBookingFeedback() {
   });
 }
 
-export function useDeleteBookingFeedback() {
+export function useDeleteFeedback() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: DeleteFeedbackPayload) =>
-      bookingsService.deleteFeedback(payload),
+    mutationFn: (payload: DeleteFeedbackRequest) =>
+      feedbackService.delete(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BOOKINGS });
       queryClient.invalidateQueries({ queryKey: ["court-feedbacks"] });
       queryClient.invalidateQueries({ queryKey: ["booking-feedback-lookup"] });
       toast.success("Xóa đánh giá thành công");
     },
+    onError: (error) => {
+      toast.error(getErrorMessage(error));
+    },
   });
 }
+
+export function useCourtFeedbacks(
+  courtId: string,
+  pageIndex = 1,
+  pageSize = 10
+) {
+  return useQuery({
+    queryKey: QUERY_KEYS.COURT_FEEDBACKS(courtId, pageIndex, pageSize),
+    queryFn: () => feedbackService.getByCourt(courtId, pageIndex, pageSize),
+    enabled: !!courtId,
+  });
+}
+

@@ -2,7 +2,7 @@ import React from "react";
 import { BookingFilters } from "../components/BookingFilters";
 import { BookingCard } from "../components/BookingCard";
 import { CancelBookingDialog } from "../components/CancelBookingDialog";
-import { FeedbackDialog } from "../components/FeedbackDialog";
+import { FeedbackDialog } from "@/features/feedback";
 import { useBookings } from "../hooks/useBookings";
 import { useFilteredBookings } from "../hooks/useFilteredBookings";
 
@@ -131,7 +131,7 @@ export function BookingHistoryPage() {
                   onFeedbackClick={(selectedBooking) =>
                     setFeedbackBooking({
                       ...selectedBooking,
-                      bookingId: getBookingId(selectedBooking),
+                      bookingId: String(getBookingId(selectedBooking)),
                     })
                   }
                 />

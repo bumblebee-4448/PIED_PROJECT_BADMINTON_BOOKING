@@ -39,24 +39,6 @@ export interface CourtListResponse {
   pageIndex: number;
 }
 
-export interface CourtFeedback {
-  id?: string;
-  feedbackId?: string;
-  bookingId?: string;
-  customerId?: string;
-  nameCustomer: string;
-  comment: string | null;
-  rating: number;
-  createdAt: string;
-}
-
-export interface CourtFeedbackListResponse {
-  items: CourtFeedback[];
-  totalItems: number;
-  pageSize: number;
-  pageIndex: number;
-}
-
 export interface CourtMapItem {
   id: string;
   latitude: number;
