@@ -1164,14 +1164,14 @@ public class Service : IService
         foreach (var slot in result)
         {
             if (!slot.IsAvailable) continue;
-            var isBooked = bookedSlots.Any(b =>
+            var bookedSlot = bookedSlots.FirstOrDefault(b =>
                 b.StartTime < slot.EndTime &&
                 b.EndTime > slot.StartTime);
-            if (isBooked)
+            if (bookedSlot != null)
             {
                 slot.IsAvailable = false;
-               // slot.Reason = "Đã được khách đặt";
                 slot.Type = "Booked";   
+                slot.BookingDetailId = bookedSlot.Id;
             }
         }
         return result.OrderBy(x => x.StartTime).ToList();

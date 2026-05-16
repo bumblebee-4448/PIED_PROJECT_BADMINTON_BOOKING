@@ -8,16 +8,7 @@ import { useFilteredBookings } from "../hooks/useFilteredBookings";
 import { useTransactions } from "../hooks/useTransactions";
 import { TransactionDetailDialog } from "../components/TransactionDetailDialog";
 import { Loader2, ClipboardList } from "lucide-react";
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationItem, 
-  PaginationLink, 
-  PaginationNext, 
-  PaginationPrevious 
-} from "@/shared/components/ui/pagination";
-
-import { cn } from "@/lib/utils";
+import { DataTablePagination } from "@/shared/components/DataTablePagination";
 import { type FilterStatus, type TransactionItem } from "../types";
 
 export function BookingHistoryPage() {
@@ -121,35 +112,11 @@ export function BookingHistoryPage() {
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="mt-12">
-            <Pagination>
-              <PaginationContent>
-                <PaginationItem>
-                  <PaginationPrevious 
-                    onClick={() => setPageIndex(p => Math.max(1, p - 1))}
-                    className={cn("cursor-pointer", pageIndex === 1 && "pointer-events-none opacity-50")}
-                  />
-                </PaginationItem>
-                
-                {Array.from({ length: totalPages }).map((_, i) => (
-                  <PaginationItem key={`page-${i}`}>
-                    <PaginationLink 
-                      isActive={pageIndex === i + 1}
-                      onClick={() => setPageIndex(i + 1)}
-                      className="cursor-pointer rounded-xl font-bold"
-                    >
-                      {i + 1}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-
-                <PaginationItem>
-                  <PaginationNext 
-                    onClick={() => setPageIndex(p => Math.min(totalPages, p + 1))}
-                    className={cn("cursor-pointer", pageIndex >= totalPages && "pointer-events-none opacity-50")}
-                  />
-                </PaginationItem>
-              </PaginationContent>
-            </Pagination>
+            <DataTablePagination 
+              pageIndex={pageIndex}
+              totalPages={totalPages}
+              onPageChange={setPageIndex}
+            />
           </div>
         )}
 

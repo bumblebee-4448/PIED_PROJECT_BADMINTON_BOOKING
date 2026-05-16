@@ -1,99 +1,94 @@
 import { useNavigate } from "react-router";
 import { ChevronRight } from "lucide-react";
-import type { CashFlow } from "../types";
+import type { Transaction } from "../dashboardTypes";
 import { Button } from "@/shared/components/ui/button";
 
 interface CashFlowTableProps {
-  cashFlows: CashFlow[];
+  cashFlows: Transaction[];
 }
 
 export function CashFlowTable({ cashFlows }: CashFlowTableProps) {
   const navigate = useNavigate();
 
   return (
-    <div className="bg-white rounded-2xl p-5" style={{ border: "1px solid rgba(0,0,0,0.06)" }}>
-      <div className="flex items-center justify-between mb-4">
-        <h3 style={{ fontWeight: 700, color: "#1a1a2e", fontSize: "0.95rem" }}>Luồng tiền gần đây 💰</h3>
+    <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-100 h-full">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-gray-900 font-bold text-base">Luồng tiền gần đây 💰</h3>
         <Button 
           variant="link"
-          onClick={() => navigate("/admin/cashflow")} 
-          style={{ fontSize: "0.75rem", color: "#00897B", fontWeight: 600 }} 
-          className="flex items-center gap-1 p-0 h-auto hover:no-underline"
+          onClick={() => navigate("/admin/transactions")} 
+          className="text-emerald-600 text-xs font-bold hover:no-underline flex items-center gap-1 p-0 h-auto"
         >
-          Xem tất cả <ChevronRight size={13} />
+          Xem tất cả <ChevronRight size={12} />
         </Button>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr>
-              {["Loại", "Chi tiết", "Số tiền", "Phí HT", "Trạng thái", "Thời gian"].map(h => (
+            <tr className="border-b border-gray-50">
+              {["Loại", "Chi tiết", "Số tiền", "Trạng thái", "Thời gian"].map(h => (
                 <th 
                   key={h} 
-                  className="pb-3 text-left" 
-                  style={{ fontSize: "0.72rem", fontWeight: 700, color: "#9ca3af", paddingRight: "12px" }}
+                  className="pb-4 text-left text-[10px] font-black uppercase tracking-wider text-gray-400"
                 >
                   {h}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody>
-            {cashFlows.slice(0, 5).map((cf) => {
-              const typeConfig = {
-                booking: { label: "Đặt sân", color: "#00897B", bg: "#f0fdf9" },
-                refund:  { label: "Hoàn tiền", color: "#F59E0B", bg: "#FFF8E1" },
-                payout:  { label: "Payout", color: "#6366F1", bg: "#EEF2FF" },
-                fee:     { label: "Phí HT", color: "#EF4444", bg: "#FEF2F2" },
-              }[cf.type];
+          <tbody className="divide-y divide-gray-50">
+            {cashFlows.slice(0, 7).map((cf) => {
+              const typeMap: Record<string, any> = {
+                Receive: { label: "Đặt sân", color: "#10b981", bg: "#ecfdf5" },
+                Refund:  { label: "Hoàn tiền", color: "#f59e0b", bg: "#fffbeb" },
+                Withdraw:  { label: "Payout", color: "#6366f1", bg: "#eef2ff" },
+              };
+              const typeConfig = typeMap[cf.type] || { label: cf.type, color: "#6b7280", bg: "#f3f4f6" };
 
-              const statusConfig = {
-                done:       { label: "Hoàn thành", color: "#10B981" },
-                processing: { label: "Đang xử lý", color: "#6366F1" },
-                pending:    { label: "Chờ xử lý", color: "#F59E0B" },
-                failed:     { label: "Thất bại", color: "#EF4444" },
-              }[cf.status];
+              const statusMap: Record<string, any> = {
+                Success: { label: "Hoàn thành", color: "#10b981" },
+                Pending: { label: "Chờ xử lý", color: "#f59e0b" },
+                Failed:  { label: "Thất bại", color: "#ef4444" },
+              };
+              const statusConfig = statusMap[cf.status] || { label: cf.status, color: "#6b7280" };
 
               return (
-                <tr key={cf.id} className="border-t border-gray-50">
-                  <td className="py-3 pr-3">
+                <tr key={cf.id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="py-4 pr-4">
                     <span 
-                      className="px-2 py-1 rounded-lg text-xs font-semibold" 
+                      className="px-2.5 py-1 rounded-lg text-[10px] font-bold" 
                       style={{ background: typeConfig.bg, color: typeConfig.color }}
                     >
                       {typeConfig.label}
                     </span>
                   </td>
-                  <td className="py-3 pr-3">
-                    <p style={{ fontSize: "0.82rem", fontWeight: 600, color: "#1a1a2e" }} className="line-clamp-1">
-                      {cf.courtName}
+                  <td className="py-4 pr-4">
+                    <p className="text-xs font-bold text-gray-900 line-clamp-1">
+                      {cf.description || "Giao dịch hệ thống"}
                     </p>
-                    <p style={{ fontSize: "0.7rem", color: "#9ca3af" }}>
-                      {cf.customerName || cf.ownerName}
+                    <p className="text-[10px] text-gray-400 font-medium">
+                      {cf.userName || "SmashBook User"}
                     </p>
                   </td>
-                  <td className="py-3 pr-3">
-                    <span style={{ fontSize: "0.85rem", fontWeight: 700, color: "#00897B" }}>
+                  <td className="py-4 pr-4">
+                    <span className="text-xs font-black text-gray-900">
                       {cf.amount.toLocaleString()}đ
                     </span>
                   </td>
-                  <td className="py-3 pr-3">
-                    <span style={{ fontSize: "0.82rem", color: "#EF4444" }}>
-                      {cf.fee ? `-${cf.fee.toLocaleString()}đ` : "—"}
-                    </span>
-                  </td>
-                  <td className="py-3 pr-3">
-                    <span style={{ fontSize: "0.75rem", fontWeight: 600, color: statusConfig.color }}>
+                  <td className="py-4 pr-4">
+                    <span className="text-[10px] font-bold" style={{ color: statusConfig.color }}>
                       {statusConfig.label}
                     </span>
                   </td>
-                  <td className="py-3" style={{ fontSize: "0.72rem", color: "#9ca3af", whiteSpace: "nowrap" }}>
-                    {new Date(cf.date).toLocaleString("vi-VN", { 
-                      day: "2-digit", 
-                      month: "2-digit", 
-                      hour: "2-digit", 
-                      minute: "2-digit" 
-                    })}
+                  <td className="py-4">
+                    <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">
+                      {cf.createdAt ? new Date(cf.createdAt).toLocaleString("vi-VN", { 
+                        day: "2-digit", 
+                        month: "2-digit", 
+                        hour: "2-digit", 
+                        minute: "2-digit" 
+                      }) : "N/A"}
+                    </span>
                   </td>
                 </tr>
               );

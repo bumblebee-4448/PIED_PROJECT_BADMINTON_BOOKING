@@ -25,7 +25,7 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }  
     [Authorize(Policy = JwtExtensions.OwnerPolicy)]
-    [HttpDelete("RemoveCourt{courtId}")]
+    [HttpDelete("RemoveCourt/{courtId}")]
     public async Task<IActionResult> RemoveCourt(Guid courtId)
     {
         await _ownerService.RemoveCourt(courtId);
@@ -61,7 +61,7 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     } 
     [Authorize(Policy = JwtExtensions.OwnerPolicy)]
-    [HttpDelete("RemoveSubCourt{subCourtId}")]
+    [HttpDelete("RemoveSubCourt/{subCourtId}")]
     public async Task<IActionResult> RemoveSubCourt(Guid subCourtId)
     {
         await _ownerService.RemoveSubCourt(subCourtId);
@@ -122,7 +122,7 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }
     [Authorize(Policy = JwtExtensions.OwnerPolicy)]
-    [HttpDelete("RemoveOverrideSlot{overrideSlotId}")]
+    [HttpDelete("RemoveOverrideSlot/{overrideSlotId}")]
     public async Task<IActionResult> RemoveOverrideSlot(Guid overrideSlotId)
     {
         await _ownerService.RemoveOverrideSlot(overrideSlotId);
@@ -150,7 +150,7 @@ public class OwnerController : ControllerBase
             , HttpContext.TraceIdentifier));  
     }
     [Authorize(Policy = JwtExtensions.OwnerPolicy)]
-    [HttpDelete("UnlockException{exceptionId}")]
+    [HttpDelete("UnlockException/{exceptionId}")]
     public async Task<IActionResult> UnlockException(Guid exceptionId)
     {
         await _ownerService.UnlockException(exceptionId);

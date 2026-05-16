@@ -161,6 +161,16 @@ public class Service : IService
         return result > 0;
     }
 
+    public Task<bool> DeleteNotification(Guid notificationId)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<bool> DeleteAllRead()
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<Base.Response.PageResult<Response.GetNotificationResponse>> GetNotification(Base.Request.PagingRequest request)
     {
         var userIdStr = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
@@ -186,7 +196,8 @@ public class Service : IService
                 .ThenInclude(or => or.Customer)
                     .ThenInclude(c => c.User)
             .Include(n => n.Withdrawal)
-            .Where(x => x.UserId == userIdGuild && x.IsDeleted == false)
+            .Where(x => x.UserId == userIdGuild  &&
+                x.IsDeleted == false)
             .OrderByDescending(x => x.CreatedAt);
 
         var total = await query.CountAsync();
@@ -229,10 +240,10 @@ public class Service : IService
                     .ThenInclude(c => c.User)
             .Include(n => n.Withdrawal)
             .Where(x => 
-                x.Type == Request.TypeNotification.SystemReportCreated || 
+                (x.Type == Request.TypeNotification.SystemReportCreated || 
                 x.Type == Request.TypeNotification.ReportCreated ||
                 x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
-                x.Type == Request.TypeNotification.WithdrawalRequested && 
+                x.Type == Request.TypeNotification.WithdrawalRequested) &&
                 x.IsDeleted == false)
             .OrderByDescending(x => x.CreatedAt);
 

@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useLocation } from "react-router-dom";
 import { OwnerFacilityTimeline } from "../components/OwnerFacilityTimeline";
+import { cn } from "@/lib/utils";
 
 export default function OwnerSubCourtsPage() {
   const navigate = useNavigate();
@@ -149,8 +150,17 @@ export default function OwnerSubCourtsPage() {
                   </div>
                   <div className="mt-6 flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                      <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Hoạt động</span>
+                      <div className={cn(
+                        "h-2 w-2 rounded-full",
+                        court.status.toLowerCase() === "active" ? "bg-emerald-500" :
+                        court.status.toLowerCase() === "pending" ? "bg-amber-500" :
+                        "bg-slate-400"
+                      )} />
+                      <span className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                        {court.status.toLowerCase() === "active" ? "Hoạt động" :
+                         court.status.toLowerCase() === "pending" ? "Chờ duyệt" :
+                         court.status.toLowerCase() === "rejected" ? "Bị từ chối" : "Ngưng hoạt động"}
+                      </span>
                     </div>
                     <div className="h-8 w-8 rounded-full bg-gray-50 flex items-center justify-center text-gray-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-colors">
                       <ChevronRight size={18} />

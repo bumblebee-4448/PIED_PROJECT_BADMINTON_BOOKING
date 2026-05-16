@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Rallyhub.Api.Extention;
 using Rallyhub.Service.Dashboard;
@@ -17,9 +17,9 @@ public class DashboardController: ControllerBase
 
     [HttpGet("DashboardAdmin")]
     [Authorize(Policy = JwtExtensions.AdminPolicy)]
-    public async Task<IActionResult> DashboardAdmin()
+    public async Task<IActionResult> DashboardAdmin([FromQuery] string period = "Day")
     {
-        var result = await _dashboardService.DashboardAdmin();
+        var result = await _dashboardService.DashboardAdmin(period);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "Dashboard Admin", HttpContext.TraceIdentifier));
     }
     // [HttpGet("DashboardOwner")]

@@ -43,6 +43,7 @@ import { useOwnerRequests } from "../hooks/useOwnerRequests";
 import { useAcceptOwnerRequest } from "../hooks/useAcceptOwnerRequest";
 import { useRejectOwnerRequest } from "../hooks/useRejectOwnerRequest";
 import type { OwnerRequest } from "../types";
+import { DataTablePagination } from "@/shared/components/DataTablePagination";
 
 const statusConfig: Record<
   OwnerRequest["status"],
@@ -138,8 +139,7 @@ export function OwnerRequestsPage() {
   };
 
   const requests = data?.items || [];
-  const totalCount = data?.totalCount || 0;
-  const totalPages = Math.ceil(totalCount / pageSize);
+  const totalPages = data ? Math.ceil(data.totalCount / data.pageSize) : 0;
 
   return (
     <div className="space-y-6">
@@ -281,33 +281,13 @@ export function OwnerRequestsPage() {
           </TableBody>
         </Table>
 
-        {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100">
-            <p className="text-sm text-gray-500">
-              Hiển thị {requests.length} / {totalCount} đơn
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPageIndex((p) => Math.max(1, p - 1))}
-                disabled={pageIndex <= 1}
-              >
-                Trước
-              </Button>
-              <span className="text-sm text-gray-600 px-2">
-                Trang {pageIndex} / {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setPageIndex((p) => Math.min(totalPages, p + 1))}
-                disabled={pageIndex >= totalPages}
-              >
-                Sau
-              </Button>
-            </div>
+          <div className="p-4 border-t border-gray-50 bg-gray-50/20">
+            <DataTablePagination 
+              pageIndex={pageIndex}
+              totalPages={totalPages}
+              onPageChange={setPageIndex}
+            />
           </div>
         )}
       </div>

@@ -1,15 +1,19 @@
 import { useNavigate } from "react-router";
 import { AlertTriangle, Clock, Bell } from "lucide-react";
-import type { SystemReport, PendingCourt, CashFlow } from "../types";
+import type { SystemReport, PendingCourt, RecentWithdrawal } from "../dashboardTypes";
 import { Button } from "@/shared/components/ui/button";
 
 interface DashboardAlertsProps {
   highPriorityReports: SystemReport[];
   pendingCourts: PendingCourt[];
-  pendingPayouts: CashFlow[];
+  pendingPayouts: RecentWithdrawal[];
 }
 
-export function DashboardAlerts({ highPriorityReports, pendingCourts, pendingPayouts }: DashboardAlertsProps) {
+export function DashboardAlerts({ 
+  highPriorityReports = [], 
+  pendingCourts = [], 
+  pendingPayouts = [] 
+}: DashboardAlertsProps) {
   const navigate = useNavigate();
 
   const hasAlerts = highPriorityReports.length > 0 || pendingCourts.length > 0 || pendingPayouts.length > 0;
@@ -26,7 +30,7 @@ export function DashboardAlerts({ highPriorityReports, pendingCourts, pendingPay
         >
           <AlertTriangle size={16} style={{ color: "#DC2626", flexShrink: 0 }} />
           <p style={{ fontSize: "0.82rem", color: "#DC2626", flex: 1 }}>
-            🚨 <strong>Báo cáo khẩn:</strong> {r.courtName} — {r.description.slice(0, 60)}...
+            🚨 <strong>Báo cáo khẩn:</strong> {r.title} — {r.reason?.slice(0, 60)}...
           </p>
           <Button 
             variant="link"

@@ -1,6 +1,6 @@
-﻿namespace Rallyhub.Service.Dashboard;
+namespace Rallyhub.Service.Dashboard;
 
 public interface IService
 {
-    public Task<Response.DashboardAdminResponse> DashboardAdmin();
+    public Task<Response.DashboardAdminResponse> DashboardAdmin(string period = "Day");
 }

@@ -47,6 +47,21 @@ public class NotificationController : ControllerBase
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "get unread count success", HttpContext.TraceIdentifier));
     }
 
+    [HttpDelete("DeleteNotification/{id}")]
+    [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]
+    public async Task<IActionResult> DeleteNotification(Guid id)
+    {
+        var result = await _Note.DeleteNotification(id);
+        return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "delete notification success", HttpContext.TraceIdentifier));
+    }
+    
+    [HttpDelete("DeleteAllRead")]
+    [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]
+    public async Task<IActionResult> DeleteAllRead()
+    {
+        var result = await _Note.DeleteAllRead();
+        return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "delete all read notifications success", HttpContext.TraceIdentifier));
+    }
     [HttpPut("MarkAllAsRead")]
     [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]
     public async Task<IActionResult> MarkAllAsRead()

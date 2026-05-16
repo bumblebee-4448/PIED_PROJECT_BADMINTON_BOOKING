@@ -1,28 +1,29 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SYSTEM_REPORTS, PENDING_COURTS, CASH_FLOW } from "../data/mockData";
 import { adminDashboardService } from "../services/adminDashboardService";
 
 export const useAdminDashboard = () => {
-  const { data: adminStats, isLoading: isAdminStatsLoading } = useQuery({
-    queryKey: ["admin-stats"],
-    queryFn: () => adminDashboardService.getAdminStats()
+  const [period, setPeriod] = useState("Day");
+
+  const { data: adminStats, isLoading: isAdminStatsLoading, isError, error } = useQuery({
+    queryKey: ["admin-stats", period],
+    queryFn: () => adminDashboardService.getAdminStats(period)
   });
 
   const pendingReports = useMemo(() => 
-    SYSTEM_REPORTS.filter(r => r.status === "pending"), 
-  []);
+    adminStats?.recentSystemReports || [], 
+  [adminStats]);
 
   const pendingCourts = useMemo(() => 
-    PENDING_COURTS.filter(c => c.status === "pending"), 
-  []);
+    adminStats?.pendingCourts || [], 
+  [adminStats]);
 
-  const pendingPayouts = useMemo(() => 
-    CASH_FLOW.filter(c => c.type === "payout" && c.status === "pending"), 
-  []);
+  const recentWithdrawals = useMemo(() => 
+    adminStats?.recentWithdrawals || [], 
+  [adminStats]);
 
   const highPriorityReports = useMemo(() => 
-    pendingReports.filter(r => r.priority === "high"), 
+    pendingReports.filter(r => (r as any).priority === "high"), 
   [pendingReports]);
 
   return {
@@ -30,7 +31,11 @@ export const useAdminDashboard = () => {
     isAdminStatsLoading,
     pendingReports,
     pendingCourts,
-    pendingPayouts,
-    highPriorityReports
+    recentWithdrawals,
+    highPriorityReports,
+    period,
+    setPeriod,
+    isError,
+    error
   };
 };
