@@ -74,13 +74,16 @@ public class Service: IService
             throw new Exception("User not found");
         }
         var userId = Guid.Parse(getUserId);
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
-        var report = _dbContext.Reports.Where(x => x.IsDeleted == false);
+        var user = await _dbContext.Users
+            .Include(x => x.Customer)
+            .FirstOrDefaultAsync(x => x.Id == userId);
+        var report = _dbContext.Reports
+            .Where(x => x.IsDeleted == false);
 
         if (user!.Role != "Admin")
         {
             report = report
-                .Where(x => x.CustomerId == userId)
+                .Where(x => x.CustomerId == user.Customer!.Id)
                 .OrderBy(x =>
                     x.Status == "Confirmed" ? 1 :
                     x.Status == "Pending" ? 2 : 3)
