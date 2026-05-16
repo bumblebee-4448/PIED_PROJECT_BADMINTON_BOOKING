@@ -46,6 +46,10 @@ public class Response
         public string PhoneNumber { get; set; } = null!;
         public string UrlMap { get; set; } = null!;
         public DateTimeOffset CreatedAt { get; set; }
+        public Guid? CourtId { get; set; }
+        public Guid? FeedbackId { get; set; }
+        public int? Rating { get; set; }
+        public string? Comment { get; set; }
     }
 
     public class SlotsResponse

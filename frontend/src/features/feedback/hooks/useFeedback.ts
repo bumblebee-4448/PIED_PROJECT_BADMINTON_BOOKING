@@ -71,7 +71,7 @@ export function useUpsertFeedback() {
     onSuccess: (result) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BOOKINGS });
       queryClient.invalidateQueries({ queryKey: ["court-feedbacks"] });
-      queryClient.invalidateQueries({ queryKey: ["booking-feedback-lookup"] });
+      queryClient.invalidateQueries({ queryKey: ["feedback-lookup"] });
       toast.success(
         result === "updated"
           ? "Cập nhật đánh giá thành công"
@@ -93,7 +93,7 @@ export function useDeleteFeedback() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.BOOKINGS });
       queryClient.invalidateQueries({ queryKey: ["court-feedbacks"] });
-      queryClient.invalidateQueries({ queryKey: ["booking-feedback-lookup"] });
+      queryClient.invalidateQueries({ queryKey: ["feedback-lookup"] });
       toast.success("Xóa đánh giá thành công");
     },
     onError: (error) => {
@@ -111,6 +111,9 @@ export function useCourtFeedbacks(
     queryKey: QUERY_KEYS.COURT_FEEDBACKS(courtId, pageIndex, pageSize),
     queryFn: () => feedbackService.getByCourt(courtId, pageIndex, pageSize),
     enabled: !!courtId,
+    staleTime: 0,
+    refetchInterval: 3000,
+    refetchIntervalInBackground: true,
   });
 }
 

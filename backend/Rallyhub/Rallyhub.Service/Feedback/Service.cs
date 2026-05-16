@@ -6,6 +6,9 @@ namespace Rallyhub.Service.Feedback;
 
 public class Service: IService
 {
+    private const string CompleteStatus = "Complete";
+    private const string CompletedStatus = "Completed";
+
     private readonly AppDbContext _dbContext;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly Notification.IService _notificationService;
@@ -19,16 +22,10 @@ public class Service: IService
 
     public async Task CreateFeedback(Request.CreateFeedbackRequest request)
     {
-        if (await _dbContext.Feedbacks.AnyAsync(x => x.BookingId == request.BookingId))
-        {
-            
-            return;
-        }
-
         var booking = await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == request.BookingId);
         if (booking == null) throw new ArgumentException("Không tìm thấy booking");
 
-        if (booking.Status != "Completed")
+        if (!IsCompletedBooking(booking.Status))
         {
             throw new ArgumentException("Chỉ có thể đánh giá sau khi đã hoàn thành buổi chơi");
         }
@@ -43,10 +40,18 @@ public class Service: IService
         if (string.IsNullOrEmpty(customerIdStr)) throw new ArgumentException("Không tìm thấy thông tin khách hàng");
         var customerId = Guid.Parse(customerIdStr);
 
+        if (booking.CustomerId != customerId)
+        {
+            throw new ArgumentException("Bạn không có quyền đánh giá booking này");
+        }
+
         if (request.Rating > 5 || request.Rating < 1)
         {
             throw new ArgumentException("Số sao đánh giá phải từ 1 đến 5");
         }
+
+        var existingFeedback = await _dbContext.Feedbacks
+            .FirstOrDefaultAsync(x => x.BookingId == request.BookingId);
 
         var bookingDetail = await _dbContext.BookingDetails
             .Include(x => x.SubCourt).ThenInclude(sc => sc.Court).ThenInclude(c => c.Owner)
@@ -55,6 +60,23 @@ public class Service: IService
         if (bookingDetail == null) throw new Exception("Không tìm thấy chi tiết booking");
         
         var court = bookingDetail.SubCourt.Court;
+        if (existingFeedback != null)
+        {
+            if (existingFeedback.CustomerId != customerId)
+            {
+                throw new ArgumentException("Bạn không có quyền chỉnh sửa đánh giá này");
+            }
+
+            existingFeedback.Rating = request.Rating;
+            existingFeedback.Comment = request.Comment;
+            existingFeedback.CourtId = court.Id;
+            existingFeedback.CustomerId = customerId;
+            existingFeedback.IsDeleted = false;
+            existingFeedback.UpdatedAt = DateTimeOffset.UtcNow;
+            await _dbContext.SaveChangesAsync();
+            return;
+        }
+
         var newFeedback = new Repository.Entity.Feedback()
         {
             CustomerId = customerId,
@@ -103,6 +125,9 @@ public class Service: IService
             .Select(x => new Response.GetFeedbackResponse()
             {
                 Id = x.Id,
+                BookingId = x.BookingId,
+                CourtId = x.CourtId,
+                CustomerId = x.CustomerId,
                 NameCustomer = x.Customer.User.FirstName + " "  + x.Customer.User.LastName,
                 Rating = x.Rating,
                 Comment =  x.Comment,
@@ -129,6 +154,9 @@ public class Service: IService
         return new Response.GetFeedbackResponse()
         {
             Id = feedback.Id,
+            BookingId = feedback.BookingId,
+            CourtId = feedback.CourtId,
+            CustomerId = feedback.CustomerId,
             NameCustomer = feedback.Customer.User.FirstName + " " + feedback.Customer.User.LastName,
             Rating = feedback.Rating,
             Comment = feedback.Comment,
@@ -182,8 +210,14 @@ public class Service: IService
         }
         feedback.Rating = request.Rating;
         feedback.Comment = request.Comment;
+        feedback.IsDeleted = false;
         feedback.UpdatedAt = DateTimeOffset.UtcNow;
         _dbContext.Update(feedback);
         await _dbContext.SaveChangesAsync();
+    }
+
+    private static bool IsCompletedBooking(string status)
+    {
+        return status == CompleteStatus || status == CompletedStatus;
     }
 }

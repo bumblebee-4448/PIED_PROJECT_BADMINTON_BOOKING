@@ -742,6 +742,19 @@ public class Service: IService
             Address = x.BookingDetails.First().SubCourt.Court.Address,
             PhoneNumber =  x.BookingDetails.First().SubCourt.Court.Owner.User.PhoneNumber!,
             UrlMap = x.BookingDetails.First().SubCourt.Court.MapUrl,
+            CourtId = x.BookingDetails.First().SubCourt.CourtId,
+            FeedbackId = x.Feedbacks
+                .Where(f => !f.IsDeleted)
+                .Select(f => (Guid?)f.Id)
+                .FirstOrDefault(),
+            Rating = x.Feedbacks
+                .Where(f => !f.IsDeleted)
+                .Select(f => (int?)f.Rating)
+                .FirstOrDefault(),
+            Comment = x.Feedbacks
+                .Where(f => !f.IsDeleted)
+                .Select(f => f.Comment)
+                .FirstOrDefault(),
             SlotsResponses = x.BookingDetails.Select(x => new Response.SlotsResponse
             {
                 SlotId = x.Id,

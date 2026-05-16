@@ -10,7 +10,23 @@ import { useTransactions } from "../hooks/useTransactions";
 import { TransactionDetailDialog } from "../components/TransactionDetailDialog";
 import { Loader2, ClipboardList } from "lucide-react";
 import { DataTablePagination } from "@/shared/components/DataTablePagination";
-import { type FilterStatus, type TransactionItem } from "../types";
+import { type FilterStatus, type GetBookingResponse, type TransactionItem } from "../types";
+
+type BookingIdSource = Partial<GetBookingResponse> & {
+  BookingId?: string;
+  id?: string;
+  Id?: string;
+};
+
+function getBookingId(booking?: BookingIdSource | null, fallback = "") {
+  return String(
+    booking?.bookingId ||
+      booking?.BookingId ||
+      booking?.id ||
+      booking?.Id ||
+      fallback
+  );
+}
 
 export function BookingHistoryPage() {
   const [pageIndex, setPageIndex] = React.useState(1);
