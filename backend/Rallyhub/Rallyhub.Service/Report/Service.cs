@@ -17,7 +17,7 @@ public class Service: IService
         _notification = notification;
     }
 
-    public async Task CreateReportBookings(Request.CreateReportBookingsRequest request)
+    public async Task<string> CreateReportBookings(Request.CreateReportBookingsRequest request)
     {
         var getUserId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
         if (getUserId == null)
@@ -30,6 +30,19 @@ public class Service: IService
         {
             throw new Exception("Customer not found 1");
         }
+
+        var existBooking = _dbContext.Bookings
+            // .Include(x => x.BookingDetails)
+            //     .ThenInclude(x => x.SubCourt)
+            //         .ThenInclude(x => x.Court)
+            .Where(x =>
+                x.Status == "Completed" &&
+                x.Id == request.BookingId &&
+                x.CustomerId == customer.Id);
+        if (!existBooking.Any())
+        {
+            throw new Exception("Đơn đặt sân không đủ điều kiện báo cáo");
+        }        
         var bookingDetail = await _dbContext.BookingDetails.FirstOrDefaultAsync(x => x.BookingId == request.BookingId);
         if (bookingDetail == null)
         {
@@ -50,6 +63,7 @@ public class Service: IService
         };
         await _dbContext.Reports.AddAsync(report);
         await _dbContext.SaveChangesAsync();
+        return "Báo cáo đơn đặt sân thành công";
     }
 
     public async Task<Base.Response.PageResult<Response.GetReportBookingsRequest>> GetReportBookings(Request.GetReportBookingsRequest request)
@@ -62,29 +76,35 @@ public class Service: IService
         var userId = Guid.Parse(getUserId);
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == userId);
         var report = _dbContext.Reports.Where(x => x.IsDeleted == false);
-        if (!string.IsNullOrWhiteSpace(request.Status))
+
+        if (user!.Role != "Admin")
         {
-            report = report.Where(x => x.Status == request.Status);
+            report = report
+                .Where(x => x.CustomerId == userId)
+                .OrderBy(x =>
+                    x.Status == "Confirmed" ? 1 :
+                    x.Status == "Pending" ? 2 : 3)
+                .ThenByDescending(x => x.CreatedAt);
         }
-        if (user!.Role == "Customer")
+        else
         {
-            var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == userId);
-            if (customer == null)
-            {
-                throw new Exception("user not found");
-            }
-            report = report.Where(x => x.CustomerId == customer.Id);
+            report = report
+                .OrderBy(x =>
+                    x.Status == "Pending" ? 1 :
+                    x.Status == "Confirmed" ? 2 : 3)
+                .ThenByDescending(x => x.CreatedAt);
         }
         
-        var sortTime = report.OrderByDescending(x => x.CreatedAt);
         var totalItems = await report.CountAsync();
-        var pageQuery = sortTime.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
+        var pageQuery = report.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
         var selectQuery = pageQuery.Select(x => new Response.GetReportBookingsRequest()
         {
+            ReportBookingId =  x.Id,
             Reason =  x.Reason,
             CustomerId = x.CustomerId,
             CourtId =  x.CourtId,
             BookingId =  x.BookingId,
+            Status = x.Status
         });
         var listResult = await selectQuery.ToListAsync();
         var result = new Base.Response.PageResult<Response.GetReportBookingsRequest>()
@@ -97,7 +117,7 @@ public class Service: IService
         return result;
     }
 
-    public async Task ConfirmReport(Request.ConfirmReportRequest request)
+    public async Task<string> ConfirmReport(Request.ConfirmReportRequest request)
     {
         var report = await _dbContext.Reports.FirstOrDefaultAsync(x => x.Id == request.ReportId);
         if (report == null)
@@ -119,7 +139,9 @@ public class Service: IService
             ReportId =  request.ReportId,
         });
         report.Status = "Completed";
+        report.UpdatedAt = DateTimeOffset.UtcNow;
         _dbContext.Reports.Update(report);
         await _dbContext.SaveChangesAsync();
+        return "Phản hồi thành công";
     }
 }
