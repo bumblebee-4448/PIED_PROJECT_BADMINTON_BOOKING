@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Api.Extention;
@@ -44,14 +44,14 @@ public class FeedbackController: ControllerBase
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> UpdateFeedback([FromBody]Request.UpdateFeedbackRequest request)
     {
-        await _feadbackService.UpdateFeeback(request);
+        await _feadbackService.UpdateFeedback(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("update feedback success", HttpContext.TraceIdentifier));
     }
     [HttpDelete("")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> DeleteFeedback([FromBody]Request.DeteteFeedbackRequest request)
     {
-        await _feadbackService.DeteteFeedback(request);
+        await _feadbackService.DeleteFeedback(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("delete feedback success", HttpContext.TraceIdentifier));
     }
 }
