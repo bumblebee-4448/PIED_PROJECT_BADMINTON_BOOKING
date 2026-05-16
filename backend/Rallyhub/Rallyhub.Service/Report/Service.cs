@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 
@@ -49,6 +49,16 @@ public class Service: IService
             CreatedAt = DateTimeOffset.UtcNow
         };
         await _dbContext.Reports.AddAsync(report);
+        
+        _notification.CreateNotification(new Notification.Request.CreateNotificationRequest
+        {
+            UserId = userId, // Assigning to user ID but it's an Admin type
+            Title = "Khiếu nại đặt sân mới",
+            Content = $"Khách hàng vừa gửi một khiếu nại cho sân ID: {report.CourtId}.",
+            Type = Notification.Request.TypeNotification.ReportCreated,
+            ReportId = report.Id
+        });
+
         await _dbContext.SaveChangesAsync();
     }
 
@@ -113,9 +123,9 @@ public class Service: IService
         _notification.CreateNotification(new Notification.Request.CreateNotificationRequest()
         {
             UserId = customer.UserId,
-            Title = "rallyhub đã phản hồi 1 report của bạn",
-            Content = "Hệ thống đã xác nhận báo cáo đặt sân của bạn và đang xử lý",
-            Type = Notification.Request.TypeNotification.ReportCreated,
+            Title = "Khiếu nại của bạn đã được phản hồi",
+            Content = "Hệ thống đã xác nhận báo cáo đặt sân của bạn và đang tiến hành xử lý.",
+            Type = Notification.Request.TypeNotification.ReportResponded,
             ReportId =  request.ReportId,
         });
         report.Status = "Completed";

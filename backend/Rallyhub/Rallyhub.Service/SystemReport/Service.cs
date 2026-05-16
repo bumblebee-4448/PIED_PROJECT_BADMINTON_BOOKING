@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 using Rallyhub.Service.MailService;
@@ -34,6 +34,16 @@ public class Service: IService
             CreatedAt = DateTimeOffset.UtcNow
         };
         _dbContext.SystemReports.Add(result);
+        
+        _notification.CreateNotification(new Notification.Request.CreateNotificationRequest
+        {
+            UserId = userId,
+            Title = "Báo cáo hệ thống mới",
+            Content = $"Khách hàng vừa gửi một báo cáo lỗi hệ thống: {result.Title}",
+            Type = Notification.Request.TypeNotification.SystemReportCreated,
+            SystemReportId = result.Id
+        });
+
         await _dbContext.SaveChangesAsync();
     }
 
@@ -96,9 +106,9 @@ public class Service: IService
         _notification.CreateNotification(new Notification.Request.CreateNotificationRequest()
         {
             UserId = user.Id,
-            Title = report.Title,
-            Content =  "Hệ thống đã xác nhận báo cáo của bạn",
-            Type = Notification.Request.TypeNotification.SystemReportCreated,
+            Title = "Báo cáo của bạn đã được phản hồi",
+            Content = $"Hệ thống đã phản hồi báo cáo: {report.Title}",
+            Type = Notification.Request.TypeNotification.SystemReportResponded,
             SystemReportId =  report.Id,
         });
         report.Status = "Confirmed";
