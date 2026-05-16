@@ -57,7 +57,7 @@ export const useNotificationActions = () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success(typeof message === "string" ? message : "Xóa thông báo thành công");
     },
-    onError: (error: any) => {
+    onError: () => {
       // Bỏ qua vì global axios interceptor đã hiển thị toast lỗi rồi
     }
   });
@@ -69,7 +69,7 @@ export const useNotificationActions = () => {
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       toast.success(typeof message === "string" ? message : "Đã xóa các thông báo đã đọc");
     },
-    onError: (error: any) => {
+    onError: () => {
       // Bỏ qua vì global axios interceptor đã hiển thị toast lỗi rồi
     }
   });
