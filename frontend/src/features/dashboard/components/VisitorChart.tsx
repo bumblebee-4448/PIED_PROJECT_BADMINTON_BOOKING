@@ -7,7 +7,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import type { VisitorData } from "../types";
+import type { VisitorData } from "../dashboardTypes";
 
 interface VisitorChartProps {
   data: VisitorData[];

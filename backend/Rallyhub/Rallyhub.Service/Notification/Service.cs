@@ -185,7 +185,8 @@ public class Service : IService
                 .ThenInclude(or => or.Customer)
                     .ThenInclude(c => c.User)
             .Include(n => n.Withdrawal)
-            .Where(x => x.UserId == userIdGuild)
+            .Where(x => x.UserId == userIdGuild  &&
+                x.IsDeleted == false)
             .OrderByDescending(x => x.CreatedAt);
 
         var total = await query.CountAsync();
@@ -204,6 +205,68 @@ public class Service : IService
             PageSize = request.PageSize,
             TotalItems = total,
         };
+    }
+
+    public async Task<bool> DeleteNotification(Guid notificationId)
+    {
+        var userIdStr = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        if (userIdStr == null) throw new Exception("Unauthorized");
+        var userId = Guid.Parse(userIdStr);
+
+        var notification = await _dbContext.Notifications.FirstOrDefaultAsync(x => x.Id == notificationId);
+        if (notification == null) return true;
+
+        var role = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+        bool isAdminReadingSystemNote = role == "Admin" && 
+            (notification.Type == Request.TypeNotification.SystemReportCreated || 
+             notification.Type == Request.TypeNotification.ReportCreated ||
+             notification.Type == Request.TypeNotification.OwnerRequestSubmitted ||
+             notification.Type == Request.TypeNotification.WithdrawalRequested);
+
+        if (notification.UserId != userId && !isAdminReadingSystemNote)
+        {
+            throw new Exception("Access Denied. You do not own this notification.");
+        }
+
+        notification.IsDeleted = true;
+        notification.UpdatedAt = DateTimeOffset.UtcNow;
+        var result = await _dbContext.SaveChangesAsync();
+        return result > 0;
+    }
+
+    public async Task<bool> DeleteAllRead()
+    {
+        var userIdStr = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        if (userIdStr == null) throw new Exception("Unauthorized");
+        var userId = Guid.Parse(userIdStr);
+
+        var role = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+
+        IQueryable<Repository.Entity.Notification> query = _dbContext.Notifications.Where(x => x.IsRead && !x.IsDeleted);
+        if (role == "Admin")
+        {
+            query = query.Where(x => 
+                x.Type == Request.TypeNotification.SystemReportCreated || 
+                x.Type == Request.TypeNotification.ReportCreated ||
+                x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
+                x.Type == Request.TypeNotification.WithdrawalRequested);
+        }
+        else
+        {
+            query = query.Where(x => x.UserId == userId);
+        }
+
+        var readNotes = await query.ToListAsync();
+        if (!readNotes.Any()) return true;
+
+        foreach (var note in readNotes)
+        {
+            note.IsDeleted = true;
+            note.UpdatedAt = DateTimeOffset.UtcNow;
+        }
+        
+        var result = await _dbContext.SaveChangesAsync();
+        return result > 0;
     }
 
     public async Task<Base.Response.PageResult<Response.GetNotificationResponse>> AdminGetNotification(Base.Request.PagingRequest request)
@@ -228,10 +291,11 @@ public class Service : IService
                     .ThenInclude(c => c.User)
             .Include(n => n.Withdrawal)
             .Where(x => 
-                x.Type == Request.TypeNotification.SystemReportCreated || 
+                (x.Type == Request.TypeNotification.SystemReportCreated || 
                 x.Type == Request.TypeNotification.ReportCreated ||
                 x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
-                x.Type == Request.TypeNotification.WithdrawalRequested)
+                x.Type == Request.TypeNotification.WithdrawalRequested) &&
+                x.IsDeleted == false)
             .OrderByDescending(x => x.CreatedAt);
 
         var total = await query.CountAsync();

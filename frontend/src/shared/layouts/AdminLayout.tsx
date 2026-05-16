@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Outlet, useNavigate, useLocation, Navigate } from "react-router-dom";
 import {
   LayoutDashboard,
   Users,
   Building2,
   Menu,
-  Bell,
   ShieldCheck,
   Search,
   FileCheck,
@@ -17,6 +16,7 @@ import { Button } from "@/shared/components/ui/button";
 import { cn } from "@/lib/utils";
 import { UserProfileCard } from "@/features/auth/components/UserProfileCard";
 import { useMe } from "@/features/profile/hooks/useMe";
+import { NotificationBell } from "@/features/notifications";
 
 const ADMIN_NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/admin" },
@@ -41,6 +41,16 @@ export function AdminLayout() {
 
   // Sử dụng React Query tối ưu thay cho useEffect
   const { isLoading: isProfileLoading } = useMe();
+
+  // Ngăn chặn duplicate scrollbar (body và layout)
+  useEffect(() => {
+    document.documentElement.style.overflow = 'hidden';
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.documentElement.style.overflow = '';
+      document.body.style.overflow = '';
+    };
+  }, []);
 
   const normalizedRole = role
     ? role.charAt(0).toUpperCase() + role.slice(1).toLowerCase()
@@ -198,14 +208,7 @@ export function AdminLayout() {
           </div>
 
           <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="relative rounded-2xl text-gray-400 hover:bg-gray-100 h-11 w-11 transition-all"
-            >
-              <Bell size={20} />
-              <span className="absolute top-3 right-3 w-2 h-2 rounded-full bg-red-500 border-2 border-white" />
-            </Button>
+            <NotificationBell />
             <UserProfileCard />
           </div>
         </header>

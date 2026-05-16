@@ -5,6 +5,7 @@ import { useAuthStore } from "@/features/auth/store";
 import { cn } from "@/lib/utils";
 import { OwnerRegistrationButton } from "@/features/owner-registration";
 import { UserProfileCard } from "@/features/auth/components/UserProfileCard";
+import { NotificationBell } from "@/features/notifications";
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = React.useState(false);
@@ -106,7 +107,12 @@ export function Navbar() {
               Đăng nhập
             </button>
           )}
-          {accessToken && <UserProfileCard />}
+          {accessToken && (
+            <div className="flex items-center gap-2">
+              <NotificationBell />
+              <UserProfileCard />
+            </div>
+          )}
         </div>
 
         {/* Mobile menu toggle */}

@@ -137,7 +137,7 @@ export const ownerCourtService = {
   },
 
   removeOverrideSlot: async (overrideSlotId: string) => {
-    return apiClient.delete(`/Owner/RemoveOverrideSlot${overrideSlotId}`);
+    return apiClient.delete(`/Owner/RemoveOverrideSlot/${overrideSlotId}`);
   },
 
   updateConfigSlotPrice: async (data: { configSlotId: string; newPrice: number }) => {
@@ -167,7 +167,7 @@ export const ownerCourtService = {
   },
 
   unlockException: async (exceptionId: string) => {
-    return apiClient.delete(`/Owner/UnlockException${exceptionId}`);
+    return apiClient.delete(`/Owner/UnlockException/${exceptionId}`);
   },
 
   getBookingDetail: async (bookingDetailsId: string) => {

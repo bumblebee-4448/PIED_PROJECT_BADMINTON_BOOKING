@@ -108,6 +108,8 @@ export const QUERY_KEYS = {
     ["court-feedbacks", courtId, pageIndex, pageSize] as const,
   MAP_SEARCH: (filters: any) => ["map-search", filters] as const, // Tìm kiếm bản đồ
   WALLET_INFO: ["wallet-info"] as const, // Thông tin ví
+  NOTIFICATIONS: (params?: any) => ["notifications", params] as const, // Thông báo
+  UNREAD_COUNT: ["unread-count"] as const, // Số thông báo chưa đọc
 } as const;
 
 /**

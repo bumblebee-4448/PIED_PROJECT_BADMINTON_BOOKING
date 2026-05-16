@@ -9,7 +9,6 @@ import {
   Plus,
   Loader2,
   Lock as LockIcon,
-  CalendarCheck,
   Check as CheckIcon
 } from "lucide-react";
 import { useBookingDetail } from "../hooks/useOwnerSlots";
@@ -61,70 +60,68 @@ function BookingDetailModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[400px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
-        <div className="bg-[#0B2421] p-6 text-white relative">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-black">Thông tin người đặt</DialogTitle>
-          </DialogHeader>
-          <div className="absolute -bottom-6 right-6 w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg">
-            <CalendarCheck size={24} className="text-white" />
-          </div>
-        </div>
+      <DialogContent className="sm:max-w-[420px] rounded-2xl p-0 overflow-hidden">
+        <DialogHeader className="p-6 pb-2">
+          <DialogTitle className="text-lg font-bold text-gray-900">Chi tiết lượt đặt sân</DialogTitle>
+        </DialogHeader>
 
-        <div className="p-6 pt-10 space-y-6">
+        <div className="px-6 pb-8 space-y-5">
           {isLoading ? (
-            <div className="py-12 flex flex-col items-center gap-3">
-              <Loader2 className="animate-spin text-emerald-500" size={32} />
-              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Đang tải thông tin...</p>
+            <div className="py-10 flex flex-col items-center gap-3">
+              <Loader2 className="animate-spin text-emerald-500" size={24} />
+              <p className="text-sm text-gray-500">Đang tải thông tin...</p>
             </div>
           ) : detail ? (
             <div className="space-y-4">
-              <div className="flex items-center gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                <div className="w-10 h-10 rounded-xl bg-white border border-gray-100 flex items-center justify-center text-lg font-black text-emerald-600">
+              <div className="flex items-center gap-3 p-4 bg-emerald-50/50 rounded-xl border border-emerald-100/50">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-700 font-bold">
                   {detail.name?.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Khách hàng</p>
-                  <p className="text-base font-black text-[#0B2421]">{detail.name}</p>
+                  <p className="text-xs text-emerald-600 font-medium">Khách hàng</p>
+                  <p className="text-base font-bold text-gray-900">{detail.name}</p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-3">
-                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Số điện thoại</p>
-                  <p className="text-sm font-bold text-[#0B2421]">{detail.phoneNumber || "N/A"}</p>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-gray-400">Số điện thoại</p>
+                  <p className="text-sm font-semibold text-gray-700">{detail.phoneNumber || "Chưa cung cấp"}</p>
                 </div>
-                <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Email</p>
-                  <p className="text-sm font-bold text-[#0B2421]">{detail.gmail}</p>
+                <div className="space-y-1">
+                  <p className="text-xs font-medium text-gray-400">Email</p>
+                  <p className="text-sm font-semibold text-gray-700">{detail.gmail}</p>
                 </div>
               </div>
 
-              <div className="p-4 bg-emerald-50 rounded-2xl border border-emerald-100">
-                <p className="text-[10px] font-black text-emerald-600/60 uppercase tracking-widest mb-1">Khung giờ đặt</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-black text-emerald-700">{detail.subCourtName}</span>
-                  <span className="text-sm font-black text-[#0B2421]">
-                    {detail.startTime.substring(0, 5)} - {detail.endTime.substring(0, 5)}
-                  </span>
+              <div className="pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+                  <div className="space-y-0.5">
+                    <p className="text-[10px] font-medium text-gray-400">Sân con</p>
+                    <p className="text-sm font-bold text-gray-800">{detail.subCourtName}</p>
+                  </div>
+                  <div className="text-right space-y-0.5">
+                    <p className="text-[10px] font-medium text-gray-400">Khung giờ</p>
+                    <p className="text-sm font-bold text-emerald-600">
+                      {detail.startTime.substring(0, 5)} - {detail.endTime.substring(0, 5)}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="py-12 text-center text-gray-400 font-bold">
+            <div className="py-10 text-center text-gray-400 text-sm">
               Không tìm thấy thông tin chi tiết.
             </div>
           )}
-        </div>
 
-        <DialogFooter className="p-6 bg-gray-50 border-t border-gray-100">
           <Button 
-            className="w-full h-12 bg-[#0B2421] hover:bg-[#1a3a36] text-white rounded-2xl font-black text-xs uppercase tracking-widest"
+            className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold shadow-sm"
             onClick={() => onOpenChange(false)}
           >
-            Đóng cửa sổ
+            Đóng
           </Button>
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
@@ -178,7 +175,7 @@ function UpdateSubCourtModal({
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
-          <Button onClick={handleUpdate} disabled={updateMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-black">
+          <Button onClick={handleUpdate} disabled={updateMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-bold">
             {updateMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "Cập nhật"}
           </Button>
         </DialogFooter>
@@ -369,14 +366,14 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
             <DialogContent className="sm:max-w-[450px] rounded-2xl p-0 overflow-hidden border-none shadow-2xl">
               <div className="bg-emerald-600 p-6 text-white">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-black">Gộp Slot Mới</DialogTitle>
+                  <DialogTitle className="text-xl font-bold">Gộp Slot Mới</DialogTitle>
                 </DialogHeader>
                 <p className="text-emerald-100 text-xs mt-1 font-medium">Tạo khung giờ cố định cho các sân được chọn</p>
               </div>
 
               <div className="p-5 space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar">
                 <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Chọn sân áp dụng</Label>
+                  <Label className="text-xs font-semibold text-gray-400">Chọn sân áp dụng</Label>
                   <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100 max-h-40 overflow-y-auto">
                     {subCourts.map(sc => (
                       <div 
@@ -419,7 +416,7 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
 
                 {isRecurring ? (
                   <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Chọn thứ trong tuần</Label>
+                    <Label className="text-xs font-semibold text-gray-400">Chọn thứ trong tuần</Label>
                     <div className="grid grid-cols-2 gap-2">
                       {DAYS_OF_WEEK.map((day) => (
                         <div 
@@ -440,7 +437,7 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ngày áp dụng</Label>
+                    <Label className="text-xs font-semibold text-gray-400">Ngày áp dụng</Label>
                     <Input 
                       type="date" 
                       value={modalDate} 
@@ -453,17 +450,17 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Bắt đầu</Label>
+                    <Label className="text-xs font-semibold text-gray-400">Bắt đầu</Label>
                     <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="h-12 rounded-xl bg-gray-50 border-gray-100 font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Kết thúc</Label>
+                    <Label className="text-xs font-semibold text-gray-400">Kết thúc</Label>
                     <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="h-12 rounded-xl bg-gray-50 border-gray-100 font-bold" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Giá tiền (VNĐ)</Label>
+                  <Label className="text-xs font-semibold text-gray-400">Giá tiền (VNĐ)</Label>
                   <Input 
                     type="text" 
                     placeholder="Ví dụ: 100.000" 
@@ -476,7 +473,7 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
 
               <DialogFooter className="p-5 bg-gray-50 border-t border-gray-100 flex-shrink-0">
                 <Button variant="ghost" onClick={() => setIsMergeModalOpen(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
-                <Button onClick={handleMergeSlots} disabled={createOverrideMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-black">
+                <Button onClick={handleMergeSlots} disabled={createOverrideMutation.isPending} className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl px-8 font-bold">
                   {createOverrideMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "Xác nhận"}
                 </Button>
               </DialogFooter>
@@ -493,14 +490,14 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
             <DialogContent className="sm:max-w-[450px] rounded-2xl p-0 overflow-hidden border-none shadow-2xl">
               <div className="bg-rose-600 p-6 text-white">
                 <DialogHeader>
-                  <DialogTitle className="text-xl font-black">Khóa Slot Sân</DialogTitle>
+                  <DialogTitle className="text-xl font-bold">Khóa Slot Sân</DialogTitle>
                 </DialogHeader>
                 <p className="text-rose-100 text-xs mt-1 font-medium">Chặn đặt sân cho khoảng thời gian cụ thể</p>
               </div>
 
               <div className="p-5 space-y-4 max-h-[calc(90vh-180px)] overflow-y-auto custom-scrollbar">
                 <div className="space-y-3">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Chọn sân áp dụng</Label>
+                  <Label className="text-xs font-semibold text-gray-400">Chọn sân áp dụng</Label>
                   <div className="grid grid-cols-2 gap-2 p-3 bg-gray-50 rounded-xl border border-gray-100 max-h-40 overflow-y-auto">
                     {subCourts.map(sc => (
                       <div 
@@ -543,7 +540,7 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
 
                 {isBlockRecurring ? (
                   <div className="space-y-3">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Chọn thứ trong tuần</Label>
+                    <Label className="text-xs font-semibold text-gray-400">Chọn thứ trong tuần</Label>
                     <div className="grid grid-cols-2 gap-2">
                       {DAYS_OF_WEEK.map((day) => (
                         <div 
@@ -572,7 +569,7 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
                   </div>
                 ) : (
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Ngày áp dụng</Label>
+                    <Label className="text-xs font-semibold text-gray-400">Ngày áp dụng</Label>
                     <Input 
                       type="date" 
                       value={modalDate} 
@@ -585,24 +582,24 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Bắt đầu</Label>
+                    <Label className="text-xs font-semibold text-gray-400">Bắt đầu</Label>
                     <Input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="h-12 rounded-xl bg-gray-50 border-gray-100 font-bold" />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Kết thúc</Label>
+                    <Label className="text-xs font-semibold text-gray-400">Kết thúc</Label>
                     <Input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className="h-12 rounded-xl bg-gray-50 border-gray-100 font-bold" />
                   </div>
                 </div>
 
                 <div className="space-y-2">
-                  <Label className="text-[10px] font-black uppercase tracking-widest text-gray-400">Lý do khóa</Label>
+                  <Label className="text-xs font-semibold text-gray-400">Lý do khóa</Label>
                   <Textarea placeholder="VD: Bảo trì định kỳ, Sự kiện địa phương..." value={blockReason} onChange={(e) => setBlockReason(e.target.value)} className="min-h-[100px] rounded-xl bg-gray-50 border-gray-100 font-bold resize-none" />
                 </div>
               </div>
 
               <DialogFooter className="p-5 bg-gray-50 border-t border-gray-100 flex-shrink-0">
                 <Button variant="ghost" onClick={() => setIsBlockModalOpen(false)} className="rounded-xl font-bold text-gray-500">Hủy</Button>
-                <Button onClick={handleBlockSlots} disabled={createExceptionMutation.isPending} className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-8 font-black shadow-lg shadow-rose-600/20">
+                <Button onClick={handleBlockSlots} disabled={createExceptionMutation.isPending} className="bg-rose-600 hover:bg-rose-700 text-white rounded-xl px-8 font-bold shadow-lg shadow-rose-600/20">
                   {createExceptionMutation.isPending ? <Loader2 className="animate-spin" size={20} /> : "Xác nhận khóa"}
                 </Button>
               </DialogFooter>

@@ -33,9 +33,12 @@ public class Service: IService
         var getAllUser = _dbContext.Users.Where(x => x.Role != "Admin");
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
+            var search = request.Search.Trim().ToLower();
             getAllUser = getAllUser.Where(x => 
-                x.Email.Contains(request.Search) ||
-                (x.PhoneNumber != null && x.PhoneNumber.Contains(request.Search)));
+                x.Email.ToLower().Contains(search) ||
+                (x.FirstName != null && x.FirstName.ToLower().Contains(search)) ||
+                (x.LastName != null && x.LastName.ToLower().Contains(search)) ||
+                (x.PhoneNumber != null && x.PhoneNumber.Contains(search)));
         }
 
         if (request.Id != null)
