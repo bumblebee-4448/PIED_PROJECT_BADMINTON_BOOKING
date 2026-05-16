@@ -77,7 +77,7 @@ export function BookingHistoryPage() {
             <span className="text-3xl">📋</span>
           </div>
           <p className="text-gray-400 font-bold">
-            {data?.totalItems || 0} đơn đặt sân
+            {counts.all} đơn đặt sân
           </p>
         </div>
 
