@@ -1,4 +1,4 @@
-﻿using Quartz;
+using Quartz;
 using Rallyhub.Service.MailService;
 
 namespace Rallyhub.Service.BackgroundJobService;
@@ -32,14 +32,6 @@ public class SendOtpJob : IJob
                 subject = "Người tình trong mộng Rallyhub";
                 htmlBody = MailTemplate.GeneratePasswordResetTemplate(email, otpCode);
                 break;
-            // case "Approval":
-            //     subject = "Người tình trong mộng Ralluhub";
-            //     htmlBody = MailTemplate.GenerateApprovalTemplate(email);
-            //     break;
-            // case "Rejection":
-            //     subject = "rallyhub - yêu cầu khôi phục mật khẩu";
-            //     htmlBody = MailTemplate.GenerateRejectionTemplate(email, );
-            //     break;
         }
 
         await _mailService.SendMail(new MailContent()

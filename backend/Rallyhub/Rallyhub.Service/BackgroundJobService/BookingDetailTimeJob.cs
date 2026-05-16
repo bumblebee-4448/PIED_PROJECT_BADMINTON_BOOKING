@@ -30,84 +30,65 @@ public class BookingDetailTimeJob : IJob
         var now = DateTimeOffset.UtcNow;
         var localNow = DateTime.Now;
 
-        var bankedBookings = await _dbContext.Bookings
-            .Include(x => x.BookingDetails)
-                .ThenInclude(bd => bd.SubCourt)
-                    .ThenInclude(sc => sc.Court)
-                        .ThenInclude(c => c.Owner)
-                            .ThenInclude(o => o.User)
-                                .ThenInclude(u => u.Wallet)
+        // 1. Lấy danh sách booking đang chờ hoàn tất (Banked)
+        var bookings = await _dbContext.Bookings
+            .Include(x => x.BookingDetails).ThenInclude(bd => bd.SubCourt).ThenInclude(sc => sc.Court).ThenInclude(c => c.Owner).ThenInclude(o => o.User).ThenInclude(u => u.Wallet)
             .Where(x => x.Status == BankedStatus)
             .ToListAsync(context.CancellationToken);
 
-        int processedCount = 0;
-
-        foreach (var booking in bankedBookings)
+        foreach (var booking in bookings)
         {
-            if (booking.BookingDetails == null || !booking.BookingDetails.Any()) continue;
+            // 2. Kiểm tra xem đã đến giờ đánh chưa (dựa trên detail sớm nhất)
+            var earliest = booking.BookingDetails.OrderBy(x => x.Date).ThenBy(x => x.StartTime).FirstOrDefault();
+            if (earliest == null || localNow < earliest.Date.Date.Add(earliest.StartTime.ToTimeSpan())) continue;
 
-            var earliestDetail = booking.BookingDetails.OrderBy(x => x.Date).ThenBy(x => x.StartTime).First();
-            var startDateTime = earliestDetail.Date.Date.Add(earliestDetail.StartTime.ToTimeSpan());
-
-            if (localNow >= startDateTime)
+            // 3. Xử lý hoàn tất và cộng tiền trong một Transaction
+            using var transaction = await _dbContext.Database.BeginTransactionAsync(context.CancellationToken);
+            try
             {
+                // Cập nhật trạng thái
                 booking.Status = CompletedStatus;
                 booking.UpdatedAt = now;
+                foreach (var d in booking.BookingDetails) { d.Status = CompletedStatus; d.UpdatedAt = now; }
 
-                foreach (var detail in booking.BookingDetails)
-                {
-                    detail.Status = CompletedStatus;
-                    detail.UpdatedAt = now;
-                }
-
-                var owner = earliestDetail.SubCourt?.Court?.Owner;
-                var wallet = owner?.User?.Wallet;
-
+                // Cộng tiền cho chủ sân (Trừ 5% phí)
+                var wallet = earliest.SubCourt?.Court?.Owner?.User?.Wallet;
                 if (wallet != null)
                 {
-                    var transactionI = new Transaction.Request.CreateTransactionRequest()
+                    decimal amount = booking.FinalPrice * 0.95m;
+                    
+                    await _walletService.AddBanlanceToWallet(wallet.UserId, amount, "Payment");
+                    await _transactionService.CreateTransaction(new Transaction.Request.CreateTransactionRequest
                     {
                         Type = Transaction.Request.TypeList.Receive,
-                        Amount = booking.FinalPrice - (booking.FinalPrice * 0.05m),
-                        BalanceBefore = wallet.Balance,
-                        BalanceAfter = wallet.Balance + (booking.FinalPrice - (booking.FinalPrice * 0.05m)),
+                        Amount = amount,
+                        BalanceBefore = wallet.Balance - amount,
+                        BalanceAfter = wallet.Balance,
                         Status = "Success",
                         WalletId = wallet.Id,
                         BookingId = booking.Id,
-                    };
-                    
-                    if (!await _walletService.AddBanlanceToWallet(wallet.UserId, booking.FinalPrice - (booking.FinalPrice * 0.05m), "Payment"))
-                    {
-                        throw new Exception("Wallet add balance failed");
-                    }
-                    if (!await _transactionService.CreateTransaction(transactionI))
-                    {
-                        throw new Exception("Error creating transaction");
-                    }
+                        TransferContent = $"Thanh toán lịch đặt {booking.Id}"
+                    });
 
                     _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
                     {
-                        UserId = owner.UserId,
+                        UserId = wallet.UserId,
                         Title = "Cộng tiền hoàn thành Booking",
-                        Content = $"Lịch đặt sân đã bắt đầu. Hệ thống cộng {booking.FinalPrice:N0}đ vào ví của bạn.",
+                        Content = $"Sân {earliest.SubCourt?.Court?.Name} đã bắt đầu. +{amount:N0}đ vào ví.",
                         Type = Notification.Request.TypeNotification.BookingCompleted,
                         BookingId = booking.Id
                     });
                 }
-                
-                _dbContext.Update(booking);
-                processedCount++;
-            }
-        }
 
-        if (processedCount > 0)
-        {
-            await _dbContext.SaveChangesAsync(context.CancellationToken);
-            _logger.LogInformation("BookingDetailTimeJob completed: {Count} banked bookings moved to Complete.", processedCount);
-        }
-        else
-        {
-            _logger.LogInformation("BookingDetailTimeJob: no banked bookings ready to complete.");
+                await _dbContext.SaveChangesAsync(context.CancellationToken);
+                await transaction.CommitAsync(context.CancellationToken);
+                _logger.LogInformation($"Booking {booking.Id} processed successfully.");
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync(context.CancellationToken);
+                _logger.LogError(ex, $"Failed to process booking {booking.Id}");
+            }
         }
     }
 }
