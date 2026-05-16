@@ -13,7 +13,7 @@ import { ResetPasswordPage } from "@/features/auth/pages/ResetPasswordPage";
 import { ProtectedRoute } from "@/shared/components/common";
 import { FavoritesPage } from "@/features/favorites";
 import { AdminLayout } from "@/shared/layouts/AdminLayout";
-import { AdminDashboard, OwnerDashboard } from "@/features/dashboard";
+import { AdminDashboard, OwnerDashboard, OwnerBookingsPage } from "@/features/dashboard";
 import { CourtDetailPage, CourtSearchPage } from "@/features/courts";
 import { BookingHistoryPage, BookingPage } from "@/features/bookings";
 import { OwnerRequestsPage } from "@/features/admin-owner-requests";
@@ -143,6 +143,7 @@ export const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <OwnerDashboard /> },
+      { path: "bookings", element: <OwnerBookingsPage /> },
       { path: "courts", element: <OwnerCourtsPage /> },
       { path: "sub-courts", element: <OwnerSubCourtsPage /> },
       { path: "sub-courts/:id/calendar", element: <OwnerSubCourtCalendarPage /> },

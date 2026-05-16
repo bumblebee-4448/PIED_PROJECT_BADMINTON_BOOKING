@@ -19,43 +19,44 @@ public class Service: IService
 
     public async Task CreateFeedback(Request.CreateFeedbackRequest request)
     {
-        var booking = await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == request.BookingId);
-        if (booking == null)
+        // 1. Kiểm tra xem booking đã có feedback chưa
+        if (await _dbContext.Feedbacks.AnyAsync(x => x.BookingId == request.BookingId))
         {
-            throw new ArgumentException("không tìm thấy booking");
+            throw new ArgumentException("Bạn đã đánh giá cho đơn đặt sân này rồi");
         }
+
+        var booking = await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == request.BookingId);
+        if (booking == null) throw new ArgumentException("Không tìm thấy booking");
+
         if (booking.Status != "Completed")
         {
-            throw new ArgumentException("Không thể feedback cho booking chưa hoàn thành");
+            throw new ArgumentException("Chỉ có thể đánh giá sau khi đã hoàn thành buổi chơi");
         }
+
         var now = DateTimeOffset.UtcNow;
         if (now - booking.UpdatedAt > TimeSpan.FromDays(30))
         {
-            throw new ArgumentException("Đã quá 30 ngày kể từ khi hoàn thành, bạn không thể tạo đánh giá nữa");
+            throw new ArgumentException("Đã quá hạn 30 ngày để tạo đánh giá");
         }
-        var getCustomerId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-        if (getCustomerId == null)
-        {
-            throw new ArgumentException("Không tìm thấy user");
-        }
-        var customerId = Guid.Parse(getCustomerId);
+
+        var customerIdStr = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        if (string.IsNullOrEmpty(customerIdStr)) throw new ArgumentException("Không tìm thấy thông tin khách hàng");
+        var customerId = Guid.Parse(customerIdStr);
+
         if (request.Rating > 5 || request.Rating < 1)
         {
-            throw new ArgumentException("Chỉ có thể đánh giá từ 1 - 5 sao");
+            throw new ArgumentException("Số sao đánh giá phải từ 1 đến 5");
         }
+
         var bookingDetail = await _dbContext.BookingDetails
-            .Include(x => x.SubCourt)
-                .ThenInclude(sc => sc.Court)
-                    .ThenInclude(c => c.Owner)
+            .Include(x => x.SubCourt).ThenInclude(sc => sc.Court).ThenInclude(c => c.Owner)
             .FirstOrDefaultAsync(x => x.BookingId == request.BookingId);
-        if (bookingDetail == null)
-        {
-            throw new Exception("Lỗi");
-        }
+
+        if (bookingDetail == null) throw new Exception("Không tìm thấy chi tiết booking");
+        
         var court = bookingDetail.SubCourt.Court;
         var newFeedback = new Repository.Entity.Feedback()
         {
-            Id = Guid.NewGuid(),
             CustomerId = customerId,
             Rating = request.Rating,
             BookingId = request.BookingId,
@@ -119,11 +120,11 @@ public class Service: IService
 
     public async Task<Response.GetFeedbackResponse> FeedbackByBookingId(Guid bookingId)
     {
-        var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.BookingId == bookingId && x.IsDeleted == false);
-        if (feedback == null)
-        {
-            throw new ArgumentException("Không tìm thấy feedback");
-        }
+        var feedback = await _dbContext.Feedbacks
+            .Include(x => x.Customer).ThenInclude(c => c.User)
+            .FirstOrDefaultAsync(x => x.BookingId == bookingId && x.IsDeleted == false);
+            
+        if (feedback == null) throw new ArgumentException("Không tìm thấy đánh giá cho đơn đặt này");
 
         return new Response.GetFeedbackResponse()
         {
@@ -135,47 +136,39 @@ public class Service: IService
         };
     }
 
-    public async Task DeteteFeedback(Request.DeteteFeedbackRequest request)
+    public async Task DeleteFeedback(Request.DeteteFeedbackRequest request)
     {
         var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.Id == request.Id);
-        if (feedback == null)
-        {
-            throw new Exception("feedback not found");
-        }
+        if (feedback == null || feedback.IsDeleted) throw new Exception("Không tìm thấy đánh giá");
+
+        // Kiểm tra quyền sở hữu hoặc quyền Admin
+        var customerIdStr = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var role = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
         
-        if (feedback.IsDeleted)
+        if (feedback.CustomerId.ToString() != customerIdStr && role != "Admin")
         {
-            throw new Exception("feedback not exist");
+            throw new Exception("Bạn không có quyền xóa đánh giá này");
         }
+
         feedback.IsDeleted = true;
         feedback.UpdatedAt = DateTimeOffset.UtcNow;
-        _dbContext.Update(feedback);
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task UpdateFeeback(Request.UpdateFeedbackRequest request)
+    public async Task UpdateFeedback(Request.UpdateFeedbackRequest request)
     {
-        // var getCustomerId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-        // if (getCustomerId == null)
-        // {
-        //     throw new Exception("CustomerId not found");
-        // }
-        // var customerId = Guid.Parse(getCustomerId);
-        // var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.CustomerId == customerId && x.BookingId == request.BookingId);
-        // if (feedback == null)
-        // {
-        //     throw new Exception("feedback not found");
-        // }
         var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.Id == request.Id);
-        if (feedback == null)
+        if (feedback == null) throw new Exception("Không tìm thấy đánh giá");
+
+        // Kiểm tra quyền sở hữu
+        var customerIdStr = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        if (feedback.CustomerId.ToString() != customerIdStr)
         {
-            throw new Exception("Không tìm thấy đánh giá");
+            throw new Exception("Bạn không có quyền chỉnh sửa đánh giá này");
         }
+
         var booking = await _dbContext.Bookings.FirstOrDefaultAsync(x => x.Id == feedback.BookingId);
-        if (booking == null)
-        {
-            throw new Exception("Không tìm thấy thông tin đơn đặt sân");
-        }
+        if (booking == null) throw new Exception("Không tìm thấy thông tin đơn đặt sân");
 
         var now = DateTimeOffset.UtcNow;
         if (now - booking.UpdatedAt > TimeSpan.FromDays(30))

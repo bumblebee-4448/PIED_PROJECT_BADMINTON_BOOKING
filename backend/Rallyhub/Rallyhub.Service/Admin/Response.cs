@@ -15,7 +15,6 @@ public class Response
     }
     public class OwnerDto: UserDto
     {
-        public Guid  Id { get; set; } 
         public string BusinessName  { get; set; }
         public string TaxCode { get; set; }
         public string BusinessAddress { get; set; }
@@ -27,7 +26,6 @@ public class Response
     }
     public class CustomerDto: UserDto
     {
-        public Guid  Id { get; set; }
         public List<BookingDto> Bookings { get; set; }
     }
 
@@ -50,14 +48,13 @@ public class Response
         public TimeOnly CloseTime { get; set; }
         public string Status { get; set; }
 
-        public decimal Latitude { get; set; } //vĩ độ (10, 8)
-        public decimal Longitude { get; set; } //kinh độ (11, 8)
+        public decimal? Latitude { get; set; } //vĩ độ (10, 8)
+        public decimal? Longitude { get; set; } //kinh độ (11, 8)
         public string MapUrl  { get; set; } //link của gg map
     }
     
     public class AdminGetOwnerRequestResponse : UserDto
     {
-        public Guid Id { get; set; }
         public Guid UserId { get; set; }
         public Guid CustomerId { get; set; }
         public string? BusinessName { get; set; }
@@ -69,7 +66,6 @@ public class Response
         public string? IdentityCardFrontUrl { get; set; } // Ảnh mặt trước CCCD
         public string? IdentityCardBackUrl { get; set; } // Ảnh mặt sau CCCD
 
-        public string? Status { get; set; }
         public DateTimeOffset CreatedAt { get; set; }
     }
     public class AdminGetPendingCourtsResponse  

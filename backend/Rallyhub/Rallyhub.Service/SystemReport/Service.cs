@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
@@ -18,14 +19,19 @@ public class Service: IService
         _notification = notification;
     }
 
-    public async Task CreateSystemReport(Request.CreateSystemReportRequest request)
+    public async Task<string> CreateSystemReport(Request.CreateSystemReportRequest request)
     {
         var getUserId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
         if (getUserId == null)
         {
-            throw new Exception("user not found");
+            throw new AuthenticationException("user not found");
         }
         var userId = Guid.Parse(getUserId);
+        var isExistsPending = await _dbContext.SystemReports.AnyAsync(x => x.UserId == userId && x.Status == "Pending");
+        if (isExistsPending)
+        {
+            throw new ArgumentException("Đợi hệ thống phản hồi");
+        }
         var result = new Repository.Entity.SystemReport()
         {
             Title = request.Title,
@@ -45,11 +51,14 @@ public class Service: IService
         });
 
         await _dbContext.SaveChangesAsync();
+        return "Tạo report thành công";
     }
 
     public async Task<Base.Response.PageResult<Response.GetSystemReportResponse>> GetSystemReport(Request.GetSystemReportRequest request)
     {
-        var getUserId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+        var getUserId = _httpContext.HttpContext.User.Claims
+            .FirstOrDefault(x => 
+                x.Type == "UserId")?.Value;
         if (getUserId == null)
         {
             throw new Exception("user not found");
@@ -61,18 +70,30 @@ public class Service: IService
             throw new Exception("user not found");
         }
         var systemReportList = _dbContext.SystemReports
-                                                            .Where(x => x.IsDeleted == false);
-        if (!string.IsNullOrWhiteSpace(request.Status))
-        {
-            systemReportList = systemReportList.Where(x => x.Status == request.Status);
-        }
+            .Where(x => !x.IsDeleted);
+
         if (user.Role != "Admin")
         {
-            systemReportList = systemReportList.Where(x => x.UserId == userId);
+            systemReportList = systemReportList
+                .Where(x => x.UserId == userId)
+                .OrderBy(x =>
+                    x.Status == "Confirmed" ? 1 :
+                    x.Status == "Pending" ? 2 : 3)
+                .ThenByDescending(x => x.CreatedAt);
         }
-        var sortTime = systemReportList.OrderByDescending(x => x.CreatedAt);
-        var totalItem = await sortTime.CountAsync();
-        var pageQuery = sortTime.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
+        else
+        {
+            systemReportList = systemReportList
+                .OrderBy(x =>
+                    x.Status == "Pending" ? 1 :
+                    x.Status == "Confirmed" ? 2 : 3)
+                .ThenByDescending(x => x.CreatedAt);
+        }
+        
+        var totalItem = await systemReportList.CountAsync();
+        var pageQuery = systemReportList
+            .Skip((request.PageIndex - 1) * request.PageSize)
+            .Take(request.PageSize);
         var selectQuery = pageQuery.Select(x => new Response.GetSystemReportResponse()
         {
             Id = x.Id,
@@ -98,6 +119,8 @@ public class Service: IService
         {
             throw new Exception("report not found");
         }
+        if (report.Status == "Confirmed")
+            throw new Exception("Report đã được xử lý");
         var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == report.UserId);
         if (user == null)
         {

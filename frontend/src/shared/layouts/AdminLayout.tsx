@@ -25,12 +25,11 @@ const ADMIN_NAV_ITEMS = [
   { icon: History, label: "Lịch sử giao dịch", path: "/admin/transactions" },
   { icon: FileCheck, label: "Duyệt chủ sân", path: "/admin/owner-requests" },
   { icon: ShieldCheck, label: "Duyệt sân", path: "/admin/court-approvals" },
-  { icon: Building2, label: "Sân cầu lông", path: "/admin/courts" },
 ];
 
 const OWNER_NAV_ITEMS = [
   { icon: LayoutDashboard, label: "Dashboard", path: "/owner" },
-  { icon: Building2, label: "Quản lí cơ sở", path: "/owner/courts" },
+  { icon: Building2, label: "Quản lý cơ sở", path: "/owner/courts" },
   { icon: Wallet, label: "Ví của tôi", path: "/owner/wallet" },
 ];
 

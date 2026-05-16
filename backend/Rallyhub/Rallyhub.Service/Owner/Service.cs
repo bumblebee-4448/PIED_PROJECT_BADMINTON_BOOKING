@@ -44,8 +44,6 @@ public class Service : IService
             Address = request.Address,  
             OpenTime = request.OpenTime,  
             CloseTime = request.CloseTime,  
-            Latitude = request.Latitude,  
-            Longitude = request.Longitude,  
             MapUrl = request.MapUrl,  
             PictureUrl = await _mediaService.UploadImageAsync(request.PictureUrl),  
             Status = "Pending",  
@@ -1362,6 +1360,21 @@ public class Service : IService
         var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == request.CourtId && x.OwnerId == ownerIdGuid);
         if (court == null) throw new Exception("Sân không tồn tại hoặc không thuộc quyền sở hữu của bạn");
 
+        // Step 1: Lấy tất cả SubCourtId thuộc sân này
+        var subCourtIds = await _dbContext.SubCourts
+            .Where(sc => sc.CourtId == request.CourtId)
+            .Select(sc => sc.Id)
+            .ToListAsync();
+
+        if (!subCourtIds.Any())
+            return new Base.Response.PageResult<Response.GetCourtBookingsResponse>
+            {
+                Items = new List<Response.GetCourtBookingsResponse>(),
+                TotalItems = 0,
+                PageIndex = request.PageIndex,
+                PageSize = request.PageSize
+            };
+
         DateTimeOffset now = DateTimeOffset.Now;
         DateTimeOffset referenceDate = request.Date.HasValue
             ? new DateTimeOffset(request.Date.Value.ToDateTime(TimeOnly.MinValue), now.Offset)
@@ -1399,9 +1412,10 @@ public class Service : IService
         start = start.ToUniversalTime();
         end = end.ToUniversalTime();
 
+        // Step 2: Truy vấn Bookings có BookingDetail chứa SubCourtId của sân này
         var query = _dbContext.Bookings
             .Where(b => b.CreatedAt >= start && b.CreatedAt <= end &&
-                        b.BookingDetails.Any(bd => bd.SubCourt.CourtId == request.CourtId))
+                        b.BookingDetails.Any(bd => subCourtIds.Contains(bd.SubCourtId)))
             .OrderByDescending(b => b.CreatedAt);
 
         var total = await query.CountAsync();
@@ -1413,7 +1427,7 @@ public class Service : IService
                 BookingId = b.Id,
                 CustomerName = b.Customer.User.FirstName + " " + b.Customer.User.LastName,
                 CustomerPhone = b.Customer.User.PhoneNumber ?? "",
-                SubCourtName = b.BookingDetails.FirstOrDefault().SubCourt.Name,
+                CourtName = court.Name,
                 BookingDate = b.BookingDetails.FirstOrDefault().Date,
                 TotalPrice = b.FinalPrice,
                 Status = b.Status,

@@ -11,8 +11,6 @@ public class Request
         public required TimeOnly OpenTime  { get; set; }  
         public required TimeOnly CloseTime { get; set; }  
         public required string Address { get; set; }  
-        public required decimal Latitude { get; set; }   
-        public required decimal Longitude { get; set; }  
         public required string MapUrl  { get; set; }   
         public required IFormFile PictureUrl { get; set; }  
     }  

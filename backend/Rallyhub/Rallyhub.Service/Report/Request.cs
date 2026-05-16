@@ -9,7 +9,7 @@ public class Request
     }
     public class GetReportBookingsRequest: Base.Request.PagingRequest
     {
-        public string? Status { get; set; }
+       // public string? Status { get; set; }
     }
 
     public class ConfirmReportRequest

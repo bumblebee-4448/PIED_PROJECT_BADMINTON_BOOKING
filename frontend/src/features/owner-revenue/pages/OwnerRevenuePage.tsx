@@ -8,12 +8,10 @@ import { useOwnerCourts } from "@/features/owner-courts/hooks/useOwnerCourts";
 import { 
   DollarSign, 
   Calendar, 
-  Search, 
   MapPin, 
   Clock, 
   User, 
   Phone, 
-  Tag,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -27,7 +25,6 @@ import { Badge } from "@/shared/components/ui/badge";
 import { formatCurrency } from "@/lib/utils";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { vi } from "date-fns/locale";
 
 const PERIOD_OPTIONS = [
   { value: "Day", label: "Ngày" },
@@ -59,7 +56,7 @@ const OwnerRevenuePage: React.FC = () => {
   // Fetch data
   const { data: courtsData } = useOwnerCourts({ pageIndex: 1, pageSize: 100 });
   
-  const { data: dashboardData, isLoading: isStatsLoading } = useOwnerDashboard({
+  const { data: dashboardData } = useOwnerDashboard({
     period,
     date,
     courtId: courtId === "all" ? undefined : courtId

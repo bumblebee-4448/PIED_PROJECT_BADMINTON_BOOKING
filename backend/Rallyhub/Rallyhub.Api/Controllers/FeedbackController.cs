@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Api.Extention;
@@ -21,7 +21,7 @@ public class FeedbackController: ControllerBase
 
     [HttpPost("")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
-    public async Task<IActionResult> CreateFeedback(Request.CreateFeedbackRequest request)
+    public async Task<IActionResult> CreateFeedback([FromBody]Request.CreateFeedbackRequest request)
     {
         await _feadbackService.CreateFeedback(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("feedback success", HttpContext.TraceIdentifier));
@@ -33,7 +33,7 @@ public class FeedbackController: ControllerBase
         var result = await _feadbackService.GetFeedback(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "get feedback success", HttpContext.TraceIdentifier));
     }
-    [HttpGet("byBookingId/{id}")]
+    [HttpGet("byBookingId")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
     public async Task<IActionResult> FeedbackByBookingId([FromQuery]Guid bookingId)
     {
@@ -42,16 +42,16 @@ public class FeedbackController: ControllerBase
     }
     [HttpPatch("")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
-    public async Task<IActionResult> UpdateFeedback(Request.UpdateFeedbackRequest request)
+    public async Task<IActionResult> UpdateFeedback([FromBody]Request.UpdateFeedbackRequest request)
     {
-        await _feadbackService.UpdateFeeback(request);
+        await _feadbackService.UpdateFeedback(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("update feedback success", HttpContext.TraceIdentifier));
     }
     [HttpDelete("")]
     [Authorize(Policy = JwtExtensions.CustomerPolicy)]
-    public async Task<IActionResult> DeleteFeedback(Request.DeteteFeedbackRequest request)
+    public async Task<IActionResult> DeleteFeedback([FromBody]Request.DeteteFeedbackRequest request)
     {
-        await _feadbackService.DeteteFeedback(request);
+        await _feadbackService.DeleteFeedback(request);
         return Ok(Service.Models.ApiResponseFactory.SuccessResponse("delete feedback success", HttpContext.TraceIdentifier));
     }
 }
