@@ -20,8 +20,7 @@ public class Service: IService
     public async Task CreateFeedback(Request.CreateFeedbackRequest request)
     {
         if (await _dbContext.Feedbacks.AnyAsync(x => x.BookingId == request.BookingId))
-        {
-            
+        {   
             return;
         }
 
