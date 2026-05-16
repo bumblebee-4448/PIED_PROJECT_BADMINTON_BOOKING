@@ -20,8 +20,8 @@ public class Response
         public TimeOnly EndTime { get; set; }
         public string PictureUrl { get; set; } = null!;
         public string MapUrl { get; set; } = null!;
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
     }
     
     public class CreateSubCourtResponse
@@ -142,7 +142,7 @@ public class Response
         public Guid BookingId { get; set; }
         public string CustomerName { get; set; } = null!;
         public string CustomerPhone { get; set; } = null!;
-        public string SubCourtName { get; set; } = null!;
+        public string CourtName { get; set; } = null!;
         public DateTimeOffset BookingDate { get; set; }
         public decimal TotalPrice { get; set; }
         public string Status { get; set; } = null!;
