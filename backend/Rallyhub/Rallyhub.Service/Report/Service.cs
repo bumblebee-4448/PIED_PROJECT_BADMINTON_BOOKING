@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
 
@@ -53,6 +53,14 @@ public class Service: IService
         {
             throw new Exception("Court not found");
         }
+
+        var isExistReportBooking = _dbContext.Reports
+            .Where(x => x.BookingId == request.BookingId);
+        if (await isExistReportBooking.AnyAsync())
+        {
+            throw new ArgumentException("Chỉ được tạo một report cho 1 booking");
+        }
+        
         var report = new Repository.Entity.Report()
         {
             Reason = request.Reason,
@@ -65,7 +73,7 @@ public class Service: IService
         
         _notification.CreateNotification(new Notification.Request.CreateNotificationRequest
         {
-            UserId = userId, // Assigning to user ID but it's an Admin type
+            UserId = userId,
             Title = "Khiếu nại đặt sân mới",
             Content = $"Khách hàng vừa gửi một khiếu nại cho sân ID: {report.CourtId}.",
             Type = Notification.Request.TypeNotification.ReportCreated,

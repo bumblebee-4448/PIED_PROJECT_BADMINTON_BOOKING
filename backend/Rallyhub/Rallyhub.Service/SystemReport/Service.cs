@@ -1,3 +1,4 @@
+using System.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Rallyhub.Repository;
@@ -23,9 +24,14 @@ public class Service: IService
         var getUserId = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
         if (getUserId == null)
         {
-            throw new Exception("user not found");
+            throw new AuthenticationException("user not found");
         }
         var userId = Guid.Parse(getUserId);
+        var isExistsPending = await _dbContext.SystemReports.AnyAsync(x => x.UserId == userId && x.Status == "Pending");
+        if (isExistsPending)
+        {
+            throw new ArgumentException("Đợi hệ thống phản hồi");
+        }
         var result = new Repository.Entity.SystemReport()
         {
             Title = request.Title,
