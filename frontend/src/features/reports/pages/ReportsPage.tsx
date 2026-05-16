@@ -25,18 +25,12 @@ export function ReportsPage() {
     data: bookingReportsData,
     isLoading: isLoadingBooking,
     isFetching: isFetchingBooking,
-  } = useBookingReports(
-    { pageIndex: 1, pageSize: 50 },
-    { realtime: true, refetchInterval: 60000 },
-  );
+  } = useBookingReports({ pageIndex: 1, pageSize: 50 });
   const {
     data: systemReportsData,
     isLoading: isLoadingSystem,
     isFetching: isFetchingSystem,
-  } = useSystemReports(
-    { pageIndex: 1, pageSize: 50 },
-    { realtime: true, refetchInterval: 60000 },
-  );
+  } = useSystemReports({ pageIndex: 1, pageSize: 50 });
 
   const bookingReports = getReportItems<ReportBookingResponse>(bookingReportsData);
   const systemReports = getReportItems<SystemReportResponse>(systemReportsData);

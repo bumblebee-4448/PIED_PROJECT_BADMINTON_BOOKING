@@ -292,6 +292,11 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
           </div>
         )}
       </DialogContent>
+      <FeedbackDialog
+        booking={editingFeedback}
+        isOpen={!!editingFeedback}
+        onClose={() => setEditingFeedback(null)}
+      />
     </Dialog>
   );
 }
