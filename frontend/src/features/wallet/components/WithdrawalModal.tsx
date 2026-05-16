@@ -27,7 +27,7 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({ isOpen, onClos
   const formatNumber = (val: string) => {
     const num = val.replace(/\D/g, "");
     if (!num) return "";
-    return parseInt(num).toLocaleString("en-US");
+    return parseInt(num).toLocaleString("vi-VN");
   };
 
   const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,10 +36,10 @@ export const WithdrawalModal: React.FC<WithdrawalModalProps> = ({ isOpen, onClos
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const numAmount = parseInt(amountStr.replace(/,/g, ""));
+    const numAmount = parseInt(amountStr.replace(/\./g, ""));
     
     if (isNaN(numAmount) || numAmount < 50000) {
-      toast.error("Số tiền rút tối thiểu là 50,000đ");
+      toast.error("Số tiền rút tối thiểu là 50.000đ");
       return;
     }
     

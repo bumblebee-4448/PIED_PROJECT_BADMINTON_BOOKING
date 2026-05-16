@@ -20,7 +20,19 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/shared/components/ui/alert-dialog";
 import type { MyCourtListItem } from "../types";
+
+import { LayoutGrid } from "lucide-react";
 
 export default function OwnerCourtsPage() {
   const [pageIndex] = useState(1);
@@ -28,6 +40,8 @@ export default function OwnerCourtsPage() {
   const [selectedCourt, setSelectedCourt] = useState<MyCourtListItem | null>(null);
   const [courtToEdit, setCourtToEdit] = useState<MyCourtListItem | null>(null);
   const [isUpdateOpen, setIsUpdateOpen] = useState(false);
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+  const [courtToDelete, setCourtToDelete] = useState<string | null>(null);
   
   const removeCourt = useRemoveCourt();
   
@@ -40,38 +54,41 @@ export default function OwnerCourtsPage() {
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case "pending":
-        return <Badge className="bg-amber-100 text-amber-700 hover:bg-amber-100 border-none px-3 py-1 rounded-full">Đang chờ duyệt</Badge>;
+        return <Badge className="bg-amber-50 text-amber-600 hover:bg-amber-50 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Đang chờ duyệt</Badge>;
       case "active":
-        return <Badge className="bg-emerald-100 text-emerald-700 hover:bg-emerald-100 border-none px-3 py-1 rounded-full">Đang hoạt động</Badge>;
+        return <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-50 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Đang hoạt động</Badge>;
       case "rejected":
-        return <Badge className="bg-red-100 text-red-700 hover:bg-red-100 border-none px-3 py-1 rounded-full">Bị từ chối</Badge>;
+        return <Badge className="bg-rose-50 text-rose-600 hover:bg-rose-50 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Bị từ chối</Badge>;
+      case "inactive":
+        return <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Ngưng hoạt động</Badge>;
       default:
-        return <Badge variant="outline">{status}</Badge>;
+        return <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Ngưng hoạt động</Badge>;
     }
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto">
+    <div className="p-5 sm:p-7 max-w-[1400px] mx-auto space-y-6 animate-in fade-in duration-500">
       {/* Header section */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-            Quản lý sân của tôi 🏸
+          <h1 className="text-xl font-bold text-gray-900 tracking-tight flex items-center gap-3">
+            <LayoutGrid size={24} className="text-emerald-600" />
+            Quản lý cơ sở
           </h1>
-          <p className="text-gray-500 text-sm mt-1">
-            Theo dõi trạng thái và quản lý thông tin các sân bạn đã đăng ký
+          <p className="text-sm text-gray-400 mt-1 font-medium">
+            Theo dõi trạng thái và quản lý thông tin các cơ sở bạn đã đăng ký
           </p>
         </div>
         <CreateCourtDialog />
       </div>
 
       {/* Filters and Search */}
-      <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
-        <div className="relative flex-1 w-full">
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        <div className="relative flex-1 w-full max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
           <Input 
-            placeholder="Tìm kiếm theo tên sân..." 
-            className="pl-10 rounded-xl border-gray-200 focus:ring-emerald-500 h-11"
+            placeholder="Tìm kiếm theo tên cơ sở..." 
+            className="pl-10 rounded-xl border-gray-100 bg-white shadow-sm focus:ring-emerald-500 h-10 font-medium text-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -81,31 +98,32 @@ export default function OwnerCourtsPage() {
       {/* Table content */}
       <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center py-20">
+          <div className="flex flex-col items-center justify-center py-24">
             <Loader2 className="animate-spin text-emerald-600 mb-4" size={40} />
-            <p className="text-gray-500 font-medium">Đang tải danh sách sân...</p>
+            <p className="text-gray-400 text-sm font-semibold tracking-tight">Đang tải danh sách cơ sở...</p>
           </div>
         ) : data && data.items && data.items.length > 0 ? (
-          <Table>
-            <TableHeader className="bg-gray-50/50">
-              <TableRow>
-                <TableHead className="w-[100px] font-bold">Hình ảnh</TableHead>
-                <TableHead className="font-bold">Tên sân</TableHead>
-                <TableHead className="font-bold">Địa chỉ</TableHead>
-                <TableHead className="font-bold">Giờ hoạt động</TableHead>
-                <TableHead className="font-bold">Trạng thái</TableHead>
-                <TableHead className="w-[100px] text-right font-bold">Thao tác</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="bg-gray-50/50 border-b border-gray-100">
+                <TableRow>
+                  <TableHead className="py-4 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Hình ảnh</TableHead>
+                  <TableHead className="py-4 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tên cơ sở</TableHead>
+                  <TableHead className="py-4 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Địa chỉ</TableHead>
+                  <TableHead className="py-4 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Giờ hoạt động</TableHead>
+                  <TableHead className="py-4 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Trạng thái</TableHead>
+                  <TableHead className="py-4 px-6 text-[10px] font-bold text-gray-400 uppercase tracking-widest text-right">Thao tác</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody className="divide-y divide-gray-50">
               {data.items.map((court) => (
                 <TableRow 
                   key={court.courtId} 
                   className="cursor-pointer hover:bg-gray-50/50 transition-colors"
                   onClick={() => setSelectedCourt(court)}
                 >
-                  <TableCell>
-                    <div className="w-16 h-12 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
+                  <TableCell className="py-4 px-6">
+                    <div className="w-14 h-10 rounded-lg overflow-hidden border border-gray-100 shadow-sm">
                       <img 
                         src={court.pictureUrl} 
                         alt={court.name} 
@@ -116,50 +134,57 @@ export default function OwnerCourtsPage() {
                       />
                     </div>
                   </TableCell>
-                  <TableCell className="font-bold text-gray-900">{court.name}</TableCell>
-                  <TableCell className="max-w-[300px] truncate text-gray-500">{court.address}</TableCell>
-                  <TableCell className="text-gray-600 font-medium">
-                    {court.startTime} - {court.endTime}
+                  <TableCell className="py-4 px-6">
+                    <span className="text-sm font-semibold text-gray-900">{court.name}</span>
                   </TableCell>
-                  <TableCell>{getStatusBadge(court.status)}</TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-2">
+                  <TableCell className="py-4 px-6 max-w-[250px] truncate">
+                    <span className="text-[13px] text-gray-500 font-medium">{court.address}</span>
+                  </TableCell>
+                  <TableCell className="py-4 px-6">
+                    <span className="text-[11px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">
+                      {court.startTime.substring(0, 5)} - {court.endTime.substring(0, 5)}
+                    </span>
+                  </TableCell>
+                  <TableCell className="py-4 px-6">
+                    {getStatusBadge(court.status)}
+                  </TableCell>
+                  <TableCell className="py-4 px-6 text-right">
+                    <div className="flex justify-end gap-1">
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="rounded-full h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50"
+                        className="h-8 w-8 text-blue-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                         onClick={(e) => {
                           e.stopPropagation();
                           setCourtToEdit(court);
                           setIsUpdateOpen(true);
                         }}
                       >
-                        <Edit2 size={16} />
+                        <Edit2 size={15} />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="rounded-full h-8 w-8 text-red-400 hover:text-red-600 hover:bg-red-50"
+                        className="h-8 w-8 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all"
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (window.confirm("Bạn có chắc chắn muốn xóa sân này? Hành động này không thể hoàn tác.")) {
-                            removeCourt.mutate(court.courtId);
-                          }
+                          setCourtToDelete(court.courtId);
+                          setIsDeleteConfirmOpen(true);
                         }}
                         disabled={removeCourt.isPending}
                       >
-                        <Trash2 size={16} />
+                        <Trash2 size={15} />
                       </Button>
                       <Button 
                         variant="ghost" 
                         size="icon" 
-                        className="rounded-full h-8 w-8 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50"
+                        className="h-8 w-8 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedCourt(court);
                         }}
                       >
-                        <Eye size={16} />
+                        <Eye size={15} />
                       </Button>
                     </div>
                   </TableCell>
@@ -167,7 +192,8 @@ export default function OwnerCourtsPage() {
               ))}
             </TableBody>
           </Table>
-        ) : (
+        </div>
+      ) : (
           <div className="text-center py-20">
             <div className="bg-gray-50 w-16 h-16 rounded-2xl shadow-sm flex items-center justify-center mx-auto mb-4">
               <Search className="text-gray-300" size={32} />
@@ -182,10 +208,10 @@ export default function OwnerCourtsPage() {
 
       {/* Detail Dialog */}
       <Dialog open={!!selectedCourt} onOpenChange={(open) => !open && setSelectedCourt(null)}>
-        <DialogContent className="sm:max-w-[600px] p-0 overflow-hidden rounded-2xl border-none shadow-2xl">
+        <DialogContent className="sm:max-w-[520px] p-0 overflow-hidden rounded-3xl border-none shadow-2xl">
           {selectedCourt && (
             <>
-              <div className="h-64 w-full relative">
+              <div className="h-56 w-full relative">
                 <img 
                   src={selectedCourt.pictureUrl} 
                   alt={selectedCourt.name} 
@@ -198,38 +224,38 @@ export default function OwnerCourtsPage() {
                   {getStatusBadge(selectedCourt.status)}
                 </div>
               </div>
-              <div className="p-6">
+              <div className="p-8">
                 <DialogHeader className="mb-6">
-                  <DialogTitle className="text-2xl font-black text-gray-900">{selectedCourt.name}</DialogTitle>
+                  <DialogTitle className="text-xl font-bold text-gray-900 tracking-tight">{selectedCourt.name}</DialogTitle>
                 </DialogHeader>
                 
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3 p-4 bg-gray-50 rounded-2xl">
-                    <MapPin className="text-emerald-600 mt-1 shrink-0" size={20} />
+                  <div className="flex items-start gap-4 p-4 bg-gray-50/80 rounded-2xl border border-gray-100/50">
+                    <MapPin className="text-emerald-600 mt-0.5 shrink-0" size={18} />
                     <div>
-                      <p className="text-sm font-bold text-gray-900 mb-1">Địa chỉ</p>
-                      <p className="text-sm text-gray-500 leading-relaxed">{selectedCourt.address}</p>
+                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Địa chỉ</p>
+                      <p className="text-sm text-gray-600 font-medium leading-relaxed">{selectedCourt.address}</p>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl">
-                    <Clock className="text-emerald-600 shrink-0" size={20} />
+                  <div className="flex items-center gap-4 p-4 bg-gray-50/80 rounded-2xl border border-gray-100/50">
+                    <Clock className="text-emerald-600 shrink-0" size={18} />
                     <div>
-                      <p className="text-sm font-bold text-gray-900 mb-1">Giờ hoạt động</p>
-                      <p className="text-sm text-gray-500">{selectedCourt.startTime} - {selectedCourt.endTime}</p>
+                      <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Giờ hoạt động</p>
+                      <p className="text-sm text-gray-600 font-medium">{selectedCourt.startTime} - {selectedCourt.endTime}</p>
                     </div>
                   </div>
 
                   {selectedCourt.mapUrl && (
-                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-2xl">
-                      <MapPin className="text-emerald-600 shrink-0" size={20} />
+                    <div className="flex items-center gap-4 p-4 bg-gray-50/80 rounded-2xl border border-gray-100/50">
+                      <MapPin className="text-emerald-600 shrink-0" size={18} />
                       <div className="flex-1 overflow-hidden">
-                        <p className="text-sm font-bold text-gray-900 mb-1">Google Maps</p>
+                        <p className="text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-1">Google Maps</p>
                         <a 
                           href={selectedCourt.mapUrl} 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="text-sm text-emerald-600 hover:underline truncate block"
+                          className="text-sm text-emerald-600 hover:text-emerald-700 font-semibold truncate block"
                         >
                           {selectedCourt.mapUrl}
                         </a>
@@ -239,12 +265,19 @@ export default function OwnerCourtsPage() {
                 </div>
 
                 <div className="mt-8 flex gap-3">
-                  <Button className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-12 font-bold">
+                  <Button 
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-12 font-bold shadow-lg shadow-emerald-600/10 transition-all hover:scale-[1.02]"
+                    onClick={() => {
+                      setCourtToEdit(selectedCourt);
+                      setIsUpdateOpen(true);
+                      setSelectedCourt(null);
+                    }}
+                  >
                     Cập nhật thông tin
                   </Button>
                   <Button 
-                    variant="outline" 
-                    className="flex-1 rounded-xl h-12 font-bold border-gray-200"
+                    variant="ghost" 
+                    className="flex-1 rounded-xl h-12 font-bold text-gray-400 hover:text-gray-600 hover:bg-gray-50"
                     onClick={() => setSelectedCourt(null)}
                   >
                     Đóng
@@ -261,6 +294,33 @@ export default function OwnerCourtsPage() {
         open={isUpdateOpen}
         onOpenChange={setIsUpdateOpen}
       />
+      {/* Delete Confirmation */}
+      <AlertDialog open={isDeleteConfirmOpen} onOpenChange={setIsDeleteConfirmOpen}>
+        <AlertDialogContent className="rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-red-600">
+              <Trash2 size={20} />
+              Xác nhận xóa sân
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa sân này? Hành động này sẽ gỡ bỏ toàn bộ dữ liệu liên quan và không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="rounded-xl">Hủy bỏ</AlertDialogCancel>
+            <AlertDialogAction 
+              className="bg-red-600 hover:bg-red-700 text-white rounded-xl"
+              onClick={() => {
+                if (courtToDelete) {
+                  removeCourt.mutate(courtToDelete);
+                }
+              }}
+            >
+              {removeCourt.isPending ? <Loader2 className="animate-spin" size={18} /> : "Xác nhận xóa"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

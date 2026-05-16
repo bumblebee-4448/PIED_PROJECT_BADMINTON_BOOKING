@@ -2,12 +2,11 @@ import { Outlet, useNavigate, NavLink, useLocation } from "react-router-dom";
 import { 
   LayoutDashboard, 
   Building2, 
-  Settings, 
   Menu,
   Bell,
   LayoutGrid,
   Wallet,
-  TrendingUp
+  CalendarCheck
 } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/shared/components/ui/button";
@@ -20,8 +19,8 @@ const NAV_ITEMS = [
   { label: "Dashboard", icon: LayoutDashboard, path: "/owner" },
   { label: "Quản lý cơ sở", icon: Building2, path: "/owner/courts" },
   { label: "Quản lý sân", icon: LayoutGrid, path: "/owner/sub-courts" },
-  { label: "Ví của tôi", icon: Wallet, path: "/owner/wallet" },
-  { label: "Cài đặt", icon: Settings, path: "/owner/settings" },
+  { label: "Quản lý đặt sân", icon: CalendarCheck, path: "/owner/bookings" },
+  { label: "Quản lý ví", icon: Wallet, path: "/owner/wallet" },
 ];
 
 export default function OwnerLayout() {
@@ -120,7 +119,7 @@ export default function OwnerLayout() {
       {/* Main content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top Header */}
-        <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 h-16 flex items-center justify-between px-6 shrink-0 sticky top-0 z-10">
+        <header className="bg-white/80 backdrop-blur-md border-b border-gray-100 h-16 flex items-center justify-between px-6 shrink-0 sticky top-0 z-50">
           <Button 
             variant="ghost" 
             size="icon" 

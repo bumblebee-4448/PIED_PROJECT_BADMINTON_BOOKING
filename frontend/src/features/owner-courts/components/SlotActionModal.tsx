@@ -4,13 +4,12 @@ import {
   DialogContent, 
   DialogHeader, 
   DialogTitle,
-  DialogFooter
 } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
 import { Input } from "@/shared/components/ui/input";
 import { Label } from "@/shared/components/ui/label";
 import { cn } from "@/lib/utils";
-import { Loader2, Lock, Unlock, Layers, Edit3 } from "lucide-react";
+import { Loader2, Unlock } from "lucide-react";
 import { useUnlockException, useRemoveOverrideSlot, useUpdateConfigSlotPrice } from "../hooks/useOwnerSlots";
 
 interface SlotActionModalProps {
@@ -29,9 +28,15 @@ export function SlotActionModal({
   const updatePriceMutation = useUpdateConfigSlotPrice();
   const [newPrice, setNewPrice] = useState("");
 
+  const formatVND = (val: string) => {
+    const num = val.replace(/\D/g, "");
+    if (!num) return "";
+    return parseInt(num).toLocaleString("vi-VN");
+  };
+
   useEffect(() => {
     if (slot?.price) {
-      setNewPrice(slot.price.toString());
+      setNewPrice(formatVND(slot.price.toString()));
     }
   }, [slot]);
 
@@ -46,7 +51,7 @@ export function SlotActionModal({
       } else if (slot.configSlotId) {
         await updatePriceMutation.mutateAsync({
           configSlotId: slot.configSlotId,
-          newPrice: Number(newPrice)
+          newPrice: Number(newPrice.replace(/\./g, ""))
         });
       }
       onOpenChange(false);
@@ -118,9 +123,9 @@ export function SlotActionModal({
                 <div className="relative group">
                   <div className="absolute left-4 top-1/2 -translate-y-1/2 text-emerald-500 font-black text-lg">₫</div>
                   <Input 
-                    type="number" 
+                    type="text" 
                     value={newPrice}
-                    onChange={(e) => setNewPrice(e.target.value)}
+                    onChange={(e) => setNewPrice(formatVND(e.target.value))}
                     className="pl-10 h-14 rounded-2xl bg-gray-50 border-gray-100 focus:bg-white focus:ring-4 focus:ring-emerald-500/5 transition-all font-bold text-lg text-gray-900"
                     placeholder="0"
                   />
