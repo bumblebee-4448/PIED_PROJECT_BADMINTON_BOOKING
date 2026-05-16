@@ -70,7 +70,7 @@ export const feedbackService = {
   getByBookingId: async (bookingId: string): Promise<Feedback | null> => {
     try {
       const response = (await apiClient.get(
-        API_ENDPOINTS.FEEDBACK.GET_BY_BOOKING.replace("{id}", bookingId),
+        API_ENDPOINTS.FEEDBACK.GET_BY_BOOKING,
         { 
           params: { bookingId },
           skipToast: true 

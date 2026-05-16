@@ -49,7 +49,7 @@ export const API_ENDPOINTS = {
   },
   FEEDBACK: {
     GET_BY_COURT: "/Feedback",
-    GET_BY_BOOKING: "/Feedback/byBookingId/{id}",
+    GET_BY_BOOKING: "/Feedback/byBookingId",
     CREATE: "/Feedback",
     UPDATE: "/Feedback",
     DELETE: "/Feedback",
