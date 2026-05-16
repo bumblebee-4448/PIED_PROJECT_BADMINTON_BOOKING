@@ -37,6 +37,10 @@ export interface GetBookingResponse {
   phoneNumber: string;
   urlMap: string;
   date?: string; 
+  courtId?: string;
+  feedbackId?: string;
+  rating?: number;
+  comment?: string | null;
 }
 
 export interface BookingHistoryResponse {

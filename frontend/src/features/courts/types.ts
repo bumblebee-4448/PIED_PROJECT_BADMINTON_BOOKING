@@ -27,27 +27,13 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
-  errors?: any;
+  errors?: unknown;
   traceId?: string;
   timestampUtc?: string;
 }
 
 export interface CourtListResponse {
   items: Court[];
-  totalItems: number;
-  pageSize: number;
-  pageIndex: number;
-}
-
-export interface CourtFeedback {
-  nameCustomer: string;
-  comment: string | null;
-  rating: number;
-  createdAt: string;
-}
-
-export interface CourtFeedbackListResponse {
-  items: CourtFeedback[];
   totalItems: number;
   pageSize: number;
   pageIndex: number;
