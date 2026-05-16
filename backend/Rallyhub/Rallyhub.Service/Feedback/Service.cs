@@ -20,7 +20,7 @@ public class Service: IService
     public async Task CreateFeedback(Request.CreateFeedbackRequest request)
     {
         // 1. Kiểm tra xem booking đã có feedback chưa
-        if (await _dbContext.Feedbacks.AnyAsync(x => x.BookingId == request.BookingId))
+        if (await _dbContext.Feedbacks.AnyAsync(x => x.BookingId == request.BookingId && x.IsDeleted == false))
         {
             throw new ArgumentException("Bạn đã đánh giá cho đơn đặt sân này rồi");
         }
@@ -118,13 +118,13 @@ public class Service: IService
         return result;
     }
 
-    public async Task<Response.GetFeedbackResponse> FeedbackByBookingId(Guid bookingId)
+    public async Task<Response.GetFeedbackResponse?> FeedbackByBookingId(Guid bookingId)
     {
         var feedback = await _dbContext.Feedbacks
             .Include(x => x.Customer).ThenInclude(c => c.User)
             .FirstOrDefaultAsync(x => x.BookingId == bookingId && x.IsDeleted == false);
             
-        if (feedback == null) throw new ArgumentException("Không tìm thấy đánh giá cho đơn đặt này");
+        if (feedback == null) return null;
 
         return new Response.GetFeedbackResponse()
         {
