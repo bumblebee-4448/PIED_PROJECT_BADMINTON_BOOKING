@@ -1,5 +1,5 @@
 import React from "react";
-import { Bell, CheckCheck, Loader2, Info, AlertTriangle, CheckCircle, BellOff, ShieldAlert, Flag, X } from "lucide-react";
+import { Bell, CheckCheck, Loader2, Info, CheckCircle, BellOff, ShieldAlert, Flag, X } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
