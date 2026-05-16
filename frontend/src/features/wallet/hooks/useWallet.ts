@@ -13,9 +13,9 @@ export const useWallet = () => {
       queryKey: QUERY_KEYS.WALLET_INFO,
       queryFn: () => walletService.getWalletInfo(),
       enabled,
-      refetchInterval: 5000, // Fetch every 5 seconds
+      refetchInterval: 30000, // Fetch every 30 seconds
       refetchIntervalInBackground: true,
-      staleTime: 0,
+      staleTime: 10000,
       refetchOnWindowFocus: true,
     });
 

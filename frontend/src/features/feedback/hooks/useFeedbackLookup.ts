@@ -44,9 +44,7 @@ export function useFeedbackLookup(
       enabled &&
       isCompletedBooking(booking.status) &&
       !!booking.bookingId,
-    staleTime: 0,
-    refetchInterval: 3000,
-    refetchIntervalInBackground: true,
+    staleTime: 1000 * 60 * 5, // 5 minutes
     queryFn: async (): Promise<Feedback | null> => {
       // 1. Try direct API first (Best approach)
       const directFeedback = await feedbackService.getByBookingId(booking.bookingId);

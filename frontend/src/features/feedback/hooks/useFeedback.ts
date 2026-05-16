@@ -111,8 +111,8 @@ export function useCourtFeedbacks(
     queryKey: QUERY_KEYS.COURT_FEEDBACKS(courtId, pageIndex, pageSize),
     queryFn: () => feedbackService.getByCourt(courtId, pageIndex, pageSize),
     enabled: !!courtId,
-    staleTime: 0,
-    refetchInterval: 3000,
+    staleTime: 30000,
+    refetchInterval: 60000,
     refetchIntervalInBackground: true,
   });
 }

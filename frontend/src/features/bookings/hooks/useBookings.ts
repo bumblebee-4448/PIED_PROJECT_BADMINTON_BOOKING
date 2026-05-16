@@ -88,8 +88,8 @@ export function useBookings(pageIndex: number = 1, pageSize: number = DEFAULT_PA
         pageSize: response.pageSize ?? response.PageSize ?? pageSize,
       } as BookingHistoryResponse;
     },
-    staleTime: 0,
-    refetchInterval: 3000,
+    staleTime: 10000,
+    refetchInterval: 30000,
     refetchIntervalInBackground: true,
   });
 }

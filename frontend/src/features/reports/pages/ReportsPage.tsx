@@ -27,7 +27,7 @@ export function ReportsPage() {
     isFetching: isFetchingBooking,
   } = useBookingReports(
     { pageIndex: 1, pageSize: 50 },
-    { realtime: true, refetchInterval: 3_000 },
+    { realtime: true, refetchInterval: 60000 },
   );
   const {
     data: systemReportsData,
@@ -35,7 +35,7 @@ export function ReportsPage() {
     isFetching: isFetchingSystem,
   } = useSystemReports(
     { pageIndex: 1, pageSize: 50 },
-    { realtime: true, refetchInterval: 3_000 },
+    { realtime: true, refetchInterval: 60000 },
   );
 
   const bookingReports = getReportItems<ReportBookingResponse>(bookingReportsData);

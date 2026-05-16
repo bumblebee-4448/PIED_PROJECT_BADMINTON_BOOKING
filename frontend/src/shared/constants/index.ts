@@ -142,3 +142,21 @@ export const QUERY_KEYS = {
 //   { value: "khó", label: "Khó" },
 //   { value: "rất khó", label: "Rất khó" },
 // ] as const;
+
+/**
+ * Realtime configuration - Centralized polling intervals and stale times.
+ * Adjust these values to balance between "real-time" feel and server load.
+ */
+export const REALTIME_CONFIG = {
+  INTERVALS: {
+    FAST: 10000,      // 10s - For critical status updates (e.g. payment/active booking)
+    NORMAL: 30000,    // 30s - For lists that change moderately (e.g. notifications, bookings)
+    SLOW: 60000,      // 1min - For mostly static data or less critical updates (e.g. reports, feedback)
+    DISABLED: false,  // Disable polling
+  },
+  STALE_TIME: {
+    SHORT: 5000,      // 5s
+    MEDIUM: 30000,    // 30s
+    LONG: 300000,     // 5min - For data that rarely changes
+  }
+} as const;

@@ -26,8 +26,8 @@ export function useAvailableSlots(subCourts: SubCourt[], selectedDate: Date) {
         }));
       },
       enabled: !!sub.subCourtId && !!dateStr,
-      refetchInterval: 5000,
-      staleTime: 0,
+      refetchInterval: 30000,
+      staleTime: 10000,
     })),
   });
 }

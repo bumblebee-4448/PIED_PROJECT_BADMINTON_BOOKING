@@ -5,8 +5,8 @@ export function useTransactions(pageIndex = 1, pageSize = 100) {
   return useQuery({
     queryKey: ["transactions", pageIndex, pageSize],
     queryFn: () => bookingsService.getTransactions(pageIndex, pageSize),
-    staleTime: 0,
-    refetchInterval: 3000,
+    staleTime: 10000,
+    refetchInterval: 30000,
     refetchIntervalInBackground: true,
   });
 }

@@ -5,6 +5,7 @@ import {
   ChevronUp,
   ChevronDown,
   Wallet,
+  AlertCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store";
@@ -13,11 +14,13 @@ import { useWallet } from "@/features/wallet";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
 import { EditProfileDialog } from "@/features/profile/components/EditProfileDialog";
+import { ReportSystemDialog } from "@/features/reports/components/ReportSystemDialog";
 
 export function UserProfileCard() {
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const { accessToken, user, role } = useAuthStore();
   const { mutate: logout, isLoading } = useLogout();
   const { useWalletInfo } = useWallet();
@@ -99,6 +102,18 @@ export function UserProfileCard() {
               <span className="text-sm">Cập nhật Profile</span>
             </Button>
 
+            <Button 
+              variant="ghost" 
+              onClick={() => {
+                setIsOpen(false);
+                setIsReportDialogOpen(true);
+              }}
+              className="w-full justify-start gap-3 rounded-xl hover:bg-emerald-50 text-emerald-600 font-semibold h-11 px-3"
+            >
+              <AlertCircle size={18} className="text-emerald-400" />
+              <span className="text-sm">Báo cáo hệ thống</span>
+            </Button>
+
             <Button
               variant="ghost"
               onClick={() => logout()}
@@ -148,6 +163,11 @@ export function UserProfileCard() {
       <EditProfileDialog 
         isOpen={isEditDialogOpen} 
         onOpenChange={setIsEditDialogOpen} 
+      />
+
+      <ReportSystemDialog
+        isOpen={isReportDialogOpen}
+        onOpenChange={setIsReportDialogOpen}
       />
     </div>
   );

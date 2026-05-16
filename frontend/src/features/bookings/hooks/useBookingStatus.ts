@@ -13,7 +13,7 @@ export const useBookingStatus = (bookingId?: string, enabled?: boolean) => {
       return items.find((item) => (item.bookingId || (item as any).BookingId) === bookingId) || null;
     },
     enabled: !!bookingId && enabled,
-    refetchInterval: 3000,
+    refetchInterval: 30000,
     refetchIntervalInBackground: true,
   });
 };

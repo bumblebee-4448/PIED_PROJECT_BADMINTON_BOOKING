@@ -48,9 +48,9 @@ export function useBookingReports(
   return useQuery({
     queryKey: [...QUERY_KEYS.REPORTS_BOOKING, params],
     queryFn: () => reportsService.getBookingReports(params),
-    refetchInterval: 3000,
+    refetchInterval: 60000,
     refetchIntervalInBackground: true,
-    staleTime: 0,
+    staleTime: 30000,
   });
 }
 
@@ -60,9 +60,9 @@ export function useSystemReports(
   return useQuery({
     queryKey: [...QUERY_KEYS.REPORTS_SYSTEM, params],
     queryFn: () => reportsService.getSystemReports(params),
-    refetchInterval: 3000,
+    refetchInterval: 60000,
     refetchIntervalInBackground: true,
-    staleTime: 0,
+    staleTime: 30000,
   });
 }
 
