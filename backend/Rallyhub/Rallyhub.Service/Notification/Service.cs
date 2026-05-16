@@ -161,14 +161,80 @@ public class Service : IService
         return result > 0;
     }
 
-    public Task<bool> DeleteNotification(Guid notificationId)
+    public async Task<string> DeleteNotification(Guid notificationId)
     {
-        throw new NotImplementedException();
+        try
+        {
+            var userIdStr = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+            if (userIdStr == null) return "Không tìm thấy thông tin người dùng.";
+            var userId = Guid.Parse(userIdStr);
+
+            var notification = await _dbContext.Notifications.FirstOrDefaultAsync(x => x.Id == notificationId);
+            if (notification == null) return "Không tìm thấy thông báo.";
+
+            var role = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+            bool isAdminDeletingSystemNote = role == "Admin" && 
+                (notification.Type == Request.TypeNotification.SystemReportCreated || 
+                 notification.Type == Request.TypeNotification.ReportCreated ||
+                 notification.Type == Request.TypeNotification.OwnerRequestSubmitted ||
+                 notification.Type == Request.TypeNotification.WithdrawalRequested);
+
+            if (notification.UserId != userId && !isAdminDeletingSystemNote)
+            {
+                return "Bạn không có quyền xóa thông báo này.";
+            }
+
+            notification.IsDeleted = true;
+            notification.UpdatedAt = DateTimeOffset.UtcNow;
+            await _dbContext.SaveChangesAsync();
+            return "Xóa thông báo thành công.";
+        }
+        catch (Exception ex)
+        {
+            return $"Lỗi xóa thông báo đơn lẻ: {ex.Message}";
+        }
     }
 
-    public Task<bool> DeleteAllRead()
+    public async Task<string> DeleteAllRead()
     {
-        throw new NotImplementedException();
+        try
+        {
+            var userIdStr = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
+            if (userIdStr == null) return "Không tìm thấy thông tin người dùng.";
+            var userId = Guid.Parse(userIdStr);
+
+            var role = _httpAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == System.Security.Claims.ClaimTypes.Role)?.Value;
+
+            IQueryable<Repository.Entity.Notification> query = _dbContext.Notifications.Where(x => x.IsRead && !x.IsDeleted);
+            if (role == "Admin")
+            {
+                query = query.Where(x => 
+                    x.Type == Request.TypeNotification.SystemReportCreated || 
+                    x.Type == Request.TypeNotification.ReportCreated ||
+                    x.Type == Request.TypeNotification.OwnerRequestSubmitted ||
+                    x.Type == Request.TypeNotification.WithdrawalRequested);
+            }
+            else
+            {
+                query = query.Where(x => x.UserId == userId);
+            }
+
+            var readNotes = await query.ToListAsync();
+            if (!readNotes.Any()) return "Không có thông báo nào đã đọc để xóa.";
+
+            foreach (var note in readNotes)
+            {
+                note.IsDeleted = true;
+                note.UpdatedAt = DateTimeOffset.UtcNow;
+            }
+            
+            await _dbContext.SaveChangesAsync();
+            return $"Đã xóa {readNotes.Count} thông báo đã đọc.";
+        }
+        catch (Exception ex)
+        {
+            return $"Lỗi xóa tất cả thông báo: {ex.Message}";
+        }
     }
 
     public async Task<Base.Response.PageResult<Response.GetNotificationResponse>> GetNotification(Base.Request.PagingRequest request)

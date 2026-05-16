@@ -159,7 +159,6 @@ public class Service: IService
         var feedback = await _dbContext.Feedbacks.FirstOrDefaultAsync(x => x.Id == request.Id);
         if (feedback == null) throw new Exception("Không tìm thấy đánh giá");
 
-        // Kiểm tra quyền sở hữu
         var customerIdStr = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         if (feedback.CustomerId.ToString() != customerIdStr)
         {
