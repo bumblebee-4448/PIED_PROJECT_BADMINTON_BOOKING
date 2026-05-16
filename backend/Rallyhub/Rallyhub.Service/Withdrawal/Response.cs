@@ -25,7 +25,6 @@ public class Response
         public string? RejectionReason { get; set; }
         public string? AdminNote { get; set; }
         public Guid? ProcessedByAdminId { get; set; } 
-        public Guid? TransactionId { get; set; }
         public DateTimeOffset UpdatedAt { get; set; }
     }
 }
