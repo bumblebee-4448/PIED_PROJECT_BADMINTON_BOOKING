@@ -52,7 +52,7 @@ public class NotificationController : ControllerBase
     public async Task<IActionResult> DeleteNotification(Guid id)
     {
         var result = await _Note.DeleteNotification(id);
-        return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "delete notification success", HttpContext.TraceIdentifier));
+        return Ok(Service.Models.ApiResponseFactory.SuccessResponse(null, result, HttpContext.TraceIdentifier));
     }
     
     [HttpDelete("DeleteAllRead")]
@@ -60,7 +60,7 @@ public class NotificationController : ControllerBase
     public async Task<IActionResult> DeleteAllRead()
     {
         var result = await _Note.DeleteAllRead();
-        return Ok(Service.Models.ApiResponseFactory.SuccessResponse(result, "delete all read notifications success", HttpContext.TraceIdentifier));
+        return Ok(Service.Models.ApiResponseFactory.SuccessResponse(null, result, HttpContext.TraceIdentifier));
     }
     [HttpPut("MarkAllAsRead")]
     [Authorize(Policy = JwtExtensions.CustomerOrOwnerOrAdminPolicy)]

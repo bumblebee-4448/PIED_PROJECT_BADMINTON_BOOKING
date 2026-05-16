@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { notificationService } from "../services";
 import { QUERY_KEYS } from "@/shared/constants";
 import { useAuthStore } from "@/features/auth/store";
@@ -51,18 +52,26 @@ export const useNotificationActions = () => {
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => notificationService.deleteNotification(id),
-    onSuccess: () => {
+    onSuccess: (message: any) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.UNREAD_COUNT });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success(typeof message === "string" ? message : "Xóa thông báo thành công");
     },
+    onError: (error: any) => {
+      // Bỏ qua vì global axios interceptor đã hiển thị toast lỗi rồi
+    }
   });
 
   const deleteAllReadMutation = useMutation({
     mutationFn: () => notificationService.deleteAllRead(),
-    onSuccess: () => {
+    onSuccess: (message: any) => {
       queryClient.invalidateQueries({ queryKey: QUERY_KEYS.UNREAD_COUNT });
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success(typeof message === "string" ? message : "Đã xóa các thông báo đã đọc");
     },
+    onError: (error: any) => {
+      // Bỏ qua vì global axios interceptor đã hiển thị toast lỗi rồi
+    }
   });
 
   return {

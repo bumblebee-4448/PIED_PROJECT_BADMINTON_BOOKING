@@ -6,8 +6,8 @@ public interface IService
     public Task<bool> ReadNotification(Guid notificationId);
     public Task<int> GetUnreadCount();
     public Task<bool> MarkAllAsRead();
-    public Task<bool> DeleteNotification(Guid notificationId);
-    public Task<bool> DeleteAllRead();
+    public Task<string> DeleteNotification(Guid notificationId);
+    public Task<string> DeleteAllRead();
     public Task<Base.Response.PageResult<Response.GetNotificationResponse>> GetNotification(
         Base.Request.PagingRequest request);
     public Task<Base.Response.PageResult<Response.GetNotificationResponse>> AdminGetNotification(
