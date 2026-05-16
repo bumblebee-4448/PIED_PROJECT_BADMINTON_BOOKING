@@ -24,15 +24,14 @@ using BookingService = Rallyhub.Service.Booking;
 using WithdrawalService = Rallyhub.Service.Withdrawal;
 using NotificationService = Rallyhub.Service.Notification;
 using SepayService = Rallyhub.Service.SepayService;
-using FeedbackService = Rallyhub.Service.Feadback;
+using FeedbackService = Rallyhub.Service.Feedback;
 using ValidationService = Rallyhub.Service.Validation;
-using FeadbackService = Rallyhub.Service.Feadback;
 using CampaignService = Rallyhub.Service.Campaign;
 using DashboardService = Rallyhub.Service.Dashboard;
 using SystemReportService = Rallyhub.Service.SystemReport;
 using RevenueService = Rallyhub.Service.Revenue;
 using ReportService = Rallyhub.Service.Report;
-// using DiscordService = Rallyhub.Service.DiscordService;
+using DiscordService = Rallyhub.Service.DiscordService;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,7 +65,7 @@ builder.Services.AddSwaggerServices();
 builder.Services.AddScoped<JwtService.IService, JwtService.Service>();
 builder.Services.AddScoped<MailService.IService, MailService.Service>();
 builder.Services.AddScoped<IdentityService.IService, IdentityService.Service>();
-// builder.Services.AddHttpClient<DiscordService.IService, DiscordService.Service>();
+builder.Services.AddHttpClient<DiscordService.IService, DiscordService.Service>();
 builder.Services.AddScoped<UserService.IService, UserService.Service>();
 builder.Services.AddScoped<OtpService.IService, OtpService.Service>();
 builder.Services.AddScoped<CourtService.IService, CourtService.Service>();
@@ -84,7 +83,6 @@ builder.Services.AddScoped<NotificationService.IService, NotificationService.Ser
 builder.Services.AddScoped<FeedbackService.IService, FeedbackService.Service>();
 builder.Services.AddScoped<ValidationService.IService, ValidationService.Service>();
 builder.Services.AddScoped<CampaignService.IService, CampaignService.Service>();
-builder.Services.AddScoped<FeadbackService.IService, FeadbackService.Service>();
 builder.Services.AddScoped<DashboardService.IService, DashboardService.Service>();
 builder.Services.AddScoped<SystemReportService.IService, SystemReportService.Service>();
 builder.Services.AddScoped<RevenueService.IRevenueService, RevenueService.RevenueService>();

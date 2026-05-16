@@ -27,7 +27,6 @@ import AdminUsersPage from "@/features/admin-users/pages/AdminUsersPage";
 import { AdminWithdrawalsPage } from "@/features/admin-wallet/pages/AdminWithdrawalsPage";
 import { AdminTransactionsPage } from "@/features/admin-wallet/pages/AdminTransactionsPage";
 import { WalletPage, OwnerWalletPage } from "@/features/wallet";
-import OwnerRevenuePage from "@/features/owner-revenue/pages/OwnerRevenuePage";
 
 /**
  * React Router v6 config – createBrowserRouter (Data API).
@@ -141,7 +140,6 @@ export const router = createBrowserRouter([
       { path: "sub-courts/:id/schedule", element: <OwnerSubCourtSchedulePage /> },
       { path: "schedules", element: <OwnerSubCourtsPage /> },
       { path: "wallet", element: <OwnerWalletPage /> },
-      { path: "revenue", element: <OwnerRevenuePage /> },
     ],
   },
 ]);

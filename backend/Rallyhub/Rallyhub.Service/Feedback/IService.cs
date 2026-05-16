@@ -1,6 +1,6 @@
 ﻿using Org.BouncyCastle.Ocsp;
 
-namespace Rallyhub.Service.Feadback;
+namespace Rallyhub.Service.Feedback;
 
 public interface IService
 {

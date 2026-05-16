@@ -1,9 +1,10 @@
-import { Outlet, useLocation } from "react-router-dom";
+import { Outlet, useLocation, Navigate } from "react-router-dom";
 import { Navbar } from "@/features/landing";
 import { LoginPromptDialog } from "@/shared/components/common/LoginPromptDialog";
 
 import { useMe } from "@/features/profile/hooks/useMe";
 import { OwnerRegistrationDialog } from "@/features/owner-registration";
+import { useAuthStore } from "@/features/auth/store";
 
 export function UserLayout() {
   const location = useLocation();
@@ -11,6 +12,16 @@ export function UserLayout() {
 
   // Sử dụng React Query tối ưu thay cho useEffect
   useMe();
+
+  const { accessToken, role } = useAuthStore();
+  const isRootPath = location.pathname === "/";
+
+  // Nếu đã login và là Admin/Owner mà vào trang chủ -> redirect về Dashboard tương ứng
+  if (accessToken && role && isRootPath) {
+    const roleBase = role.toLowerCase();
+    if (roleBase === "admin") return <Navigate to="/admin" replace />;
+    if (roleBase === "owner") return <Navigate to="/owner" replace />;
+  }
 
   return (
     <div className="min-h-screen flex flex-col">

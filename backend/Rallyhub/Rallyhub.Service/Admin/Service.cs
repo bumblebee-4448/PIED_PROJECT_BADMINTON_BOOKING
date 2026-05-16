@@ -167,7 +167,7 @@ public class Service: IService
         {
             throw new Exception($"Không thể update status {request.Status}");
         }
-        var user = await _dbContext.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
+        var user = await _dbContext.Users.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == request.Id);
         if (user == null)
         {
             throw new Exception("User không tồn tại");
@@ -176,10 +176,10 @@ public class Service: IService
         {
             if (user.Status == request.Status)
             {
-                throw new Exception($"User đang có status {request.Status} không thể update sang {request.Status}");
+                throw new Exception($"User đang có status {user.Status} không thể update sang {request.Status}");
             }
             var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == request.Id);
-            var customer = await _dbContext.Customers.FirstOrDefaultAsync(x => x.UserId == request.Id);
+            var customer = await _dbContext.Customers.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.UserId == request.Id);
             if (wallet != null && request.Status == "Banned")
             {
                 wallet.IsDeleted = true;
@@ -225,12 +225,12 @@ public class Service: IService
                 wallet.UpdatedAt = DateTimeOffset.UtcNow;
                 _dbContext.Wallets.Update(wallet);
             }
-            var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == request.Id);
+            var owner = await _dbContext.Owners.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.UserId == request.Id);
             if (owner == null)
             {
                 throw new Exception("Không tìm thấy owner");
             }
-            var courtList = await _dbContext.Courts.Where(x => x.OwnerId == owner.Id).ToListAsync();
+            var courtList = await _dbContext.Courts.IgnoreQueryFilters().Where(x => x.OwnerId == owner.Id).ToListAsync();
             if (!courtList.Any())
             {
                 user.Status = request.Status;
@@ -241,7 +241,7 @@ public class Service: IService
             }
             foreach (var court in courtList)
             {
-                var likeListDetail = await _dbContext.LikeListDetails.Where(x => x.CourtId == court.Id).ToListAsync();
+                var likeListDetail = await _dbContext.LikeListDetails.IgnoreQueryFilters().Where(x => x.CourtId == court.Id).ToListAsync();
                 if (likeListDetail.Any())
                 {
                     foreach (var item in likeListDetail)
@@ -251,10 +251,10 @@ public class Service: IService
                     }
                     _dbContext.LikeListDetails.UpdateRange(likeListDetail);
                 }
-                var campaignCourt = await _dbContext.CampaignCourts.Where(x => x.CourtId == court.Id).ToListAsync();
+                var campaignCourt = await _dbContext.CampaignCourts.IgnoreQueryFilters().Where(x => x.CourtId == court.Id).ToListAsync();
                 if (campaignCourt.Any())
                 {
-                    var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == campaignCourt[0].CampaignId);
+                    var campaign = await _dbContext.Campaigns.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == campaignCourt[0].CampaignId);
                     if (campaign != null)
                     {
                         campaign.IsDeleted = true;
@@ -265,15 +265,16 @@ public class Service: IService
                     foreach (var item in campaignCourt)
                     {
                         item.IsDeleted = true;
+                        item.UpdatedAt = DateTimeOffset.UtcNow;
                     }
                     _dbContext.CampaignCourts.UpdateRange(campaignCourt);
                 }
-                var subCourtList = await _dbContext.SubCourts.Where(x => x.CourtId == court.Id).ToListAsync();
+                var subCourtList = await _dbContext.SubCourts.IgnoreQueryFilters().Where(x => x.CourtId == court.Id).ToListAsync();
                 if (subCourtList.Any())
                 {
                     foreach (var subCourt in subCourtList)
                     {
-                        var exceptionList = await _dbContext.Exceptions.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
+                        var exceptionList = await _dbContext.Exceptions.IgnoreQueryFilters().Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
                         if (exceptionList.Any())
                         {
                             foreach (var item in exceptionList)
@@ -283,17 +284,18 @@ public class Service: IService
                             }
                             _dbContext.Exceptions.UpdateRange(exceptionList);
                         }
-                        var configSlotList = await _dbContext.ConfigSlots.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
+                        var configSlotList = await _dbContext.ConfigSlots.IgnoreQueryFilters().Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
                         if (configSlotList.Any())
                         {
                             foreach (var item in configSlotList)
                             {
                                 item.IsDeleted = true;
+                                item.UpdatedAt =  DateTimeOffset.UtcNow;
                                 
                             }
                             _dbContext.ConfigSlots.UpdateRange(configSlotList);
                         }
-                        var overrideSlotList = await _dbContext.OverideSlots.Where(x => x.SubCourtDetailId ==  subCourt.Id).ToListAsync();
+                        var overrideSlotList = await _dbContext.OverideSlots.IgnoreQueryFilters().Where(x => x.SubCourtDetailId ==  subCourt.Id).ToListAsync();
                         if (overrideSlotList.Any())
                         {
                             foreach (var item in overrideSlotList)
@@ -313,7 +315,9 @@ public class Service: IService
                 _dbContext.Courts.Update(court);
             }
             owner.IsDeleted = true;
+            owner.UpdatedAt = DateTimeOffset.UtcNow;
             user.Status = request.Status;
+            user.IsDeleted = true;
             user.UpdatedAt = DateTimeOffset.UtcNow;
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();
@@ -332,12 +336,12 @@ public class Service: IService
                 wallet.UpdatedAt = DateTimeOffset.UtcNow;
                 _dbContext.Wallets.Update(wallet);
             }
-            var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == request.Id);
+            var owner = await _dbContext.Owners.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.UserId == request.Id);
             if (owner == null)
             {
                 throw new Exception("Không tìm thấy owner");
             }
-            var courtList = await _dbContext.Courts.Where(x => x.OwnerId == owner.Id).ToListAsync();
+            var courtList = await _dbContext.Courts.IgnoreQueryFilters().Where(x => x.OwnerId == owner.Id).ToListAsync();
             if (!courtList.Any())
             {
                 user.Status = request.Status;
@@ -348,7 +352,7 @@ public class Service: IService
             }
             foreach (var court in courtList)
             {
-                var likeListDetail = await _dbContext.LikeListDetails.Where(x => x.CourtId == court.Id).ToListAsync();
+                var likeListDetail = await _dbContext.LikeListDetails.IgnoreQueryFilters().Where(x => x.CourtId == court.Id).ToListAsync();
                 if (likeListDetail.Any())
                 {
                     foreach (var item in likeListDetail)
@@ -358,10 +362,10 @@ public class Service: IService
                     }
                     _dbContext.LikeListDetails.UpdateRange(likeListDetail);
                 }
-                var campaignCourt = await _dbContext.CampaignCourts.Where(x => x.CourtId == court.Id).ToListAsync();
+                var campaignCourt = await _dbContext.CampaignCourts.IgnoreQueryFilters().Where(x => x.CourtId == court.Id).ToListAsync();
                 if (campaignCourt.Any())
                 {
-                    var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == campaignCourt[0].CampaignId);
+                    var campaign = await _dbContext.Campaigns.IgnoreQueryFilters().FirstOrDefaultAsync(x => x.Id == campaignCourt[0].CampaignId);
                     if (campaign != null)
                     {
                         campaign.IsDeleted = false;
@@ -375,12 +379,12 @@ public class Service: IService
                     }
                     _dbContext.CampaignCourts.UpdateRange(campaignCourt);
                 }
-                var subCourtList = await _dbContext.SubCourts.Where(x => x.CourtId == court.Id).ToListAsync();
+                var subCourtList = await _dbContext.SubCourts.IgnoreQueryFilters().Where(x => x.CourtId == court.Id).ToListAsync();
                 if (subCourtList.Any())
                 {
                     foreach (var subCourt in subCourtList)
                     {
-                        var exceptionList = await _dbContext.Exceptions.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
+                        var exceptionList = await _dbContext.Exceptions.IgnoreQueryFilters().Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
                         if (exceptionList.Any())
                         {
                             foreach (var item in exceptionList)
@@ -390,7 +394,7 @@ public class Service: IService
                             }
                             _dbContext.Exceptions.UpdateRange(exceptionList);
                         }
-                        var configSlotList = await _dbContext.ConfigSlots.Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
+                        var configSlotList = await _dbContext.ConfigSlots.IgnoreQueryFilters().Where(x => x.SubCourtDetailId == subCourt.Id).ToListAsync();
                         if (configSlotList.Any())
                         {
                             foreach (var item in configSlotList)
@@ -400,7 +404,7 @@ public class Service: IService
                             }
                             _dbContext.ConfigSlots.UpdateRange(configSlotList);
                         }
-                        var overrideSlotList = await _dbContext.OverideSlots.Where(x => x.SubCourtDetailId ==  subCourt.Id).ToListAsync();
+                        var overrideSlotList = await _dbContext.OverideSlots.IgnoreQueryFilters().Where(x => x.SubCourtDetailId ==  subCourt.Id).ToListAsync();
                         if (overrideSlotList.Any())
                         {
                             foreach (var item in overrideSlotList)
@@ -421,7 +425,9 @@ public class Service: IService
                 
             }
             owner.IsDeleted = false;
+            owner.UpdatedAt = DateTimeOffset.UtcNow;
             user.Status = request.Status;
+            user.IsDeleted = false;
             user.UpdatedAt = DateTimeOffset.UtcNow;
             _dbContext.Users.Update(user);
             await _dbContext.SaveChangesAsync();

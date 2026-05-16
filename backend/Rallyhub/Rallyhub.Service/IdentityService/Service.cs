@@ -55,7 +55,7 @@ public class Service : IService
             FirstName = request.FirstName,
             LastName = request.LastName,
             PhoneNumber = request.PhoneNumber,
-            
+            CreatedAt = DateTimeOffset.UtcNow,
         };
         await _otpService.GenerateAndSendOtpAsync(request.Email, "Register", pendingUser);
         return "Check mail, verify otp";
@@ -139,7 +139,7 @@ public class Service : IService
             throw new Exception("Email hoặc mật khẩu không chính xác.");
         }
 
-        if (user.Status == "Ban")
+        if (user.Status == "Banned")
         {
             throw new Exception("Your account has been banned.");
         }

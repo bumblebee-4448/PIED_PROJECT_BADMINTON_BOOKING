@@ -17,8 +17,11 @@ public class Response
     {
         public Guid Id { get; set; }
         public Guid TransactionId { get; set; }
+        public string BankName  { get; set; }
+        public string BankAccount  { get; set; }
         public decimal Amount { get; set; }
         public string QrCodeUrl { get; set; } = null!;
+        public DateTimeOffset Created { get; set; }
     }
     
 }

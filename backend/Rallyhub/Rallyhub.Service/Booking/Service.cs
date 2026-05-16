@@ -192,9 +192,19 @@ public class Service: IService
             }));
         }
         
-        
-        await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
-        await _dbContext.SaveChangesAsync();
+        try
+        {
+            await _dbContext.BookingDetails.AddRangeAsync(bookingDetails);
+            await _dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            if (ex.InnerException?.Message.Contains("23505") == true ||
+                ex.InnerException?.Message.Contains("duplicate") == true)
+            {
+                throw new Exception("Khung giờ này vừa được người khác đặt, vui lòng chọn khung giờ khác");
+            }
+        }
 
         var bookedSubCourtId = bookingDetails.FirstOrDefault()?.SubCourtId;
         var subCourt = await _dbContext.SubCourts
@@ -219,7 +229,7 @@ public class Service: IService
         string bankName = "MBBank";
         string bankAccount = "VQRQAIUZK3222";
         string description = $"RA-{booking.Id:N}";
-        
+        string nguoinhan = "PHAM QUOC HOANG";
         string qrCodeUrl = $"https://qr.sepay.vn/img?" +
                            $"acc={bankAccount}&" +
                            $"bank={bankName}&" +
@@ -235,7 +245,7 @@ public class Service: IService
         {
             BookingId = booking.Id,
             BankName = bankName,
-            BankAccount = bankAccount,
+            BankAccount = nguoinhan,
             TotalPrice = booking.FinalPrice,
             ExpiredAt = booking.ExpiresAt,
             Status = booking.Status,
@@ -418,10 +428,7 @@ public class Service: IService
                 CreatedAt = DateTimeOffset.UtcNow,
             }));
         }
-        if (!await _walletService.ApartBanlanceFromWallet(userId!.Id, finalPrice, "Payment"))
-        {
-            throw new Exception("Wallet apart balance failed");
-        } 
+        
         //transaction
         var wallet = await _dbContext.Wallets.FirstOrDefaultAsync(x => x.UserId == userId.Id);
         if (wallet == null)
@@ -430,15 +437,18 @@ public class Service: IService
         }
         var transactionI = new Transaction.Request.CreateTransactionRequest()
         {
-            Type = Transaction.Request.TypeList.Payment,
+            Type = Transaction.Request.TypeList.PaymentByWallet,
             Amount = finalPrice,
-            BalanceBefore = wallet.Balance + finalPrice, 
-            BalanceAfter = wallet.Balance,           
+            BalanceBefore = wallet.Balance, 
+            BalanceAfter = wallet.Balance - finalPrice,           
             Status = "Success",
             BookingId = booking.Id,
             WalletId = wallet.Id,
         };
-
+        if (!await _walletService.ApartBanlanceFromWallet(userId!.Id, finalPrice, "Payment"))
+        {
+            throw new Exception("Wallet apart balance failed");
+        }
         if (!await _transactionService.CreateTransaction(transactionI))
         {
             throw new Exception("Error creating transaction");

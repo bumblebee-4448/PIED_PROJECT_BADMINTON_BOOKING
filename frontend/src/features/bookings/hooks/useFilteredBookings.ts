@@ -19,35 +19,37 @@ export function useFilteredBookings(
   data: BookingHistoryResponse | undefined,
   activeStatus: FilterStatus,
 ): FilteredBookingsResult {
-  const filteredItems = useMemo(() => {
+  // Lọc bỏ hoàn toàn Cancel/Cancelled để đồng nhất dữ liệu hiển thị và số lượng (counts)
+  const baseItems = useMemo(() => {
     if (!data?.items) return [];
+    return data.items.filter((item) => !["Cancel", "Cancelled"].includes(item.status));
+  }, [data]);
 
+  const filteredItems = useMemo(() => {
     switch (activeStatus) {
       case "ongoing":
-        return data.items.filter((item) => ["Pending", "Banked"].includes(item.status));
+        return baseItems.filter((item) => ["Pending", "Banked"].includes(item.status));
       case "completed":
-        return data.items.filter((item) => item.status === "Completed");
+        return baseItems.filter((item) => ["Complete", "Completed"].includes(item.status));
       case "cancelled":
-        return data.items.filter((item) =>
-          ["Cancel", "Cancelled", "Refund", "RefundPending"].includes(item.status),
+        return baseItems.filter((item) =>
+          ["Refund", "RefundPending"].includes(item.status),
         );
       default:
-        return data.items;
+        return baseItems;
     }
-  }, [data, activeStatus]);
+  }, [baseItems, activeStatus]);
 
   const counts = useMemo(() => {
-    if (!data?.items) return { all: 0, ongoing: 0, completed: 0, cancelled: 0 };
-
     return {
-      all: data.items.length,
-      ongoing: data.items.filter((i) => ["Pending", "Banked"].includes(i.status)).length,
-      completed: data.items.filter((i) => ["Complete", "Completed"].includes(i.status)).length,
-      cancelled: data.items.filter((i) =>
-        ["Cancel", "Cancelled", "Refund", "RefundPending"].includes(i.status),
+      all: baseItems.length,
+      ongoing: baseItems.filter((i) => ["Pending", "Banked"].includes(i.status)).length,
+      completed: baseItems.filter((i) => ["Complete", "Completed"].includes(i.status)).length,
+      cancelled: baseItems.filter((i) =>
+        ["Refund", "RefundPending"].includes(i.status),
       ).length,
     };
-  }, [data]);
+  }, [baseItems]);
 
   return { filteredItems, counts };
 }

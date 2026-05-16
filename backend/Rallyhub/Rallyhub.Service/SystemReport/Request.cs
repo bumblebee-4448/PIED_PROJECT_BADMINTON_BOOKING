@@ -9,7 +9,7 @@ public class Request
     }
     public class GetSystemReportRequest: Base.Request.PagingRequest
     {
-        public string Status { get; set; } = "Pending";
+        public string? Status { get; set; }
     }
 
     public class SubmitReportReplyRequest
