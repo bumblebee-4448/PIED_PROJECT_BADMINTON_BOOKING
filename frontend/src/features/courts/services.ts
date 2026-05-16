@@ -3,14 +3,14 @@ import { API_ENDPOINTS } from "@/shared/constants";
 import type { 
   CourtDetail, 
   CourtFilters, 
-  CourtFeedback,
-  CourtFeedbackListResponse,
   CourtListResponse, 
   BoundingBoxRequest, 
   MapSearchResponse, 
   RadiusRequest, 
   TextSearchRequest 
 } from "./types";
+
+
 
 export const courtService = {
   // Lấy danh sách sân kèm theo bộ lọc (Search theo tên, địa chỉ, phân trang)
@@ -30,40 +30,7 @@ export const courtService = {
     return apiClient.get(API_ENDPOINTS.COURT.GET_BY_ID.replace("{courtId}", id));
   },
 
-  getCourtFeedbacks: async (
-    courtId: string,
-    pageIndex = 1,
-    pageSize = 10
-  ): Promise<CourtFeedbackListResponse> => {
-    const response = (await apiClient.get(API_ENDPOINTS.FEEDBACK.GET_BY_COURT, {
-      params: {
-        CourtId: courtId,
-        PageIndex: pageIndex,
-        PageSize: pageSize,
-      },
-      skipToast: true,
-    })) as unknown as CourtFeedbackListResponse & {
-      Items?: unknown[];
-      TotalItems?: number;
-      PageSize?: number;
-      PageIndex?: number;
-    };
 
-    const rawItems = response.items || response.Items || [];
-    const items = rawItems.map((item: any): CourtFeedback => ({
-      nameCustomer: item.nameCustomer || item.NameCustomer || "Khách hàng",
-      comment: item.comment ?? item.Comment ?? null,
-      rating: item.rating ?? item.Rating ?? 0,
-      createdAt: item.createdAt || item.CreatedAt,
-    }));
-
-    return {
-      items,
-      totalItems: response.totalItems ?? response.TotalItems ?? items.length,
-      pageSize: response.pageSize ?? response.PageSize ?? pageSize,
-      pageIndex: response.pageIndex ?? response.PageIndex ?? pageIndex,
-    };
-  },
 
   // Map Search APIs
   searchByBoundingBox: async (request: BoundingBoxRequest): Promise<MapSearchResponse> => {

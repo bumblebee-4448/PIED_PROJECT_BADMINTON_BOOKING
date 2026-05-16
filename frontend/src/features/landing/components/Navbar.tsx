@@ -19,6 +19,7 @@ export function Navbar() {
     { label: "Yêu thích", path: "/favorites" },
     { label: "Lịch sử", path: "/history" },
     { label: "Ví của tôi", path: "/wallet" },
+    { label: "Báo cáo", path: "/reports" },
   ];
 
   const handleLoginClick = () => {

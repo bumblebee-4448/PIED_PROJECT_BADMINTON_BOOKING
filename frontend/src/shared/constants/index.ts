@@ -49,6 +49,10 @@ export const API_ENDPOINTS = {
   },
   FEEDBACK: {
     GET_BY_COURT: "/Feedback",
+    GET_BY_BOOKING: "/Feedback/byBookingId",
+    CREATE: "/Feedback",
+    UPDATE: "/Feedback",
+    DELETE: "/Feedback",
   },
   /**
    * Booking endpoints
@@ -92,6 +96,19 @@ export const API_ENDPOINTS = {
     GET_MY: "/Transaction/GetTransaction",
     ADMIN_GET: "/Transaction/AdminGetTransaction",
   },
+  /**
+   * Report endpoints
+   */
+  REPORT: {
+    CREATE_BOOKING: "/Report",
+    GET_BOOKING: "/Report",
+    CONFIRM_BOOKING: "/Report",
+  },
+  SYSTEM_REPORT: {
+    CREATE: "/SystemReport",
+    GET_ALL: "/SystemReport",
+    REPLY: "/SystemReport",
+  },
 } as const;
 
 /**
@@ -102,11 +119,11 @@ export const QUERY_KEYS = {
   ME: ["me"] as const, // User profile hiện tại
   FAVORITES: ["favorites"] as const, // Danh sách sân yêu thích
   BOOKINGS: ["bookings"] as const, // Danh sách lịch sử đặt sân
-  COURTS: (filters?: any) => ["courts", filters] as const, // Danh sách sân (với filters)
+  COURTS: (filters?: unknown) => ["courts", filters] as const, // Danh sách sân (với filters)
   COURT_DETAIL: (id: string) => ["court", id] as const, // Chi tiết 1 sân
   COURT_FEEDBACKS: (courtId: string, pageIndex = 1, pageSize = 10) =>
     ["court-feedbacks", courtId, pageIndex, pageSize] as const,
-  MAP_SEARCH: (filters: any) => ["map-search", filters] as const, // Tìm kiếm bản đồ
+  MAP_SEARCH: (filters: unknown) => ["map-search", filters] as const, // Tìm kiếm bản đồ
   WALLET_INFO: ["wallet-info"] as const, // Thông tin ví
   NOTIFICATIONS: (params?: any) => ["notifications", params] as const, // Thông báo
   UNREAD_COUNT: ["unread-count"] as const, // Số thông báo chưa đọc

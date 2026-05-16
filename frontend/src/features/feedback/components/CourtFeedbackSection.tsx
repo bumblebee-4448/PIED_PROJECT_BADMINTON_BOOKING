@@ -1,16 +1,19 @@
-import { Loader2, MessageSquare, Star, UserRound } from "lucide-react";
+import { Edit3, Loader2, MessageSquare, Star, Trash2, UserRound } from "lucide-react";
 
 import { Button } from "@/shared/components/ui/button";
-import type { CourtFeedback } from "../types";
+import type { Feedback } from "../types";
 
 interface CourtFeedbackSectionProps {
-  feedbacks: CourtFeedback[];
+  feedbacks: Feedback[];
   totalItems: number;
   isLoading: boolean;
   isLoadingMore: boolean;
   isError: boolean;
   canLoadMore: boolean;
   onLoadMore: () => void;
+  canManageFeedback?: (feedback: Feedback) => boolean;
+  onEditFeedback?: (feedback: Feedback) => void;
+  onDeleteFeedback?: (feedback: Feedback) => void;
 }
 
 export function CourtFeedbackSection({
@@ -21,6 +24,9 @@ export function CourtFeedbackSection({
   isError,
   canLoadMore,
   onLoadMore,
+  canManageFeedback,
+  onEditFeedback,
+  onDeleteFeedback,
 }: CourtFeedbackSectionProps) {
   return (
     <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
@@ -63,7 +69,13 @@ export function CourtFeedbackSection({
         <div className="space-y-5">
           <div className="space-y-4">
             {feedbacks.map((feedback, index) => (
-              <FeedbackCard key={`${feedback.createdAt}-${index}`} feedback={feedback} />
+              <FeedbackCard
+                key={`${feedback.feedbackId || feedback.id || feedback.createdAt}-${index}`}
+                feedback={feedback}
+                canManage={canManageFeedback?.(feedback) ?? false}
+                onEdit={onEditFeedback}
+                onDelete={onDeleteFeedback}
+              />
             ))}
           </div>
 
@@ -90,7 +102,17 @@ export function CourtFeedbackSection({
   );
 }
 
-function FeedbackCard({ feedback }: { feedback: CourtFeedback }) {
+function FeedbackCard({
+  feedback,
+  canManage,
+  onEdit,
+  onDelete,
+}: {
+  feedback: Feedback;
+  canManage: boolean;
+  onEdit?: (feedback: Feedback) => void;
+  onDelete?: (feedback: Feedback) => void;
+}) {
   return (
     <div className="rounded-2xl border border-gray-100 bg-gray-50/60 p-5">
       <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
@@ -107,7 +129,31 @@ function FeedbackCard({ feedback }: { feedback: CourtFeedback }) {
             </p>
           </div>
         </div>
-        <StarRating rating={feedback.rating} />
+        <div className="flex flex-wrap items-center justify-end gap-2">
+          <StarRating rating={feedback.rating} />
+          {canManage && (
+            <div className="flex items-center gap-1 rounded-full bg-white p-1 shadow-sm">
+              <button
+                type="button"
+                onClick={() => onEdit?.(feedback)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-emerald-600 transition-colors hover:bg-emerald-50"
+                aria-label="Sửa đánh giá"
+                title="Sửa đánh giá"
+              >
+                <Edit3 size={15} />
+              </button>
+              <button
+                type="button"
+                onClick={() => onDelete?.(feedback)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-red-500 transition-colors hover:bg-red-50"
+                aria-label="Xóa đánh giá"
+                title="Xóa đánh giá"
+              >
+                <Trash2 size={15} />
+              </button>
+            </div>
+          )}
+        </div>
       </div>
 
       <p className="text-sm font-medium leading-6 text-gray-600">

@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 import { Outlet, useLocation, Navigate } from "react-router-dom";
 import { Navbar } from "@/features/landing";
 import { LoginPromptDialog } from "@/shared/components/common/LoginPromptDialog";
@@ -5,8 +7,10 @@ import { LoginPromptDialog } from "@/shared/components/common/LoginPromptDialog"
 import { useMe } from "@/features/profile/hooks/useMe";
 import { OwnerRegistrationDialog } from "@/features/owner-registration";
 import { useAuthStore } from "@/features/auth/store";
+import { ReportSystemDialog } from "@/features/reports";
 
 export function UserLayout() {
+  const [isSystemReportOpen, setIsSystemReportOpen] = useState(false);
   const location = useLocation();
   const hideHeaderFooter = ["/login", "/register"].includes(location.pathname);
 
@@ -27,6 +31,7 @@ export function UserLayout() {
     <div className="min-h-screen flex flex-col">
       <LoginPromptDialog />
       <OwnerRegistrationDialog />
+      <ReportSystemDialog isOpen={isSystemReportOpen} onOpenChange={setIsSystemReportOpen} />
 
 
 
@@ -34,7 +39,7 @@ export function UserLayout() {
       {!hideHeaderFooter && <Navbar />}
 
       {/* ─── Main Content ───────────────────────────────── */}
-      <main className="flex-1">
+      <main className={cn("flex-1", !hideHeaderFooter && "pt-24")}>
         <Outlet />
       </main>
 
@@ -123,6 +128,7 @@ export function UserLayout() {
                     "Điều khoản sử dụng",
                     "Chính sách bảo mật",
                     "Liên hệ chúng tôi",
+                    "Báo cáo hệ thống",
                   ],
                 },
               ].map((col, i) => (
@@ -133,12 +139,12 @@ export function UserLayout() {
                   <ul className="flex flex-col gap-4">
                     {col.links.map((link, j) => (
                       <li key={j}>
-                        <a
-                          href="#"
+                        <button
+                          onClick={link === "Báo cáo hệ thống" ? () => setIsSystemReportOpen(true) : undefined}
                           className="text-emerald-100/40 hover:text-emerald-400 transition-all duration-300 text-sm font-medium inline-block hover:translate-x-1"
                         >
                           {link}
-                        </a>
+                        </button>
                       </li>
                     ))}
                   </ul>
