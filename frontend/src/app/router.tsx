@@ -132,6 +132,7 @@ export const router = createBrowserRouter([
       { path: "withdrawals", element: <AdminWithdrawalsPage /> },
       { path: "transactions", element: <AdminTransactionsPage /> },
       { path: "reports", element: <AdminReportsPage /> },
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
 
@@ -152,6 +153,7 @@ export const router = createBrowserRouter([
       { path: "sub-courts/:id/schedule", element: <OwnerSubCourtSchedulePage /> },
       { path: "schedules", element: <OwnerSubCourtsPage /> },
       { path: "wallet", element: <OwnerWalletPage /> },
+      { path: "*", element: <NotFoundPage /> },
     ],
   },
 ]);
