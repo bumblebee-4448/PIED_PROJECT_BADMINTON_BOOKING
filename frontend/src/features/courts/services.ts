@@ -12,6 +12,25 @@ import type {
   TextSearchRequest 
 } from "./types";
 
+type RawCourtFeedback = {
+  id?: string;
+  Id?: string;
+  feedbackId?: string;
+  FeedbackId?: string;
+  bookingId?: string;
+  BookingId?: string;
+  customerId?: string;
+  CustomerId?: string;
+  nameCustomer?: string;
+  NameCustomer?: string;
+  comment?: string | null;
+  Comment?: string | null;
+  rating?: number;
+  Rating?: number;
+  createdAt?: string;
+  CreatedAt?: string;
+};
+
 export const courtService = {
   // Lấy danh sách sân kèm theo bộ lọc (Search theo tên, địa chỉ, phân trang)
   getCourts: async (filters: CourtFilters): Promise<CourtListResponse> => {
@@ -49,12 +68,16 @@ export const courtService = {
       PageIndex?: number;
     };
 
-    const rawItems = response.items || response.Items || [];
-    const items = rawItems.map((item: any): CourtFeedback => ({
+    const rawItems = (response.items || response.Items || []) as RawCourtFeedback[];
+    const items = rawItems.map((item: RawCourtFeedback): CourtFeedback => ({
+      id: item.id || item.Id,
+      feedbackId: item.feedbackId || item.FeedbackId || item.id || item.Id,
+      bookingId: item.bookingId || item.BookingId,
+      customerId: item.customerId || item.CustomerId,
       nameCustomer: item.nameCustomer || item.NameCustomer || "Khách hàng",
       comment: item.comment ?? item.Comment ?? null,
       rating: item.rating ?? item.Rating ?? 0,
-      createdAt: item.createdAt || item.CreatedAt,
+      createdAt: item.createdAt || item.CreatedAt || new Date().toISOString(),
     }));
 
     return {

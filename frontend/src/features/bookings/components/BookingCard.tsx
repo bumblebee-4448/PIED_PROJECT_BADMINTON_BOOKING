@@ -7,11 +7,13 @@ import {
   Clock3,
   Phone,
   Hash,
-  CreditCard
+  CreditCard,
+  Star
 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Button } from "@/shared/components/ui/button";
+import { useBookingFeedbackLookup } from "../hooks/useBookingFeedbackLookup";
 import type { GetBookingResponse, TransactionItem } from "../types";
 
 interface BookingCardProps {
@@ -19,9 +21,16 @@ interface BookingCardProps {
   transaction?: TransactionItem;
   onCancelClick?: (id: string) => void;
   onViewPaymentClick?: (transaction: TransactionItem) => void;
+  onFeedbackClick?: (booking: GetBookingResponse) => void;
 }
 
-export function BookingCard({ booking, transaction, onCancelClick, onViewPaymentClick }: BookingCardProps) {
+export function BookingCard({
+  booking,
+  transaction,
+  onCancelClick,
+  onViewPaymentClick,
+  onFeedbackClick,
+}: BookingCardProps) {
   const getStatusConfig = (status: string) => {
     switch (status) {
       case "Pending":
@@ -83,6 +92,19 @@ export function BookingCard({ booking, transaction, onCancelClick, onViewPayment
   const date = rawDate ? format(parseISO(rawDate), "dd/MM/yyyy") : "N/A";
   const phoneNumber = booking.phoneNumber || "N/A";
   const urlMap = booking.urlMap;
+  const canReview = status === "Complete" || status === "Completed";
+  const { data: existingFeedback } = useBookingFeedbackLookup(booking, canReview);
+  const currentRating = booking.rating ?? existingFeedback?.rating;
+  const currentComment = booking.comment ?? existingFeedback?.comment;
+  const currentFeedbackId =
+    booking.feedbackId || existingFeedback?.feedbackId || existingFeedback?.id;
+  const reviewBooking = {
+    ...booking,
+    rating: currentRating,
+    comment: currentComment,
+    feedbackId: currentFeedbackId,
+    courtId: booking.courtId,
+  };
 
   return (
     <div className="bg-white rounded-3xl border border-gray-100 shadow-sm hover:shadow-xl transition-all duration-500 overflow-hidden group mb-6">
@@ -162,6 +184,37 @@ export function BookingCard({ booking, transaction, onCancelClick, onViewPayment
           </div>
         </div>
 
+        {canReview && (currentRating || currentComment) && (
+          <div className="mb-8 rounded-2xl border border-yellow-100 bg-yellow-50/50 p-4">
+            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-[10px] font-black uppercase tracking-widest text-yellow-700">
+                Đánh giá của bạn
+              </p>
+              {currentRating && (
+                <div className="flex items-center gap-1 rounded-full bg-white px-3 py-1 shadow-sm">
+                  {Array.from({ length: 5 }).map((_, index) => (
+                    <Star
+                      key={index}
+                      size={13}
+                      className={
+                        index < currentRating
+                          ? "fill-yellow-500 text-yellow-500"
+                          : "fill-gray-100 text-gray-200"
+                      }
+                    />
+                  ))}
+                  <span className="ml-1 text-xs font-black text-[#0B2421]">
+                    {currentRating}/5
+                  </span>
+                </div>
+              )}
+            </div>
+            <p className="line-clamp-2 text-sm font-medium leading-6 text-gray-600">
+              {currentComment || "Bạn chưa để lại bình luận."}
+            </p>
+          </div>
+        )}
+
         {/* Footer Area */}
         <div className="flex flex-col md:flex-row justify-between items-center pt-6 border-t border-gray-50 gap-6">
           <div className="flex flex-col">
@@ -175,6 +228,17 @@ export function BookingCard({ booking, transaction, onCancelClick, onViewPayment
           </div>
 
           <div className="flex items-center gap-4 w-full md:w-auto">
+            {canReview && (
+              <Button
+                variant="outline"
+                onClick={() => onFeedbackClick?.(reviewBooking)}
+                className="flex-1 md:flex-none border-yellow-100 bg-yellow-50/70 text-yellow-600 font-bold text-sm hover:bg-yellow-100 hover:text-yellow-700 transition-colors px-4 rounded-2xl h-12"
+              >
+                <Star size={16} className="mr-2 fill-yellow-500 text-yellow-500" />
+                {currentRating || currentComment ? "Sửa đánh giá" : "Đánh giá"}
+              </Button>
+            )}
+
             {(status === "Pending" || status === "Banked") && (
               <Button
                 variant="ghost"

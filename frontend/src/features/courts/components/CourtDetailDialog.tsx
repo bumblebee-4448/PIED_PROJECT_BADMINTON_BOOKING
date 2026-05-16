@@ -1,9 +1,15 @@
 import { MapPin, Phone, Clock, Star, Info, Globe } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { useAuthStore } from "@/features/auth/store";
+import { FeedbackDialog } from "@/features/bookings/components/FeedbackDialog";
+import { useDeleteBookingFeedback } from "@/features/bookings/hooks/useBookingFeedback";
+import { useBookings } from "@/features/bookings/hooks/useBookings";
 import { useCourtDetail, useCourtFeedbacks } from "../hooks/useCourts";
 import { CourtFeedbackSection } from "./CourtFeedbackSection";
-import { useState, useEffect, useMemo } from "react";
+import { useCallback, useState, useMemo } from "react";
 import type { CourtFeedback } from "../types";
+import type { GetBookingResponse } from "@/features/bookings/types";
 import {
   Dialog,
   DialogContent,
@@ -23,8 +29,11 @@ interface CourtDetailDialogProps {
 
 export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialogProps) {
   const navigate = useNavigate();
+  const user = useAuthStore((state) => state.user);
   const [feedbackPage, setFeedbackPage] = useState(1);
-  const [loadedFeedbacks, setLoadedFeedbacks] = useState<CourtFeedback[]>([]);
+  const [editingFeedback, setEditingFeedback] = useState<GetBookingResponse | null>(null);
+  const deleteFeedback = useDeleteBookingFeedback();
+  const { data: bookingsData } = useBookings(1, 1000);
   
   const { data: court, isLoading, isError } = useCourtDetail(courtId || "");
   const {
@@ -32,27 +41,96 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
     isLoading: isFeedbackLoading,
     isFetching: isFeedbackFetching,
     isError: isFeedbackError,
-  } = useCourtFeedbacks(courtId || "", feedbackPage, 5); // Show fewer feedbacks in dialog initially
+  } = useCourtFeedbacks(courtId || "", 1, feedbackPage * 5);
 
-  useEffect(() => {
-    if (isOpen) {
-      setFeedbackPage(1);
-      setLoadedFeedbacks([]);
-    }
-  }, [courtId, isOpen]);
-
-  useEffect(() => {
-    if (!feedbacks?.items) return;
-
-    setLoadedFeedbacks((current) =>
-      feedbackPage === 1 ? feedbacks.items : [...current, ...feedbacks.items]
-    );
-  }, [feedbackPage, feedbacks]);
+  const loadedFeedbacks = useMemo(() => feedbacks?.items || [], [feedbacks?.items]);
 
   const canLoadMoreFeedbacks = useMemo(() => {
     const totalItems = feedbacks?.totalItems ?? 0;
     return loadedFeedbacks.length < totalItems;
   }, [feedbacks?.totalItems, loadedFeedbacks.length]);
+
+  const currentCustomerName = useMemo(
+    () => [user?.firstName, user?.lastName].filter(Boolean).join(" ").trim(),
+    [user?.firstName, user?.lastName],
+  );
+
+  const canManageFeedback = useCallback((feedback: CourtFeedback) => {
+    if (!currentCustomerName) {
+      return false;
+    }
+
+    const feedbackName = feedback.nameCustomer.trim().toLowerCase();
+    const fullName = currentCustomerName.toLowerCase();
+    const firstName = (user?.firstName || "").trim().toLowerCase();
+
+    return feedbackName === fullName || (!!firstName && feedbackName === firstName);
+  }, [currentCustomerName, user?.firstName]);
+
+  const getCompletedBookingForCourt = useCallback(() =>
+    bookingsData?.items.find(
+      (booking) =>
+        (booking.status === "Complete" || booking.status === "Completed") &&
+        (booking.courtId === courtId ||
+          booking.address === court?.address ||
+          (booking.courtName === court?.name && booking.address === court?.address)),
+    ), [bookingsData?.items, court?.address, court?.name, courtId]);
+
+  const displayFeedbacks = useMemo(
+    () =>
+      loadedFeedbacks.map((feedback) => {
+        if (feedback.bookingId || !canManageFeedback(feedback)) {
+          return feedback;
+        }
+
+        const completedBooking = getCompletedBookingForCourt();
+
+        return {
+          ...feedback,
+          bookingId: completedBooking?.bookingId,
+          feedbackId: feedback.feedbackId || feedback.id || completedBooking?.feedbackId,
+        };
+      }),
+    [
+      canManageFeedback,
+      getCompletedBookingForCourt,
+      loadedFeedbacks,
+    ],
+  );
+
+  const handleEditFeedback = (feedback: CourtFeedback) => {
+    const bookingId = feedback.bookingId || getCompletedBookingForCourt()?.bookingId;
+    if (!bookingId) {
+      toast.error("Không tìm thấy đơn hoàn thành để sửa đánh giá.");
+      return;
+    }
+
+    setEditingFeedback({
+      bookingId,
+      courtName: court?.name || "Sân cầu lông",
+      address: court?.address || "",
+      finalPrice: 0,
+      status: "Completed",
+      slotsResponses: [],
+      phoneNumber: court?.phoneNumber || "",
+      urlMap: court?.mapUrl || "",
+      rating: feedback.rating,
+      comment: feedback.comment,
+      feedbackId: feedback.feedbackId || feedback.id,
+      courtId: courtId || undefined,
+    });
+  };
+
+  const handleDeleteFeedback = (feedback: CourtFeedback) => {
+    const feedbackId =
+      feedback.feedbackId || feedback.id || getCompletedBookingForCourt()?.feedbackId;
+    if (!feedbackId) {
+      toast.error("Chưa có mã feedback để xóa. API GET /Feedback cần trả thêm id/feedbackId.");
+      return;
+    }
+
+    deleteFeedback.mutate({ id: feedbackId });
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -195,13 +273,16 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
               {/* Feedback Section */}
               <div className="pt-6 border-t border-gray-100">
                 <CourtFeedbackSection
-                  feedbacks={loadedFeedbacks}
+                  feedbacks={displayFeedbacks}
                   totalItems={feedbacks?.totalItems ?? 0}
                   isLoading={isFeedbackLoading}
                   isLoadingMore={isFeedbackFetching && feedbackPage > 1}
                   isError={isFeedbackError}
                   canLoadMore={canLoadMoreFeedbacks}
                   onLoadMore={() => setFeedbackPage((page) => page + 1)}
+                  canManageFeedback={canManageFeedback}
+                  onEditFeedback={handleEditFeedback}
+                  onDeleteFeedback={handleDeleteFeedback}
                 />
               </div>
             </div>
@@ -223,6 +304,12 @@ export function CourtDetailDialog({ courtId, isOpen, onClose }: CourtDetailDialo
           background: #cbd5e1;
         }
       `}</style>
+      <FeedbackDialog
+        key={editingFeedback?.bookingId || "court-dialog-feedback"}
+        isOpen={!!editingFeedback}
+        booking={editingFeedback}
+        onClose={() => setEditingFeedback(null)}
+      />
     </Dialog>
   );
 }

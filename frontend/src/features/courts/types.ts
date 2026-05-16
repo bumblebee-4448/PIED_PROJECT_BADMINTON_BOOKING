@@ -27,7 +27,7 @@ export interface ApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
-  errors?: any;
+  errors?: unknown;
   traceId?: string;
   timestampUtc?: string;
 }
@@ -40,6 +40,10 @@ export interface CourtListResponse {
 }
 
 export interface CourtFeedback {
+  id?: string;
+  feedbackId?: string;
+  bookingId?: string;
+  customerId?: string;
   nameCustomer: string;
   comment: string | null;
   rating: number;

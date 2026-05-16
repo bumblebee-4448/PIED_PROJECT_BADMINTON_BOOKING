@@ -6,6 +6,8 @@ import type {
   AvailableSlot, 
   CreateBookingRequest, 
   CreateBookingResponse,
+  BookingFeedbackPayload,
+  DeleteFeedbackPayload,
   GetBookingHistoryRequest,
   TransactionResponse
 } from "./types";
@@ -56,5 +58,30 @@ export const bookingsService = {
     return apiClient.get(API_ENDPOINTS.TRANSACTION.GET_MY, {
       params: { PageIndex: pageIndex, PageSize: pageSize }
     }) as Promise<TransactionResponse>;
+  },
+
+  createFeedback: async (data: BookingFeedbackPayload): Promise<void> => {
+    await apiClient.post(API_ENDPOINTS.FEEDBACK.CREATE, data, {
+      skipToast: true,
+    });
+  },
+
+  updateFeedback: async (data: BookingFeedbackPayload): Promise<void> => {
+    await apiClient.patch(API_ENDPOINTS.FEEDBACK.UPDATE, data, {
+      skipToast: true,
+    });
+  },
+
+  deleteFeedback: async (data: DeleteFeedbackPayload): Promise<void> => {
+    await apiClient.delete(API_ENDPOINTS.FEEDBACK.DELETE, {
+      data: {
+        id: data.id,
+        Id: data.id,
+      },
+      params: {
+        id: data.id,
+        Id: data.id,
+      },
+    });
   },
 };

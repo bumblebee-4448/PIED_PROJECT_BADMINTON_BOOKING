@@ -2,6 +2,7 @@ import React from "react";
 import { BookingFilters } from "../components/BookingFilters";
 import { BookingCard } from "../components/BookingCard";
 import { CancelBookingDialog } from "../components/CancelBookingDialog";
+import { FeedbackDialog } from "../components/FeedbackDialog";
 import { useBookings } from "../hooks/useBookings";
 import { useFilteredBookings } from "../hooks/useFilteredBookings";
 
@@ -18,13 +19,37 @@ import {
 } from "@/shared/components/ui/pagination";
 
 import { cn } from "@/lib/utils";
-import { type FilterStatus, type TransactionItem } from "../types";
+import {
+  type FilterStatus,
+  type GetBookingResponse,
+  type TransactionItem,
+} from "../types";
+
+type BookingWithFallbackIds = GetBookingResponse & {
+  BookingId?: string;
+  Id?: string;
+};
+
+function getBookingId(booking: GetBookingResponse | null, fallback = "booking") {
+  if (!booking) {
+    return fallback;
+  }
+
+  const bookingWithFallbackIds = booking as BookingWithFallbackIds;
+  return (
+    booking.bookingId ||
+    bookingWithFallbackIds.BookingId ||
+    bookingWithFallbackIds.Id ||
+    fallback
+  );
+}
 
 export function BookingHistoryPage() {
   const [pageIndex, setPageIndex] = React.useState(1);
   const [activeStatus, setActiveStatus] = React.useState<FilterStatus>("all");
   const [cancellingBooking, setCancellingBooking] = React.useState<{id: string, status: string} | null>(null);
   const [selectedTransaction, setSelectedTransaction] = React.useState<TransactionItem | null>(null);
+  const [feedbackBooking, setFeedbackBooking] = React.useState<GetBookingResponse | null>(null);
 
   const { data, isLoading, isError } = useBookings(1, 1000);
   const { data: transactionsData } = useTransactions(1, 1000);
@@ -92,16 +117,23 @@ export function BookingHistoryPage() {
         <div className="space-y-6">
           {paginatedItems.length > 0 ? (
             paginatedItems.map((booking, index) => {
-              const bookingId = booking.bookingId || (booking as any).BookingId || (booking as any).Id || `booking-${index}`;
+              const bookingId = getBookingId(booking, `booking-${index}`);
+              const normalizedBooking = { ...booking, bookingId };
               const transaction = transactionsData?.items.find(t => t.bookingId === bookingId);
               
               return (
                 <BookingCard 
                   key={bookingId} 
-                  booking={booking} 
+                  booking={normalizedBooking} 
                   transaction={transaction}
-                  onCancelClick={(id) => setCancellingBooking({ id, status: booking.status })}
+                  onCancelClick={(id) => setCancellingBooking({ id, status: normalizedBooking.status })}
                   onViewPaymentClick={(t) => setSelectedTransaction(t)}
+                  onFeedbackClick={(selectedBooking) =>
+                    setFeedbackBooking({
+                      ...selectedBooking,
+                      bookingId: getBookingId(selectedBooking),
+                    })
+                  }
                 />
               );
             })
@@ -169,6 +201,13 @@ export function BookingHistoryPage() {
         isOpen={!!selectedTransaction}
         onClose={() => setSelectedTransaction(null)}
         transaction={selectedTransaction}
+      />
+
+      <FeedbackDialog
+        key={getBookingId(feedbackBooking, "feedback-dialog")}
+        isOpen={!!feedbackBooking}
+        booking={feedbackBooking}
+        onClose={() => setFeedbackBooking(null)}
       />
     </div>
   );
