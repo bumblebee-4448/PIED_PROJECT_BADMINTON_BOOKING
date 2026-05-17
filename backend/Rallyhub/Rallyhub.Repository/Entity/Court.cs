@@ -9,7 +9,7 @@ public class Court : BaseEntity<Guid>, IAuditableEntity
     public required TimeOnly OpenTime  { get; set; }
     public required TimeOnly CloseTime { get; set; }
     public int? TimeRefundBefor { get; set; } = 120;
-    public string Status { get; set; } = "Active";//"Pending", "InActive"
+    public string Status { get; set; } = "Active";//"Pending", "Rejected"
     
     public decimal? Latitude { get; set; } //vĩ độ (10, 8)
     public decimal? Longitude { get; set; } //kinh độ (11, 8)

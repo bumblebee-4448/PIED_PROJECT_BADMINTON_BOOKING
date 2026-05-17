@@ -79,6 +79,8 @@ public class Response
         public TimeOnly OpenTime { get; set; }
         public TimeOnly CloseTime { get; set; }
         public string PictureUrl { get; set; } = null!;
+        public string? Description { get; set; }
+        public string? MapUrl { get; set; }
     }  
 
     public class AdminRefundResponse

@@ -460,7 +460,7 @@ public class Service: IService
 
         var total = await query.CountAsync();
 
-        query = query.OrderBy(x => x.CreatedAt);
+        query = query.OrderByDescending(x => x.CreatedAt);
         query = query
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize);
@@ -647,6 +647,8 @@ public class Service: IService
             OpenTime = x.OpenTime,
             CloseTime = x.CloseTime,
             PictureUrl = x.PictureUrl,
+            Description = x.Description,
+            MapUrl = x.MapUrl,
         });  
         var listResult = await result.ToListAsync();  
         return new Base.Response.PageResult<Response.AdminGetPendingCourtsResponse>()  
@@ -709,7 +711,7 @@ public class Service: IService
         {        
             throw new Exception("Error 500");  
         }        
-        court.Status = "InActive";          
+        court.Status = "Rejected";          
         court.UpdatedAt = DateTimeOffset.UtcNow;
         var result = await _dbContext.SaveChangesAsync();  
         string htmlBody = MailTemplate.RejectCourtTemplate(court.Owner.User.Email, court.Name, rejectReason!);

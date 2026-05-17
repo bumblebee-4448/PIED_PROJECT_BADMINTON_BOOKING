@@ -94,7 +94,7 @@ public class Service : IService
         var totalCount = await ownerRequestQuery.CountAsync();
         
         var items = await ownerRequestQuery
-            .OrderBy(x => x.CreatedAt)
+            .OrderByDescending(x => x.CreatedAt)
             .Skip((request.PageIndex - 1) * request.PageSize)
             .Take(request.PageSize)
             .Select(x => new Response.GetOwnerRequestResponse()
