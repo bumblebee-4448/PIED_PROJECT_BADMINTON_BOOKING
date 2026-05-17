@@ -21,7 +21,7 @@ public class CustomerController : ControllerBase
     }
 
     [HttpPost("OwnerRequest")]
-    public async Task<IActionResult> OwnerRequest([FromBody]Request.OwnerRequestRequest model)
+    public async Task<IActionResult> OwnerRequest([FromForm]Request.OwnerRequestRequest model)
     {
 
         var result = await _customerService.OwnerRequest(model);
