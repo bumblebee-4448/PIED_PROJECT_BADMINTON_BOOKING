@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 
 import { UserLayout } from "@/shared/layouts/UserLayout";
 import { GuestRoute } from "@/shared/components/common/GuestRoute";
-import { UnauthorizedPage, NotFoundPage, ComingSoonPage } from "@/shared/pages";
+import { UnauthorizedPage, NotFoundPage, ComingSoonPage, PaymentPage } from "@/shared/pages";
 
 // ─── Feature pages ───────────────────────────────────────
 import { HomePage } from "@/features/landing/pages/HomePage";
@@ -34,6 +34,14 @@ import { AdminReportsPage } from "@/features/reports/pages/AdminReportsPage";
  * React Router v6 config – createBrowserRouter (Data API).
  */
 export const router = createBrowserRouter([
+  {
+    path: "payment",
+    element: (
+      <ProtectedRoute>
+        <PaymentPage />
+      </ProtectedRoute>
+    ),
+  },
   // ─── Public layout (User) ───────────────────────────
   {
     element: <UserLayout />,

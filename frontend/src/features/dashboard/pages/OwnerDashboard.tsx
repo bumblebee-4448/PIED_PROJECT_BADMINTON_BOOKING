@@ -381,11 +381,11 @@ export function OwnerDashboard() {
                 interval={period === "month" ? 2 : 0}
               />
               <YAxis
-                tickFormatter={v => `${(v / 1000).toFixed(0)}k`}
+                tickFormatter={v => `${v.toLocaleString("vi-VN")} đ`}
                 tick={{ fontSize: 10, fontWeight: 600, fill: "#94a3b8" }}
                 axisLine={false}
                 tickLine={false}
-                width={45}
+                width={85}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ stroke: "#f1f5f9", strokeWidth: 2 }} />
 

@@ -27,6 +27,8 @@ export interface PendingCourt {
   address: string;
   status: string;
   pictureUrl: string;
+  description?: string;
+  mapUrl?: string;
 }
 
 export interface RecentWithdrawal {

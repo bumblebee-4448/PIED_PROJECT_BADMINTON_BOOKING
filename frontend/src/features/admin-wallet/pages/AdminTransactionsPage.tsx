@@ -125,7 +125,7 @@ export const AdminTransactionsPage: React.FC = () => {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="bg-white p-5 rounded-xl border border-gray-100 shadow-sm space-y-4">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full md:w-auto">
             <TabsList className="bg-gray-100 p-1 rounded-lg">

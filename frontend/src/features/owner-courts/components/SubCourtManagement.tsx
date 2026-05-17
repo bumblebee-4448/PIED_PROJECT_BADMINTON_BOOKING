@@ -64,8 +64,8 @@ export function SubCourtManagement({ courtId, courtName }: SubCourtManagementPro
           Tạo sân con
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto rounded-2xl border-none shadow-2xl p-0">
-        <div className="bg-[#004E43] p-6 text-white">
+      <DialogContent className="sm:max-w-[700px] p-0 overflow-hidden flex flex-col max-h-[90vh] rounded-2xl border-none shadow-2xl bg-white">
+        <div className="bg-[#004E43] p-6 text-white flex-shrink-0">
           <DialogHeader>
             <DialogTitle className="text-2xl font-black flex items-center gap-3">
               <Layers className="text-emerald-400" />
@@ -77,7 +77,7 @@ export function SubCourtManagement({ courtId, courtName }: SubCourtManagementPro
           </DialogHeader>
         </div>
 
-        <div className="p-6">
+        <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
           {/* Create Form */}
           <div className="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100 mb-8">
             <h3 className="text-sm font-black text-emerald-900 mb-4 flex items-center gap-2">

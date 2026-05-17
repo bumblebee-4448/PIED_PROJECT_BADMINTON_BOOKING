@@ -8,6 +8,8 @@ export interface PendingCourt {
   openTime: string;
   closeTime: string;
   pictureUrl: string;
+  description?: string;
+  mapUrl?: string;
 }
 
 export interface GetPendingCourtsRequest {

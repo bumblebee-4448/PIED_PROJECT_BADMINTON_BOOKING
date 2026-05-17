@@ -41,7 +41,10 @@ export function UserProfileCard() {
       >
         <div className="p-5">
           {/* User Header */}
-          <div className="flex items-center gap-3 mb-5 pb-5 border-b border-gray-50">
+          <div className={cn(
+            "flex items-center gap-3 pb-5 border-b border-gray-50",
+            wallet ? "mb-5" : "mb-2"
+          )}>
             <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center text-emerald-600 shadow-sm overflow-hidden shrink-0">
               {user.avatarUrl ? (
                 <img

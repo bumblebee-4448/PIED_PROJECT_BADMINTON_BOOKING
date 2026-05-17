@@ -59,10 +59,8 @@ export default function OwnerCourtsPage() {
         return <Badge className="bg-emerald-50 text-emerald-600 hover:bg-emerald-50 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Đang hoạt động</Badge>;
       case "rejected":
         return <Badge className="bg-rose-50 text-rose-600 hover:bg-rose-50 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Bị từ chối</Badge>;
-      case "inactive":
-        return <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Ngưng hoạt động</Badge>;
       default:
-        return <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">Ngưng hoạt động</Badge>;
+        return <Badge className="bg-slate-100 text-slate-600 hover:bg-slate-100 border-none px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider">{status}</Badge>;
     }
   };
 
