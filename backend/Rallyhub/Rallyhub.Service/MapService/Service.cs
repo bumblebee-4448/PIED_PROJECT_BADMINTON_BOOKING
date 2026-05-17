@@ -55,6 +55,8 @@ public class Service : IService
             {
                 ListCourts = allCourts,
                 TotalCount =  allCourts.Count,
+                SearchCenterLatitude = request.Latitude,
+                SearchCenterLongitude = request.Longitude
             };
         }
         
@@ -73,6 +75,8 @@ public class Service : IService
         {
             ListCourts = markers,
             TotalCount = markers.Count,
+            SearchCenterLatitude = request.Latitude,
+            SearchCenterLongitude = request.Longitude
         };
     }
 
@@ -150,7 +154,7 @@ public class Service : IService
         return result;
     }
 
-    private async Task<(decimal Latitude, decimal Longitude)?> GeocodeText(
+    public async Task<(decimal Latitude, decimal Longitude)?> GeocodeText(
         string text)
     {
         var client = _httpClientFactory.CreateClient("VietMap");

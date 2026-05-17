@@ -48,6 +48,8 @@ export interface CourtMapItem {
 export interface MapSearchResponse {
   listCourts: CourtMapItem[];
   totalCount: number;
+  searchCenterLatitude?: number;
+  searchCenterLongitude?: number;
 }
 
 export interface BoundingBoxRequest {

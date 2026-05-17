@@ -11,4 +11,6 @@ public interface IService
     public Task<Response.MapSearchResponse> SearchByText(
         Request.SearchByTextRequest request, CancellationToken cancellationToken
     );
+
+    public Task<(decimal Latitude, decimal Longitude)?> GeocodeText(string text);
 }

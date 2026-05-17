@@ -51,14 +51,21 @@ export function useCourtMap({ mapContainerRef, searchQuery, onMarkerClick }: Use
 
   const isLoading = isBboxLoading || isTextLoading || isRadiusLoading;
 
-  // Khi có kết quả tìm kiếm theo văn bản, di chuyển bản đồ đến vị trí sân đầu tiên
+  // Khi có kết quả tìm kiếm theo văn bản, ưu tiên di chuyển đến vị trí địa chỉ tìm kiếm
   useEffect(() => {
-    if (textSearchData && textSearchData.listCourts.length > 0 && mapRef.current) {
-      const firstCourt = textSearchData.listCourts[0];
-      mapRef.current.flyTo({
-        center: [Number(firstCourt.longitude), Number(firstCourt.latitude)],
-        zoom: 14
-      });
+    if (textSearchData && mapRef.current) {
+      if (textSearchData.searchCenterLatitude && textSearchData.searchCenterLongitude) {
+        mapRef.current.flyTo({
+          center: [Number(textSearchData.searchCenterLongitude), Number(textSearchData.searchCenterLatitude)],
+          zoom: 14
+        });
+      } else if (textSearchData.listCourts.length > 0) {
+        const firstCourt = textSearchData.listCourts[0];
+        mapRef.current.flyTo({
+          center: [Number(firstCourt.longitude), Number(firstCourt.latitude)],
+          zoom: 14
+        });
+      }
     }
   }, [textSearchData]);
 

@@ -13,5 +13,7 @@ public class Response
     {
         public List<CourtMapItem> ListCourts { get; set; } = new();
         public int TotalCount { get; set; }
+        public decimal? SearchCenterLatitude { get; set; }
+        public decimal? SearchCenterLongitude { get; set; }
     }
 }

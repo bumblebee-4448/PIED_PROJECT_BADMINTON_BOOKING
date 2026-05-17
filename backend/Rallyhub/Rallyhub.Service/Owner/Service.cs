@@ -12,13 +12,15 @@ public class Service : IService
     private readonly IHttpContextAccessor _httpContext;  
     private readonly MediaService.IService _mediaService;  
     private readonly Validation.IService _validationService;
+    private readonly MapService.IService _mapService;
   
-    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, MediaService.IService mediaService, Validation.IService validationService)  
+    public Service(AppDbContext dbContext, IHttpContextAccessor httpContext, MediaService.IService mediaService, Validation.IService validationService, MapService.IService mapService)  
     {       
         _dbContext = dbContext;  
         _httpContext = httpContext;  
         _mediaService = mediaService;  
         _validationService = validationService;
+        _mapService = mapService;
     }  
     public async Task<Response.CreateCourtResponse> CreateCourt(Request.CreateCourtRequest request)  
     {        
@@ -35,7 +37,29 @@ public class Service : IService
         if (isExistCourt)  
         {            
             throw new Exception($"Sân tên: {request.Name} đã tồn tại trên hệ thống của bạn");  
-        }  
+        }
+
+        if (request.OpenTime >= request.CloseTime)
+        {
+            throw new Exception("Giờ mở cửa phải nhỏ hơn giờ đóng cửa");
+        }
+
+        decimal? latitude = null;
+        decimal? longitude = null;
+        try
+        {
+            var geocodeResult = await _mapService.GeocodeText(request.Address);
+            if (geocodeResult != null)
+            {
+                latitude = geocodeResult.Value.Latitude;
+                longitude = geocodeResult.Value.Longitude;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Geocoding failed for address '{request.Address}': {ex.Message}");
+        }
+
         var court = new Repository.Entity.Court()  
         {  
             Id = Guid.NewGuid(),  
@@ -45,8 +69,12 @@ public class Service : IService
             OpenTime = request.OpenTime,  
             CloseTime = request.CloseTime,  
             MapUrl = request.MapUrl,  
+            Latitude = latitude,
+            Longitude = longitude,
             PictureUrl = await _mediaService.UploadImageAsync(request.PictureUrl),  
             Status = "Pending",  
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow,
         };  
   
         _dbContext.Add(court);  
@@ -174,7 +202,24 @@ public class Service : IService
             existCourt.Name = request.Name;
 
         if (request.Address != null)
+        {
             existCourt.Address = request.Address;
+            try
+            {
+                var geocodeResult = await _mapService.GeocodeText(request.Address);
+                if (geocodeResult != null)
+                {
+                    existCourt.Latitude = geocodeResult.Value.Latitude;
+                    existCourt.Longitude = geocodeResult.Value.Longitude;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Geocoding failed for address '{request.Address}' during update: {ex.Message}");
+            }
+        }
+
+        existCourt.UpdatedAt = DateTimeOffset.UtcNow;
 
         if (request.MapUrl != null)
             existCourt.MapUrl = request.MapUrl;
