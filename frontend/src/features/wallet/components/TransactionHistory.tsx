@@ -12,23 +12,15 @@ import type { TransactionInfo } from "../types";
 import { format } from "date-fns";
 import { ArrowUpRight, ArrowDownLeft, RefreshCcw } from "lucide-react";
 
-import { useWallet } from "../hooks/useWallet";
-
 interface TransactionHistoryProps {
   transactions?: TransactionInfo[];
   isLoading?: boolean;
 }
 
 export const TransactionHistory: React.FC<TransactionHistoryProps> = ({ 
-  transactions: propTransactions, 
-  isLoading: propLoading 
+  transactions = [], 
+  isLoading 
 }) => {
-  const { useMyTransactions } = useWallet();
-  const { data: fetchedData, isLoading: fetchLoading } = useMyTransactions({ pageIndex: 1, pageSize: 20 });
-
-  const transactions = propTransactions ?? fetchedData?.items ?? [];
-  const isLoading = propLoading ?? fetchLoading;
-
   if (isLoading) return <div className="p-8 text-center text-slate-500">Đang tải lịch sử giao dịch...</div>;
   
   if (transactions.length === 0) {
@@ -58,6 +50,7 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
       case "Refund": return "Hoàn tiền";
       case "AdminUp": return "Cộng tiền Admin";
       case "Payment": return "Thanh toán";
+      case "PaymentByWallet": return "Thanh toán bằng ví";
       case "Withdrawal": return "Rút tiền";
       case "AdminDeduct": return "Trừ tiền Admin";
       default: return type;
@@ -107,7 +100,6 @@ export const TransactionHistory: React.FC<TransactionHistoryProps> = ({
                   ? "text-emerald-600" 
                   : "text-rose-600"
               }`}>
-                {["Deposit", "Refund", "AdminUp", "Receive"].includes(tx.type) ? "+" : "-"}
                 {Math.abs(tx.amount).toLocaleString()}
                 <span className="text-[10px] ml-1 uppercase opacity-70">đ</span>
               </TableCell>

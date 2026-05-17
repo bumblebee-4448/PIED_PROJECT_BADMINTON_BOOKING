@@ -11,14 +11,6 @@ import { Badge } from "@/shared/components/ui/badge";
 import type { WithdrawalInfo } from "../types";
 import { format } from "date-fns";
 import { Clock, CheckCircle2, XCircle } from "lucide-react";
-// import { 
-//   Tooltip,
-//   TooltipContent,
-//   TooltipProvider,
-//   TooltipTrigger,
-// } from "@/shared/components/ui/tooltip";
-
-import { useWallet } from "../hooks/useWallet";
 
 interface WithdrawalHistoryProps {
   withdrawals?: WithdrawalInfo[];
@@ -26,14 +18,9 @@ interface WithdrawalHistoryProps {
 }
 
 export const WithdrawalHistory: React.FC<WithdrawalHistoryProps> = ({ 
-  withdrawals: propWithdrawals, 
-  isLoading: propLoading 
+  withdrawals = [], 
+  isLoading 
 }) => {
-  const { useMyWithdrawals } = useWallet();
-  const { data: fetchedData, isLoading: fetchLoading } = useMyWithdrawals({ pageIndex: 1, pageSize: 20 });
-
-  const withdrawals = propWithdrawals ?? fetchedData?.items ?? [];
-  const isLoading = propLoading ?? fetchLoading;
 
   if (isLoading) return <div className="p-8 text-center text-slate-500">Đang tải lịch sử rút tiền...</div>;
   

@@ -9,6 +9,7 @@ import {
   CreditCard,
   History,
 } from "lucide-react";
+import { Pagination } from "@/shared/components/common/Pagination";
 import { useWallet } from "../hooks/useWallet";
 import { DepositModal } from "../components/DepositModal";
 import { WithdrawalModal } from "../components/WithdrawalModal";
@@ -49,9 +50,12 @@ export const OwnerWalletPage: React.FC = () => {
     refetch: refetchWallet,
   } = useWalletInfo();
 
-  const [pageParams] = useState({ pageIndex: 1, pageSize: 10 });
-  const { data: transactions, isLoading: isTxLoading } = useMyTransactions(pageParams);
-  const { data: withdrawals, isLoading: isWdLoading } = useMyWithdrawals(pageParams);
+  const [txPage, setTxPage] = useState(1);
+  const [wdPage, setWdPage] = useState(1);
+  const pageSize = 10;
+
+  const { data: transactions, isLoading: isTxLoading } = useMyTransactions({ pageIndex: txPage, pageSize });
+  const { data: withdrawals, isLoading: isWdLoading } = useMyWithdrawals({ pageIndex: wdPage, pageSize });
 
   const [isDepositOpen, setIsDepositOpen] = useState(false);
   const [isWithdrawalOpen, setIsWithdrawalOpen] = useState(false);
@@ -233,20 +237,50 @@ export const OwnerWalletPage: React.FC = () => {
                 value="transactions"
                 className="m-0 focus-visible:outline-none focus-visible:ring-0"
               >
-                <TransactionHistory 
-                  transactions={transactions?.items || []} 
-                  isLoading={isTxLoading} 
-                />
+                <div className="space-y-4 px-6 pb-6 pt-2">
+                  <TransactionHistory 
+                    transactions={transactions?.items || []} 
+                    isLoading={isTxLoading} 
+                  />
+                  {transactions && transactions.totalItems > pageSize && (
+                    <Pagination 
+                      meta={{
+                        totalItems: transactions.totalItems,
+                        totalPages: Math.ceil(transactions.totalItems / pageSize),
+                        itemsPerPage: pageSize,
+                        currentPage: txPage,
+                        hasPreviousPage: txPage > 1,
+                        hasNextPage: txPage < Math.ceil(transactions.totalItems / pageSize)
+                      }}
+                      onPageChange={setTxPage}
+                    />
+                  )}
+                </div>
               </TabsContent>
 
               <TabsContent
                 value="withdrawals"
                 className="m-0 focus-visible:outline-none focus-visible:ring-0"
               >
-                <WithdrawalHistory 
-                  withdrawals={withdrawals?.items || []} 
-                  isLoading={isWdLoading} 
-                />
+                <div className="space-y-4 px-6 pb-6 pt-2">
+                  <WithdrawalHistory 
+                    withdrawals={withdrawals?.items || []} 
+                    isLoading={isWdLoading} 
+                  />
+                  {withdrawals && withdrawals.totalItems > pageSize && (
+                    <Pagination 
+                      meta={{
+                        totalItems: withdrawals.totalItems,
+                        totalPages: Math.ceil(withdrawals.totalItems / pageSize),
+                        itemsPerPage: pageSize,
+                        currentPage: wdPage,
+                        hasPreviousPage: wdPage > 1,
+                        hasNextPage: wdPage < Math.ceil(withdrawals.totalItems / pageSize)
+                      }}
+                      onPageChange={setWdPage}
+                    />
+                  )}
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>

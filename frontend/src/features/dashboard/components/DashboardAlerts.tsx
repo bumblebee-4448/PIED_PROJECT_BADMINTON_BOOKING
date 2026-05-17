@@ -34,7 +34,7 @@ export function DashboardAlerts({
           </p>
           <Button 
             variant="link"
-            onClick={() => navigate("/admin/products")} 
+            onClick={() => navigate("/admin/reports")} 
             className="text-xs font-bold p-0 h-auto hover:no-underline" 
             style={{ color: "#DC2626" }}
           >
@@ -54,7 +54,7 @@ export function DashboardAlerts({
           </p>
           <Button 
             variant="link"
-            onClick={() => navigate("/admin/products")} 
+            onClick={() => navigate("/admin/court-approvals")} 
             className="text-xs font-bold p-0 h-auto hover:no-underline" 
             style={{ color: "#D97706" }}
           >
@@ -74,7 +74,7 @@ export function DashboardAlerts({
           </p>
           <Button 
             variant="link"
-            onClick={() => navigate("/admin/cashflow")} 
+            onClick={() => navigate("/admin/withdrawals")} 
             className="text-xs font-bold p-0 h-auto hover:no-underline" 
             style={{ color: "#00897B" }}
           >

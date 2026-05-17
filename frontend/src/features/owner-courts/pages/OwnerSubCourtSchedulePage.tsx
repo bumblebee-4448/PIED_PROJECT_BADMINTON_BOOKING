@@ -402,10 +402,15 @@ export default function OwnerSubCourtSchedulePage() {
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-sm">₫</span>
                         <Input 
-                          type="number" 
-                          placeholder="Ví dụ: 100000"
-                          value={mergePrice}
-                          onChange={(e) => setMergePrice(e.target.value)}
+                          type="text" 
+                          placeholder="Ví dụ: 100,000"
+                          value={mergePrice ? Number(mergePrice).toLocaleString("en-US") : ""}
+                          onChange={(e) => {
+                            const rawValue = e.target.value.replace(/,/g, "");
+                            if (/^\d*$/.test(rawValue)) {
+                              setMergePrice(rawValue);
+                            }
+                          }}
                           className="pl-8 h-12 rounded-xl bg-gray-50 border-gray-100 focus:bg-white transition-all font-bold"
                         />
                       </div>

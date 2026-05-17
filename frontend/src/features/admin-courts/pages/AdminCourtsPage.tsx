@@ -256,10 +256,38 @@ export default function AdminCourtsPage() {
                   </div>
                 </div>
 
+                {viewingCourt.description && (
+                  <div className="space-y-1.5 bg-slate-50 p-4 rounded-xl border border-slate-100/80">
+                    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Mô tả sân</Label>
+                    <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-line mt-1">
+                      {viewingCourt.description}
+                    </p>
+                  </div>
+                )}
+
+                {viewingCourt.mapUrl && (
+                  <div className="space-y-1.5">
+                    <Label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Bản đồ Google Maps</Label>
+                    <div className="mt-1">
+                      <a 
+                        href={viewingCourt.mapUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer" 
+                        className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 hover:text-emerald-700 hover:underline bg-emerald-50/60 hover:bg-emerald-50 px-3 py-2 rounded-xl transition-all border border-emerald-100/50"
+                      >
+                        <MapPin size={12} /> Xem địa điểm trên Google Maps →
+                      </a>
+                    </div>
+                  </div>
+                )}
+
                 <div className="pt-4 flex gap-3">
                   <Button 
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 h-11 font-bold rounded-xl"
-                    onClick={() => setApproveCourtId(viewingCourt.courtId)}
+                    onClick={() => {
+                      setApproveCourtId(viewingCourt.courtId);
+                      setViewingCourt(null);
+                    }}
                     disabled={approveMutation.isPending}
                   >
                     Phê duyệt sân
@@ -267,7 +295,10 @@ export default function AdminCourtsPage() {
                   <Button 
                     variant="outline" 
                     className="flex-1 border-gray-200 text-red-600 hover:bg-red-50 h-11 font-bold rounded-xl"
-                    onClick={() => setRejectingCourt(viewingCourt)}
+                    onClick={() => {
+                      setRejectingCourt(viewingCourt);
+                      setViewingCourt(null);
+                    }}
                   >
                     Từ chối
                   </Button>

@@ -97,7 +97,7 @@ public class Service : IService
         var hasCourt = await _dbContext.Courts
             .FirstOrDefaultAsync(x => 
                 x.Id ==  courtId &&
-                (x.Status == "Active" || x.Status == "Pending") &&
+                (x.Status == "Active" || x.Status == "Pending" || x.Status == "Rejected") &&
                 x.OwnerId == ownerId);
         if (hasCourt == null)
         {
@@ -704,7 +704,22 @@ public class Service : IService
         );
         if (isOverlap)
         {
-            throw new Exception("Override bị trùng thời gian ");
+            throw new Exception("Khoảng thời gian này đã được gộp giá rồi");
+        }
+
+        var isOverlapWithException = await _dbContext.Exceptions.AnyAsync(x =>
+            !x.IsDeleted &&
+            x.SubCourtDetailId == request.SubCourtId &&
+            (
+                (request.IsRecurring && x.IsRecurring && x.DayOfWeek == request.DayOfWeek) ||
+                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date)
+            ) && request.StartTime < x.EndTime
+            && request.EndTime > x.StartTime
+        );
+
+        if (isOverlapWithException)
+        {
+            throw new Exception("Khoảng thời gian này đã bị khóa, không thể gộp giá đè lên");
         }
         
         var configSlots = await  _dbContext.ConfigSlots
@@ -875,6 +890,21 @@ public class Service : IService
         if (isOverlap)
         {
             throw new Exception("Khoảng thời gian này đã bị khóa rồi");
+        }
+
+        var isOverlapWithOverride = await _dbContext.OverideSlots.AnyAsync(x =>
+            !x.IsDeleted &&
+            x.SubCourtDetailId == request.SubCourtId &&
+            (
+                (request.IsRecurring && x.IsRecurring && x.DayOfWeek == request.DayOfWeek) ||
+                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date)
+            ) && request.StartTime < x.EndTime
+            && request.EndTime > x.StartTime
+        );
+
+        if (isOverlapWithOverride)
+        {
+            throw new Exception("Khoảng thời gian này đã có slot gộp giá, không thể khóa đè lên");
         }
 
         //

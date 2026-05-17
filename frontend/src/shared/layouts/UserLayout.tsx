@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+
 import { Outlet, useLocation, Navigate } from "react-router-dom";
 import { Navbar } from "@/features/landing";
 import { LoginPromptDialog } from "@/shared/components/common/LoginPromptDialog";
@@ -39,7 +39,7 @@ export function UserLayout() {
       {!hideHeaderFooter && <Navbar />}
 
       {/* ─── Main Content ───────────────────────────────── */}
-      <main className={cn("flex-1", !hideHeaderFooter && "pt-24")}>
+      <main className="flex-1">
         <Outlet />
       </main>
 
