@@ -32,6 +32,14 @@ interface CourtScheduleGridProps {
   selectedDate?: Date;
 }
 
+const getEndTimeOfSlot = (startTimeStr: string, intervalMins: number) => {
+  const [h, m] = startTimeStr.split(":").map(Number);
+  const totalMins = h * 60 + m + intervalMins;
+  const endH = Math.floor(totalMins / 60) % 24;
+  const endM = totalMins % 60;
+  return `${endH.toString().padStart(2, "0")}:${endM.toString().padStart(2, "0")}`;
+};
+
 export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
   subCourts,
   startTime = "05:00",
@@ -183,7 +191,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                 key={time} 
                 className="sticky top-0 z-[10] bg-slate-50 border-b border-r border-slate-200 p-4 text-center"
               >
-                <span className="text-[10px] font-bold text-slate-500">{time}</span>
+                <span className="text-[10px] font-bold text-slate-500">{time} - {getEndTimeOfSlot(time, intervalMinutes)}</span>
               </div>
             ))}
           </div>
@@ -216,25 +224,34 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                      key={time}
                      onClick={() => {
                        if (!slot) return;
-                       const isBooked = slot.type === "Booked";
-                       const isBlocked = slot.type === "Blocked";
-                       if (!disabled || isBooked || isBlocked) {
-                         onSlotClick?.(sc.id, slot);
-                       }
+
+                       if (!disabled) {
+                          onSlotClick?.(sc.id, slot);
+                        }
                      }}
                      style={{ gridColumn: `span ${span}` }}
-                     className={cn(
-                       "h-20 border-b border-r border-slate-100 flex flex-col items-center justify-center gap-1 transition-all relative",
+                     title={slot?.type === "Blocked" && slot?.reason ? `Lý do khóa: ${slot.reason}` : undefined}
+                      className={cn(
+                        "h-20 border-b border-r border-slate-100 flex flex-col items-center justify-center gap-1 transition-all relative group",
                        selected ? "bg-emerald-600 hover:bg-emerald-700 z-10 scale-[1.01] shadow-lg shadow-emerald-200" :
                        !slot ? "bg-slate-50 border-slate-200" : 
-                       isPast ? "bg-slate-100 cursor-not-allowed opacity-60" :
-                       slot.type === "Blocked" ? "bg-slate-700 border-slate-800 text-white cursor-pointer hover:bg-slate-800" :
-                       slot.type === "Booked" ? "bg-rose-500 border-rose-600 text-white cursor-pointer hover:bg-rose-600" :
-                       slot.type === "Override" ? "bg-violet-600 border-violet-700 text-white cursor-pointer shadow-md hover:bg-violet-700" :
+                       isPast ? "bg-slate-50/50 cursor-not-allowed border-slate-100" :
+                       slot.type === "Blocked" ? cn(
+                          "bg-slate-700 border-slate-800 text-white",
+                          disabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-slate-800"
+                        ) :
+                       slot.type === "Booked" ? cn(
+                          "bg-rose-500 border-rose-600 text-white",
+                          disabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-rose-600"
+                        ) :
+                       slot.type === "Override" ? cn(
+                          "bg-violet-600 border-violet-700 text-white shadow-md",
+                          disabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-violet-700"
+                        ) :
                        "bg-white hover:bg-emerald-50 border-emerald-100 cursor-pointer"
                      )}
                    >
-                     {slot ? (
+                     {slot && !isPast ? (
                        <>
                          <div className="flex flex-col items-center">
                            {slot.type !== "Blocked" && (
@@ -244,7 +261,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                                isPast ? "text-slate-400" :
                                "text-emerald-700"
                              )}>
-                               {slot.price ? `${(slot.price / 1000).toLocaleString()}k` : ""}
+                               {slot.price ? `${slot.price.toLocaleString("vi-VN")} đ` : ""}
                              </span>
                            )}
                            {slot.type === "Blocked" && (
@@ -266,11 +283,19 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                          {slot.type === "Booked" && !isPast && (
                            <div className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500" />
                          )}
-                         {(slot.type === "Blocked" || isPast) && (
-                           <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
-                             <LockIcon size={32} />
-                           </div>
-                         )}
+                         {slot.type === "Blocked" && (
+                            <div className="absolute inset-0 flex items-center justify-center opacity-10 pointer-events-none">
+                              <LockIcon size={32} />
+                            </div>
+                          )}
+                          {slot.type === "Blocked" && slot.reason && (
+                            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:flex flex-col items-center z-[99] pointer-events-none animate-in fade-in zoom-in-95 duration-200">
+                              <div className="bg-slate-950 text-white text-[10px] font-bold py-1.5 px-3 rounded-xl shadow-2xl border border-slate-800 whitespace-nowrap">
+                                <span className="text-amber-400">Lý do khóa:</span> {slot.reason}
+                              </div>
+                              <div className="w-2.5 h-2.5 bg-slate-950 rotate-45 -mt-1.5 border-r border-b border-slate-800" />
+                            </div>
+                          )}
                        </>
                     ) : null}
                   </div>

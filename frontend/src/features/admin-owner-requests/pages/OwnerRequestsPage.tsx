@@ -156,10 +156,10 @@ export function OwnerRequestsPage() {
       </div>
 
       {/* Search */}
-      <div className="flex items-center gap-4">
+      <div className="bg-white p-4 rounded-xl border border-gray-100 shadow-sm flex flex-col md:flex-row gap-4">
         <div className="relative flex-1 max-w-md">
           <Search
-            size={16}
+            size={18}
             className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
           />
           <Input
@@ -169,7 +169,7 @@ export function OwnerRequestsPage() {
               setSearch(e.target.value);
               setPageIndex(1);
             }}
-            className="pl-10"
+            className="pl-10 h-11 border-gray-200 focus:ring-emerald-500/20"
           />
         </div>
       </div>
@@ -294,8 +294,8 @@ export function OwnerRequestsPage() {
 
       {/* Detail Dialog */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl p-0 overflow-hidden flex flex-col max-h-[90vh] rounded-2xl">
+          <DialogHeader className="p-6 pb-4 border-b border-slate-100 flex-shrink-0">
             <DialogTitle className="flex items-center gap-3 text-xl font-bold">
               <div className="w-10 h-10 rounded-xl flex items-center justify-center bg-emerald-50">
                 <FileText className="text-emerald-600" size={20} />
@@ -304,171 +304,173 @@ export function OwnerRequestsPage() {
             </DialogTitle>
           </DialogHeader>
 
-          {selectedRequest && (
-            <div className="space-y-6">
-              {/* Status */}
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-500">Trạng thái:</span>
-                <Badge
-                  variant="outline"
-                  className={`text-xs font-medium ${statusConfig[selectedRequest.status].className}`}
-                >
-                  {statusConfig[selectedRequest.status].label}
-                </Badge>
-              </div>
+          <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            {selectedRequest && (
+              <div className="space-y-6">
+                {/* Status */}
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-gray-500">Trạng thái:</span>
+                  <Badge
+                    variant="outline"
+                    className={`text-xs font-medium ${statusConfig[selectedRequest.status].className}`}
+                  >
+                    {statusConfig[selectedRequest.status].label}
+                  </Badge>
+                </div>
 
-              {/* Personal Info */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <User size={16} className="text-emerald-600" />
-                  Thông tin cá nhân
-                </h3>
-                <div className="grid grid-cols-2 gap-4 bg-gray-50 rounded-xl p-4">
-                  <div>
-                    <p className="text-xs text-gray-500">Họ và tên</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedRequest.firstName || ""}{" "}
-                      {selectedRequest.lastName || ""}
-                      {!selectedRequest.firstName &&
-                        !selectedRequest.lastName && (
+                {/* Personal Info */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <User size={16} className="text-emerald-600" />
+                    Thông tin cá nhân
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 bg-gray-50 rounded-xl p-4">
+                    <div>
+                      <p className="text-xs text-gray-500">Họ và tên</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {selectedRequest.firstName || ""}{" "}
+                        {selectedRequest.lastName || ""}
+                        {!selectedRequest.firstName &&
+                          !selectedRequest.lastName && (
+                            <span className="text-gray-400 font-normal">
+                              Chưa cung cấp
+                            </span>
+                          )}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Số điện thoại</p>
+                      <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
+                        <Phone size={12} className="text-emerald-500" />
+                        {selectedRequest.phoneNumber || (
                           <span className="text-gray-400 font-normal">
                             Chưa cung cấp
                           </span>
                         )}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Số điện thoại</p>
-                    <p className="text-sm font-medium text-gray-900 flex items-center gap-1">
-                      <Phone size={12} className="text-emerald-500" />
-                      {selectedRequest.phoneNumber || (
-                        <span className="text-gray-400 font-normal">
-                          Chưa cung cấp
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">CCCD/CMND</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedRequest.identityNumber || (
-                        <span className="text-gray-400 font-normal">
-                          Chưa cung cấp
-                        </span>
-                      )}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Email</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedRequest.email || (
-                        <span className="text-gray-400 font-normal">
-                          Chưa cung cấp
-                        </span>
-                      )}
-                    </p>
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">CCCD/CMND</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {selectedRequest.identityNumber || (
+                          <span className="text-gray-400 font-normal">
+                            Chưa cung cấp
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Email</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {selectedRequest.email || (
+                          <span className="text-gray-400 font-normal">
+                            Chưa cung cấp
+                          </span>
+                        )}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Business Info */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <Building2 size={16} className="text-emerald-600" />
-                  Thông tin doanh nghiệp
-                </h3>
-                <div className="grid grid-cols-2 gap-4 bg-gray-50 rounded-xl p-4">
-                  <div>
-                    <p className="text-xs text-gray-500">Tên doanh nghiệp</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedRequest.businessName}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-gray-500">Mã số thuế</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedRequest.taxCode}
-                    </p>
-                  </div>
-                  <div className="col-span-2">
-                    <p className="text-xs text-gray-500">Địa chỉ kinh doanh</p>
-                    <p className="text-sm font-medium text-gray-900">
-                      {selectedRequest.businessAddress}
-                    </p>
+                {/* Business Info */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <Building2 size={16} className="text-emerald-600" />
+                    Thông tin doanh nghiệp
+                  </h3>
+                  <div className="grid grid-cols-2 gap-4 bg-gray-50 rounded-xl p-4">
+                    <div>
+                      <p className="text-xs text-gray-500">Tên doanh nghiệp</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {selectedRequest.businessName}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-gray-500">Mã số thuế</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {selectedRequest.taxCode}
+                      </p>
+                    </div>
+                    <div className="col-span-2">
+                      <p className="text-xs text-gray-500">Địa chỉ kinh doanh</p>
+                      <p className="text-sm font-medium text-gray-900">
+                        {selectedRequest.businessAddress}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Documents */}
-              <div className="space-y-3">
-                <h3 className="font-semibold text-gray-900 flex items-center gap-2">
-                  <FileText size={16} className="text-emerald-600" />
-                  Tài liệu đính kèm
-                </h3>
-                <div className="grid grid-cols-3 gap-3">
-                  {[
-                    {
-                      label: "Giấy phép KD",
-                      url: selectedRequest.businessLicenseUrl,
-                    },
-                    {
-                      label: "CCCD trước",
-                      url: selectedRequest.identityCardFrontUrl,
-                    },
-                    {
-                      label: "CCCD sau",
-                      url: selectedRequest.identityCardBackUrl,
-                    },
-                  ].map((doc) => (
-                    <a
-                      key={doc.label}
-                      href={doc.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
+                {/* Documents */}
+                <div className="space-y-3">
+                  <h3 className="font-semibold text-gray-900 flex items-center gap-2">
+                    <FileText size={16} className="text-emerald-600" />
+                    Tài liệu đính kèm
+                  </h3>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      {
+                        label: "Giấy phép KD",
+                        url: selectedRequest.businessLicenseUrl,
+                      },
+                      {
+                        label: "CCCD trước",
+                        url: selectedRequest.identityCardFrontUrl,
+                      },
+                      {
+                        label: "CCCD sau",
+                        url: selectedRequest.identityCardBackUrl,
+                      },
+                    ].map((doc) => (
+                      <a
+                        key={doc.label}
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex flex-col items-center gap-2 p-4 rounded-xl border border-gray-200 hover:border-emerald-400 hover:bg-emerald-50 transition-all"
+                      >
+                        <FileText size={24} className="text-emerald-600" />
+                        <span className="text-xs font-medium text-gray-700 text-center">
+                          {doc.label}
+                        </span>
+                        <span className="text-[10px] text-emerald-600">
+                          Xem file
+                        </span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions for pending */}
+                {selectedRequest.status === "Pending" && (
+                  <div className="flex gap-3 pt-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
+                      onClick={() => {
+                        setIsDetailOpen(false);
+                        handleReject(selectedRequest.id);
+                      }}
+                      disabled={rejectMutation.isPending}
                     >
-                      <FileText size={24} className="text-emerald-600" />
-                      <span className="text-xs font-medium text-gray-700 text-center">
-                        {doc.label}
-                      </span>
-                      <span className="text-[10px] text-emerald-600">
-                        Xem file
-                      </span>
-                    </a>
-                  ))}
-                </div>
+                      <XCircle size={16} className="mr-2" />
+                      Từ chối
+                    </Button>
+                    <Button
+                      className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
+                      onClick={() => {
+                        setIsDetailOpen(false);
+                        handleAccept(selectedRequest.id);
+                      }}
+                      disabled={acceptMutation.isPending}
+                    >
+                      <CheckCircle size={16} className="mr-2" />
+                      Phê duyệt
+                    </Button>
+                  </div>
+                )}
               </div>
-
-              {/* Actions for pending */}
-              {selectedRequest.status === "Pending" && (
-                <div className="flex gap-3 pt-2">
-                  <Button
-                    variant="outline"
-                    className="flex-1 text-red-600 border-red-200 hover:bg-red-50"
-                    onClick={() => {
-                      setIsDetailOpen(false);
-                      handleReject(selectedRequest.id);
-                    }}
-                    disabled={rejectMutation.isPending}
-                  >
-                    <XCircle size={16} className="mr-2" />
-                    Từ chối
-                  </Button>
-                  <Button
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white"
-                    onClick={() => {
-                      setIsDetailOpen(false);
-                      handleAccept(selectedRequest.id);
-                    }}
-                    disabled={acceptMutation.isPending}
-                  >
-                    <CheckCircle size={16} className="mr-2" />
-                    Phê duyệt
-                  </Button>
-                </div>
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
