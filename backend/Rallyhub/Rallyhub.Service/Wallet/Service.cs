@@ -128,9 +128,11 @@ public class Service : IService
             if (pendingTransaction.Amount != requestAmount)
             {
                 pendingTransaction.Amount = requestAmount;
-                _dbcontext.Transactions.Update(pendingTransaction);
-                await _dbcontext.SaveChangesAsync();
             }
+            pendingTransaction.CreatedAt = DateTimeOffset.UtcNow;
+            pendingTransaction.UpdatedAt = DateTimeOffset.UtcNow;
+            _dbcontext.Transactions.Update(pendingTransaction);
+            await _dbcontext.SaveChangesAsync();
         
             string bankName = "MBBank";
             string bankAccount = "VQRQAIUZK3222";
@@ -196,7 +198,7 @@ public class Service : IService
         var transaction = await _dbcontext.Transactions.FirstOrDefaultAsync(x => x.Id == transactionId);
         if (transaction == null)
         {
-            throw new Exception("Transaction not found");
+            throw new ArgumentException("Transaction not found");
         }
 
         if (transaction.Status == "Success")
@@ -207,7 +209,7 @@ public class Service : IService
         if (transaction.Status == "Pending")
         {
             var now = DateTimeOffset.UtcNow;
-            if (now.Subtract(transaction.CreatedAt).TotalSeconds > 60)
+            if (now.Subtract(transaction.CreatedAt).TotalSeconds > 900) // 15 minutes timeout for banking transfers
             {
                 transaction.Status = "Failed";
                 transaction.UpdatedAt = now;

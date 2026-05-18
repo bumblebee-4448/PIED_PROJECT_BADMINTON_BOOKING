@@ -653,7 +653,7 @@ public class Service : IService
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (ownerIdClaim == null) 
         {            
-            throw new Exception("Owner không tồn tại");  
+            throw new ArgumentException("Owner không tồn tại");  
         }        
         var ownerIdGuid = Guid.Parse(ownerIdClaim);
 
@@ -662,49 +662,52 @@ public class Service : IService
             .FirstOrDefaultAsync(x => x.Id == request.SubCourtId);
         if (subCourt == null)
         {
-            throw new Exception("Sân con không tồn tại!");
+            throw new ArgumentException("Sân con không tồn tại!");
         }
         if (subCourt.Court.OwnerId != ownerIdGuid)
         {
-            throw new Exception("Bạn không có quyền");
+            throw new ArgumentException("Bạn không có quyền");
         }
  
         if (request.IsRecurring)
         {
             if (request.DayOfWeek == null)
             {
-                throw new Exception("Thiếu DateOfWeek");
+                throw new ArgumentException("Thiếu DateOfWeek");
             }
 
             if (request.Date != null)
             {
-                throw new Exception("Recurring không được có Date");
+                throw new ArgumentException("Recurring không được có Date");
             }
         }else
         {
             if (request.Date == null)
             {
-                throw new Exception("Thiếu Date");
+                throw new ArgumentException("Thiếu Date");
             }
         }
 
         if (request.StartTime >= request.EndTime)
         {
-            throw new Exception("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc");
+            throw new ArgumentException("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc");
         }
          
+        var requestDayOfWeek = request.Date?.DayOfWeek;
         var isOverlap = await _dbContext.OverideSlots.AnyAsync(x =>
             !x.IsDeleted &&
             x.SubCourtDetailId == request.SubCourtId &&
             (
                 (request.IsRecurring && x.IsRecurring && x.DayOfWeek == request.DayOfWeek) || 
-                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date)
-            )&& request.StartTime < x.EndTime
+                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date) ||
+                (request.IsRecurring && !x.IsRecurring && x.Date.DayOfWeek == request.DayOfWeek) ||
+                (!request.IsRecurring && x.IsRecurring && x.DayOfWeek == requestDayOfWeek)
+            ) && request.StartTime < x.EndTime
             && request.EndTime > x.StartTime
         );
         if (isOverlap)
         {
-            throw new Exception("Khoảng thời gian này đã được gộp giá rồi");
+            throw new ArgumentException("Khoảng thời gian này đã được gộp giá rồi");
         }
 
         var isOverlapWithException = await _dbContext.Exceptions.AnyAsync(x =>
@@ -712,14 +715,16 @@ public class Service : IService
             x.SubCourtDetailId == request.SubCourtId &&
             (
                 (request.IsRecurring && x.IsRecurring && x.DayOfWeek == request.DayOfWeek) ||
-                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date)
+                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date) ||
+                (request.IsRecurring && !x.IsRecurring && x.Date.DayOfWeek == request.DayOfWeek) ||
+                (!request.IsRecurring && x.IsRecurring && x.DayOfWeek == requestDayOfWeek)
             ) && request.StartTime < x.EndTime
             && request.EndTime > x.StartTime
         );
 
         if (isOverlapWithException)
         {
-            throw new Exception("Khoảng thời gian này đã bị khóa, không thể gộp giá đè lên");
+            throw new ArgumentException("Khoảng thời gian này đã bị khóa, không thể gộp giá đè lên");
         }
         
         var configSlots = await  _dbContext.ConfigSlots
@@ -731,7 +736,7 @@ public class Service : IService
         var validEnd   = configSlots.Any(x => x.EndTime == request.EndTime);
 
         if (!validStart || !validEnd)
-            throw new Exception("Override match với ConfigSlot");
+            throw new ArgumentException("Override slot phải match với ConfigSlot");
 
         var coveredSlots = configSlots
             .Where(x => 
@@ -744,7 +749,7 @@ public class Service : IService
             (x.EndTime - x.StartTime).TotalMinutes);
 
         if (expected != actual)
-            throw new Exception("Override không cover full ConfigSlot");
+            throw new ArgumentException("Override không cover full ConfigSlot");
         
         var overrideSlot = new OverideSlot
         {
@@ -833,7 +838,7 @@ public class Service : IService
         var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value; 
         if (ownerIdClaim == null)  
         {            
-            throw new Exception("Owner không tồn tại");  
+            throw new ArgumentException("Owner không tồn tại");  
         }        
         var ownerIdGuid = Guid.Parse(ownerIdClaim);
         var subCourt = await _dbContext.SubCourts
@@ -841,55 +846,58 @@ public class Service : IService
             .FirstOrDefaultAsync(x => x.Id == request.SubCourtId);
         if (subCourt == null)
         {
-            throw new Exception("Sân con không tồn tại!");
+            throw new ArgumentException("Sân con không tồn tại!");
         }
 
         if (subCourt.Court.OwnerId != ownerIdGuid)
         {
-            throw new Exception("Bạn không có quyền");
+            throw new ArgumentException("Bạn không có quyền");
         }
         if (request.StartTime >= request.EndTime)
         {
-            throw new Exception("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc");
+            throw new ArgumentException("Thời gian bắt đầu phải nhỏ hơn thời gian kết thúc");
         }
         
         if (request.IsRecurring)
         {
             if (request.DayOfWeek == null)
             {
-                throw new Exception("Thiếu DateOfWeek");
+                throw new ArgumentException("Thiếu DateOfWeek");
             }
 
             if (request.Date != null)
             {
-                throw new Exception("Recurring không được có Date");
+                throw new ArgumentException("Recurring không được có Date");
             }
         }else
         {
             if (request.Date == null)
             {
-                throw new Exception("Thiếu Date");
+                throw new ArgumentException("Thiếu Date");
             }
         }
         
-        if (request.Date < DateOnly.FromDateTime(DateTime.UtcNow))
+        if (request.Date != null && request.Date < DateOnly.FromDateTime(DateTime.UtcNow))
         {
-            throw new Exception("Không thể block slot trong quá khứ");
+            throw new ArgumentException("Không thể block slot trong quá khứ");
         }
         
+        var requestDayOfWeek = request.Date?.DayOfWeek;
         var isOverlap = await  _dbContext.Exceptions.AnyAsync(x => 
             !x.IsDeleted &&
             x.SubCourtDetailId == request.SubCourtId &&
             (
                 (request.IsRecurring && x.IsRecurring && x.DayOfWeek == request.DayOfWeek) || 
-                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date)
+                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date) ||
+                (request.IsRecurring && !x.IsRecurring && x.Date.DayOfWeek == request.DayOfWeek) ||
+                (!request.IsRecurring && x.IsRecurring && x.DayOfWeek == requestDayOfWeek)
             )&& request.StartTime < x.EndTime
             && request.EndTime > x.StartTime
         );
         
         if (isOverlap)
         {
-            throw new Exception("Khoảng thời gian này đã bị khóa rồi");
+            throw new ArgumentException("Khoảng thời gian này đã bị khóa rồi");
         }
 
         var isOverlapWithOverride = await _dbContext.OverideSlots.AnyAsync(x =>
@@ -897,14 +905,16 @@ public class Service : IService
             x.SubCourtDetailId == request.SubCourtId &&
             (
                 (request.IsRecurring && x.IsRecurring && x.DayOfWeek == request.DayOfWeek) ||
-                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date)
+                (!request.IsRecurring && !x.IsRecurring && x.Date == request.Date) ||
+                (request.IsRecurring && !x.IsRecurring && x.Date.DayOfWeek == request.DayOfWeek) ||
+                (!request.IsRecurring && x.IsRecurring && x.DayOfWeek == requestDayOfWeek)
             ) && request.StartTime < x.EndTime
             && request.EndTime > x.StartTime
         );
 
         if (isOverlapWithOverride)
         {
-            throw new Exception("Khoảng thời gian này đã có slot gộp giá, không thể khóa đè lên");
+            throw new ArgumentException("Khoảng thời gian này đã có slot gộp giá, không thể khóa đè lên");
         }
 
         //
@@ -918,7 +928,7 @@ public class Service : IService
 
         if (!validStart || !validEnd)
         {
-            throw new Exception("Exception slot phải match với ConfigSlot");
+            throw new ArgumentException("Exception slot phải match với ConfigSlot");
         }
         
         var lockedSlots = configSlots
@@ -933,7 +943,7 @@ public class Service : IService
 
         if (excepted != actual)
         {
-            throw new Exception("Exception slot phải cover full ConfigSlot");
+            throw new ArgumentException("Exception slot phải cover full ConfigSlot");
         }
         
         var newExceptionSlot = new Repository.Entity.Exception
