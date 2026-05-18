@@ -162,38 +162,42 @@ public class Service : IService
                 $"{raw.Substring(16, 4)}-" +
                 $"{raw.Substring(20, 10)}";
 
-            Repository.Entity.Wallet? targetWallet = null;
+            Repository.Entity.Transaction? targetTransaction = null;
             if (Guid.TryParse(formatted, out var exactGuid))
             {
-                targetWallet = await _dbContext.Wallets
+                targetTransaction = await _dbContext.Transactions
+                    .Include(x => x.Wallet)
                     .FirstOrDefaultAsync(x => x.Id == exactGuid);
             }
 
-            if (targetWallet == null)
+            if (targetTransaction == null)
             {
-                targetWallet = await _dbContext.Wallets
+                targetTransaction = await _dbContext.Transactions
+                    .Include(x => x.Wallet)
                     .Where(x => EF.Functions.TrigramsSimilarity(x.Id.ToString(), formatted) > 0.68)
                     .OrderBy(x => EF.Functions.TrigramsSimilarityDistance(x.Id.ToString(), formatted))
                     .FirstOrDefaultAsync();
             }
 
-            if (targetWallet == null)
+            if (targetTransaction == null)
             {
                 throw new Exception("Not found");
             }
 
-            var transaction =
-                await _dbContext.Transactions.FirstOrDefaultAsync(x =>
-                    x.WalletId == targetWallet.Id && x.Status == "Pending");
-            
-            if (transaction == null)
+            if (targetTransaction.Status != "Pending")
             {
-                throw new Exception("Transaction not found");
+                throw new Exception("Transaction is completed or banked");
             }
 
-            if (transaction.Amount != request.TransferAmount)
+            if (targetTransaction.Amount != request.TransferAmount)
             {
                 throw new Exception("Invalid transfer amount");
+            }
+
+            var targetWallet = targetTransaction.Wallet;
+            if (targetWallet == null)
+            {
+                throw new Exception("Wallet not found");
             }
 
             if (!await _walletService.AddBanlanceToWallet(targetWallet.UserId, request.TransferAmount, "Payment"))
@@ -201,15 +205,15 @@ public class Service : IService
                 throw new Exception("Wallet reject balance failed");
             }
 
-            transaction.Status = "Success";
-            transaction.SePayId = request.Id.ToString(); //
-            transaction.BankRefCode = request.ReferenceCode; //
-            transaction.BankAccountNumber = request.AccountNumber;
-            transaction.TransferContent = request.Content; //
-            transaction.ActionCode = request.Code; //
-            transaction.Signature = request.Description; //
-            transaction.UpdatedAt = DateTimeOffset.UtcNow;
-            _dbContext.Update(transaction);
+            targetTransaction.Status = "Success";
+            targetTransaction.SePayId = request.Id.ToString(); //
+            targetTransaction.BankRefCode = request.ReferenceCode; //
+            targetTransaction.BankAccountNumber = request.AccountNumber;
+            targetTransaction.TransferContent = request.Content; //
+            targetTransaction.ActionCode = request.Code; //
+            targetTransaction.Signature = request.Description; //
+            targetTransaction.UpdatedAt = DateTimeOffset.UtcNow;
+            _dbContext.Update(targetTransaction);
             
             _notificationService.CreateNotification(new Notification.Request.CreateNotificationRequest
             {

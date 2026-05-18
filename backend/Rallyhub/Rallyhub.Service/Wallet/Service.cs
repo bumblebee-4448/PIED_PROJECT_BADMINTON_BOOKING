@@ -136,7 +136,8 @@ public class Service : IService
         
             string bankName = "MBBank";
             string bankAccount = "VQRQAIUZK3222";
-            string description = $"WA-{existWallet.Id:N}";
+            string description = $"WA{pendingTransaction.Id:N}";
+            string nguoinhan = "PHAM QUOC HOANG";
         
             string qrCodeUrl = $"https://qr.sepay.vn/img?" +
                                $"acc={bankAccount}&" +
@@ -149,25 +150,22 @@ public class Service : IService
             {
                 Id = existWallet.Id,
                 TransactionId = pendingTransaction.Id,
+                BankName = bankName,
+                BankAccount = nguoinhan,
                 Amount = requestAmount,
                 QrCodeUrl = qrCodeUrl,
+                Created = pendingTransaction.CreatedAt,
             };
         }
         else
         {
             string bankName = "MBBank";
             string bankAccount = "VQRQAIUZK3222";
-            string description = $"WA-{existWallet.Id:N}";
             string nguoinhan = "PHAM QUOC HOANG";
-            string qrCodeUrl = $"https://qr.sepay.vn/img?" +
-                               $"acc={bankAccount}&" +
-                               $"bank={bankName}&" +
-                               $"amount={requestAmount}&" +
-                               $"des={description}&" +
-                               $"template=qronly";
-    
+            
             var transactionI = new Repository.Entity.Transaction
             {
+                Id = Guid.NewGuid(),
                 Type = Transaction.Request.TypeList.Deposit,
                 Amount = requestAmount,
                 BalanceBefore = existWallet.Balance,
@@ -180,6 +178,14 @@ public class Service : IService
             _dbcontext.Transactions.Add(transactionI);
             await _dbcontext.SaveChangesAsync();
 
+            string description = $"WA{transactionI.Id:N}";
+            string qrCodeUrl = $"https://qr.sepay.vn/img?" +
+                               $"acc={bankAccount}&" +
+                               $"bank={bankName}&" +
+                               $"amount={requestAmount}&" +
+                               $"des={description}&" +
+                               $"template=qronly";
+
             return new Response.AddBalanceToWalletFromPaymentResponse
             {
                 Id = existWallet.Id,
@@ -188,7 +194,7 @@ public class Service : IService
                 BankAccount = nguoinhan,
                 Amount = requestAmount,
                 QrCodeUrl = qrCodeUrl,
-                Created = DateTimeOffset.UtcNow,
+                Created = transactionI.CreatedAt,
             };
         }
     }
