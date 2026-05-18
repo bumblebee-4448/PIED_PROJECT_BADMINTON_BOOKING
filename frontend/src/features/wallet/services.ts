@@ -40,7 +40,11 @@ export const walletService = {
     ) as unknown as Promise<DepositResponse>;
   },
 
-
+  checkDepositStatus: async (transactionId: string): Promise<string> => {
+    return apiClient.get<string>(
+      API_ENDPOINTS.WALLET.CHECK_STATUS.replace("{transactionId}", transactionId)
+    ) as unknown as Promise<string>;
+  },
 
   // Withdrawal
   createWithdrawal: async (data: WithdrawalRequest): Promise<string> => {

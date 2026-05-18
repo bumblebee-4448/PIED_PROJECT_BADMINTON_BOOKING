@@ -51,15 +51,13 @@ export const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose, onD
     try {
       const result = await onDeposit(numAmount);
       onClose();
-      const isTxIdEmpty = !result.transactionId || result.transactionId === "00000000-0000-0000-0000-000000000000";
-      const targetId = isTxIdEmpty ? result.id : result.transactionId;
       navigate("/payment", {
         state: {
           qrCodeUrl: result.qrCodeUrl,
           amount: result.amount,
-          transactionId: targetId,
-          transactionCode: `WA-${targetId.replace(/-/g, "").toUpperCase().substring(0, 10)}`,
-          content: `WA-${targetId.replace(/-/g, "").toUpperCase()}`,
+          transactionId: result.transactionId || result.id, // Ensure we use the correct ID for polling
+          transactionCode: `WA-${(result.transactionId || result.id).replace(/-/g, "").toUpperCase().substring(0, 10)}`,
+          content: `WA-${(result.transactionId || result.id).replace(/-/g, "").toUpperCase()}`,
           type: "wallet",
           expiredAt: new Date(Date.now() + 5 * 60000).toISOString(),
         }

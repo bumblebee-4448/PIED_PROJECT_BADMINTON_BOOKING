@@ -67,7 +67,7 @@ export function PaymentPage() {
   const hasTriggeredEnd = useRef(false);
 
   const cancelBooking = useCancelBooking();
-  const { useWalletInfo } = useWallet();
+  const { checkDepositStatusMutation } = useWallet();
 
   // Redirect if no valid payment state
   if (!paymentState) {
@@ -86,18 +86,6 @@ export function PaymentPage() {
     type,
     items = []
   } = paymentState;
-
-  // Real-time balance-based polling for wallet deposits (No mock payload simulation!)
-  const { data: walletInfo, refetch: refetchWallet } = useWalletInfo(
-    type === "wallet" && status === "pending"
-  );
-  const [initialBalance, setInitialBalance] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (type === "wallet" && status === "pending" && walletInfo && initialBalance === null) {
-      setInitialBalance(walletInfo.balance);
-    }
-  }, [type, status, walletInfo, initialBalance]);
 
   // Handles failure transitions beautifully
   const triggerFailure = useCallback((reason: string) => {
@@ -186,45 +174,34 @@ export function PaymentPage() {
 
   // ─── Polling Logic for Wallet Payment ───────────────────
   useEffect(() => {
-    if (type === "wallet" && status === "pending") {
+    if (type === "wallet" && status === "pending" && transactionId) {
       const interval = setInterval(async () => {
         try {
-          await refetchWallet();
+          const resStatus = await checkDepositStatusMutation.mutateAsync(transactionId);
+          if (resStatus === "Success") {
+            setIsSuccess(true);
+            setStatus("success");
+            localStorage.removeItem("rallyhub_pending_payment");
+            toast.success("Nạp tiền vào ví thành công!");
+            
+            setTimeout(() => {
+              navigate("/wallet");
+            }, 3000);
+          } else if (resStatus === "Expired" || resStatus === "Failed") {
+            triggerFailure("Giao dịch nạp tiền đã hết hạn hoặc thất bại!");
+          }
         } catch (e) {
           console.error("Failed to check wallet status:", e);
         }
       }, 3000);
       return () => clearInterval(interval);
     }
-  }, [type, status, refetchWallet]);
-
-  // Handle wallet deposit success transition when balance increases
-  useEffect(() => {
-    if (type === "wallet" && status === "pending" && walletInfo && initialBalance !== null) {
-      if (walletInfo.balance >= initialBalance + amount) {
-        setIsSuccess(true);
-        setStatus("success");
-        localStorage.removeItem("rallyhub_pending_payment");
-        toast.success("Nạp tiền vào ví thành công!");
-        
-        setTimeout(() => {
-          navigate("/wallet");
-        }, 3000);
-      }
-    }
-  }, [type, status, walletInfo, initialBalance, amount, navigate]);
+  }, [type, status, transactionId, navigate, checkDepositStatusMutation, triggerFailure]);
 
   // Helper to extract bank account number from VietQR URL
-  const getAccountNoFromQr = (url?: string, paymentType?: "booking" | "wallet") => {
+  const getAccountNoFromQr = (url?: string) => {
     if (!url) return "";
     try {
-      if (paymentType === "wallet" && url.includes("?")) {
-        const queryString = url.split("?")[1];
-        const params = new URLSearchParams(queryString);
-        const acc = params.get("acc");
-        if (acc) return acc;
-      }
-      
       const parts = url.split("/");
       const filename = parts[parts.length - 1];
       const cleanFilename = filename.split("?")[0];
@@ -238,7 +215,7 @@ export function PaymentPage() {
     return "";
   };
 
-  const bankAccountNo = getAccountNoFromQr(qrCodeUrl, type) || "0934983284";
+  const bankAccountNo = getAccountNoFromQr(qrCodeUrl) || "0934983284";
 
   const copyToClipboard = (text: string, field: string) => {
     if (navigator.clipboard) {
