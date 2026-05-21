@@ -33,14 +33,9 @@ public class Service: IService
             throw new Exception("Usage limit must be greater than 0");
         }
 
-        if (request.UsedCount < 0)
+        if (request.UsageLimit < 0)
         {
-            throw new Exception("UsedCount must be greater than 0");
-        }
-
-        if (request.UsageLimit < request.UsedCount)
-        {
-            throw new Exception("The Usage limit must be greater than the used count");
+            throw new Exception("The Usage limit ");
         }
 
         if (request.StartDate > request.EndDate)
@@ -57,7 +52,6 @@ public class Service: IService
                 campaign.MaxDiscountAmount = request.MaxDiscountAmount;
                 campaign.MinBookingAmount = request.MinBookingAmount;
                 campaign.UsageLimit = request.UsageLimit;
-                campaign.UsedCount = request.UsedCount;
                 campaign.StartDate = DateTime.SpecifyKind(request.StartDate, DateTimeKind.Utc);
                 campaign.EndDate = DateTime.SpecifyKind(request.EndDate, DateTimeKind.Utc);
                 campaign.CreatedAt = DateTimeOffset.UtcNow;
@@ -83,7 +77,6 @@ public class Service: IService
                 MaxDiscountAmount = request.MaxDiscountAmount,
                 MinBookingAmount = request.MinBookingAmount,
                 UsageLimit = request.UsageLimit,
-                UsedCount = request.UsedCount,
                 StartDate = DateTime.SpecifyKind(request.StartDate, DateTimeKind.Utc),
                 EndDate = DateTime.SpecifyKind(request.EndDate, DateTimeKind.Utc),
                 CreatedAt = DateTimeOffset.UtcNow
@@ -109,7 +102,6 @@ public class Service: IService
                 MaxDiscountAmount = request.MaxDiscountAmount,
                 MinBookingAmount = request.MinBookingAmount,
                 UsageLimit = request.UsageLimit,
-                UsedCount = request.UsedCount,
                 StartDate = DateTime.SpecifyKind(request.StartDate, DateTimeKind.Utc),
                 EndDate = DateTime.SpecifyKind(request.EndDate, DateTimeKind.Utc),
                 CreatedAt = DateTimeOffset.UtcNow
@@ -127,7 +119,7 @@ public class Service: IService
             throw new Exception("Court not found");
         }
         
-        var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == request.CampaignId);
+        var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == request.CampaignId && x.IsDeleted == false);
         if (campaign == null)
         {
             throw new Exception("Campaign not found");
@@ -180,16 +172,6 @@ public class Service: IService
             throw new Exception("Usage limit must be greater than 0");
         }
 
-        if (request.UsedCount < 0)
-        {
-            throw new Exception("UsedCount must be greater than 0");
-        }
-
-        if (request.UsageLimit < request.UsedCount)
-        {
-            throw new Exception("The Usage limit must be greater than the used count");
-        }
-
         if (request.StartDate > request.EndDate)
         {
             throw new Exception("Start date must be before end date");
@@ -199,7 +181,15 @@ public class Service: IService
         {
             throw new Exception("User not found");
         }
-        
+        var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == request.Id);
+        if (campaign == null)
+        {
+            throw new Exception("Campaign not found");
+        }
+        if (request.UsageLimit < campaign.UsedCount)
+        {
+            throw new Exception("The Usage limit must be greater than the used count");
+        }
         if (user.Role == "Owner")
         {
             var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == userId);
@@ -207,51 +197,26 @@ public class Service: IService
             {
                 throw new Exception("No owner found");
             }
-            var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Code == request.Code);
-            if (campaign == null)
-            {
-                throw new Exception("Campaign not found");
-            }
             if (campaign.OwnerId != owner.Id)
             {
                 throw new Exception("Campaign owner mismatch");
             }
-            campaign.DiscountPercent = request.DiscountPercent;
-            campaign.MaxDiscountAmount = request.MaxDiscountAmount;
-            campaign.MinBookingAmount = request.MinBookingAmount;
-            campaign.UsageLimit = request.UsageLimit;
-            campaign.UsedCount = request.UsedCount;
-            campaign.StartDate = DateTime.SpecifyKind(request.StartDate, DateTimeKind.Utc);
-            campaign.EndDate = DateTime.SpecifyKind(request.EndDate, DateTimeKind.Utc);
-            campaign.UpdatedAt = DateTimeOffset.UtcNow;
-            _dbContext.Update(campaign);
-            await _dbContext.SaveChangesAsync();
-            return;
         }
-
-        if (user.Role == "Admin")
-        {
-            var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Code == request.Code);
-            if (campaign == null)
-            {
-                throw new Exception("Campaign not found");
-            }
-            campaign.DiscountPercent = request.DiscountPercent;
-            campaign.MaxDiscountAmount = request.MaxDiscountAmount;
-            campaign.MinBookingAmount =  request.MinBookingAmount;
-            campaign.UsageLimit = request.UsageLimit;
-            campaign.UsedCount = request.UsedCount;
-            campaign.StartDate = DateTime.SpecifyKind(request.StartDate, DateTimeKind.Utc);
-            campaign.EndDate = DateTime.SpecifyKind(request.EndDate, DateTimeKind.Utc);
-            campaign.UpdatedAt = DateTimeOffset.UtcNow;
-            _dbContext.Update(campaign);
-            await _dbContext.SaveChangesAsync();
-        }
+        campaign.DiscountPercent = request.DiscountPercent;
+        campaign.MaxDiscountAmount = request.MaxDiscountAmount;
+        campaign.MinBookingAmount =  request.MinBookingAmount;
+        campaign.UsageLimit = request.UsageLimit;
+        campaign.StartDate = DateTime.SpecifyKind(request.StartDate, DateTimeKind.Utc);
+        campaign.EndDate = DateTime.SpecifyKind(request.EndDate, DateTimeKind.Utc);
+        campaign.UpdatedAt = DateTimeOffset.UtcNow;
+        _dbContext.Update(campaign);
+        await _dbContext.SaveChangesAsync();
+        
     }
 
     public async Task<Response.CampaignDetailResponse> CampaignDetail(Request.CampaignDetailRequest request)
     {
-        var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Code == request.Code);
+        var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == request.Id);
         if (campaign == null)
         {
             throw new Exception("Campaign not found");
@@ -275,12 +240,11 @@ public class Service: IService
     }
     public async Task DeleteCampaign(Request.DeleteCampaignRequest request)
     {
-        var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Code == request.Code);
+        var campaign = await _dbContext.Campaigns.FirstOrDefaultAsync(x => x.Id == request.Id);
         if (campaign == null)
         {
             throw new Exception("Campaign not found");
         }
-
         if (campaign.IsDeleted)
         {
             throw new Exception("Campaign is already deleted");
@@ -322,7 +286,7 @@ public class Service: IService
         };
         return result;
     }
-    public async Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaignCourt(Base.Request.PagingRequest request)
+    public async Task<Base.Response.PageResult<Response.GetAllCampaignCourtResponse>> GetAllCampaignCourt(Base.Request.PagingRequest request)
     {
         var getUserId = _httpContextAccessor.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "UserId")?.Value;
         if (getUserId == null)
@@ -333,30 +297,37 @@ public class Service: IService
         var owner = await _dbContext.Owners.FirstOrDefaultAsync(x => x.UserId == userId);
         if (owner == null)
         {
-            throw new Exception("No owner found");
-        }
-        var campaignList = _dbContext.Campaigns
-                                                .Where(x => x.IsDeleted == false && 
-                                                                        x.IsGlobal == false && 
-                                                                        x.OwnerId == owner.Id);
-        var sort = campaignList.OrderByDescending(x => x.CreatedAt);
-        var totalItems = await sort.CountAsync();
-        var pageQuery = sort.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
-        var selectQuery = pageQuery.Select(x => new Response.GetAllCampaignResponse()
+            throw new Exception("Owner not found");
+        } 
+        var query = _dbContext.Campaigns
+            .Where(c => c.OwnerId == owner.Id && !c.IsDeleted && !c.IsGlobal)
+            .SelectMany(
+                c => _dbContext.CampaignCourts
+                    .Where(cc => cc.CampaignId == c.Id && !cc.IsDeleted)
+                    .DefaultIfEmpty(), 
+                (c, cc) => new { Campaign = c, CampaignCourt = cc }
+            );
+        var totalItems = await query.CountAsync();
+        var sortEndTime = query.OrderByDescending(x => x.Campaign.EndDate);
+        var pageQuery = sortEndTime.Skip((request.PageIndex - 1) * request.PageSize).Take(request.PageSize);
+        var selectQuery = pageQuery.Select(x => new Response.GetAllCampaignCourtResponse()
         {
-            Code =  x.Code,
-            MaxDiscountAmount = x.MaxDiscountAmount,
-            MinBookingAmount = x.MinBookingAmount,
-            EndDate = x.EndDate,
-            Quantity = x.UsageLimit - x.UsedCount,
+            Id = x.Campaign.Id,
+            CourtId = x.CampaignCourt != null ? x.CampaignCourt.CourtId : (Guid?)null,
+            CourtName = x.CampaignCourt != null ? x.CampaignCourt.Court.Name : null,
+            Code = x.Campaign.Code,
+            MaxDiscountAmount = x.Campaign.MaxDiscountAmount,
+            MinBookingAmount = x.Campaign.MinBookingAmount,
+            EndDate = x.Campaign.EndDate,
+            Quantity = x.Campaign.UsageLimit - x.Campaign.UsedCount,
         });
         var listResult = await selectQuery.ToListAsync();
-        var result = new Base.Response.PageResult<Response.GetAllCampaignResponse>()
+        var result = new Base.Response.PageResult<Response.GetAllCampaignCourtResponse>()
         {
             Items = listResult,
             PageIndex = request.PageIndex,
-            PageSize =  request.PageSize,
-            TotalItems =  totalItems,
+            PageSize = request.PageSize,
+            TotalItems = totalItems,
         };
         return result;
     }

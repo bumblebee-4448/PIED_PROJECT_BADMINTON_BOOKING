@@ -10,6 +10,6 @@ public interface IService
     public Task<Response.CampaignDetailResponse> CampaignDetail(Request.CampaignDetailRequest request);
     public Task DeleteCampaign(Request.DeleteCampaignRequest request);
     public Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaign(Base.Request.PagingRequest request);
-    public Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> GetAllCampaignCourt(Base.Request.PagingRequest request);
+    public Task<Base.Response.PageResult<Response.GetAllCampaignCourtResponse>> GetAllCampaignCourt(Base.Request.PagingRequest request);
     public Task<Base.Response.PageResult<Response.GetAllCampaignResponse>> CampaignByCourt(Request.GetCampaignByCourtRequest request);
 }

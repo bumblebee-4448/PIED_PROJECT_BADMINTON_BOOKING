@@ -9,7 +9,6 @@ public class Request
         public decimal MaxDiscountAmount { get; set; }
         public decimal? MinBookingAmount { get; set; }
         public int UsageLimit { get; set; }
-        public int UsedCount { get; set; } = 0;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
     }
@@ -21,18 +20,17 @@ public class Request
     }
     public class UpdateCampaignRequest
     {
-        public required string Code  { get; set; }
+        public required Guid Id  { get; set; }
         public required decimal DiscountPercent  { get; set; }
         public decimal MaxDiscountAmount { get; set; }
         public decimal? MinBookingAmount { get; set; }
         public int UsageLimit { get; set; }
-        public int UsedCount { get; set; } = 0;
         public DateTime StartDate { get; set; }
         public DateTime EndDate { get; set; }
     }
     public class CampaignDetailRequest
     {
-        public required string Code { get; set; }
+        public Guid Id { get; set; }
     }
     public class GetCampaignByCourtRequest: Base.Request.PagingRequest
     {
@@ -40,6 +38,11 @@ public class Request
     }
     public class DeleteCampaignRequest
     {
-        public required string Code { get; set; }
+        public required Guid Id { get; set; }
+    }
+
+    public class GetAllCampaignCourt : Base.Request.PagingRequest
+    {
+        public Guid CourtId { get; set; }
     }
 }
