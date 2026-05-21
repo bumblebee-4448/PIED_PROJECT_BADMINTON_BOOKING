@@ -31,14 +31,14 @@ export function CourtFilters({
         {/* Search Input */}
         <div className="flex-1 relative group">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-emerald-500 transition-colors z-10" size={18} />
-          <Input 
+          <Input
             placeholder="Tìm sân theo tên, địa chỉ..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-12 h-12 bg-white border-gray-200 rounded-xl shadow-sm focus:ring-emerald-500/20 focus:border-emerald-500/50 transition-all font-medium text-[#0B2421] text-sm"
           />
         </div>
-        
+
         {/* <Button variant="outline" className="h-11 px-6 rounded-xl border-gray-100 bg-white hover:bg-gray-50 font-bold text-[#0B2421] flex gap-2 text-sm">
           <SlidersHorizontal size={18} />
           Bộ lọc

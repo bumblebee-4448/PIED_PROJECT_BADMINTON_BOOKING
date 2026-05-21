@@ -14,8 +14,8 @@ export function CourtMap({ onMarkerClick }: CourtMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [mapSearchInput, setMapSearchInput] = useState("");
   const [mapSearchQuery, setMapSearchQuery] = useState("");
-  
-  const { isLoading, handleLocateMe } = useCourtMap({
+
+  const { isLoading, handleLocateMe, triggerTextSearch } = useCourtMap({
     mapContainerRef,
     searchQuery: mapSearchQuery,
     onMarkerClick
@@ -23,7 +23,12 @@ export function CourtMap({ onMarkerClick }: CourtMapProps) {
 
   const handleSearchSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setMapSearchQuery(mapSearchInput.trim());
+    const query = mapSearchInput.trim();
+    if (query === mapSearchQuery) {
+      triggerTextSearch();
+    } else {
+      setMapSearchQuery(query);
+    }
   };
 
   const handleClearSearch = () => {
@@ -34,7 +39,7 @@ export function CourtMap({ onMarkerClick }: CourtMapProps) {
   return (
     <div className="relative w-full h-full overflow-hidden rounded-[2.5rem] border border-gray-100 shadow-sm bg-gray-50">
       <div ref={mapContainerRef} className="w-full h-full" />
-      
+
       {/* Overlay UI */}
       <form
         onSubmit={handleSearchSubmit}
@@ -73,8 +78,8 @@ export function CourtMap({ onMarkerClick }: CourtMapProps) {
       </form>
 
       <div className="absolute bottom-6 right-6 flex flex-col gap-2">
-        <Button 
-          size="icon" 
+        <Button
+          size="icon"
           onClick={handleLocateMe}
           className="bg-white hover:bg-emerald-50 text-emerald-600 shadow-xl border border-emerald-100 w-12 h-12 rounded-2xl"
         >

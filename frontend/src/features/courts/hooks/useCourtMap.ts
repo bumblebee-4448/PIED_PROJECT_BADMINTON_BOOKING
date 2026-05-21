@@ -37,7 +37,7 @@ export function useCourtMap({ mapContainerRef, searchQuery, onMarkerClick }: Use
   const { data: mapData, isLoading: isBboxLoading } = useMapSearchByBoundingBox(bbox, !!bbox.minLat);
   
   // Sử dụng Query thay vì Mutation để tìm kiếm theo văn bản, giúp tránh loop vô hạn và tự động quản lý cache
-  const { data: textSearchData, isLoading: isTextLoading } = useMapSearchByText(
+  const { data: textSearchData, isLoading: isTextLoading, refetch: refetchTextSearch } = useMapSearchByText(
     { text: searchQuery || "", radiusKm: 10 },
     !!searchQuery
   );
@@ -52,22 +52,35 @@ export function useCourtMap({ mapContainerRef, searchQuery, onMarkerClick }: Use
   const isLoading = isBboxLoading || isTextLoading || isRadiusLoading;
 
   // Khi có kết quả tìm kiếm theo văn bản, ưu tiên di chuyển đến vị trí địa chỉ tìm kiếm
-  useEffect(() => {
-    if (textSearchData && mapRef.current) {
-      if (textSearchData.searchCenterLatitude && textSearchData.searchCenterLongitude) {
+  const flyToSearchResult = (data: any) => {
+    if (data && mapRef.current) {
+      if (data.searchCenterLatitude && data.searchCenterLongitude) {
         mapRef.current.flyTo({
-          center: [Number(textSearchData.searchCenterLongitude), Number(textSearchData.searchCenterLatitude)],
+          center: [Number(data.searchCenterLongitude), Number(data.searchCenterLatitude)],
           zoom: 14
         });
-      } else if (textSearchData.listCourts.length > 0) {
-        const firstCourt = textSearchData.listCourts[0];
+      } else if (data.listCourts && data.listCourts.length > 0) {
+        const firstCourt = data.listCourts[0];
         mapRef.current.flyTo({
           center: [Number(firstCourt.longitude), Number(firstCourt.latitude)],
           zoom: 14
         });
       }
     }
+  };
+
+  useEffect(() => {
+    flyToSearchResult(textSearchData);
   }, [textSearchData]);
+
+  const triggerTextSearch = async () => {
+    if (searchQuery) {
+      const res = await refetchTextSearch();
+      if (res.data) {
+        flyToSearchResult(res.data);
+      }
+    }
+  };
 
   /**
    * Khởi tạo bản đồ khi component mount
@@ -226,6 +239,7 @@ export function useCourtMap({ mapContainerRef, searchQuery, onMarkerClick }: Use
 
   return {
     isLoading,
-    handleLocateMe
+    handleLocateMe,
+    triggerTextSearch
   };
 }
