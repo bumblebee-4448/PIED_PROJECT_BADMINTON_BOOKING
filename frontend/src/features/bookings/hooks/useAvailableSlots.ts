@@ -22,7 +22,10 @@ export function useAvailableSlots(subCourts: SubCourt[], selectedDate: Date) {
           isAvailable: s.isAvailable !== undefined ? s.isAvailable : s.IsAvailable,
           type: s.type || s.Type,
           reason: s.reason || s.Reason,
-          subCourtId: sub.subCourtId
+          subCourtId: sub.subCourtId,
+          overrideSlotId: s.overrideSlotId || s.OverrideSlotId,
+          exceptionId: s.exceptionId || s.ExceptionId,
+          bookingDetailId: s.bookingDetailId || s.BookingDetailId
         }));
       },
       enabled: !!sub.subCourtId && !!dateStr,
