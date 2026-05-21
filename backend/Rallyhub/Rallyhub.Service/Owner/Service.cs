@@ -504,6 +504,15 @@ public class Service : IService
         {
             throw new Exception("Không tìm thấy sân!");
         }
+        var hasBooking = _dbContext.BookingDetails
+            .Include(x => x.SubCourt)
+            .FirstOrDefault(x => 
+                x.SubCourtId == request.SubCourtId &&
+                (x.Status == "Pending" ||  x.Status == "Banked"));
+        if (hasBooking != null)
+        {
+            throw new Exception("Đang có đơn đặt, không thể xóa sân con");
+        }
         existSubCourt.Name = request.Name;
         _dbContext.Update(existSubCourt);
         await _dbContext.SaveChangesAsync();
