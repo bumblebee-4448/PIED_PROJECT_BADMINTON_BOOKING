@@ -4,6 +4,7 @@ public class Response
 {
     public class CampaignDetailResponse
     {
+        public Guid Id { get; set; }
         public required string Code  { get; set; }
         public required decimal DiscountPercent  { get; set; }
         public decimal MaxDiscountAmount { get; set; }
@@ -16,10 +17,17 @@ public class Response
 
     public class GetAllCampaignResponse
     {
+        public Guid Id { get; set; }
         public required string Code { get; set; }
         public decimal MaxDiscountAmount { get; set; }
         public decimal? MinBookingAmount { get; set; }
         public int Quantity { get; set; }
         public DateTimeOffset EndDate { get; set; }
+    }
+
+    public class GetAllCampaignCourtResponse: Response.GetAllCampaignResponse
+    {
+        public Guid? CourtId { get; set; }
+        public string? CourtName { get; set; }
     }
 }
