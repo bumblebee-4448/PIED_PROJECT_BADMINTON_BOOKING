@@ -97,7 +97,7 @@ public class Service : IService
         var hasCourt = await _dbContext.Courts
             .FirstOrDefaultAsync(x => 
                 x.Id ==  courtId &&
-                (x.Status == "Active" || x.Status == "Pending" || x.Status == "Rejected") &&
+                (x.Status == "Active" || x.Status == "Pending" || x.Status == "Rejected" || x.Status == "InActive") &&
                 x.OwnerId == ownerId);
         if (hasCourt == null)
         {
