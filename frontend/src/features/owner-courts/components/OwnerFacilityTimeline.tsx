@@ -34,6 +34,7 @@ import { useCreateOverrideSlot, useCreateExceptionSlot } from "../hooks/useOwner
 import type { SubCourtListItem } from "../types";
 import { SlotActionModal } from "./SlotActionModal";
 import { CourtScheduleGrid } from "@/shared/components/CourtScheduleGrid";
+import { BookedSlotTooltip } from "./BookedSlotTooltip";
 
 const DAYS_OF_WEEK = [
   { value: 1, label: "Thứ Hai" },
@@ -640,11 +641,16 @@ export function OwnerFacilityTimeline({ subCourts, courtName }: { subCourts: Sub
               setIsActionModalOpen(true);
             }
           }}
-          renderCellExtra={(_subId, _slot) => (
-            <div className="flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-1 left-1">
-               {/* Nút sửa nhanh nếu cần */}
-            </div>
-          )}
+          renderCellExtra={(_subId, slot) => {
+            if (slot.type === "Booked" && slot.bookingDetailId) {
+              return <BookedSlotTooltip bookingDetailId={slot.bookingDetailId} />;
+            }
+            return (
+              <div className="flex flex-col items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity absolute top-1 left-1">
+                 {/* Nút sửa nhanh nếu cần */}
+              </div>
+            );
+          }}
         />
       </div>
 

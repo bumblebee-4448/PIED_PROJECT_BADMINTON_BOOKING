@@ -28,6 +28,7 @@ import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { toast } from "sonner";
 import { SlotActionModal } from "../components/SlotActionModal";
+import { BookedSlotTooltip } from "../components/BookedSlotTooltip";
 
 const DAYS_OF_WEEK = [
   { value: 1, label: "Thứ Hai" },
@@ -689,6 +690,9 @@ export default function OwnerSubCourtSchedulePage() {
                       <div className="absolute -bottom-2 -right-2 opacity-5">
                         <Lock size={60} />
                       </div>
+                    )}
+                    {slot.type === "Booked" && slot.bookingDetailId && (
+                      <BookedSlotTooltip bookingDetailId={slot.bookingDetailId} />
                     )}
                   </div>
                 ))}

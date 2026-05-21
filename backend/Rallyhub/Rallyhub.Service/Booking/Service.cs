@@ -527,7 +527,7 @@ public class Service: IService
                 x.Status == "Banked")
             .Select(x => new Response.GetBookingDetailResponse()
             {
-                Name = x.Booking.Customer.User.PhoneNumber,
+                Name = x.Booking.Customer.User.FirstName + " " + x.Booking.Customer.User.LastName,
                 PhoneNumber =  x.Booking.Customer.User.PhoneNumber,
                 Gmail =  x.Booking.Customer.User.Email,
                 SubCourtName = x.SubCourt.Name,

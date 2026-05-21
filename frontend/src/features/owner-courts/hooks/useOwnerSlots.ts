@@ -3,7 +3,8 @@ import { ownerCourtService } from "../services";
 import type { 
   GetAvailableSlotsRequest, 
   CreateOverrideSlotRequest,
-  CreateExceptionSlotRequest 
+  CreateExceptionSlotRequest,
+  GetBookingDetailResponse
 } from "../types";
 import { toast } from "sonner";
 
@@ -99,10 +100,11 @@ export const useUpdateConfigSlotPrice = () => {
   });
 };
 
-export const useBookingDetail = (bookingDetailsId: string) => {
-  return useQuery({
+export const useBookingDetail = (bookingDetailsId: string, options?: any) => {
+  return useQuery<GetBookingDetailResponse>({
     queryKey: ["booking-detail", bookingDetailsId],
     queryFn: () => ownerCourtService.getBookingDetail(bookingDetailsId),
-    enabled: !!bookingDetailsId,
+    enabled: !!bookingDetailsId && (options?.enabled ?? true),
+    ...options,
   });
 };

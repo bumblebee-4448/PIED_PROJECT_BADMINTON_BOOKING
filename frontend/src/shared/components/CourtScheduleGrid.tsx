@@ -217,7 +217,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                    return slotDate < now;
                  })();
  
-                 const disabled = slot && (isSlotDisabled?.(sc.id, slot) || (!slot.isAvailable && slot.type !== "Blocked") || isPast);
+                 const disabled = slot && (isSlotDisabled ? isSlotDisabled(sc.id, slot) : (slot.type !== "Booked" && isPast));
 
                  return (
                    <div 
@@ -235,7 +235,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                         "h-20 border-b border-r border-slate-100 flex flex-col items-center justify-center gap-1 transition-all relative group",
                        selected ? "bg-emerald-600 hover:bg-emerald-700 z-10 scale-[1.01] shadow-lg shadow-emerald-200" :
                        !slot ? "bg-slate-50 border-slate-200" : 
-                       isPast ? "bg-slate-50/50 cursor-not-allowed border-slate-100" :
+                       isPast && slot.type === "Default" ? "bg-slate-50/50 cursor-not-allowed border-slate-100" :
                        slot.type === "Blocked" ? cn(
                           "bg-slate-700 border-slate-800 text-white",
                           disabled ? "cursor-not-allowed" : "cursor-pointer hover:bg-slate-800"
