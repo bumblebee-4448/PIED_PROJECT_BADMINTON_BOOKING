@@ -168,26 +168,29 @@ public class Service : IService
 
     public async Task<Base.Response.PageResult<Response.AdminGetTransactionResponse>> AdminGetTransaction(Guid? userId, Base.Request.PagingDay paginDay)
     {
-        var query =  _dbContext.Transactions.Where(x => true);
+        var query = _dbContext.Transactions.AsQueryable();
         if (userId != null)
         {
-            query = _dbContext.Transactions.Where(x => x.Wallet.UserId == userId);
+            query = query.Where(x => x.Wallet.UserId == userId);
         }
-
         if (paginDay.Id != null)
         {
-            query = _dbContext.Transactions.Where(x => x.Id == paginDay.Id);
+            query = query.Where(x => x.Id == paginDay.Id);
         }
         if (paginDay.Search != null)
         {
-            query = _dbContext.Transactions.Where(x => x.Wallet.User.Email == paginDay.Search);
+            query = query.Where(x => x.Wallet.User.Email.Contains(paginDay.Search));
         }
         if (paginDay.Date != null)
         {
             query = query.Where(x => DateOnly.FromDateTime(x.CreatedAt.Date) == paginDay.Date);
         }
         var total = await query.CountAsync();
-        query = query.OrderBy(x => x.Status == "Pending").ThenBy(x => x.CreatedAt);
+        
+        query = query
+            .OrderByDescending(x => x.Status == "Pending")
+            .ThenByDescending(x => x.CreatedAt)
+            .ThenBy(x => x.Id);
         query = query
             .Skip((paginDay.PageIndex - 1) * paginDay.PageSize)
             .Take(paginDay.PageSize);

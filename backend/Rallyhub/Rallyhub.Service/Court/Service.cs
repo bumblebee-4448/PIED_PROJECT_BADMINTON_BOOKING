@@ -105,7 +105,7 @@ public class Service : IService
                 Name = court.Name,
                 Address = court.Address,
                 Status = court.Status,
-                AverageRating = court.Feedbacks.Any() ? Math.Round(court.Feedbacks.Average(f => (double)f.Rating), 1) : 0,
+                AverageRating = Math.Round(_dbContext.Feedbacks.Where(f => f.CourtId == court.Id).Select(f => (double?)f.Rating).Average() ?? 5, 1),
                 OpenTime = court.OpenTime,
                 CloseTime = court.CloseTime,
                 PhoneNumber = court.Owner != null && court.Owner.User != null ? court.Owner.User.PhoneNumber : "",
