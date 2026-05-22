@@ -182,7 +182,7 @@ export function OwnerBookingsPage() {
                         </span>
                       </td>
                       <td className="py-4 px-6 text-right">
-                        <span className="text-[11px] text-gray-400 font-medium">{fmtShortDate(b.createdAt)}</span>
+                        <span className="text-[11px] text-gray-400 font-medium">{fmtShortDate(b.bookingDate)}</span>
                       </td>
                     </tr>
                   );
