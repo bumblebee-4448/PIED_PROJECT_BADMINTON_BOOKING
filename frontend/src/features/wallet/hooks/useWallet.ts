@@ -8,6 +8,19 @@ export const useWallet = () => {
   const queryClient = useQueryClient();
 
   // Queries
+  const useDepositStatus = (transactionId?: string, enabled?: boolean) => {
+    return useQuery({
+      queryKey: ["deposit-status", transactionId],
+      queryFn: async (): Promise<string | null> => {
+        if (!transactionId) return null;
+        return await walletService.checkDepositStatus(transactionId);
+      },
+      enabled: !!transactionId && enabled,
+      refetchInterval: 30000,
+      refetchIntervalInBackground: true,
+    });
+  };
+
   const useWalletInfo = (enabled: boolean = true) => 
     useQuery({
       queryKey: QUERY_KEYS.WALLET_INFO,
@@ -86,6 +99,7 @@ export const useWallet = () => {
   });
 
   return {
+    useDepositStatus,
     useWalletInfo,
     useMyTransactions,
     useMyWithdrawals,

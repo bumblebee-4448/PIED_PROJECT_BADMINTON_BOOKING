@@ -56,8 +56,8 @@ export const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose, onD
           qrCodeUrl: result.qrCodeUrl,
           amount: result.amount,
           transactionId: result.transactionId || result.id, // Ensure we use the correct ID for polling
-          transactionCode: `WA-${(result.transactionId || result.id).replace(/-/g, "").toUpperCase().substring(0, 10)}`,
-          content: `WA-${(result.transactionId || result.id).replace(/-/g, "").toUpperCase()}`,
+          transactionCode: `#${(result.transactionId || result.id).split('-')[0].toUpperCase()}`,
+          content: "Nạp tiền vào ví",
           type: "wallet",
           expiredAt: new Date(Date.now() + 5 * 60000).toISOString(),
         }

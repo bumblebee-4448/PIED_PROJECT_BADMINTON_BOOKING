@@ -67,7 +67,7 @@ export function PaymentPage() {
   const hasTriggeredEnd = useRef(false);
 
   const cancelBooking = useCancelBooking();
-  const { checkDepositStatusMutation } = useWallet();
+  const { useDepositStatus } = useWallet();
 
   // Redirect if no valid payment state
   if (!paymentState) {
@@ -173,30 +173,34 @@ export function PaymentPage() {
   }, [type, currentBooking?.status, status, navigate]);
 
   // ─── Polling Logic for Wallet Payment ───────────────────
+  const { data: currentDepositStatus, refetch: refetchDepositStatus } = useDepositStatus(
+    type === "wallet" ? transactionId : undefined,
+    type === "wallet" && status === "pending"
+  );
+
   useEffect(() => {
     if (type === "wallet" && status === "pending" && transactionId) {
-      const interval = setInterval(async () => {
-        try {
-          const resStatus = await checkDepositStatusMutation.mutateAsync(transactionId);
-          if (resStatus === "Success") {
-            setIsSuccess(true);
-            setStatus("success");
-            localStorage.removeItem("rallyhub_pending_payment");
-            toast.success("Nạp tiền vào ví thành công!");
-            
-            setTimeout(() => {
-              navigate("/wallet");
-            }, 3000);
-          } else if (resStatus === "Expired" || resStatus === "Failed") {
-            triggerFailure("Giao dịch nạp tiền đã hết hạn hoặc thất bại!");
-          }
-        } catch (e) {
-          console.error("Failed to check wallet status:", e);
-        }
+      const interval = setInterval(() => {
+        refetchDepositStatus();
       }, 3000);
       return () => clearInterval(interval);
     }
-  }, [type, status, transactionId, navigate, checkDepositStatusMutation, triggerFailure]);
+  }, [type, status, transactionId, refetchDepositStatus]);
+
+  useEffect(() => {
+    if (type === "wallet" && currentDepositStatus === "Success" && status === "pending") {
+      setIsSuccess(true);
+      setStatus("success");
+      localStorage.removeItem("rallyhub_pending_payment");
+      toast.success("Nạp tiền vào ví thành công!");
+      
+      setTimeout(() => {
+        navigate("/wallet");
+      }, 3000);
+    } else if (type === "wallet" && (currentDepositStatus === "Expired" || currentDepositStatus === "Failed") && status === "pending") {
+      triggerFailure("Giao dịch nạp tiền đã hết hạn hoặc thất bại!");
+    }
+  }, [type, currentDepositStatus, status, navigate, triggerFailure]);
 
   // Helper to extract bank account number from VietQR URL
   const getAccountNoFromQr = (url?: string) => {
