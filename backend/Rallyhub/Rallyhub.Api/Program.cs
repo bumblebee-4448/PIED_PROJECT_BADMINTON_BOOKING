@@ -109,7 +109,7 @@ builder.Services.AddQuartz(options =>
         .AddTrigger(trigger => trigger
             .ForJob(bookingJobKey)
             .WithSimpleSchedule(schedule => schedule
-                .WithIntervalInSeconds(10)
+                .WithIntervalInMinutes(1)
                 .RepeatForever()
             ));
 
@@ -117,7 +117,7 @@ builder.Services.AddQuartz(options =>
         .AddTrigger(trigger => trigger
             .ForJob(bookingDetailJobKey)
             .WithSimpleSchedule(schedule => schedule
-                .WithIntervalInSeconds(10)
+                .WithIntervalInMinutes(1)
                 .RepeatForever()
             ));
 });

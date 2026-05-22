@@ -31,7 +31,7 @@ public class Service : IService
                     _dbContext.Feedbacks
                         .Where(f => f.CourtId == x.Id)
                         .Select(f => (double?)f.Rating)  
-                        .Average() ?? 0, 1),
+                        .Average() ?? 5, 1),
                 TotalFeedbacks = _dbContext.Feedbacks
                     .Count(f => f.CourtId == x.Id),
                 TotalBooked = _dbContext.BookingDetails

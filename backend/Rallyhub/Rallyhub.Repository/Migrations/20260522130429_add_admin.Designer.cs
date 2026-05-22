@@ -12,8 +12,8 @@ using Rallyhub.Repository;
 namespace Rallyhub.Repository.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260515182213_seeddata_01")]
-    partial class seeddata_01
+    [Migration("20260522130429_add_admin")]
+    partial class add_admin
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -76,34 +76,6 @@ namespace Rallyhub.Repository.Migrations
                     b.HasIndex("CustomerId");
 
                     b.ToTable("Bookings");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("77777777-7777-7777-7777-777777777777"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 5, 10, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(1497), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("33333333-3333-3333-3333-333333333333"),
-                            DiscountAmount = 0m,
-                            ExpiresAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            FinalPrice = 200000m,
-                            IsDeleted = false,
-                            Status = "Complete",
-                            TotalPrice = 200000m,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 5, 10, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(1504), new TimeSpan(0, 0, 0, 0, 0))
-                        },
-                        new
-                        {
-                            Id = new Guid("88888888-8888-8888-8888-888888888888"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 5, 13, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(1510), new TimeSpan(0, 0, 0, 0, 0)),
-                            CustomerId = new Guid("44444444-4444-4444-4444-444444444444"),
-                            DiscountAmount = 0m,
-                            ExpiresAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
-                            FinalPrice = 300000m,
-                            IsDeleted = false,
-                            Status = "Complete",
-                            TotalPrice = 300000m,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 5, 13, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(1511), new TimeSpan(0, 0, 0, 0, 0))
-                        });
                 });
 
             modelBuilder.Entity("Rallyhub.Repository.Entity.BookingDetail", b =>
@@ -152,36 +124,6 @@ namespace Rallyhub.Repository.Migrations
                         .HasFilter("\"Status\" IN ('Pending', 'Banked')");
 
                     b.ToTable("BookingDetails");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("10000000-0000-0000-0000-000000000001"),
-                            BookingId = new Guid("77777777-7777-7777-7777-777777777777"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 5, 10, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(4598), new TimeSpan(0, 0, 0, 0, 0)),
-                            Date = new DateTimeOffset(new DateTime(2026, 5, 10, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(4589), new TimeSpan(0, 0, 0, 0, 0)),
-                            EndTime = new TimeOnly(10, 0, 0),
-                            IsDeleted = false,
-                            Price = 200000m,
-                            StartTime = new TimeOnly(8, 0, 0),
-                            Status = "Banked",
-                            SubCourtId = new Guid("66666666-6666-6666-6666-666666666666"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 5, 10, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(4599), new TimeSpan(0, 0, 0, 0, 0))
-                        },
-                        new
-                        {
-                            Id = new Guid("20000000-0000-0000-0000-000000000002"),
-                            BookingId = new Guid("88888888-8888-8888-8888-888888888888"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 5, 13, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(4605), new TimeSpan(0, 0, 0, 0, 0)),
-                            Date = new DateTimeOffset(new DateTime(2026, 5, 13, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(4603), new TimeSpan(0, 0, 0, 0, 0)),
-                            EndTime = new TimeOnly(16, 0, 0),
-                            IsDeleted = false,
-                            Price = 300000m,
-                            StartTime = new TimeOnly(14, 0, 0),
-                            Status = "Banked",
-                            SubCourtId = new Guid("66666666-6666-6666-6666-666666666666"),
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 5, 13, 18, 22, 13, 231, DateTimeKind.Unspecified).AddTicks(4605), new TimeSpan(0, 0, 0, 0, 0))
-                        });
                 });
 
             modelBuilder.Entity("Rallyhub.Repository.Entity.Campaign", b =>
@@ -330,10 +272,10 @@ namespace Rallyhub.Repository.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
-                    b.Property<decimal>("Latitude")
+                    b.Property<decimal?>("Latitude")
                         .HasColumnType("decimal(18,10)");
 
-                    b.Property<decimal>("Longitude")
+                    b.Property<decimal?>("Longitude")
                         .HasColumnType("decimal(18,10)");
 
                     b.Property<string>("MapUrl")
@@ -378,26 +320,6 @@ namespace Rallyhub.Repository.Migrations
                     b.HasIndex("OwnerId");
 
                     b.ToTable("Courts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
-                            Address = "Test Address",
-                            CloseTime = new TimeOnly(22, 0, 0),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 232, DateTimeKind.Unspecified).AddTicks(1769), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDeleted = false,
-                            Latitude = 10.0m,
-                            Longitude = 106.0m,
-                            MapUrl = "https://maps.google.com",
-                            Name = "Sân Test Dashboard",
-                            OpenTime = new TimeOnly(6, 0, 0),
-                            OwnerId = new Guid("87a8cc49-08a8-46fa-b793-078017bb4c96"),
-                            PictureUrl = "https://example.com/court.jpg",
-                            Status = "Active",
-                            TimeRefundBefor = 120,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 232, DateTimeKind.Unspecified).AddTicks(1779), new TimeSpan(0, 0, 0, 0, 0))
-                        });
                 });
 
             modelBuilder.Entity("Rallyhub.Repository.Entity.Customer", b =>
@@ -424,24 +346,6 @@ namespace Rallyhub.Repository.Migrations
                         .IsUnique();
 
                     b.ToTable("Customers");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 232, DateTimeKind.Unspecified).AddTicks(2082), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDeleted = false,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 232, DateTimeKind.Unspecified).AddTicks(2087), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("11111111-1111-1111-1111-111111111111")
-                        },
-                        new
-                        {
-                            Id = new Guid("44444444-4444-4444-4444-444444444444"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 232, DateTimeKind.Unspecified).AddTicks(2091), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDeleted = false,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 232, DateTimeKind.Unspecified).AddTicks(2092), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("22222222-2222-2222-2222-222222222222")
-                        });
                 });
 
             modelBuilder.Entity("Rallyhub.Repository.Entity.Exception", b =>
@@ -922,17 +826,6 @@ namespace Rallyhub.Repository.Migrations
                     b.HasIndex("CourtId");
 
                     b.ToTable("SubCourts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("66666666-6666-6666-6666-666666666666"),
-                            CourtId = new Guid("55555555-5555-5555-5555-555555555555"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(1820), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDeleted = false,
-                            Name = "Sân con Test 1",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(1844), new TimeSpan(0, 0, 0, 0, 0))
-                        });
                 });
 
             modelBuilder.Entity("Rallyhub.Repository.Entity.SystemReport", b =>
@@ -1057,40 +950,6 @@ namespace Rallyhub.Repository.Migrations
                     b.HasIndex("WalletId");
 
                     b.ToTable("Transactions");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                            Amount = 200000m,
-                            BalanceAfter = 200000m,
-                            BalanceBefore = 0m,
-                            BankRefCode = "REF001",
-                            BookingId = new Guid("77777777-7777-7777-7777-777777777777"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 5, 10, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(6584), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDeleted = false,
-                            SePayId = "TEST001",
-                            Status = "Success",
-                            Type = "Receive",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 5, 10, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(6593), new TimeSpan(0, 0, 0, 0, 0)),
-                            WalletId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-                        },
-                        new
-                        {
-                            Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            Amount = 300000m,
-                            BalanceAfter = 500000m,
-                            BalanceBefore = 200000m,
-                            BankRefCode = "REF002",
-                            BookingId = new Guid("88888888-8888-8888-8888-888888888888"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 5, 13, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(6597), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDeleted = false,
-                            SePayId = "TEST002",
-                            Status = "Success",
-                            Type = "Receive",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 5, 13, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(6598), new TimeSpan(0, 0, 0, 0, 0)),
-                            WalletId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa")
-                        });
                 });
 
             modelBuilder.Entity("Rallyhub.Repository.Entity.User", b =>
@@ -1159,33 +1018,18 @@ namespace Rallyhub.Repository.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Id = new Guid("96ea8dc4-130e-429b-8cb8-4f97c8a7463d"),
                             AvatarUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSZUbcFx4F7w7LahVB5sGpVUOQxBRycQa4sA&s",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 230, DateTimeKind.Unspecified).AddTicks(8852), new TimeSpan(0, 0, 0, 0, 0)),
-                            Email = "test_cus1@gmail.com",
-                            FirstName = "Customer",
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 5, 22, 13, 4, 29, 125, DateTimeKind.Unspecified).AddTicks(3042), new TimeSpan(0, 0, 0, 0, 0)),
+                            Email = "phamquochoang356@gmail.com",
+                            FirstName = "Phạm",
                             IsDeleted = false,
-                            LastName = "One",
-                            PasswordHash = "hash",
+                            LastName = "Hoàng",
+                            PasswordHash = "$2a$11$hCiq6OBnPcq3WY.MRk4b8OLrjpydlG0snuczH367YwIY.wSie6iwi",
                             PhoneNumber = "0123456781",
-                            Role = "Customer",
+                            Role = "Admin",
                             Status = "Active",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 230, DateTimeKind.Unspecified).AddTicks(8875), new TimeSpan(0, 0, 0, 0, 0))
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            AvatarUrl = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQSZUbcFx4F7w7LahVB5sGpVUOQxBRycQa4sA&s",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 230, DateTimeKind.Unspecified).AddTicks(8881), new TimeSpan(0, 0, 0, 0, 0)),
-                            Email = "test_cus2@gmail.com",
-                            FirstName = "Customer",
-                            IsDeleted = false,
-                            LastName = "Two",
-                            PasswordHash = "hash",
-                            PhoneNumber = "0123456782",
-                            Role = "Customer",
-                            Status = "Active",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 230, DateTimeKind.Unspecified).AddTicks(8882), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 5, 22, 13, 4, 29, 125, DateTimeKind.Unspecified).AddTicks(3047), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 
@@ -1231,32 +1075,6 @@ namespace Rallyhub.Repository.Migrations
                         .IsUnique();
 
                     b.ToTable("Wallets");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            Balance = 1000000m,
-                            BankAccount = "222222222",
-                            BankName = "TestBank",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(7891), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDeleted = false,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(7904), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Version = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            Balance = 1000000m,
-                            BankAccount = "333333333",
-                            BankName = "TestBank",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(7912), new TimeSpan(0, 0, 0, 0, 0)),
-                            IsDeleted = false,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 4, 15, 18, 22, 13, 241, DateTimeKind.Unspecified).AddTicks(7913), new TimeSpan(0, 0, 0, 0, 0)),
-                            UserId = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Version = 0
-                        });
                 });
 
             modelBuilder.Entity("Rallyhub.Repository.Entity.Withdrawal", b =>
