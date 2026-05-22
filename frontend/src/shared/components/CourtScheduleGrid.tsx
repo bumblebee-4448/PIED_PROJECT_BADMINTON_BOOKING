@@ -251,7 +251,7 @@ export const CourtScheduleGrid: React.FC<CourtScheduleGridProps> = ({
                                   "bg-white hover:bg-emerald-50 border-emerald-100 cursor-pointer"
                     )}
                   >
-                    {slot && !isPast ? (
+                    {slot ? (
                       <>
                         <div className="flex flex-col items-center">
                           {slot.type !== "Blocked" && (
