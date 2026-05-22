@@ -1445,104 +1445,119 @@ public class Service : IService
         // return response;
     }
 
-    public async Task<Base.Response.PageResult<Response.GetCourtBookingsResponse>> GetCourtBookings(Request.GetCourtBookingsRequest request)
+  public async Task<Base.Response.PageResult<Response.GetCourtBookingsResponse>> GetCourtBookings(Request.GetCourtBookingsRequest request)
+{
+    var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
+    if (ownerIdClaim == null) throw new Exception("Owner không tồn tại");
+    var ownerIdGuid = Guid.Parse(ownerIdClaim);
+
+    var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == request.CourtId && x.OwnerId == ownerIdGuid);
+    if (court == null) throw new Exception("Sân không tồn tại hoặc không thuộc quyền sở hữu của bạn");
+
+    var subCourtIds = await _dbContext.SubCourts
+        .Where(sc => sc.CourtId == request.CourtId)
+        .Select(sc => sc.Id)
+        .ToListAsync();
+
+    if (!subCourtIds.Any())
+        return new Base.Response.PageResult<Response.GetCourtBookingsResponse>
+        {
+            Items = new List<Response.GetCourtBookingsResponse>(),
+            TotalItems = 0,
+            PageIndex = request.PageIndex,
+            PageSize = request.PageSize
+        };
+
+    // ✅ Clamp PageIndex
+    var pageIndex = request.PageIndex < 1 ? 1 : request.PageIndex;
+
+    // ✅ Bắt đầu query lấy tất cả booking của sân
+    var query = _dbContext.Bookings
+        .AsQueryable()
+        .Where(b => b.BookingDetails.Any(bd => subCourtIds.Contains(bd.SubCourtId)));
+
+    // ✅ Chỉ filter date khi Period được truyền
+    if (!string.IsNullOrEmpty(request.Period))
     {
-        var ownerIdClaim = _httpContext.HttpContext.User.Claims.FirstOrDefault(x => x.Type == "OwnerId")?.Value;
-        if (ownerIdClaim == null) throw new Exception("Owner không tồn tại");
-        var ownerIdGuid = Guid.Parse(ownerIdClaim);
-
-        var court = await _dbContext.Courts.FirstOrDefaultAsync(x => x.Id == request.CourtId && x.OwnerId == ownerIdGuid);
-        if (court == null) throw new Exception("Sân không tồn tại hoặc không thuộc quyền sở hữu của bạn");
-
-        // Step 1: Lấy tất cả SubCourtId thuộc sân này
-        var subCourtIds = await _dbContext.SubCourts
-            .Where(sc => sc.CourtId == request.CourtId)
-            .Select(sc => sc.Id)
-            .ToListAsync();
-
-        if (!subCourtIds.Any())
-            return new Base.Response.PageResult<Response.GetCourtBookingsResponse>
-            {
-                Items = new List<Response.GetCourtBookingsResponse>(),
-                TotalItems = 0,
-                PageIndex = request.PageIndex,
-                PageSize = request.PageSize
-            };
-
         DateTimeOffset now = DateTimeOffset.Now;
         DateTimeOffset referenceDate = request.Date.HasValue
             ? new DateTimeOffset(request.Date.Value.ToDateTime(TimeOnly.MinValue), now.Offset)
             : now;
 
-        DateTimeOffset start, end;
+        DateOnly startDateOnly, endDateOnly;
+
         switch (request.Period.ToLower())
         {
             case "week":
                 int diff = (7 + (referenceDate.DayOfWeek - DayOfWeek.Monday)) % 7;
-                start = referenceDate.AddDays(-1 * diff).Date;
-                start = new DateTimeOffset(start.DateTime, referenceDate.Offset);
-                end = start.AddDays(7).AddTicks(-1);
+                startDateOnly = DateOnly.FromDateTime(referenceDate.AddDays(-diff).DateTime);
+                endDateOnly = startDateOnly.AddDays(6);
                 break;
             case "month":
-                start = new DateTimeOffset(referenceDate.Year, referenceDate.Month, 1, 0, 0, 0, referenceDate.Offset);
-                end = start.AddMonths(1).AddTicks(-1);
+                startDateOnly = new DateOnly(referenceDate.Year, referenceDate.Month, 1);
+                endDateOnly = startDateOnly.AddMonths(1).AddDays(-1);
                 break;
             case "quarter":
                 int quarter = (referenceDate.Month - 1) / 3 + 1;
-                start = new DateTimeOffset(referenceDate.Year, (quarter - 1) * 3 + 1, 1, 0, 0, 0, referenceDate.Offset);
-                end = start.AddMonths(3).AddTicks(-1);
+                startDateOnly = new DateOnly(referenceDate.Year, (quarter - 1) * 3 + 1, 1);
+                endDateOnly = startDateOnly.AddMonths(3).AddDays(-1);
                 break;
             case "year":
-                start = new DateTimeOffset(referenceDate.Year, 1, 1, 0, 0, 0, referenceDate.Offset);
-                end = start.AddYears(1).AddTicks(-1);
+                startDateOnly = new DateOnly(referenceDate.Year, 1, 1);
+                endDateOnly = new DateOnly(referenceDate.Year, 12, 31);
                 break;
             case "day":
             default:
-                start = new DateTimeOffset(referenceDate.Year, referenceDate.Month, referenceDate.Day, 0, 0, 0, referenceDate.Offset);
-                end = start.AddDays(1).AddTicks(-1);
+                startDateOnly = DateOnly.FromDateTime(referenceDate.DateTime);
+                endDateOnly = startDateOnly;
                 break;
         }
 
-        start = start.ToUniversalTime();
-        end = end.ToUniversalTime();
-
-        // Step 2: Truy vấn Bookings có BookingDetail chứa SubCourtId của sân này
-        var query = _dbContext.Bookings
-            .Where(b => b.CreatedAt >= start && b.CreatedAt <= end &&
-                        b.BookingDetails.Any(bd => subCourtIds.Contains(bd.SubCourtId)))
-            .OrderByDescending(b => b.CreatedAt);
-
-        var total = await query.CountAsync();
-        var pagedBookings = await query
-            .Skip((request.PageIndex - 1) * request.PageSize)
-            .Take(request.PageSize)
-            .Select(b => new Response.GetCourtBookingsResponse
-            {
-                BookingId = b.Id,
-                CustomerName = b.Customer.User.FirstName + " " + b.Customer.User.LastName,
-                CustomerPhone = b.Customer.User.PhoneNumber ?? "",
-                CourtName = court.Name,
-                BookingDate = b.BookingDetails.FirstOrDefault().Date,
-                TotalPrice = b.FinalPrice,
-                Status = b.Status,
-                CreatedAt = b.CreatedAt,
-                Slots = b.BookingDetails.Select(bd => new Response.BookingSlotResponse
-                {
-                    StartTime = bd.StartTime,
-                    EndTime = bd.EndTime,
-                    Price = bd.Price
-                }).ToList()
-            })
-            .ToListAsync();
-
-        return new Base.Response.PageResult<Response.GetCourtBookingsResponse>
-        {
-            Items = pagedBookings,
-            TotalItems = total,
-            PageIndex = request.PageIndex,
-            PageSize = request.PageSize
-        };
+        query = query.Where(b => b.BookingDetails.Any(bd =>
+            DateOnly.FromDateTime(bd.Date.DateTime) >= startDateOnly && 
+            DateOnly.FromDateTime(bd.Date.DateTime) <= endDateOnly));
     }
+
+    // Sắp xếp các đơn đặt sân theo ngày diễn ra (Play Date) giảm dần, đơn nào có ngày diễn ra gần nhất sẽ lên đầu
+    query = query.OrderByDescending(b => b.BookingDetails.Max(bd => bd.Date))
+                 .ThenByDescending(b => b.CreatedAt);
+
+    var total = await query.CountAsync();
+
+    var pagedBookings = await query
+        .Skip((pageIndex - 1) * request.PageSize)
+        .Take(request.PageSize)
+        .Select(b => new Response.GetCourtBookingsResponse
+        {
+            BookingId = b.Id,
+            CustomerName = b.Customer.User.FirstName + " " + b.Customer.User.LastName,
+            CustomerPhone = b.Customer.User.PhoneNumber ?? "",
+            CourtName = court.Name,
+            // ✅ Tránh NullReferenceException
+            BookingDate = b.BookingDetails
+                .OrderBy(bd => bd.Date)
+                .Select(bd => bd.Date)
+                .FirstOrDefault(),
+            TotalPrice = b.FinalPrice,
+            Status = b.Status,
+            CreatedAt = b.CreatedAt,
+            Slots = b.BookingDetails.Select(bd => new Response.BookingSlotResponse
+            {
+                StartTime = bd.StartTime,
+                EndTime = bd.EndTime,
+                Price = bd.Price
+            }).ToList()
+        })
+        .ToListAsync();
+
+    return new Base.Response.PageResult<Response.GetCourtBookingsResponse>
+    {
+        Items = pagedBookings,
+        TotalItems = total,
+        PageIndex = pageIndex,
+        PageSize = request.PageSize
+    };
+}
 }
 
     
